@@ -1,0 +1,111 @@
+/* Pour les couleurs : http://paletton.com/#uid=73J0u0kmRUBbiYIhEWHrRRtABM4 */
+.error_text {
+	font-size 	: 10px;
+	fill		: red;
+}
+.area0{
+	fill		: gray;
+	fill-opacity	: 0.5;
+	stroke		: gray;
+	stroke-width	: 1;
+	opacity		: 0.1;
+}
+.area0_title{
+	fill		: gray;
+	fill-opacity	: 0.5;
+}
+.area1{
+	fill		: #bcacf9;//#2266DD;
+	fill-opacity	: 0.8;
+	stroke		: #3F15DA;//#6666AA;
+	stroke-width	: 2;
+	stroke-opacity	: 0.2;
+	opacity		: 0.5;
+}
+.area1_title{
+	fill		: #6666AA;
+	fill-opacity	: 0.8;
+}
+.area2{
+	fill		: #977EF4;//#2288FF;
+	fill-opacity	: 0.6;
+	stroke		: #3F15DA;//#6666AA;
+	stroke-width	: 2;
+	stroke-opacity	: 0.2;
+        opacity		: 0.5;
+}
+.area2_title{
+	fill		: #6666AA;
+	fill-opacity	: 0.8;
+}
+.area3{
+	fill		: #7859ef;//blue;
+	fill-opacity	: 0.8;
+	stroke		: #3F15DA;//#6666AA;
+        stroke-width	: 2;
+	stroke-opacity	: 0.2;
+        opacity		: 0.5;
+}
+.area3_title{
+	fill		: #6666AA;
+	fill-opacity	: 0.8;
+}
+.area4{
+	fill		: #5b36E7;//blue;
+	fill-opacity	: 0.9;
+	stroke		: #3F15DA;//#6666AA;
+	stroke-width	: 2;
+	stroke-opacity	: 0.2;
+	opacity		: 0.5;
+}
+.area4_title{
+	fill		: #6666AA;
+	fill-opacity	: 0.8;
+}
+.areaWithElements{
+	fill		: white;
+	fill-opacity	: 1.0;
+        stroke		: #3F15DA;//#AAAAAA;
+        stroke-width	: 2;
+	stroke-opacity	: 0.2;
+	opacity		: 1.0;
+}
+.areaWithElements_title{
+	fill		: #6666AA;
+	fill-opacity	: 0.8;
+}
+.areaEmpty{
+	fill		: white;
+        fill-opacity	: 1.0;
+        stroke		: #AAAAAA;
+        stroke-width	: 2;
+        opacity		: 1.0;
+}
+.areaEmpty_title{
+	fill		: #6666AA;
+	fill-opacity	: 0.8;
+}
+.link{
+	stroke		: black;
+        stroke-width	: 1;
+}
+.node {
+	opacity		: 0.6;
+	cursor		: pointer;
+}
+.node:hover {
+	opacity		: 1;
+}
+.rect_www_hhh {
+	fill		: white;
+	stroke		: black;
+	opacity		: 0.6;
+	cursor		: pointer;
+}
+.rect_www_hhh:hover {
+	opacity		: 1;
+}
+.element_label {
+	fill		: black;
+	font-family	: "courier new";
+}
