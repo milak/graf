@@ -21,11 +21,5 @@ ADD WebContent /var/www/html/
 
 EXPOSE 80
 
-# on veut une machine de dev qui affiche toutes les erreurs PHP
-#RUN sed -i -e 's/^error_reporting\s*=.*/error_reporting = E_ALL/' /etc/php5/apache2/php.ini
-#RUN sed -i -e 's/^display_errors\s*=.*/display_errors = On/' /etc/php5/apache2/php.ini
-
 # commandes à exécuter au démarrage de l'instance de l'image
-# ici on démarrera Apache
 ENTRYPOINT ["/bin/bash", "/home/graf/run.sh"]
-#CMD ["/home/graf/run.sh","-DFOREGROUND"]
