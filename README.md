@@ -12,16 +12,16 @@ Graphic Rendering Architecture Framework
  - write the configuration file /home/graf/configuration.json :
 
 ```json
-  {
-  	"db" : {
-  		"host"     : "host",
-  		"user"     : "user",
-  		"password" : "password",
-  		"instance" : "instance"
-  	}
-  }
+{
+	"db" : {
+		"host"     : "host",
+		"user"     : "user",
+		"password" : "password",
+		"instance" : "instance"
+	}
+}
 ```
 
 ### Use as docker image :
 docker pull milak/graf
-docker run -e GRAF_DB_USER=user -e GRAF_DB_PASSWORD=password -e GRAF_DB_INSTANCE=instancename -e GRAF_DB_HOST=db host milak/graf
+docker run -e GRAF_DB_USER=_user_ -e GRAF_DB_PASSWORD=_password_ -e GRAF_DB_INSTANCE=_instancename_ -e GRAF_DB_HOST=_db host_ milak/graf
