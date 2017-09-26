@@ -3,11 +3,17 @@ Graphic Rendering Architecture Framework
 
 ## How to install
 
+### Install Mysql database
+
+ - create a mysql database
+ 
+ - run model/create_database.sql script
+
+For more information about the data model see mpd.html file
+
 ### Install in your web server
 
  - clone the repository and link WebContent in your Apache or Nginx web server.
-
- - create a mysql database
 
  - write the configuration file /home/graf/configuration.json :
 
