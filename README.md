@@ -11,6 +11,7 @@ Graphic Rendering Architecture Framework
 
  - write the configuration file /home/graf/configuration.json :
 
+```json
   {
   	"db" : {
   		"host"     : "host",
@@ -19,7 +20,7 @@ Graphic Rendering Architecture Framework
   		"instance" : "instance"
   	}
   }
-
+```
 
 ### Use as docker image :
 docker pull milak/graf
