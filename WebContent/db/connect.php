@@ -1,6 +1,8 @@
 <?php
+$configurationFile = file_get_contents("/home/milak/graf_configuration.json");
+$configuration = json_decode($configurationFile);
 // Connection à la BDD
-$db = new mysqli('localhost', 'root', '', 'carto');
+$db = new mysqli($configuration->db->host, $configuration->db->user, $configuration->db->password, $configuration->db->instance);
 if (!$db) {
    displayErrorAndDie('Impossible de se connecter : ' . $db->connect_error);
 }
