@@ -1,5 +1,5 @@
 <?php
-$configurationFile = file_get_contents("/home/milak/graf_configuration.json");
+$configurationFile = file_get_contents("/home/graf/configuration.json");
 $configuration = json_decode($configurationFile);
 // Connection à la BDD
 $db = new mysqli($configuration->db->host, $configuration->db->user, $configuration->db->password, $configuration->db->instance);
