@@ -1,0 +1,217 @@
+<svg width="2000" height="2000">
+<style>
+.entity_header {
+	stroke:blue;
+	stroke-width:3;
+	stroke-style:outset;
+	fill:#6666FF;
+}
+.entity {
+	stroke:blue;
+	stroke-width:3;
+	stroke-style:outset;
+	fill:white;
+}
+.primary_key {
+	text-decoration:underline;
+	fill:blue;
+	font-style:italic;
+}
+.foreign_key {
+	fill:green;
+	font-style:italic;
+}
+</style>
+<!-- View -->
+<g width="150" height="105" transform="translate(150,15)">
+	<rect x="0" y="0" width="150" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="150" height="70" class="entity"/>
+	<text x="5" y="20">view</text>
+	<text x="5" y="50" class="primary_key">id (PK)</text>
+	<text x="5" y="70">name</text>
+</g>
+
+<!-- Area -->
+<g width="150" height="200" transform="translate(450,5)">
+	<rect x="0" y="0" width="150" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="150" height="155" class="entity"/>
+	<text x="5" y="20">area</text>
+	<text x="5" y="50" class="primary_key">id (PK)</text>
+	<text x="5" y="70">code</text>
+	<text x="5" y="90">name</text>
+	<text x="5" y="110">position</text>
+	<text x="5" y="130" class="foreign_key">parent_id (FK)</text>
+	<text x="5" y="150" class="foreign_key">view_id (FK)</text>
+	<text x="5" y="170">display</text>
+</g>
+
+<line x1="300" y1="80" x2="450" y2="80" style="stroke:black" comment="Area to View link"/>
+<line x1="600" y1="150" x2="650" y2="150" style="stroke:black" comment="Area to Area link"/>
+<line x1="600" y1="100" x2="650" y2="100" style="stroke:black" comment="Area to Area link"/>
+<line x1="650" y1="100" x2="650" y2="150" style="stroke:black" comment="Area to Area link"/>
+
+<!-- Domain -->
+<g width="150" height="105" transform="translate(150,220)">
+	<rect x="0" y="0" width="150" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="150" height="70" class="entity"/>
+	<text x="5" y="20">domain</text>
+	<text x="5" y="50" class="primary_key">id (PK)</text>
+	<text x="5" y="70">name</text>
+	<text x="5" y="90" class="foreign_key">area_id (FK)</text>
+</g>
+
+<line x1="250" y1="220" x2="450" y2="100" style="stroke:black" comment="Domain to Area link"/>
+
+
+<g width="150" height="145" transform="translate(700,80)">
+	<rect x="0" y="0" width="150" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="150" height="75" class="entity"/>
+	<text x="5" y="20">node_type</text>
+	<text x="5" y="50" class="primary_key">id (PK)</text>
+	<text x="5" y="70">code</text>
+	<text x="5" y="90">name</text>
+</g>
+
+<g width="150" height="145" transform="translate(450,220)">
+	<rect x="0" y="0" width="150" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="150" height="110" class="entity"/>
+	<text x="5" y="20">node</text>
+	<text x="5" y="50" class="primary_key">id (PK)</text>
+	<text x="5" y="70">name</text>
+	<text x="5" y="90">description</text>
+	<text x="5" y="110" class="foreign_key">area_id (FK)</text>
+	<text x="5" y="130" class="foreign_key">node_type_id (FK)</text>
+</g>
+
+<line x1="520" y1="220" x2="520" y2="190" style="stroke:black" comment="Node to Area link"/>
+<line x1="600" y1="220" x2="700" y2="155" style="stroke:black" comment="Node to Node_type link"/>
+
+<g width="150" height="145" transform="translate(700,220)">
+	<rect x="0" y="0" width="150" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="150" height="110" class="entity"/>
+	<text x="5" y="20">machine</text>
+	<text x="5" y="50" class="primary_key">id (PK)</text>
+	<text x="5" y="70">fqdn</text>
+	<text x="5" y="90">ip</text>
+	<text x="5" y="110">alias</text>
+	<text x="5" y="130" class="foreign_key">node_id (FK)</text>
+</g>
+
+<line x1="600" y1="300" x2="700" y2="300" style="stroke:black" comment="Machine to Node link"/>
+
+<g width="150" height="145" transform="translate(950,450)">
+	<rect x="0" y="0" width="150" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="150" height="75" class="entity"/>
+	<text x="5" y="20">tag</text>
+	<text x="5" y="50" class="primary_key">id (PK)</text>
+	<text x="5" y="70">value</text>
+</g>
+
+<g width="150" height="145" transform="translate(700,400)">
+	<rect x="0" y="0" width="150" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="150" height="60" class="entity"/>
+	<text x="5" y="20">node_has_tag</text>
+	<text x="5" y="50" class="foreign_key">node_id (PK,FK)</text>
+	<text x="5" y="70" class="foreign_key">tag_id (PK,FK)</text>
+</g>
+
+<line x1="850" y1="450" x2="950" y2="500" style="stroke:black" comment="Node_has_tag to Tag link"/>
+<line x1="700" y1="450" x2="600" y2="320" style="stroke:black" comment="Node_has_tag to Node link"/>
+
+<g width="150" height="145" transform="translate(450,550)">
+	<rect x="0" y="0" width="150" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="150" height="110" class="entity"/>
+	<text x="5" y="20">service</text>
+	<text x="5" y="50" class="primary_key">id (PK)</text>
+	<text x="5" y="70">code</text>
+	<text x="5" y="90">name</text>
+</g>
+
+<g width="150" height="145" transform="translate(700,550)">
+	<rect x="0" y="0" width="150" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="150" height="60" class="entity"/>
+	<text x="5" y="20">service_has_tag</text>
+	<text x="5" y="50" class="foreign_key">service_id (PK,FK)</text>
+	<text x="5" y="70" class="foreign_key">tag_id (PK,FK)</text>
+</g>
+
+<line x1="850" y1="600" x2="950" y2="500" style="stroke:black" comment="Service_has_tag to Tag link"/>
+<line x1="700" y1="600" x2="600" y2="600" style="stroke:black" comment="Service_has_tag to Service link"/>
+
+<g width="150" height="145" transform="translate(150,550)">
+	<rect x="0" y="0" width="150" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="150" height="110" class="entity"/>
+	<text x="5" y="20">environment</text>
+	<text x="5" y="50" class="primary_key">id (PK)</text>
+	<text x="5" y="70">code</text>
+	<text x="5" y="90">name</text>
+</g>
+
+<g width="200" height="145" transform="translate(250,400)">
+	<rect x="0" y="0" width="200" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="200" height="80" class="entity"/>
+	<text x="5" y="20">service_uses_node</text>
+	<text x="5" y="50" class="foreign_key">service_id (PK,FK)</text>
+	<text x="5" y="70" class="foreign_key">node_id (PK,FK)</text>
+	<text x="5" y="90" class="foreign_key">environment_id (PK,FK)</text>
+</g>
+
+<line x1="350" y1="400" x2="450" y2="300" style="stroke:black" comment="Service_uses_node to Node link"/>
+<line x1="250" y1="480" x2="200" y2="550" style="stroke:black" comment="Service_uses_node to Environment link"/>
+<line x1="450" y1="480" x2="500" y2="550" style="stroke:black" comment="Service_uses_node to Environment link"/>
+
+<g width="150" height="145" transform="translate(150,750)">
+	<rect x="0" y="0" width="150" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="150" height="110" class="entity"/>
+	<text x="5" y="20">process</text>
+	<text x="5" y="50" class="primary_key">id (PK)</text>
+	<text x="5" y="70">name</text>
+	<text x="5" y="90">description</text>
+	<text x="5" y="110" class="foreign_key">domain_id</text>
+</g>
+
+<line x1="100" y1="750" x2="150" y2="780" style="stroke:black" comment="Process to Domain link"/>
+<line x1="100" y1="750" x2="100" y2="320" style="stroke:black" comment="Process to Domain link"/>
+<line x1="150" y1="300" x2="100" y2="320" style="stroke:black" comment="Process to Domain link"/>
+
+<g width="220" height="160" transform="translate(450,750)">
+	<rect x="0" y="0" width="220" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="220" height="150" class="entity"/>
+	<text x="5" y="20">process_step</text>
+	<text x="5" y="50" class="primary_key">id (PK)</text>
+	<text x="5" y="70" class="foreign_key">process_id (FK)</text>
+	<text x="5" y="90">name</text>
+	<text x="5" y="110"  class="foreign_key">step_type_id (FK)</text>
+	<text x="5" y="130" class="foreign_key">service_id (FK)</text>
+	<text x="5" y="150" class="foreign_key">actor_id (FK)</text>
+	<text x="5" y="170" class="foreign_key">sub_process_id (FK)</text>
+</g>
+
+<line x1="300" y1="800" x2="450" y2="800" style="stroke:black" comment="Process_step to Process link"/>
+<line x1="300" y1="850" x2="450" y2="850" style="stroke:black" comment="Process_step to Process link (sub-process-id)"/>
+<line x1="480" y1="750" x2="480" y2="690" style="stroke:black" comment="Process_step to Service link"/>
+<line x1="670" y1="820" x2="750" y2="820" style="stroke:black" comment="Process_step to Step_Type link"/>
+
+<g width="160" height="105" transform="translate(750,750)">
+	<rect x="0" y="0" width="160" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="160" height="70" class="entity"/>
+	<text x="5" y="20">step_type</text>
+	<text x="5" y="50" class="primary_key">id (PK)</text>
+	<text x="5" y="70">name</text>
+</g>
+
+<g width="160" height="105" transform="translate(450,1000)">
+	<rect x="0" y="0" width="160" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="160" height="110" class="entity"/>
+	<text x="5" y="20">step_link</text>
+	<text x="5" y="50" class="primary_key">process_id (PK)</text>
+	<text x="5" y="70" class="primary_key">from_step_id (PK)</text>
+	<text x="5" y="90" class="primary_key">to_step_id (PK)</text>
+	<text x="5" y="110">label</text>
+	<text x="5" y="130">data</text>
+</g>
+
+<line x1="450" y1="1000" x2="250" y2="890" style="stroke:black" comment="Step_link to Process link"/>
+<line x1="550" y1="1000" x2="550" y2="930" style="stroke:black" comment="Step_link to Process_step link (from)"/>
+<line x1="500" y1="1000" x2="500" y2="930" style="stroke:black" comment="Step_link to Process_step link (to)"/>
+</svg>
