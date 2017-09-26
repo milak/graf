@@ -1,0 +1,421 @@
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>GRAF - Graphic Rendering Architecture Framework</title>
+	<style type="text/css">
+		iframe {
+			border:0px;
+			overflow:scroll;
+		}
+		body {
+			margin:0px
+		}
+		.menu {
+			border : 4px outset;
+			padding : 10px;
+			margin:5px;
+			background-color : #ffde49;
+		}
+		.menu:hover {
+			border : 4px inset;
+			background-color : white;
+		}
+ 	</style>
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script>
+		function changeImage(url){
+			$("#frame").attr("src",url);
+		}
+		function hideToolBox(){
+			$("#default_toolbox").hide();
+			$("#strategic_toolbox").hide();
+			$("#business_toolbox").hide();
+			$("#logic_toolbox").hide();
+			$("#process_toolbox").hide();
+			$("#technic_toolbox").hide();
+			$("#views_toolbox").hide();
+		}
+		function clearFrame(){
+			changeImage("");
+		}
+		function displayStrategic(){
+			hideToolBox();
+			$("#strategic_toolbox").show();
+			strategic_checkSeeProcess();
+		}
+		function createDomain(){
+			$.getJSON( "api/area.php?view=strategique", function(result) {
+				var areas = result.areas;
+				$('#domain_create_form_area').html("");
+				var options = "<option value='null'>~~Choisir une zone~~</option>";
+				for (var i = 0; i < areas.length; i++){
+					var area = areas[i];
+					options += '<option value="'+area.id+'">'+area.name+'</option>';
+				}
+				$('#domain_create_form_area').append(options);
+				$("#domain_create_form").dialog({"modal":true,"title":"Création d'un domaine"});
+			}).fail(function(jxqr,textStatus,error) {
+				showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+			});
+		}
+		function domain_create_form_submit(){
+			var name 	= $("#domain_create_form_name").val();
+			var area_id 	= $("#domain_create_form_area").val();
+			$.ajax({
+				type 	: "POST",
+				url 	: "api/domain.php",
+				data	: {
+					"name"		: name,
+					"area_id"	: area_id},
+				dataType: "text",
+				success	: function( data ) {
+	    				refreshDomainList();
+					displayStrategic();
+					$("#domain_create_form").dialog("close");
+				}
+			})
+  			.fail(function(jxqr,textStatus,error){
+				alert(textStatus+" : "+error);
+			});
+			
+		}
+		function strategic_checkSeeProcess(){
+			if( $('input[name=strategic_viewprocess]').is(':checked') ){
+				changeImage("views/view_strategique.php?showProcess=true");
+			} else {
+				changeImage("views/view_strategique.php");
+			}
+		}
+		function displayBusiness(domainId){
+			hideToolBox();
+			$("#business_toolbox").show();
+			if (domainId == null) {
+				var id = $("#domainSelected").val();
+				if (id != "null"){
+					domainId = id;
+				}
+			}
+			if (domainId != $("#domainSelected").val()){
+				$("#domainSelected").val(""+domainId);
+				$("#business_toolbox").controlgroup("refresh");
+			}
+			if (domainId == null) {
+				$("#business_create_process_button").button("disable");
+				clearFrame();
+			} else {
+				$("#business_create_process_button").button("enable");
+				changeImage("views/view_business.php?id="+domainId);
+			}
+		}
+		function business_createProcess(){
+			var domainId = $("#domainSelected").val();
+			if ((domainId == null) || (domainId == "null")){
+				return;
+			}
+			$("#process_create_form_domain_id").val(domainId);
+			$("#process_create_form").dialog({"modal":true,"title":"Création d'un processus"});
+		}
+		function business_submit_create_process(){
+			var name 	= $("#process_create_form_name").val();
+			var description = $("#process_create_form_description").val();
+			var domain_id 	= $("#process_create_form_domain_id").val();
+			$.ajax({
+				type 	: "POST",
+				url 	: "api/process.php",
+				data	: {
+					"name"		: name,
+					"description"	: description,
+					"domain_id"	: domain_id},
+				dataType: "text",
+				success	: function( data ) {
+	    				alert("Processus créé");
+					$("#process_create_form").dialog("close");
+					displayBusiness(null);
+				}
+			})
+  			.fail(function(jxqr,textStatus,error){
+				alert(textStatus+" : "+error);
+			});
+		}
+		function displayLogic(){
+			hideToolBox();
+			$("#logic_toolbox").show();
+			clearFrame();
+			//view_logique
+			//document.getElementById('frame').data='views/view_views.php
+			//document.getElementById('frame').data='views/view_processes.php'
+			//document.getElementById('frame').data='views/view_technique.php'
+		}
+		function selectDomain(){
+			var id = $("#domainSelected").val();
+			if (id != "null"){
+				displayBusiness(id);
+			} else {
+				displayBusiness(null);
+			}
+		}
+		function deleteDomain(domainId){
+			if (!confirm("Etes-vous sûr de vouloir supprimer le domaine ?")){
+				return;
+			}
+			$.ajax({
+				type 	: "DELETE",
+				url 	: "api/domain.php?id="+domainId,
+				dataType: "text",
+				success	: function( data ) {
+	    				alert("Domaine supprimé");
+					displayStrategic();
+					refreshDomainList();
+				}
+			})
+  			.fail(function(jxqr,textStatus,error){
+				alert(textStatus+" : "+error);
+			});
+		}
+		function displayProcess(processId){
+			hideToolBox();
+			$("#process_toolbox").show();
+			if (processId == null){
+				clearFrame();
+				$("#process_create_step_button").button("disable");
+			} else {
+				changeImage("views/view_process.php?id="+processId);
+				$("#process_create_step_button").button("enable");
+			}
+		}
+		function deleteProcess(processId){
+			if (!confirm("Etes-vous sûr de vouloir supprimer le processus ?")){
+				return;
+			}
+			$.ajax({
+				type 	: "DELETE",
+				url 	: "api/process.php?id="+processId,
+				dataType: "text",
+				success	: function( data ) {
+	    				alert("Processus supprimé");
+					displayBusiness(null);
+				}
+			})
+  			.fail(function(jxqr,textStatus,error){
+				alert(textStatus+" : "+error);
+			});
+		}
+		function createStep(){
+			alert("Not yet implemented");
+		}
+		function displayTechnic(){
+			hideToolBox();
+			$("#technic_toolbox").show();
+			clearFrame();
+		}
+		function displayViews(){
+			hideToolBox();
+			$("#views_toolbox").show();
+			selectView();
+		}
+		function views_checkFill(){
+			selectView();
+		}
+		function selectView(){
+			var view = $("#viewSelected").val();
+			if (view == "null"){
+				clearFrame();
+			} else {
+				if( $('input[name=views_fill]').is(':checked') ){
+					changeImage("views/view_views.php?view="+view);
+				} else {
+					changeImage("views/view_views.php?view="+view+"&fill=no");
+				}
+			}
+		}
+		function svgElementClicked(what,id){
+			if (what == "process"){
+				$.getJSON( "api/process.php?id="+id, function(result) {
+					var process = result.process[0];
+					var html = "<p>Processus</p>";
+					html +=  "<b>Nom</b> : "+process.name + "<br/><br/>";
+					html +=  "<b>Domaine</b> : "+process.domain_name+"<br/><br/>";
+					html += "<hr/>";
+					html += "<button onclick='hidePopup();displayProcess("+process.id+")'>Ouvrir</button>";
+					html += " <button onclick='deleteProcess("+process.id+");hidePopup()'>Supprimer</button>";
+					html += " <button onclick='hidePopup()'>Fermer</button>";
+					showPopup("Détail",html);
+  				}).fail(function(jxqr,textStatus,error) {
+					showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+				});
+			} else if (what == "domain"){
+				$.getJSON( "api/domain.php?id="+id, function(domain_result) {
+					var domain = domain_result.domains[0];
+					var html = "<p>Domaine</p>";
+					html +=  "<b>Nom</b> : "+domain.name + "<br/><br/>";
+					$.getJSON( "api/process.php?domain_id="+id, function(result) {
+						var processes = result.process;
+						html += "<b>Processus</b> :";
+						if (processes.length == 0){
+							html += " aucun<br/>";
+						} else {
+							html += "<br/><ul>";
+							for (var i = 0; i < processes.length; i++){
+								process = processes[i];
+								html += "<li><a href=\"#\" onclick='hidePopup();displayProcess("+process.id+")'>"+process.name+"</a></li>";
+							}
+							html += "</ul>";
+						}
+						html += "<hr/>";
+						html += " <button onclick='hidePopup();displayBusiness("+domain.id+")'>Ouvrir</button>";
+						html += " <button onclick='hidePopup();deleteDomain("+domain.id+")'>Supprimer</button>";
+						html += " <button onclick='hidePopup()'>Fermer</button>";
+						showPopup("Détail",html);
+					});
+  				}).fail(function(jxqr,textStatus,error) {
+					showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+				});
+			} else if (what == "step"){
+				$.getJSON( "api/step.php?id="+id, function(result) {
+					var step = result.steps[0];
+					var html = "<p>Etape</p>";
+					html += "<b>Nom</b> : "+step.name+"</p>";
+					html += "<b/>Type</b> : "+step.step_type_name;
+					html += "<hr/>";
+					var sub_process_id = step.sub_process_id;
+					if (sub_process_id != ""){
+						html+="<button onclick='hidePopup();displayProcess("+sub_process_id+")'>Ouvrir</button>";
+					}
+					if (step.step_type_name != "START") {
+						html += " <button>Supprimer</button>";
+					}
+					html += " <button onclick='hidePopup()'>Fermer</button>";
+					showPopup("Détail",html);
+  				}).fail(function(jxqr,textStatus,error) {
+					showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+				});
+			} else if (what == "box"){
+				// nothing to do at now
+			} else {
+				alert("An "+what+" of id "+id +" was clicked");
+			}
+		}
+		function showPopup(title,body){
+			$("#popup").html(body);
+			$("#popup").dialog({"modal":true,"title":title});
+		}
+		function hidePopup(){
+			$("#popup").dialog("close");
+		}
+	</script>
+</header>
+<body>
+<div style="width:10%;height:100%;background-color:#5588EE; float: left;">
+	<div style="width:100%;height:100px;text-align:center;color:white;vertical-align:middle;padding-top:10px">
+		<div style="font-size:35px">GRAF</div>
+		<div style="font-size:14px">Graphic Rendering<br/>Architect Framework</div>
+	</div>
+	<div class="menu" onclick="displayStrategic(null)">Vue strat&eacute;gique</div>
+	<div class="menu" onclick="displayBusiness(null)">Vue métier</div>
+	<div class="menu" onclick="displayLogic(null)">Vue logique</div>
+	<div class="menu" onclick="displayProcess(null)">Vue process</div>
+	<div class="menu" onclick="displayTechnic(null)">Vue technique</div>
+	<div class="menu" onclick="displayViews(null)">Gestion des vues</div>
+</div>
+<div style="width:90%;height:100%;float: right">
+	<div style="width:100%">
+		<div id="default_toolbox" style="width:100%">
+		</div>
+		<div id="strategic_toolbox" style="width:100%;display:none" class="controlgroup">
+			<button onclick="createDomain()">Cr&eacute;er un domain</button>
+			<label for="strategic_viewprocess">Voir les processus</label>
+			<input type="checkbox" name="strategic_viewprocess" id="strategic_viewprocess" onclick="strategic_checkSeeProcess()"/>
+		</div>
+		<div id="process_toolbox" style="width:100%;display:none" class="controlgroup">
+			<button id="process_create_step_button" onclick="createStep()" disabled="true">Cr&eacute;er une étape</button>
+		</div>
+		<div id="business_toolbox" style="width:100%;display:none" class="controlgroup">
+			<select id="domainSelected">
+			</select>
+			<button id="business_create_process_button" onclick="business_createProcess()" disabled="true">Cr&eacute;er un processus</button>
+		</div>
+		<div id="technic_toolbox" style="width:100%;vertical-align:middle;display:none" class="controlgroup">
+			<label for="transmission-automatic">Automatic</label>
+			<input type="checkbox" name="transmission-automatic" id="transmission-automatic"/>
+		</div>
+		<div id="views_toolbox" style="width:100%;display:none" class="controlgroup">
+			<select id="viewSelected">
+				<option value="null" selected>--choisir une vue--</option>
+			</select>
+			<label for="views_fill">Remplir</label>
+			<input type="checkbox" name="views_fill" id="views_fill" onclick="views_checkFill()" checked/>
+	      <!--label for="transmission-standard">Standard</label>
+	      <input type="radio" name="transmission" id="transmission-standard">
+	      <label for="transmission-automatic">Automatic</label>
+     	 <input type="radio" name="transmission" id="transmission-automatic">
+      <label for="insurance">Insurance</label>
+      <input type="checkbox" name="insurance" id="insurance">
+      <label for="horizontal-spinner" class="ui-controlgroup-label"># of cars</label>
+      <input id="horizontal-spinner" class="ui-spinner-input">
+      <button>Book Now!</button-->
+		</div>
+	</div>
+		<!--object id="frame" type="image/svg+xml" data="" style="width:100%;height:100%"></object-->
+		<!--img id="frame" src="" style="width:100%;height:100%"/-->
+	<div style="width:100%;height:95%;float: bottom">
+	<iframe id="frame" style="width:100%;height:100%" scrolling="yes"></iframe>
+	<!--img id="frame" src="views/view_process.php?id=1" style="width:100%;height:100%"/-->
+	</div>
+</div>
+<div id="popup" style="display:none">
+</div>
+<div id="domain_create_form" style="display:none">
+	Nom : 		<input type="text" 	id="domain_create_form_name" 		name="name"/><br/>
+	Zone : 		<select id="domain_create_form_area"></select>
+	<hr/>
+	<button onclick='domain_create_form_submit()'>Créer</button>
+	<button onclick='$("#domain_create_form").dialog("close");'>Annuler</button>
+</div>
+<div id="process_create_form" style="display:none">
+	Nom : 		<input type="text" 	id="process_create_form_name" 		name="name"/><br/>
+	Description : 	<textarea 		id="process_create_form_description" 	name="description"></textarea><br/>
+			<input type="hidden" 	id="process_create_form_domain_id" 	name='domain_id' value=""/>
+	<hr/>
+	<button onclick='business_submit_create_process()'>Créer</button>
+	<button onclick='$("#process_create_form").dialog("close");'>Annuler</button>
+</div>
+<!--img id="frame" src="" style="width:90%;height:94%;position:absolute;right:0;bottom:0px"/-->
+<!--iframe id="frame" style="width:90%;height:94%;position:absolute;right:0;bottom:0px">
+</iframe-->
+<script>
+	function refreshDomainList(){
+		$.getJSON( "api/domain.php", function(result) {
+			var domains = result.domains;
+			$('#domainSelected').html("<option value='null' selected>--choisir un domaine--</option>");
+			var options = "";
+			for (var i = 0; i < domains.length; i++){
+				var domain = domains[i];
+				options += '<option value="'+domain.id+'">'+domain.name+'</option>';
+			}
+			$('#domainSelected').append(options);
+  		}).fail(function(jxqr,textStatus,error) {
+			showPopup("Echec","<h1>Impossible de charger les domaines</h1>"+textStatus+ " : " + error);
+		});
+	}
+	$( function() {
+	 	$(".controlgroup" ).controlgroup();
+		$.getJSON( "api/view.php", function(result) {
+			var views = result.views;
+			var options = "";
+			for (var i = 0; i < views.length; i++){
+				var view = views[i];
+				options += '<option value="'+view.name+'">'+view.name+'</option>';
+			}
+			$('#viewSelected').append(options);
+  		}).fail(function(jxqr,textStatus,error) {
+			showPopup("Echec","<h1>Impossible de charger les vues</h1>"+textStatus+ " : " + error);
+		});
+		$("#viewSelected").on("selectmenuchange", selectView);
+		refreshDomainList();
+		$("#domainSelected").on("selectmenuchange", selectDomain);
+	 });
+</script>
+</body>
+</html>
