@@ -67,12 +67,27 @@ create table service_has_tag (
     tag_id     INT
 );
 
+create table component (
+	id				INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	software_id  	INT,
+	data_id			INT,
+	service_id		INT,
+	device_id		INT
+);
+
+create table service_needs_component (
+    service_id 		INT,
+    component_id    INT
+);
+
+
 create table instance (
 	id				INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	name			VARCHAR(100),
 	service_id		INT,
 	environment_id	INT
 );
+
 
 create table environment (
     id     INT NOT NULL AUTO_INCREMENT PRIMARY KEY,

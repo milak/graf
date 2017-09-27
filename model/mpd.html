@@ -136,7 +136,29 @@
 </g>
 
 <line x1="850" y1="600" x2="950" y2="500" style="stroke:black" comment="Service_has_tag to Tag link"/>
-<line x1="700" y1="600" x2="600" y2="1000" style="stroke:black" comment="Service_has_tag to Service link"/>
+<line x1="700" y1="600" x2="600" y2="950" style="stroke:black" comment="Service_has_tag to Service link"/>
+
+<g width="150" height="145" transform="translate(950,900)">
+	<rect x="0" y="0" width="150" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="150" height="110" class="entity"/>
+	<text x="5" y="20">component</text>
+	<text x="5" y="50" class="primary_key">id (PK)</text>
+	<text x="5" y="70" class="foreign_key">software_id (FK)</text>
+	<text x="5" y="90" class="foreign_key">data_id (FK)</text>
+	<text x="5" y="110" class="foreign_key">service_id (FK)</text>
+	<text x="5" y="130" class="foreign_key">device_id (FK)</text>
+</g>
+
+<g width="200" height="145" transform="translate(700,900)">
+	<rect x="0" y="0" width="200" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="200" height="110" class="entity"/>
+	<text x="5" y="20">service_needs_component</text>
+	<text x="5" y="50" class="foreign_key">service_id (PK,FK)</text>
+	<text x="5" y="70" class="foreign_key">component_id (PK,FK)</text>
+</g>
+
+<line x1="600" y1="980" x2="700" y2="980" style="stroke:black" comment="Service to service_needs_component link"/>
+<line x1="900" y1="980" x2="950" y2="980" style="stroke:black" comment="Service_needs_component to component link"/>
 
 <g width="180" height="145" transform="translate(450,700)">
 	<rect x="0" y="0" width="180" height="30" class="entity_header"/>
