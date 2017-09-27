@@ -67,6 +67,13 @@ create table service_has_tag (
     tag_id     INT
 );
 
+create table instance (
+	id				INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	name			VARCHAR(100),
+	service_id		INT,
+	environment_id	INT
+);
+
 create table environment (
     id     INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     code   VARCHAR(10),
