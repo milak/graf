@@ -68,16 +68,16 @@ create table service_has_tag (
 );
 
 create table component (
-	id				INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	software_id  	INT,
-	data_id			INT,
-	service_id		INT,
-	device_id		INT
+	id				 INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	software_id  	 INT,
+	data_id			 INT,
+	service_id		 INT,
+	device_id		 INT
 );
 
 create table service_needs_component (
-    service_id 		INT,
-    component_id    INT
+    service_id 		 INT,
+    component_id     INT
 );
 
 
