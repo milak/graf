@@ -22,65 +22,20 @@
 		}
  	</style>
 	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script type="text/javascript" src="script/util.js"></script>
+	<script type="text/javascript" src="script/service.js"></script>
+	<script type="text/javascript" src="script/process.js"></script>
+	<script type="text/javascript" src="script/business.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 	<script>
-		function changeImage(url){
-			$("#frame").attr("src",url);
-		}
-		function hideToolBox(){
-			$("#default_toolbox").hide();
-			$("#strategic_toolbox").hide();
-			$("#business_toolbox").hide();
-			$("#logic_toolbox").hide();
-			$("#process_toolbox").hide();
-			$("#technic_toolbox").hide();
-			$("#views_toolbox").hide();
-		}
-		function clearFrame(){
-			changeImage("");
-		}
 		function displayStrategic(){
 			hideToolBox();
 			$("#strategic_toolbox").show();
 			strategic_checkSeeProcess();
 		}
-		function createDomain(){
-			$.getJSON( "api/area.php?view=strategique", function(result) {
-				var areas = result.areas;
-				$('#domain_create_form_area').html("");
-				var options = "<option value='null'>~~Choisir une zone~~</option>";
-				for (var i = 0; i < areas.length; i++){
-					var area = areas[i];
-					options += '<option value="'+area.id+'">'+area.name+'</option>';
-				}
-				$('#domain_create_form_area').append(options);
-				$("#domain_create_form").dialog({"modal":true,"title":"Création d'un domaine"});
-			}).fail(function(jxqr,textStatus,error) {
-				showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-			});
-		}
-		function domain_create_form_submit(){
-			var name 	= $("#domain_create_form_name").val();
-			var area_id 	= $("#domain_create_form_area").val();
-			$.ajax({
-				type 	: "POST",
-				url 	: "api/domain.php",
-				data	: {
-					"name"		: name,
-					"area_id"	: area_id},
-				dataType: "text",
-				success	: function( data ) {
-	    				refreshDomainList();
-					displayStrategic();
-					$("#domain_create_form").dialog("close");
-				}
-			})
-  			.fail(function(jxqr,textStatus,error){
-				alert(textStatus+" : "+error);
-			});
-			
-		}
+		
+		
 		function strategic_checkSeeProcess(){
 			if( $('input[name=strategic_viewprocess]').is(':checked') ){
 				changeImage("views/view_strategique.php?showProcess=true");
@@ -88,27 +43,7 @@
 				changeImage("views/view_strategique.php");
 			}
 		}
-		function displayBusiness(domainId){
-			hideToolBox();
-			$("#business_toolbox").show();
-			if (domainId == null) {
-				var id = $("#domainSelected").val();
-				if (id != "null"){
-					domainId = id;
-				}
-			}
-			if (domainId != $("#domainSelected").val()){
-				$("#domainSelected").val(""+domainId);
-				$("#business_toolbox").controlgroup("refresh");
-			}
-			if (domainId == null) {
-				$("#business_create_process_button").button("disable");
-				clearFrame();
-			} else {
-				$("#business_create_process_button").button("enable");
-				changeImage("views/view_business.php?id="+domainId);
-			}
-		}
+		
 		function business_createProcess(){
 			var domainId = $("#domainSelected").val();
 			if ((domainId == null) || (domainId == "null")){
@@ -156,55 +91,8 @@
 				displayBusiness(null);
 			}
 		}
-		function deleteDomain(domainId){
-			if (!confirm("Etes-vous sûr de vouloir supprimer le domaine ?")){
-				return;
-			}
-			$.ajax({
-				type 	: "DELETE",
-				url 	: "api/domain.php?id="+domainId,
-				dataType: "text",
-				success	: function( data ) {
-	    				alert("Domaine supprimé");
-					displayStrategic();
-					refreshDomainList();
-				}
-			})
-  			.fail(function(jxqr,textStatus,error){
-				alert(textStatus+" : "+error);
-			});
-		}
-		function displayProcess(processId){
-			hideToolBox();
-			$("#process_toolbox").show();
-			if (processId == null){
-				clearFrame();
-				$("#process_create_step_button").button("disable");
-			} else {
-				changeImage("views/view_process.php?id="+processId);
-				$("#process_create_step_button").button("enable");
-			}
-		}
-		function deleteProcess(processId){
-			if (!confirm("Etes-vous sûr de vouloir supprimer le processus ?")){
-				return;
-			}
-			$.ajax({
-				type 	: "DELETE",
-				url 	: "api/process.php?id="+processId,
-				dataType: "text",
-				success	: function( data ) {
-	    				alert("Processus supprimé");
-					displayBusiness(null);
-				}
-			})
-  			.fail(function(jxqr,textStatus,error){
-				alert(textStatus+" : "+error);
-			});
-		}
-		function createStep(){
-			alert("Not yet implemented");
-		}
+		
+
 		function displayTechnic(){
 			hideToolBox();
 			$("#technic_toolbox").show();
@@ -230,80 +118,7 @@
 				}
 			}
 		}
-		function svgElementClicked(what,id){
-			if (what == "process"){
-				$.getJSON( "api/process.php?id="+id, function(result) {
-					var process = result.process[0];
-					var html = "<p>Processus</p>";
-					html +=  "<b>Nom</b> : "+process.name + "<br/><br/>";
-					html +=  "<b>Domaine</b> : "+process.domain_name+"<br/><br/>";
-					html += "<hr/>";
-					html += "<button onclick='hidePopup();displayProcess("+process.id+")'>Ouvrir</button>";
-					html += " <button onclick='deleteProcess("+process.id+");hidePopup()'>Supprimer</button>";
-					html += " <button onclick='hidePopup()'>Fermer</button>";
-					showPopup("Détail",html);
-  				}).fail(function(jxqr,textStatus,error) {
-					showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-				});
-			} else if (what == "domain"){
-				$.getJSON( "api/domain.php?id="+id, function(domain_result) {
-					var domain = domain_result.domains[0];
-					var html = "<p>Domaine</p>";
-					html +=  "<b>Nom</b> : "+domain.name + "<br/><br/>";
-					$.getJSON( "api/process.php?domain_id="+id, function(result) {
-						var processes = result.process;
-						html += "<b>Processus</b> :";
-						if (processes.length == 0){
-							html += " aucun<br/>";
-						} else {
-							html += "<br/><ul>";
-							for (var i = 0; i < processes.length; i++){
-								process = processes[i];
-								html += "<li><a href=\"#\" onclick='hidePopup();displayProcess("+process.id+")'>"+process.name+"</a></li>";
-							}
-							html += "</ul>";
-						}
-						html += "<hr/>";
-						html += " <button onclick='hidePopup();displayBusiness("+domain.id+")'>Ouvrir</button>";
-						html += " <button onclick='hidePopup();deleteDomain("+domain.id+")'>Supprimer</button>";
-						html += " <button onclick='hidePopup()'>Fermer</button>";
-						showPopup("Détail",html);
-					});
-  				}).fail(function(jxqr,textStatus,error) {
-					showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-				});
-			} else if (what == "step"){
-				$.getJSON( "api/step.php?id="+id, function(result) {
-					var step = result.steps[0];
-					var html = "<p>Etape</p>";
-					html += "<b>Nom</b> : "+step.name+"</p>";
-					html += "<b/>Type</b> : "+step.step_type_name;
-					html += "<hr/>";
-					var sub_process_id = step.sub_process_id;
-					if (sub_process_id != ""){
-						html+="<button onclick='hidePopup();displayProcess("+sub_process_id+")'>Ouvrir</button>";
-					}
-					if (step.step_type_name != "START") {
-						html += " <button>Supprimer</button>";
-					}
-					html += " <button onclick='hidePopup()'>Fermer</button>";
-					showPopup("Détail",html);
-  				}).fail(function(jxqr,textStatus,error) {
-					showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-				});
-			} else if (what == "box"){
-				// nothing to do at now
-			} else {
-				alert("An "+what+" of id "+id +" was clicked");
-			}
-		}
-		function showPopup(title,body){
-			$("#popup").html(body);
-			$("#popup").dialog({"modal":true,"title":title});
-		}
-		function hidePopup(){
-			$("#popup").dialog("close");
-		}
+
 	</script>
 </header>
 <body>
@@ -315,7 +130,8 @@
 	<div class="menu" onclick="displayStrategic(null)">Vue strat&eacute;gique</div>
 	<div class="menu" onclick="displayBusiness(null)">Vue métier</div>
 	<div class="menu" onclick="displayLogic(null)">Vue logique</div>
-	<div class="menu" onclick="displayProcess(null)">Vue process</div>
+	<div class="menu" onclick="displayService(null)">Vue service</div>
+	<div class="menu" onclick="displayProcess(null)">Vue processus</div>
 	<div class="menu" onclick="displayTechnic(null)">Vue technique</div>
 	<div class="menu" onclick="displayViews(null)">Gestion des vues</div>
 </div>
@@ -328,6 +144,9 @@
 			<label for="strategic_viewprocess">Voir les processus</label>
 			<input type="checkbox" name="strategic_viewprocess" id="strategic_viewprocess" onclick="strategic_checkSeeProcess()"/>
 		</div>
+		<div id="service_toolbox" style="width:100%;display:none" class="controlgroup">
+			<button id="service_create_component_button" onclick="createStep()" disabled="true">Cr&eacute;er un composant</button>
+		</div>
 		<div id="process_toolbox" style="width:100%;display:none" class="controlgroup">
 			<button id="process_create_step_button" onclick="createStep()" disabled="true">Cr&eacute;er une étape</button>
 		</div>
@@ -335,6 +154,7 @@
 			<select id="domainSelected">
 			</select>
 			<button id="business_create_process_button" onclick="business_createProcess()" disabled="true">Cr&eacute;er un processus</button>
+			<button id="business_create_service_button" onclick="createService()" disabled="true">Cr&eacute;er un service</button>
 		</div>
 		<div id="technic_toolbox" style="width:100%;vertical-align:middle;display:none" class="controlgroup">
 			<label for="transmission-automatic">Automatic</label>
@@ -370,7 +190,7 @@
 	Nom : 		<input type="text" 	id="domain_create_form_name" 		name="name"/><br/>
 	Zone : 		<select id="domain_create_form_area"></select>
 	<hr/>
-	<button onclick='domain_create_form_submit()'>Créer</button>
+	<button onclick='doCreateDomain()'>Créer</button>
 	<button onclick='$("#domain_create_form").dialog("close");'>Annuler</button>
 </div>
 <div id="process_create_form" style="display:none">
@@ -380,6 +200,14 @@
 	<hr/>
 	<button onclick='business_submit_create_process()'>Créer</button>
 	<button onclick='$("#process_create_form").dialog("close");'>Annuler</button>
+</div>
+<div id="create_service_form" style="display:none">
+	Nom : 	<input type="text"		id="create_service_form_name" 		name="name"/><br/>
+	Code :	<input type="text"		id="create_service_form_code" 		name="code"/><br/>
+			<input type="hidden" 	id="create_service_form_domain_id" 	name='domain_id'/>
+	<hr/>
+	<button onclick='doCreateService()'>Cr&eacute;er</button>
+	<button onclick='$("#create_service_form").dialog("close");'>Annuler</button>
 </div>
 <!--img id="frame" src="" style="width:90%;height:94%;position:absolute;right:0;bottom:0px"/-->
 <!--iframe id="frame" style="width:90%;height:94%;position:absolute;right:0;bottom:0px">
