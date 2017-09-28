@@ -56,19 +56,26 @@ create table node_has_tag (
 );
 
 create table service (
-    id        INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    code      VARCHAR(20),
-    name      VARCHAR(100)
+    id        	INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    code      	VARCHAR(20),
+    name      	VARCHAR(100),
+    domain_id	INT
 );
 
+ALTER TABLE `service` ADD CONSTRAINT `FK_service_domain` FOREIGN KEY (`domain_id`) REFERENCES `domain`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 create table service_has_tag (
     service_id INT,
     tag_id     INT
 );
 
+ALTER TABLE `service_has_tag` ADD UNIQUE `PK_service_has_tag` (`service_id`, `tag_id`);
+ALTER TABLE `service_has_tag` ADD CONSTRAINT `FK_service_has_tag_service` FOREIGN KEY (`service_id`) REFERENCES `service`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `service_has_tag` ADD CONSTRAINT `FK_service_has_tag_tag` FOREIGN KEY (`tag_id`) REFERENCES `tag`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
 create table component (
 	id				 INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	name			 VARCHAR(100),
 	software_id  	 INT,
 	data_id			 INT,
 	service_id		 INT,
@@ -79,7 +86,9 @@ create table service_needs_component (
     service_id 		 INT,
     component_id     INT
 );
-
+ALTER TABLE `service_needs_component` ADD UNIQUE `PK_service_needs_component` (`service_id`, `component_id`);
+ALTER TABLE `service_needs_component` ADD CONSTRAINT `FK_service_needs_component_service` FOREIGN KEY (`service_id`) REFERENCES `service`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `service_needs_component` ADD CONSTRAINT `FK_service_needs_component_component` FOREIGN KEY (`component_id`) REFERENCES `component`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 create table instance (
 	id				INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -87,7 +96,8 @@ create table instance (
 	service_id		INT,
 	environment_id	INT
 );
-
+ALTER TABLE `instance` ADD CONSTRAINT `FK_instance_service` FOREIGN KEY (`service_id`) REFERENCES `service`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `instance` ADD CONSTRAINT `FK_instance_environment` FOREIGN KEY (`environment_id`) REFERENCES `environment`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 create table environment (
     id     INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
