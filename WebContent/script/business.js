@@ -1,3 +1,4 @@
+var currentDomainId = null;
 function displayBusiness(domainId){
 	hideToolBox();
 	$("#business_toolbox").show();
@@ -15,7 +16,9 @@ function displayBusiness(domainId){
 		$("#business_create_process_button").button("disable");
 		$("#business_create_service_button").button("disable");
 		clearFrame();
+		currentDomainId = null;
 	} else {
+		currentDomainId = domainId;
 		$("#business_create_process_button").button("enable");
 		$("#business_create_service_button").button("enable");
 		changeImage("views/view_business.php?id="+domainId);

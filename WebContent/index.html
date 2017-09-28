@@ -145,7 +145,8 @@
 			<input type="checkbox" name="strategic_viewprocess" id="strategic_viewprocess" onclick="strategic_checkSeeProcess()"/>
 		</div>
 		<div id="service_toolbox" style="width:100%;display:none" class="controlgroup">
-			<button id="service_create_component_button" onclick="createStep()" disabled="true">Cr&eacute;er un composant</button>
+			<button id="service_create_component_button" onclick="createComponent()" disabled="true">Cr&eacute;er un composant</button>
+			<button id="service_create_instance_button" onclick="createServiceInstance()" disabled="true">Cr&eacute;er une instance</button>
 		</div>
 		<div id="process_toolbox" style="width:100%;display:none" class="controlgroup">
 			<button id="process_create_step_button" onclick="createStep()" disabled="true">Cr&eacute;er une étape</button>
@@ -209,6 +210,14 @@
 	<button onclick='doCreateService()'>Cr&eacute;er</button>
 	<button onclick='$("#create_service_form").dialog("close");'>Annuler</button>
 </div>
+<div id="create_instance_form" style="display:none">
+	Nom : 			<input type="text"		id="create_instance_form_name" 		name="name"/><br/>
+	Environment :	<select id="create_instance_form_environment"/><br/>
+			<input type="hidden" 	id="create_instance_form_service_id" 	name='service_id'/>
+	<hr/>
+	<button onclick='doCreateServiceInstance()'>Cr&eacute;er</button>
+	<button onclick='$("#create_instance_form").dialog("close");'>Annuler</button>
+</div>
 <!--img id="frame" src="" style="width:90%;height:94%;position:absolute;right:0;bottom:0px"/-->
 <!--iframe id="frame" style="width:90%;height:94%;position:absolute;right:0;bottom:0px">
 </iframe-->
@@ -227,6 +236,20 @@
 			showPopup("Echec","<h1>Impossible de charger les domaines</h1>"+textStatus+ " : " + error);
 		});
 	}
+	function refreshEnvironmentList(){
+		$.getJSON("api/environment.php", function(result){
+			var environments = result.environments;
+			$('#create_instance_form_environment').html("<option value='null' selected>--choisir un environement--</option>");
+			var options = "";
+			for (var i = 0; i < environments.length; i++){
+				var environment = environments[i];
+				options += '<option value="'+environment.id+'">'+environment.name+'</option>';
+			}
+			$('#create_instance_form_environment').append(options);
+		}).fail(function(jxqr,textStatus,error) {
+			showPopup("Echec","<h1>Impossible de charger les domaines</h1>"+textStatus+ " : " + error);
+		});
+	}
 	$( function() {
 	 	$(".controlgroup" ).controlgroup();
 		$.getJSON( "api/view.php", function(result) {
@@ -242,6 +265,7 @@
 		});
 		$("#viewSelected").on("selectmenuchange", selectView);
 		refreshDomainList();
+		refreshEnvironmentList();
 		$("#domainSelected").on("selectmenuchange", selectDomain);
 	 });
 </script>

@@ -6,13 +6,17 @@ create table area (
     name      VARCHAR(100),
     parent_id INT,
     position  INT,
-    view_id   INT,
+    view_id   INT NOT NULL,
     display   VARCHAR(20)
 );
 
+ALTER TABLE `area` ADD CONSTRAINT `FK_area_area` FOREIGN KEY (`parent_id`) REFERENCES `area`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `area` ADD CONSTRAINT `FK_area_view` FOREIGN KEY (`view_id`) REFERENCES `view`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+
 create table view (
     id        INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    name      VARCHAR(100)
+    name      VARCHAR(100) NOT NULL
 );
 
 create table node_type (
@@ -83,8 +87,8 @@ create table component (
 );
 
 create table service_needs_component (
-    service_id 		 INT,
-    component_id     INT
+    service_id 		 INT NOT NULL,
+    component_id     INT NOT NULL
 );
 ALTER TABLE `service_needs_component` ADD UNIQUE `PK_service_needs_component` (`service_id`, `component_id`);
 ALTER TABLE `service_needs_component` ADD CONSTRAINT `FK_service_needs_component_service` FOREIGN KEY (`service_id`) REFERENCES `service`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
@@ -100,9 +104,9 @@ ALTER TABLE `instance` ADD CONSTRAINT `FK_instance_service` FOREIGN KEY (`servic
 ALTER TABLE `instance` ADD CONSTRAINT `FK_instance_environment` FOREIGN KEY (`environment_id`) REFERENCES `environment`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 create table environment (
-    id     INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    code   VARCHAR(10),
-    name   VARCHAR(50)
+    id     INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    code   VARCHAR(10) 	NOT NULL,
+    name   VARCHAR(50) 	NOT NULL
 );
 
 create table service_uses_node (
@@ -116,6 +120,7 @@ create table domain (
     name         VARCHAR(100),
     area_id      INT
 );
+ALTER TABLE `domain` ADD CONSTRAINT `FK_domain_area` FOREIGN KEY (`area_id`) REFERENCES `area`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 create table process (
     id           INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -126,7 +131,7 @@ create table process (
 
 create table step_type (
     id           INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    name         VARCHAR(100)
+    name         VARCHAR(100) NOT NULL
 );
 
 insert into step_type (name) values ("START");
@@ -137,19 +142,29 @@ insert into step_type (name) values ("CHOICE");
 insert into step_type (name) values ("END");
 
 create table process_step (
-    id           	INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    process_id          INT,
-    name                VARCHAR(100),
-    step_type_id  	INT,
+    id           		INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    process_id          INT 			NOT NULL,
+    name                VARCHAR(100) 	NOT NULL,
+    step_type_id  		INT 			NOT NULL,
     service_id          INT,
     actor_id            INT,
     sub_process_id      INT
 );
 
+ALTER TABLE `process_step` ADD CONSTRAINT `FK_process_step_process` 		FOREIGN KEY (`process_id`) 		REFERENCES `process`(`id`) 		ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `process_step` ADD CONSTRAINT `FK_process_step_step_type` 		FOREIGN KEY (`step_type_id`) 	REFERENCES `step_type`(`id`)	ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `process_step` ADD CONSTRAINT `FK_process_step_service` 		FOREIGN KEY (`service_id`) 		REFERENCES `service`(`id`) 		ON DELETE RESTRICT ON UPDATE RESTRICT;
+## TODO ALTER TABLE `process_step` ADD CONSTRAINT `FK_process_step_actor` 	FOREIGN KEY (`actor_id`) 		REFERENCES `actor`(`id`) 		ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `process_step` ADD CONSTRAINT `FK_process_step_sub_process` 	FOREIGN KEY (`sub_process_id`) 	REFERENCES `process`(`id`) 		ON DELETE RESTRICT ON UPDATE RESTRICT;
+
 create table step_link (
-    process_id           INT,
-    from_step_id  	 INT,
-    to_step_id		 INT,
-    label		 VARCHAR(50),
-    data		 VARCHAR(50)
+    process_id       INT NOT NULL,
+    from_step_id  	 INT NOT NULL,
+    to_step_id		 INT NOT NULL,
+    label		 	VARCHAR(50),
+    data		 	VARCHAR(50)
 );
+
+ALTER TABLE `step_link` ADD CONSTRAINT `FK_step_link_process` 				FOREIGN KEY (`process_id`) 		REFERENCES `process`(`id`) 		ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `step_link` ADD CONSTRAINT `FK_step_link_from_process_step` 	FOREIGN KEY (`from_step_id`) 	REFERENCES `process_step`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `step_link` ADD CONSTRAINT `FK_step_link_to_process_step` 		FOREIGN KEY (`to_step_id`) 		REFERENCES `process_step`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;

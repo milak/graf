@@ -55,8 +55,35 @@ if ($first != true) {?>
 <?php
 /** METHOD POST **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
+	if (!isset($_POST["domain_id"])){
+		die("Missing domain_id argument");
+	}
+	$domain_id = intval($_POST["domain_id"]);
+	if (!isset($_POST["code"])){
+		die("Missing code argument");
+	}
+	$code = $db->real_escape_string($_POST["code"]);
+	if (!isset($_POST["name"])){
+		die("Missing code argument");
+	}
+	$name = $db->real_escape_string($_POST["name"]);
+error_log("Création d'un service : ".$name." domaine ".$domain_id);
+$sql = <<<SQL
+	insert into service (code,name,domain_id) values ('$code','$name',$domain_id)
+SQL;
+	if(!$result = $db->query($sql)){
+	    	die('There was an error running the query [' . $db->error . ']');
+	}
 /** METHOD DELETE **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-	
+	if (!isset($_GET["id"])){
+		die("Missing id argument");
+	}
+	$id = intval($_GET["id"]);
+$sql = <<<SQL
+	delete from service where id = $id
+SQL;
+	if(!$result = $db->query($sql)){
+	    	die('There was an error running the query [' . $db->error . ']');
+	}
 }

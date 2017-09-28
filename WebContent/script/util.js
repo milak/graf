@@ -67,8 +67,8 @@ function svgElementClicked(what,id){
 		$.getJSON( "api/step.php?id="+id, function(result) {
 			var step = result.steps[0];
 			var html = "<p>Etape</p>";
-			html += "<b>Nom</b> : "+step.name+"</p>";
-			html += "<b/>Type</b> : "+step.step_type_name;
+			html += "<b>Nom</b> : "+step.name+"<br/>";
+			html += "<b>Type</b> : "+step.step_type_name;
 			html += "<hr/>";
 			var sub_process_id = step.sub_process_id;
 			if (sub_process_id != ""){
@@ -84,8 +84,24 @@ function svgElementClicked(what,id){
 		});
 	} else if (what == "box"){
 		// nothing to do at now
+	} else if (what == "instance"){
+		var html = "<p>Instance</p>";
+		html += "<b>Nom</b> : <br/>";
+		html += "<b>Environnement</b> : ";
+		html += "<hr/>";
+		html+="<button onclick='hidePopup();displayServiceInstance("+id+")'>Ouvrir</button>";
+		html += " <button onclick='hidePopup();deleteServiceInstance("+id+")'>Supprimer</button>";
+		html += " <button onclick='hidePopup()'>Fermer</button>";
+		showPopup("Détail",html);
 	} else if (what == "service"){
-		displayService(id);
+		var html = "<p>Service</p>";
+		html += "<b>Nom</b> : <br/>";
+		html += "<b>Code</b> : ";
+		html += "<hr/>";
+		html+="<button onclick='hidePopup();displayService("+id+")'>Ouvrir</button>";
+		html += " <button onclick='hidePopup();deleteService("+id+")'>Supprimer</button>";
+		html += " <button onclick='hidePopup()'>Fermer</button>";
+		showPopup("Détail",html);
 	} else {
 		alert("An "+what+" of id "+id +" was clicked");
 	}
