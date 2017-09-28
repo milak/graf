@@ -1,6 +1,8 @@
 <?php
 header("Content-Type: application/json");
 require("../db/connect.php");
+/** METHOD GET **/
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 $sql = <<<SQL
     SELECT service.*, instance.id as instance_id, instance.name as instance_name, environment.id as environment_id, environment.name as environment_name, environment.code as environment_code from service
     LEFT OUTER JOIN instance ON service.id = instance.service_id
@@ -50,3 +52,11 @@ if ($first != true) {?>
 		}
 <?php } ?>
 ]}
+<?php
+/** METHOD POST **/
+} else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+/** METHOD DELETE **/
+} else if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+	
+}

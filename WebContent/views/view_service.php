@@ -13,13 +13,15 @@ $sql = <<<SQL
     LEFT OUTER JOIN environment ON instance.environment_id = environment.id
 SQL;
 $showProcess = false;
+
 if (isset($_GET["id"])){
-	$sql .= " where service.id = ".$_GET['id'];
+	$service_id = $_GET["id"];
 } else {
 	displayErrorAndDie('Missing id argument');
 }
+$sql .= " where service.id = ".$service_id;
 $sql .= " ORDER by service.id";
-if(!$result = $db->query($sql)){
+if (!$result = $db->query($sql)){
     displayErrorAndDie('There was an error running the query [' . $db->error . ']');
 }
 
@@ -61,6 +63,7 @@ $area_instances->parent    = $area;
 $area->subareas[] = $area_instances;
 
 while($row = $result->fetch_assoc()){
+	$area->name = "Service ".$row["name"];
 	if (isset($row["instance_id"])){
 		$instance 				= new stdClass();
 		$instance->id 			= $row["instance_id"];
@@ -71,9 +74,26 @@ while($row = $result->fetch_assoc()){
 		$area_instances->elements[] = $instance;
 	}
 }
-
 $result->free();
-
+// Ramener les composants liés au service
+$sql = <<<SQL
+    SELECT component.* from component
+    INNER JOIN service_needs_component ON service_needs_component.component_id = component.id
+	where service_needs_component.service_id = $service_id
+SQL;
+if(!$result = $db->query($sql)){
+    displayErrorAndDie('There was an error running the query [' . $db->error . ']');
+}
+while($row = $result->fetch_assoc()){
+	$component 				= new stdClass();
+	$component->id 			= $row["id"];
+	$component->type 		= "component";
+	$component->class 		= "rect_200_80";
+	$component->name 		= $row["name"];
+	$component->links 		= array();
+	$area_instances->elements[] = $instance;
+}
+$result->free();
 // Afficher le résultat
 display($areas);
 require("../db/disconnect.php");

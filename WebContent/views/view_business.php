@@ -25,14 +25,14 @@ $result->free();
 // Chercher tous les process correspondant aux critères de recherche
 // ****************************************************************
 $sql = <<<SQL
-    SELECT process.id as id, process.name as process_name, process_step.id as step_id, process_step.name as step_name, step_type.name as step_type_name, process_step.sub_process_id
+    SELECT process.id as id, process.name as process_name, process_step.id as step_id, process_step.name as step_name, step_type.name as step_type_name, process_step.sub_process_id, process_step.service_id
     FROM process
     LEFT OUTER JOIN process_step ON process_step.process_id = process.id
     LEFT OUTER JOIN step_type ON process_step.step_type_id = step_type.id
 SQL;
 // Appliquer les filtres
 $sql .= " WHERE process.domain_id = '".$_GET["id"]."'";
-$sql.= " ORDER BY process.id";
+$sql .= " ORDER BY process.id";
 if(!$result = $db->query($sql)){
     displayErrorAndDie('There was an error running the query [' . $db->error . ']');
 }
@@ -40,13 +40,13 @@ if(!$result = $db->query($sql)){
 $areas = array();
 
 $root_area = new stdClass();
-$root_area->code = "";
-$root_area->name 	= "Domaine ".$domain_name;
-$root_area->parent 	= null;
-$root_area->display   	= "vertical";
+$root_area->code 		= "";
+$root_area->name 		= "Domaine ".$domain_name;
+$root_area->parent 		= null;
+$root_area->display 	= "vertical";
 $root_area->elements 	= array();
 $root_area->subareas 	= array();
-$root_area->needed 	= true;
+$root_area->needed 		= true;
 $areas[] = $root_area;
 
 $area_ress = new stdClass();
@@ -78,7 +78,6 @@ $area_service->subareas = array();
 $area_service->needed 	= true;
 $area_service->parent 	= $area_ress;
 $area_ress->subareas[] = $area_service;
-
 
 $area_process = new stdClass();
 $area_process->code      = "";
@@ -126,27 +125,46 @@ while($row = $result->fetch_assoc()){
 		$obj = new stdClass();
 		$obj->id 		= $row["step_id"];
 		$obj->type 		= "box";
-		$obj->class 		= "process_".strtolower($type_name);
+		$obj->class 	= "process_".strtolower($type_name);
 		$obj->name 		= $row["step_name"];
-		$obj->links 		= array();
+		$obj->links 	= array();
 		$area_actor->elements[] = $obj;
 	} else if ($type_name == "SERVICE") {
-		$obj = new stdClass();
-		$obj->id 		= $row["step_id"];
-		$obj->type 		= "box";
-		$obj->class 		= "process_".strtolower($type_name);
-		$obj->name 		= $row["step_name"];
-		$obj->links 		= array();
-		$area_service->elements[] = $obj;
+	/*	$obj = new stdClass();
+		$obj->id 		= $row["service_id"];
+		$obj->type 		= "service";
+		$obj->class 	= "process_".strtolower($type_name);
+		$obj->name 		= $row["service_id"]."-".$row["step_name"];
+		$obj->links 	= array();
+		$area_service->elements[] = $obj;*/
 	} else if ($type_name == "SUB-PROCESS") {
 		$obj = new stdClass();
 		$obj->id 		= $row["sub_process_id"];
 		$obj->type 		= "process";
-		$obj->class 		= "process_".strtolower($type_name);
+		$obj->class 	= "process_".strtolower($type_name);
 		$obj->name 		= $row["step_name"];
-		$obj->links 		= array();
+		$obj->links 	= array();
 		$area_process->elements[] = $obj;
 	}
+}
+$result->free();
+
+$sql = <<<SQL
+   SELECT * from service
+   WHERE domain_id = $domain_id
+SQL;
+if(!$result = $db->query($sql)){
+    displayErrorAndDie('There was an error running the query [' . $db->error . ']');
+}
+// Charger tous les services
+while($row = $result->fetch_assoc()){
+	$obj = new stdClass();
+	$obj->id 		= $row["id"];
+	$obj->type 		= "service";
+	$obj->class 	= "process_service";
+	$obj->name 		= $row["name"];
+	$obj->links 	= array();
+	$area_service->elements[] = $obj;
 }
 $result->free();
 // Conserver uniquement les zones racines nécessaires
