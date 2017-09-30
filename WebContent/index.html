@@ -117,8 +117,11 @@
 			<input type="checkbox" name="strategic_viewprocess" id="strategic_viewprocess" onclick="strategic_checkSeeProcess()"/>
 		</div>
 		<div id="service_toolbox" style="width:100%;display:none" class="controlgroup">
-			<button id="service_create_component_button" onclick="createComponent()" disabled="true"><img src="images/78.png"/> composant</button>
-			<button id="service_create_instance_button" onclick="createServiceInstance()" disabled="true"><img src="images/78.png"/> instance</button>
+			<button id="service_create_device_button" 	onclick="createComponent('device')" 	disabled="true"><img src="images/78.png"/> matériel</button>
+			<button id="service_create_data_button" 	onclick="createComponent('data')" 		disabled="true"><img src="images/78.png"/> donnée</button>
+			<button id="service_create_software_button" onclick="createComponent('software')" 	disabled="true"><img src="images/78.png"/> logiciel</button>
+			<button id="service_create_service_button" 	onclick="createComponent('service')" 	disabled="true"><img src="images/78.png"/> service</button>
+			<button id="service_create_instance_button" onclick="createServiceInstance()" 		disabled="true"><img src="images/78.png"/> instance</button>
 		</div>
 		<div id="process_toolbox" style="width:100%;display:none" class="controlgroup">
 			<button id="process_create_step_button" onclick="createStep()" disabled="true"><img src="images/78.png"/> étape</button>
@@ -166,17 +169,27 @@
 	<button onclick='doCreateActor()'><img src="images/78.png"/> créer</button>
 	<button onclick='$("#create_actor_form").dialog("close");'><img src="images/33.png"/> annuler</button>
 </div>
-<div id="domain_create_form" style="display:none">
-	Nom : 		<input type="text" 	id="domain_create_form_name" 		name="name"/><br/>
-	Zone : 		<select id="domain_create_form_area"></select>
+<div id="create_domain_form" style="display:none">
+	Nom : 		<input type="text" 	id="create_domain_form_name" 		name="name"/><br/>
+	Zone : 		<select id="create_domain_form_area"></select>
 	<hr/>
 	<button onclick='doCreateDomain()'><img src="images/78.png"/> cr&eacute;er</button>
-	<button onclick='$("#domain_create_form").dialog("close");'><img src="images/33.png"/> annuler</button>
+	<button onclick='$("#create_domain_form").dialog("close");'><img src="images/33.png"/> annuler</button>
+</div>
+<div id="create_component_form" style="display:none">
+	<input type="hidden" id="create_component_form_type"/>
+	<select id="create_component_form_service"></select>
+	<select id="create_component_form_software"></select>
+	<select id="create_component_form_data"></select>
+	<select id="create_component_form_device"></select>
+	<hr/>
+	<button onclick='doCreateComponent()'><img src="images/78.png"/> cr&eacute;er</button>
+	<button onclick='$("#create_component_form").dialog("close");'><img src="images/33.png"/> annuler</button>
 </div>
 <div id="process_create_form" style="display:none">
-	Nom : 		<input type="text" 	id="process_create_form_name" 		name="name"/><br/>
+	Nom : 		<input type="text" 	id="process_create_form_name" 			name="name"/><br/>
 	Description : 	<textarea 		id="process_create_form_description" 	name="description"></textarea><br/>
-			<input type="hidden" 	id="process_create_form_domain_id" 	name='domain_id' value=""/>
+			<input type="hidden" 	id="process_create_form_domain_id" 		name='domain_id' value=""/>
 	<hr/>
 	<button onclick='doCreateProcess()'><img src="images/78.png"/> créer</button>
 	<button onclick='$("#process_create_form").dialog("close");'><img src="images/33.png"/> annuler</button>

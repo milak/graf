@@ -29,21 +29,21 @@ function displayBusiness(domainId){
 function createDomain(){
 	$.getJSON( "api/area.php?view=strategique", function(result) {
 		var areas = result.areas;
-		$('#domain_create_form_area').html("");
+		$('#create_domain_form_area').html("");
 		var options = "<option value='null'>~~Choisir une zone~~</option>";
 		for (var i = 0; i < areas.length; i++){
 			var area = areas[i];
 			options += '<option value="'+area.id+'">'+area.name+'</option>';
 		}
-		$('#domain_create_form_area').append(options);
-		$("#domain_create_form").dialog({"modal":true,"title":"Création d'un domaine"});
+		$('#create_domain_form_area').append(options);
+		$("#create_domain_form").dialog({"modal":true,"title":"Création d'un domaine"});
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
 }
 function doCreateDomain(){
-	var name 	= $("#domain_create_form_name").val();
-	var area_id 	= $("#domain_create_form_area").val();
+	var name 	= $("#create_domain_form_name").val();
+	var area_id 	= $("#create_domain_form_area").val();
 	$.ajax({
 		type 	: "POST",
 		url 	: "api/domain.php",
@@ -54,7 +54,7 @@ function doCreateDomain(){
 		success	: function( data ) {
 				refreshDomainList();
 			displayStrategic();
-			$("#domain_create_form").dialog("close");
+			$("#create_domain_form").dialog("close");
 		}
 	})
 		.fail(function(jxqr,textStatus,error){

@@ -176,3 +176,24 @@ create table actor (
 );
 
 ALTER TABLE `actor` ADD CONSTRAINT `FK_actor_domain` 	FOREIGN KEY (`domain_id`) 	REFERENCES `domain`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+create table device (
+	id           		INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	name				VARCHAR(100)    NOT NULL
+);
+
+ALTER TABLE `component` ADD CONSTRAINT `FK_component_to_device` 		FOREIGN KEY (`device_id`) 		REFERENCES `device`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+create table data (
+	id           		INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	name 				VARCHAR(100)    NOT NULL
+);
+
+ALTER TABLE `component` ADD CONSTRAINT `FK_component_to_data` 		FOREIGN KEY (`data_id`) 		REFERENCES `data`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+create table software (
+	id           		INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	name 				VARCHAR(100)    NOT NULL
+);
+
+ALTER TABLE `component` ADD CONSTRAINT `FK_component_to_software` 		FOREIGN KEY (`software_id`) 		REFERENCES `software`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;

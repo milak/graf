@@ -79,6 +79,10 @@ $result->free();
 $sql = <<<SQL
     SELECT component.* from component
     INNER JOIN service_needs_component ON service_needs_component.component_id = component.id
+	LEFT OUTER JOIN data 		ON component.data_id 		= data.id
+	LEFT OUTER JOIN service 	ON component.service_id 	= service.id
+	LEFT OUTER JOIN device 		ON component.device_id 		= device.id
+	LEFT OUTER JOIN software	ON component.software_id 	= software.id
 	where service_needs_component.service_id = $service_id
 SQL;
 if(!$result = $db->query($sql)){
