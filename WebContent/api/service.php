@@ -7,8 +7,11 @@ $sql = <<<SQL
     SELECT service.*, instance.id as instance_id, instance.name as instance_name, environment.id as environment_id, environment.name as environment_name, environment.code as environment_code from service
     LEFT OUTER JOIN instance ON service.id = instance.service_id
     LEFT OUTER JOIN environment ON instance.environment_id = environment.id
-    ORDER by service.id
 SQL;
+if (isset($_GET["id"])){
+	$sql .= " where service.id = ".$_GET["id"];
+}
+$sql .= " ORDER by service.id";
 if(!$result = $db->query($sql)){
     die('There was an error running the query [' . $db->error . ']');
 }?>
@@ -29,6 +32,7 @@ while($row = $result->fetch_assoc()){
 		{
 			"id"        : <?php echo $service_id; ?>,
 			"name"      : "<?php echo $row["name"]; ?>",
+			"code"      : "<?php echo $row["code"]; ?>",
 			"instances" : [
 <?php	}
 	if (isset($row["instance_id"])){
