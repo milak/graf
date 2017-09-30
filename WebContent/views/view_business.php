@@ -122,13 +122,13 @@ while($row = $result->fetch_assoc()){
 	if (($type_name == "START") || ($type_name == "END")){
 		// SKIP
 	} else if ($type_name == "ACTOR") {
-		$obj = new stdClass();
+		/*$obj = new stdClass();
 		$obj->id 		= $row["step_id"];
 		$obj->type 		= "box";
 		$obj->class 	= "process_".strtolower($type_name);
 		$obj->name 		= $row["step_name"];
 		$obj->links 	= array();
-		$area_actor->elements[] = $obj;
+		$area_actor->elements[] = $obj;*/
 	} else if ($type_name == "SERVICE") {
 	/*	$obj = new stdClass();
 		$obj->id 		= $row["service_id"];
@@ -165,6 +165,25 @@ while($row = $result->fetch_assoc()){
 	$obj->name 		= $row["name"];
 	$obj->links 	= array();
 	$area_service->elements[] = $obj;
+}
+$result->free();
+
+$sql = <<<SQL
+   SELECT * from actor
+   WHERE domain_id = $domain_id
+SQL;
+if(!$result = $db->query($sql)){
+    displayErrorAndDie('There was an error running the query [' . $db->error . ']');
+}
+// Charger tous les services
+while($row = $result->fetch_assoc()){
+	$obj = new stdClass();
+	$obj->id 		= $row["id"];
+	$obj->type 		= "actor";
+	$obj->class 	= "process_actor";
+	$obj->name 		= $row["name"];
+	$obj->links 	= array();
+	$area_actor->elements[] = $obj;
 }
 $result->free();
 // Conserver uniquement les zones racines nécessaires

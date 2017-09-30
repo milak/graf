@@ -15,12 +15,14 @@ function displayBusiness(domainId){
 	if (domainId == null) {
 		$("#business_create_process_button").button("disable");
 		$("#business_create_service_button").button("disable");
+		$("#business_create_actor_button").button("disable");
 		clearFrame();
 		currentDomainId = null;
 	} else {
 		currentDomainId = domainId;
 		$("#business_create_process_button").button("enable");
 		$("#business_create_service_button").button("enable");
+		$("#business_create_actor_button").button("enable");
 		changeImage("views/view_business.php?id="+domainId);
 	}
 }

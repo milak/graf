@@ -26,6 +26,7 @@
 	<script type="text/javascript" src="script/service.js"></script>
 	<script type="text/javascript" src="script/process.js"></script>
 	<script type="text/javascript" src="script/business.js"></script>
+	<script type="text/javascript" src="script/actor.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 	<script>
@@ -44,36 +45,7 @@
 			}
 		}
 		
-		function business_createProcess(){
-			var domainId = $("#domainSelected").val();
-			if ((domainId == null) || (domainId == "null")){
-				return;
-			}
-			$("#process_create_form_domain_id").val(domainId);
-			$("#process_create_form").dialog({"modal":true,"title":"Création d'un processus"});
-		}
-		function business_submit_create_process(){
-			var name 	= $("#process_create_form_name").val();
-			var description = $("#process_create_form_description").val();
-			var domain_id 	= $("#process_create_form_domain_id").val();
-			$.ajax({
-				type 	: "POST",
-				url 	: "api/process.php",
-				data	: {
-					"name"		: name,
-					"description"	: description,
-					"domain_id"	: domain_id},
-				dataType: "text",
-				success	: function( data ) {
-	    				alert("Processus créé");
-					$("#process_create_form").dialog("close");
-					displayBusiness(null);
-				}
-			})
-  			.fail(function(jxqr,textStatus,error){
-				alert(textStatus+" : "+error);
-			});
-		}
+		
 		function displayLogic(){
 			hideToolBox();
 			$("#logic_toolbox").show();
@@ -140,22 +112,23 @@
 		<div id="default_toolbox" style="width:100%">
 		</div>
 		<div id="strategic_toolbox" style="width:100%;display:none" class="controlgroup">
-			<button onclick="createDomain()">Cr&eacute;er un domain</button>
+			<button onclick="createDomain()"><img src="images/78.png"/> domaine</button>
 			<label for="strategic_viewprocess">Voir les processus</label>
 			<input type="checkbox" name="strategic_viewprocess" id="strategic_viewprocess" onclick="strategic_checkSeeProcess()"/>
 		</div>
 		<div id="service_toolbox" style="width:100%;display:none" class="controlgroup">
-			<button id="service_create_component_button" onclick="createComponent()" disabled="true">Cr&eacute;er un composant</button>
-			<button id="service_create_instance_button" onclick="createServiceInstance()" disabled="true">Cr&eacute;er une instance</button>
+			<button id="service_create_component_button" onclick="createComponent()" disabled="true"><img src="images/78.png"/> composant</button>
+			<button id="service_create_instance_button" onclick="createServiceInstance()" disabled="true"><img src="images/78.png"/> instance</button>
 		</div>
 		<div id="process_toolbox" style="width:100%;display:none" class="controlgroup">
-			<button id="process_create_step_button" onclick="createStep()" disabled="true">Cr&eacute;er une étape</button>
+			<button id="process_create_step_button" onclick="createStep()" disabled="true"><img src="images/78.png"/> étape</button>
 		</div>
 		<div id="business_toolbox" style="width:100%;display:none" class="controlgroup">
 			<select id="domainSelected">
 			</select>
-			<button id="business_create_process_button" onclick="business_createProcess()" disabled="true">Cr&eacute;er un processus</button>
-			<button id="business_create_service_button" onclick="createService()" disabled="true">Cr&eacute;er un service</button>
+			<button id="business_create_process_button" onclick="createProcess()" disabled="true"><img src="images/78.png"/> processus</button>
+			<button id="business_create_service_button" onclick="createService()" disabled="true"><img src="images/78.png"/> service</button>
+			<button id="business_create_actor_button" onclick="createActor()" disabled="true"><img src="images/78.png"/> acteur</button>
 		</div>
 		<div id="technic_toolbox" style="width:100%;vertical-align:middle;display:none" class="controlgroup">
 			<label for="transmission-automatic">Automatic</label>
@@ -187,36 +160,42 @@
 </div>
 <div id="popup" style="display:none">
 </div>
+<div id="create_actor_form" style="display:none">
+	Nom : 		<input type="text" 	id="create_actor_form_name" 		name="name"/><br/>
+	<hr/>
+	<button onclick='doCreateActor()'><img src="images/78.png"/> créer</button>
+	<button onclick='$("#create_actor_form").dialog("close");'><img src="images/33.png"/> annuler</button>
+</div>
 <div id="domain_create_form" style="display:none">
 	Nom : 		<input type="text" 	id="domain_create_form_name" 		name="name"/><br/>
 	Zone : 		<select id="domain_create_form_area"></select>
 	<hr/>
-	<button onclick='doCreateDomain()'>Créer</button>
-	<button onclick='$("#domain_create_form").dialog("close");'>Annuler</button>
+	<button onclick='doCreateDomain()'><img src="images/78.png"/> cr&eacute;er</button>
+	<button onclick='$("#domain_create_form").dialog("close");'><img src="images/33.png"/> annuler</button>
 </div>
 <div id="process_create_form" style="display:none">
 	Nom : 		<input type="text" 	id="process_create_form_name" 		name="name"/><br/>
 	Description : 	<textarea 		id="process_create_form_description" 	name="description"></textarea><br/>
 			<input type="hidden" 	id="process_create_form_domain_id" 	name='domain_id' value=""/>
 	<hr/>
-	<button onclick='business_submit_create_process()'>Créer</button>
-	<button onclick='$("#process_create_form").dialog("close");'>Annuler</button>
+	<button onclick='doCreateProcess()'><img src="images/78.png"/> créer</button>
+	<button onclick='$("#process_create_form").dialog("close");'><img src="images/33.png"/> annuler</button>
 </div>
 <div id="create_service_form" style="display:none">
 	Nom : 	<input type="text"		id="create_service_form_name" 		name="name"/><br/>
 	Code :	<input type="text"		id="create_service_form_code" 		name="code"/><br/>
 			<input type="hidden" 	id="create_service_form_domain_id" 	name='domain_id'/>
 	<hr/>
-	<button onclick='doCreateService()'>Cr&eacute;er</button>
-	<button onclick='$("#create_service_form").dialog("close");'>Annuler</button>
+	<button onclick='doCreateService()'><img src="images/78.png"/> cr&eacute;er</button>
+	<button onclick='$("#create_service_form").dialog("close");'><img src="images/33.png"/> annuler</button>
 </div>
 <div id="create_instance_form" style="display:none">
 	Nom : 			<input type="text"		id="create_instance_form_name" 		name="name"/><br/>
 	Environment :	<select id="create_instance_form_environment"/><br/>
 			<input type="hidden" 	id="create_instance_form_service_id" 	name='service_id'/>
 	<hr/>
-	<button onclick='doCreateServiceInstance()'>Cr&eacute;er</button>
-	<button onclick='$("#create_instance_form").dialog("close");'>Annuler</button>
+	<button onclick='doCreateServiceInstance()'><img src="images/78.png"/> cr&eacute;er</button>
+	<button onclick='$("#create_instance_form").dialog("close");'><img src="images/33.png"/> annuler</button>
 </div>
 <!--img id="frame" src="" style="width:90%;height:94%;position:absolute;right:0;bottom:0px"/-->
 <!--iframe id="frame" style="width:90%;height:94%;position:absolute;right:0;bottom:0px">

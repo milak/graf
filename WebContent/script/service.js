@@ -99,3 +99,6 @@ function deleteServiceInstance(id){
 		alert(textStatus+" : "+error);
 	});
 }
+function createComponent(){
+	
+}
