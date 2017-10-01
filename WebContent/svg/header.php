@@ -3,7 +3,9 @@
 define("ELEMENT_HEIGHT",50);
 define("ELEMENT_WIDTH",100);
 define("AREA_GAP",30);
-define("CHAR_WIDTH",9);
+define("ELEMENT_CHAR_WIDTH",6);
+define("LINK_CHAR_WIDTH",8);
+define("AREA_CHAR_WIDTH",10);
 define("CHAR_HEIGHT",11);
 // ************
 // Début de l'image

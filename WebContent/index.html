@@ -183,8 +183,37 @@
 	<select id="create_component_form_data"></select>
 	<select id="create_component_form_device"></select>
 	<hr/>
-	<button onclick='doCreateComponent()'><img src="images/78.png"/> cr&eacute;er</button>
+	<button onclick='doCreateComponent()'><img src="images/78.png"/> ajouter</button>
 	<button onclick='$("#create_component_form").dialog("close");'><img src="images/33.png"/> annuler</button>
+</div>
+<div id="edit_component_form" style="display:none">
+	<p>Composant</p>
+	<b>Nom</b> : <input type="text" id="edit_component_form_name"/><br/><br/>
+	<hr/>
+	<b>Lié à</b> : <br/>
+	<table style="border:1px solid black;width:100%">
+		<thead style="background-color:lightgray">
+			<tr>
+				<th>Composant</th><th>Protocole</th><th>Port</th><th></th>
+			</tr>
+		</thead>
+		<tbody id="edit_component_form_links"></tbody>
+	</table>
+	<div id="edit_component_form_toggle1" style="width: 100%;text-align: right;">
+		<a href="#" onclick="$('#edit_component_form_toggle1').hide();$('#edit_component_form_toggle2').show();">Ajouter un lien</a>
+	</div>
+	<div id="edit_component_form_toggle2" style="display:none">
+	<select id="edit_component_form_component_list">
+	</select><br/>
+	Protocole : <input id="edit_component_form_protocole" type='text'/><br/>
+	Port : 		<input  id="edit_component_form_port" type='text'/>
+	<a href="#" onclick="addComponentLink()">Valider</a>
+	<a href="#" onclick="hideAddComponentLinkForm()">Annuler</a>
+	</div>
+	<hr/>
+	<button onclick='$("#edit_component_form").dialog("close");displayComponent(currentComponentId)' id="edit_component_form_ouvrir"><img src='images/63.png'/> ouvrir</button>
+	<button onclick='$("#edit_component_form").dialog("close");unlinkComponent(currentComponentId)'><img src='images/14.png'/> retirer</button>
+	<button onclick='$("#edit_component_form").dialog("close");'><img src='images/33.png'/> fermer</button>
 </div>
 <div id="process_create_form" style="display:none">
 	Nom : 		<input type="text" 	id="process_create_form_name" 			name="name"/><br/>

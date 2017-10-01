@@ -117,13 +117,15 @@ function svgElementClicked(what,id){
 			html += "<b>Nom</b> : "+service.name+"<br/><br/>";
 			html += "<b>Code</b> : "+service.code+"<br/><br/>";
 			html += "<hr/>";
-			html+="<div style='display:inline'><button onclick='hidePopup();displayService("+id+")'><img src='images/63.png'/> ouvrir</button>";
+			html += " <button onclick='hidePopup();displayService("+id+")'><img src='images/63.png'/> ouvrir</button>";
 			html += " <button onclick='hidePopup();deleteService("+id+")'><img src='images/14.png'/> supprimer</button>";
-			html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button></div>";
+			html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
 			showPopup("Détail",html);
 		}).fail(function(jxqr,textStatus,error) {
 			showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 		});
+	} else if (what == "component"){
+		showComponentContext(id);
 	} else {
 		alert("An "+what+" of id "+id +" was clicked");
 	}

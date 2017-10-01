@@ -79,12 +79,24 @@ ALTER TABLE `service_has_tag` ADD CONSTRAINT `FK_service_has_tag_tag` 		FOREIGN 
 
 create table component (
 	id				 INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	name			 VARCHAR(100),
+	`type` 			 VARCHAR(100) NOT NULL,
 	software_id  	 INT,
 	data_id			 INT,
 	service_id		 INT,
 	device_id		 INT
 );
+
+create table component_link (
+	service_id			INT NOT NULL,
+	from_component_id	INT NOT NULL,
+	to_component_id 	INT NOT NULL,
+	protocole			VARCHAR(50),
+	port				VARCHAR(10)
+);
+
+ALTER TABLE `component_link` ADD CONSTRAINT `FK_component_link_service` 		FOREIGN KEY (`service_id`) 			REFERENCES `service`(`id`) 		ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `component_link` ADD CONSTRAINT `FK_component_link_from_component` 	FOREIGN KEY (`from_component_id`) 	REFERENCES `component`(`id`) 	ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `component_link` ADD CONSTRAINT `FK_component_link_to_component` 	FOREIGN KEY (`to_component_id`) 	REFERENCES `component`(`id`) 	ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 create table service_needs_component (
     service_id 		 INT NOT NULL,

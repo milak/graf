@@ -107,5 +107,11 @@
 }
 .element_label {
 	fill		: black;
+	font-size	: 12px;
+	font-family	: "courier new";
+}
+.link_label {
+	fill		: black;
+	font-size	: 14px;
 	font-family	: "courier new";
 }

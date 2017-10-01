@@ -143,26 +143,44 @@
 <line x1="850" y1="600" x2="950" y2="500" style="stroke:black" comment="Service_has_tag to Tag link"/>
 <line x1="700" y1="600" x2="600" y2="950" style="stroke:black" comment="Service_has_tag to Service link"/>
 
-<g width="150" height="145" transform="translate(950,900)">
+<g width="150" height="165" transform="translate(950,900)">
 	<rect x="0" y="0" width="150" height="30" class="entity_header"/>
-	<rect x="0" y="30" width="150" height="110" class="entity"/>
+	<rect x="0" y="30" width="150" height="130" class="entity"/>
 	<text x="5" y="20">component</text>
 	<text x="5" y="50" class="primary_key">id (PK)</text>
-	<text x="5" y="70" class="foreign_key">software_id (FK)</text>
+	<text x="5" y="70">type</text>
 	<text x="5" y="90" class="foreign_key">data_id (FK)</text>
 	<text x="5" y="110" class="foreign_key">service_id (FK)</text>
 	<text x="5" y="130" class="foreign_key">device_id (FK)</text>
+	<text x="5" y="150" class="foreign_key">software_id (FK)</text>
 </g>
 
-<g width="200" height="145" transform="translate(700,900)">
-	<rect x="0" y="0" width="200" height="30" class="entity_header"/>
-	<rect x="0" y="30" width="200" height="110" class="entity"/>
+<line x1="1000" y1="1060" x2="980" y2="1080" style="stroke:black" comment="Component to service link"/>
+<line x1="580" y1="1080" x2="980" y2="1080" style="stroke:black" comment="Component to service link"/>
+<line x1="580" y1="1080" x2="560" y2="1040" style="stroke:black" comment="Component to service link"/>
+
+<g width="240" height="140" transform="translate(900,700)">
+	<rect x="0" y="0" width="240" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="240" height="100" class="entity"/>
+	<text x="5" y="20">component_link</text>
+	<text x="5" y="50" class="primary_key">from_component_id (PK,FK)</text>
+	<text x="5" y="70" class="primary_key">to_component_id (PK,FK)</text>
+	<text x="5" y="90">protocole</text>
+	<text x="5" y="110">port</text>
+</g>
+
+<line x1="1000" y1="830" x2="1000" y2="900" style="stroke:black" comment="Component_link to from_component link"/>
+<line x1="1050" y1="830" x2="1050" y2="900" style="stroke:black" comment="Component_link to to_component link"/>
+
+<g width="220" height="145" transform="translate(680,900)">
+	<rect x="0" y="0" width="220" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="220" height="110" class="entity"/>
 	<text x="5" y="20">service_needs_component</text>
 	<text x="5" y="50" class="foreign_key">service_id (PK,FK)</text>
 	<text x="5" y="70" class="foreign_key">component_id (PK,FK)</text>
 </g>
 
-<line x1="600" y1="980" x2="700" y2="980" style="stroke:black" comment="Service to service_needs_component link"/>
+<line x1="600" y1="980" x2="680" y2="980" style="stroke:black" comment="Service to service_needs_component link"/>
 <line x1="900" y1="980" x2="950" y2="980" style="stroke:black" comment="Service_needs_component to component link"/>
 
 <g width="180" height="145" transform="translate(450,700)">
@@ -286,6 +304,17 @@
 </g>
 
 <line x1="1100" y1="1000" x2="1200" y2="950" style="stroke:black" comment="Component to data link"/>
+
+<g width="160" height="105" transform="translate(1200,1100)">
+	<rect x="0" y="0" width="160" height="30" class="entity_header"/>
+	<rect x="0" y="30" width="160" height="70" class="entity"/>
+	<text x="5" y="20">software</text>
+	<text x="5" y="50" class="primary_key">id (PK)</text>
+	<text x="5" y="70">name</text>
+</g>
+
+<line x1="1100" y1="1000" x2="1200" y2="1150" style="stroke:black" comment="Component to software link"/>
+
 
 
 </svg>

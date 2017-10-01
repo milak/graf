@@ -142,11 +142,12 @@ while (count($stack) > 0){
 			if ($step->allreadyComputed) {
 				continue;
 			}
+			/*TODO : voir comment faire pour traiter ça dans body.php
 			foreach($step->links as $link){
 				if ($link->to == $set->step){
 					$link->backlink = true;
 				}
-			}
+			}*/
 		}
 		$stack[] = $set;
 	}

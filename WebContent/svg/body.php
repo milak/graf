@@ -135,9 +135,9 @@ function displayArea($level,$area){
 		$label = $area->name;
 	}
 	// Adapter la taille du label par rapport à la taille de la zone
-	$textWidth = strlen($label) * CHAR_WIDTH;
+	$textWidth = strlen($label) * AREA_CHAR_WIDTH;
 	if ($textWidth > ($area->width - 15)){
-		$nbcharmax = intval(($area->width - 15) / CHAR_WIDTH);
+		$nbcharmax = intval(($area->width - 15) / AREA_CHAR_WIDTH);
 		$label = substr($label,0,$nbcharmax);
 	}
 	echo '<text x="'.($area->x+15).'" y="'.($area->y+25).'" class="'.$class.'_title">'.$label.'</text>';
@@ -188,10 +188,15 @@ function displayArea($level,$area){
 					$y2 = $to->y + $to->height + 2;
 				}
 				echo '<line x1="'.$x1.'" y1="'.$y1.'" x2="'.$x2.'" y2="'.$y2.'" style="stroke:black"/>';
+				// calcul du centre de la ligne
 				$x = ceil(($x1+$x2) / 2);
 				$y = ceil(($y1+$y2) / 2) - 3;
+				// calcul de la taille du texte
+				$textWidth = strlen($link->label) * LINK_CHAR_WIDTH;
+				// Centrer le texte
+				$x = $x-ceil($textWidth/2);
 				if (isset($link->label)){
-					echo '<text x="'.$x.'" y="'.$y.'" style="fill:gray">'.$link->label.'</text>';
+					echo '<text x="'.$x.'" y="'.$y.'" style="fill:gray" class="link_label">'.$link->label.'</text>';
 				}
 				// TODO mettre une flèche
 			//}
@@ -214,12 +219,12 @@ function displayArea($level,$area){
 	   }
 	   if (substr($class, 0, 5) === "rect_"){
 		echo '<rect x="'.$element->x.'" y="'.$element->y.'" width="'.$element->width.'" height="'.$element->height.'" rx="5" ry="5" class="rect_www_hhh" filter="url(#shadow)" onclick="window.parent.svgElementClicked(\''.$element->type.'\',\''.$element->id.'\')"/>';
-		$textwidth = strlen($element->name) * CHAR_WIDTH;
+		$textwidth = strlen($element->name) * ELEMENT_CHAR_WIDTH;
 		$lines = array();
 		if ($textwidth > ($element->width - 5)){
- 			$nbcharmax = intval(($element->width - 5) / CHAR_WIDTH);
+ 			$nbcharmax = intval(($element->width - 5) / ELEMENT_CHAR_WIDTH);
 			$text = $element->name;
-			while ((strlen($text) * CHAR_WIDTH) > $element->width){
+			while ((strlen($text) * ELEMENT_CHAR_WIDTH) > $element->width){
 				$pos = $nbcharmax;
 				if ($pos >= strlen($text)){
 					$pos = strlen($text);
@@ -247,17 +252,17 @@ function displayArea($level,$area){
 		$y = $element->y + CHAR_HEIGHT + $verticalgap;
 		$x = $element->x+2;
 		foreach ($lines as $line){
-			$textwidth = strlen($line) * CHAR_WIDTH;
+			$textwidth = strlen($line) * ELEMENT_CHAR_WIDTH;
 			$x = $element->x + round(($element->width - $textwidth) / 2);
 			echo '<text x="'.$x.'" y="'.($y).'" class="element_label">'.$line.'</text>';
 			$y+=$verticalgap+ CHAR_HEIGHT;
 		}
 	} else {
 		echo '<use id="element_'.$element->id.'" href="#'.$class.'" x="'.($element->x).'" y="'.($element->y).'" onclick=" window.parent.svgElementClicked(\''.$element->type.'\',\''.$element->id.'\')" style="'.$style.'"/>';
-		$textwidth = strlen($element->name) * CHAR_WIDTH;
+		$textwidth = strlen($element->name) * ELEMENT_CHAR_WIDTH;
 		$x = $element->x;
 		if ($textwidth > $element->width){
-			$nbcharmax = round($element->width / CHAR_WIDTH);
+			$nbcharmax = round($element->width / ELEMENT_CHAR_WIDTH);
 			$text = substr($element->name,0,$nbcharmax);
 		} else {
 			$x = $element->x + round(($element->width - $textwidth) / 2);
