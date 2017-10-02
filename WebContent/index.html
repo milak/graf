@@ -23,76 +23,27 @@
  	</style>
 	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 	<script type="text/javascript" src="script/util.js"></script>
+	<script type="text/javascript" src="script/strategic.js"></script>
 	<script type="text/javascript" src="script/service.js"></script>
 	<script type="text/javascript" src="script/process.js"></script>
 	<script type="text/javascript" src="script/business.js"></script>
 	<script type="text/javascript" src="script/actor.js"></script>
+	<script type="text/javascript" src="script/view.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 	<script>
-		function displayStrategic(){
-			hideToolBox();
-			$("#strategic_toolbox").show();
-			strategic_checkSeeProcess();
-		}
-		
-		
-		function strategic_checkSeeProcess(){
-			if( $('input[name=strategic_viewprocess]').is(':checked') ){
-				changeImage("views/view_strategique.php?showProcess=true");
-			} else {
-				changeImage("views/view_strategique.php");
-			}
-		}
-		
-		
 		function displayLogic(){
 			hideToolBox();
 			$("#logic_toolbox").show();
 			clearFrame();
-			//view_logique
-			//document.getElementById('frame').data='views/view_views.php
-			//document.getElementById('frame').data='views/view_processes.php'
-			//document.getElementById('frame').data='views/view_technique.php'
 		}
-		function selectDomain(){
-			var id = $("#domainSelected").val();
-			if (id != "null"){
-				displayBusiness(id);
-			} else {
-				displayBusiness(null);
-			}
-		}
-		
-
 		function displayTechnic(){
 			hideToolBox();
 			$("#technic_toolbox").show();
 			clearFrame();
 		}
-		function displayViews(){
-			hideToolBox();
-			$("#views_toolbox").show();
-			selectView();
-		}
-		function views_checkFill(){
-			selectView();
-		}
-		function selectView(){
-			var view = $("#viewSelected").val();
-			if (view == "null"){
-				clearFrame();
-			} else {
-				if( $('input[name=views_fill]').is(':checked') ){
-					changeImage("views/view_views.php?view="+view);
-				} else {
-					changeImage("views/view_views.php?view="+view+"&fill=no");
-				}
-			}
-		}
-
 	</script>
-</header>
+</head>
 <body>
 <div style="width:10%;height:100%;background-color:#5588EE; float: left;">
 	<div style="width:100%;height:100px;text-align:center;color:white;vertical-align:middle;padding-top:10px">
@@ -143,6 +94,7 @@
 			</select>
 			<label for="views_fill">Remplir</label>
 			<input type="checkbox" name="views_fill" id="views_fill" onclick="views_checkFill()" checked/>
+			<button id="views_update_button" onclick="updateView()" disabled="true"><img src="images/96.png"/> update</button>
 	      <!--label for="transmission-standard">Standard</label>
 	      <input type="radio" name="transmission" id="transmission-standard">
 	      <label for="transmission-automatic">Automatic</label>
@@ -162,6 +114,12 @@
 	</div>
 </div>
 <div id="popup" style="display:none">
+</div>
+<div id="update_view_form" style="display:none">
+	Nom : <input id="update_view_form_name" type="text" disabled="true"/><br/>
+	<textarea id="update_view_form_value" style="width:100%;height:90%"></textarea>
+	<button onclick='doUpdateView()'><img src="images/78.png"/> valider</button>
+	<button onclick='$("#update_view_form").dialog("close");'><img src="images/33.png"/> annuler</button>
 </div>
 <div id="create_actor_form" style="display:none">
 	Nom : 		<input type="text" 	id="create_actor_form_name" 		name="name"/><br/>

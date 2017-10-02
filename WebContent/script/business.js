@@ -61,6 +61,14 @@ function doCreateDomain(){
 		alert(textStatus+" : "+error);
 	});
 }
+function selectDomain(){
+	var id = $("#domainSelected").val();
+	if (id != "null"){
+		displayBusiness(id);
+	} else {
+		displayBusiness(null);
+	}
+}
 function deleteDomain(domainId){
 	if (!confirm("Etes-vous sûr de vouloir supprimer le domaine ?")){
 		return;
