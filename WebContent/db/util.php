@@ -41,6 +41,7 @@ SQL;
 		$area->code      = $row['code'];
 		$area->parent_id = $row['parent_id'];
 		$area->display   = $row['display'];
+		$area->position  = $row['position'];
 		$area->elements  = array();
 		$area->subareas  = array();
 		$area->needed    = false;

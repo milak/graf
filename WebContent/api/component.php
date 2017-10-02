@@ -31,8 +31,9 @@ while($row = $result->fetch_assoc()){
 	}
 	$type = $row["type"];?>
 	{
-		"id"    	: <?php echo $row["id"]; ?>,
-		"type" 		: "<?php echo $type; ?>",
+		"id"    	:  <?php echo $row["id"]; ?>,
+		"type" 		: "<?php echo $type;      ?>",
+		"area_id"	:  <?php echo $area_id;   ?>,
 		"name"		: "<?php 
 	if ($type == "device"){
 		echo $row["device_name"].'", "device_id" : '.$row["device_id"];

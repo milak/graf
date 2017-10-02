@@ -3,7 +3,7 @@ require("../svg/header.php");
 require("../db/connect.php");
 require("../db/util.php");
 require("../svg/body.php");
-
+//$areas = loadAreas($db,"logique");
 // ****************************************************************
 // Chercher tous les noeuds correspondant aux critères de recherche
 // ****************************************************************
