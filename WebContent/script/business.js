@@ -61,8 +61,8 @@ function doCreateDomain(){
 		alert(textStatus+" : "+error);
 	});
 }
-function selectDomain(){
-	var id = $("#domainSelected").val();
+function searchDomain(){
+	var id = $("#search_domain_form_list").val();
 	if (id != "null"){
 		displayBusiness(id);
 	} else {

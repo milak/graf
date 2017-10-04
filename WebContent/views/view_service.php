@@ -126,10 +126,12 @@ while($row = $result->fetch_assoc()){
 	$components[$component->id] = $component;
 }
 $result->free();
-// Charger tous les liens
+// Charger tous les liens pour lesquels le composant "from" est nécessaire au service (le to peut-être issu d'un autre service)
 $sql = <<<SQL
 	SELECT * FROM component_link
-	WHERE service_id = $service_id
+	INNER JOIN component ON component.id = component_link.from_component_id
+	INNER JOIN service_needs_component ON service_needs_component.component_id = component.id
+	WHERE service_needs_component.service_id = $service_id
 SQL;
 
 if(!$result = $db->query($sql)){
@@ -138,6 +140,10 @@ if(!$result = $db->query($sql)){
 while($row = $result->fetch_assoc()){
 	$from_component = $components[$row["from_component_id"]];
 	$to_component 	= $components[$row["to_component_id"]];
+	// le composant lié n'est pas rattaché au service
+	if ($to_component == null){
+		// TODO chercher le composant dans la base de données et le ramener en attendant, cela va planter...
+	}
 	$port = $row["port"];
 	$protocole = $row["protocole"];
 	$label = "";

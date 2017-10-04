@@ -243,17 +243,23 @@ function unlinkComponent(componentId){
 	});
 }
 function refreshComponentContext(componentId){
+	$("#edit_component_form_valider").prop("disabled","true");
+	$("#edit_component_form_service_list").val(currentServiceId);
 	$.getJSON( "api/component.php?id="+componentId, function(result) {
 		var component = result.components[0];
 		if (component.type == "service"){
 			$("#edit_component_form_ouvrir").show();
 		}
 		$("#edit_component_form_name").val(component.name);
+		$("#edit_component_form_area").val(component.area_id);
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
 	$.getJSON( "api/component.php?service="+currentServiceId, function(result) {
 		var componentList = result.components;
+		componentList.sort(function(a, b){
+			return a.name.localeCompare(b.name);
+		});
 		var componentsById = new Array();
 		for (var i = 0; i < componentList.length; i++){
 			var component = componentList[i];
@@ -273,6 +279,9 @@ function refreshComponentContext(componentId){
 			html = "";
 			for (var i = 0; i < componentList.length; i++){
 				var component = componentList[i];
+				if (component.id == componentId){
+					continue;
+				}
 				if (!component.linked){
 					html += "<option value='"+component.id+"'>"+component.name+"</option>";
 				}
@@ -281,6 +290,23 @@ function refreshComponentContext(componentId){
 		}).fail(function(jxqr,textStatus,error) {
 			showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 		});
+	}).fail(function(jxqr,textStatus,error) {
+		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+	});
+}
+function filterComponentList(serviceId){
+	$.getJSON( "api/component.php?service="+serviceId, function(result) {
+		html = "";
+		for (var i = 0; i < componentList.length; i++){
+			var component = componentList[i];
+			if (component.id == currentComponentId){
+				continue;
+			}
+			if (!component.linked){
+				html += "<option value='"+component.id+"'>"+component.name+"</option>";
+			}
+		}
+		$("#edit_component_form_component_list").html(html);
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
@@ -319,7 +345,6 @@ function addComponentLink(){
 		type 	: "POST",
 		url 	: "api/component_link.php",
 		data	: {
-			"service_id"		: currentServiceId,
 			"protocole"			: protocole,
 			"port"				: port,
 			"from_component_id" : currentComponentId,
@@ -332,4 +357,11 @@ function addComponentLink(){
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
 	});
+}
+function searchService(){
+	var selectedService = $("#search_service_form_list").val();
+	if (selectedService == "NULL"){
+		return;
+	}
+	displayService(selectedService);
 }

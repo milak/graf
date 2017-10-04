@@ -277,7 +277,7 @@ function display($areas){
 	$x = 0;
 	foreach ($areas as $area){
 		$area->x = $x;
-		$area->y = 15;
+		$area->y = 0;
 		computeSize($area);
 		$x += $area->width + AREA_GAP;
 	}

@@ -20,6 +20,11 @@
 			border : 4px inset;
 			background-color : white;
 		}
+		.frame {
+			 
+   			height: 95%; 
+   			overflow: scroll; 
+		}
  	</style>
 	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 	<script type="text/javascript" src="script/util.js"></script>
@@ -29,8 +34,8 @@
 	<script type="text/javascript" src="script/business.js"></script>
 	<script type="text/javascript" src="script/actor.js"></script>
 	<script type="text/javascript" src="script/view.js"></script>
-	<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-	<script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script type="text/javascript" src="lib/jquery/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="lib/jquery/ui/jquery-ui.js"></script>
 	<script>
 		function displayLogic(){
 			hideToolBox();
@@ -58,31 +63,33 @@
 	<div class="menu" onclick="displayTechnic(null)">Vue technique</div>
 	<div class="menu" onclick="displayViews(null)">Gestion des vues</div>
 </div>
-<div style="width:90%;height:100%;float: right">
-	<div style="width:100%">
+<div style="width:90%;height:100%;float:right">
+	<table style="width:100%;height:100%;border:0px;border-collapse:collapse">
+	<tbody>
+		<tr><td>
 		<div id="default_toolbox" style="width:100%">
 		</div>
 		<div id="strategic_toolbox" style="width:100%;display:none" class="controlgroup">
-			<button onclick="createDomain()"><img src="images/78.png"/> domaine</button>
+			<button onclick="createDomain()"><img style="height:14px" src="images/78.png"/> domaine</button>
 			<label for="strategic_viewprocess">Voir les processus</label>
 			<input type="checkbox" name="strategic_viewprocess" id="strategic_viewprocess" onclick="strategic_checkSeeProcess()"/>
 		</div>
 		<div id="service_toolbox" style="width:100%;display:none" class="controlgroup">
-			<button id="service_create_device_button" 	onclick="createComponent('device')" 	disabled="true"><img src="images/78.png"/> matériel</button>
-			<button id="service_create_data_button" 	onclick="createComponent('data')" 		disabled="true"><img src="images/78.png"/> donnée</button>
-			<button id="service_create_software_button" onclick="createComponent('software')" 	disabled="true"><img src="images/78.png"/> logiciel</button>
-			<button id="service_create_service_button" 	onclick="createComponent('service')" 	disabled="true"><img src="images/78.png"/> service</button>
-			<button id="service_create_instance_button" onclick="createServiceInstance()" 		disabled="true"><img src="images/78.png"/> instance</button>
+			<button id="service_search_service_button" onclick='$("#search_service_form").dialog({"modal":true,"title":"Chercher un service"})'><img style="height:14px" src="images/65.png"/> chercher un service</button>
+			<button id="service_create_device_button" 	title="Importer un matériel" 			onclick="createComponent('device')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> matériel</button>
+			<button id="service_create_data_button" 	title="Importer une donnée"				onclick="createComponent('data')" 		disabled="true"><img style="height:14px" src="images/1633.png"/> donnée</button>
+			<button id="service_create_software_button" title="Importe un logiciel"				onclick="createComponent('software')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> logiciel</button>
+			<button id="service_create_service_button" 	title="Importer un service"				onclick="createComponent('service')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> service</button>
+			<button id="service_create_instance_button" title="Créer une instance de ce service" onclick="createServiceInstance()" 		disabled="true"><img style="height:14px" src="images/78.png"/> instance</button>
 		</div>
 		<div id="process_toolbox" style="width:100%;display:none" class="controlgroup">
-			<button id="process_create_step_button" onclick="createStep()" disabled="true"><img src="images/78.png"/> étape</button>
+			<button id="process_create_step_button" onclick="createStep()" disabled="true"><img style="height:14px" src="images/78.png"/> étape</button>
 		</div>
 		<div id="business_toolbox" style="width:100%;display:none" class="controlgroup">
-			<select id="domainSelected">
-			</select>
-			<button id="business_create_process_button" onclick="createProcess()" disabled="true"><img src="images/78.png"/> processus</button>
-			<button id="business_create_service_button" onclick="createService()" disabled="true"><img src="images/78.png"/> service</button>
-			<button id="business_create_actor_button" onclick="createActor()" disabled="true"><img src="images/78.png"/> acteur</button>
+			<button id="business_search_domain_button" onclick='$("#search_domain_form").dialog({"modal":true,"title":"Chercher un domain"})'><img style="height:14px" src="images/65.png"/> chercher un domaine</button>
+			<button id="business_create_process_button" onclick="createProcess()" disabled="true"><img style="height:14px" src="images/78.png"/> processus</button>
+			<button id="business_create_service_button" onclick="createService()" disabled="true"><img style="height:14px" src="images/78.png"/> service</button>
+			<button id="business_create_actor_button" onclick="createActor()" disabled="true"><img style="height:14px" src="images/78.png"/> acteur</button>
 		</div>
 		<div id="technic_toolbox" style="width:100%;vertical-align:middle;display:none" class="controlgroup">
 			<label for="transmission-automatic">Automatic</label>
@@ -94,7 +101,7 @@
 			</select>
 			<label for="views_fill">Remplir</label>
 			<input type="checkbox" name="views_fill" id="views_fill" onclick="views_checkFill()" checked/>
-			<button id="views_update_button" onclick="updateView()" disabled="true"><img src="images/96.png"/> update</button>
+			<button id="views_update_button" onclick="updateView()" disabled="true"><img style="height:14px" src="images/96.png"/> update</button>
 	      <!--label for="transmission-standard">Standard</label>
 	      <input type="radio" name="transmission" id="transmission-standard">
 	      <label for="transmission-automatic">Automatic</label>
@@ -105,34 +112,37 @@
       <input id="horizontal-spinner" class="ui-spinner-input">
       <button>Book Now!</button-->
 		</div>
-	</div>
-		<!--object id="frame" type="image/svg+xml" data="" style="width:100%;height:100%"></object-->
-		<!--img id="frame" src="" style="width:100%;height:100%"/-->
-	<div style="width:100%;height:95%;float: bottom">
-	<iframe id="frame" style="width:100%;height:100%" scrolling="yes"></iframe>
+		
+	</td></tr>
+	<tr style="height:100%"><td>
+		<object id="frame" type="image/svg+xml" data="" style="width:100%;height:100%"></object>
+		<!--img id="frame" src="" style="width:100%;height:100%"-->
+		<!--iframe id="frame" style="width:100%;height:100%" scrolling="yes"></iframe-->
 	<!--img id="frame" src="views/view_process.php?id=1" style="width:100%;height:100%"/-->
-	</div>
+	</td></tr>
+	</tbody>
+	</table>
 </div>
 <div id="popup" style="display:none">
 </div>
 <div id="update_view_form" style="display:none">
 	Nom : <input id="update_view_form_name" type="text" disabled="true"/><br/>
-	<textarea id="update_view_form_value" style="width:100%;height:90%"></textarea>
-	<button onclick='doUpdateView()'><img src="images/78.png"/> valider</button>
-	<button onclick='$("#update_view_form").dialog("close");'><img src="images/33.png"/> annuler</button>
+	<textarea id="update_view_form_value" style="width:100%;height:80%"></textarea>
+	<button onclick='doUpdateView()'><img style="height:14px" src="images/78.png"/> valider</button>
+	<button onclick='$("#update_view_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </div>
 <div id="create_actor_form" style="display:none">
 	Nom : 		<input type="text" 	id="create_actor_form_name" 		name="name"/><br/>
 	<hr/>
-	<button onclick='doCreateActor()'><img src="images/78.png"/> créer</button>
-	<button onclick='$("#create_actor_form").dialog("close");'><img src="images/33.png"/> annuler</button>
+	<button onclick='doCreateActor()'><img style="height:14px" src="images/78.png"/> créer</button>
+	<button onclick='$("#create_actor_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </div>
 <div id="create_domain_form" style="display:none">
 	Nom : 		<input type="text" 	id="create_domain_form_name" 		name="name"/><br/>
 	Zone : 		<select id="create_domain_form_area"></select>
 	<hr/>
-	<button onclick='doCreateDomain()'><img src="images/78.png"/> cr&eacute;er</button>
-	<button onclick='$("#create_domain_form").dialog("close");'><img src="images/33.png"/> annuler</button>
+	<button onclick='doCreateDomain()'><img style="height:14px" src="images/78.png"/> cr&eacute;er</button>
+	<button onclick='$("#create_domain_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </div>
 <div id="create_component_form" style="display:none">
 	<input type="hidden" id="create_component_form_type"/>
@@ -141,12 +151,13 @@
 	<select id="create_component_form_data"></select>
 	<select id="create_component_form_device"></select>
 	<hr/>
-	<button onclick='doCreateComponent()'><img src="images/78.png"/> ajouter</button>
-	<button onclick='$("#create_component_form").dialog("close");'><img src="images/33.png"/> annuler</button>
+	<button onclick='doCreateComponent()'><img style="height:14px" src="images/78.png"/> ajouter</button>
+	<button onclick='$("#create_component_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </div>
 <div id="edit_component_form" style="display:none">
 	<p>Composant</p>
-	<b>Nom</b> : <input type="text" id="edit_component_form_name"/><br/><br/>
+	<b>Nom</b> : <input type="text" id="edit_component_form_name" disabled="true"/><br/><br/>
+	<b>Zone</b> : <select id="edit_component_form_area"></select><br/><br/>
 	<hr/>
 	<b>Lié à</b> : <br/>
 	<table style="border:1px solid black;width:100%">
@@ -161,8 +172,8 @@
 		<a href="#" onclick="$('#edit_component_form_toggle1').hide();$('#edit_component_form_toggle2').show();">Ajouter un lien</a>
 	</div>
 	<div id="edit_component_form_toggle2" style="display:none">
-	<select id="edit_component_form_component_list">
-	</select><br/>
+	Service : <select id="edit_component_form_service_list"></select><br/>
+	Composant : <select id="edit_component_form_component_list"></select><br/>
 	Protocole : <input id="edit_component_form_protocole" type='text'/><br/>
 	Port : 		<input  id="edit_component_form_port" type='text'/>
 	<a href="#" onclick="addComponentLink()">Valider</a>
@@ -171,6 +182,7 @@
 	<hr/>
 	<button onclick='$("#edit_component_form").dialog("close");displayComponent(currentComponentId)' id="edit_component_form_ouvrir"><img src='images/63.png'/> ouvrir</button>
 	<button onclick='$("#edit_component_form").dialog("close");unlinkComponent(currentComponentId)'><img src='images/14.png'/> retirer</button>
+	<button onclick='$("#edit_component_form").dialog("close");' id="edit_component_form_valider" disabled="true"><img src='images/93.png'/> valider</button>
 	<button onclick='$("#edit_component_form").dialog("close");'><img src='images/33.png'/> fermer</button>
 </div>
 <div id="process_create_form" style="display:none">
@@ -178,24 +190,36 @@
 	Description : 	<textarea 		id="process_create_form_description" 	name="description"></textarea><br/>
 			<input type="hidden" 	id="process_create_form_domain_id" 		name='domain_id' value=""/>
 	<hr/>
-	<button onclick='doCreateProcess()'><img src="images/78.png"/> créer</button>
-	<button onclick='$("#process_create_form").dialog("close");'><img src="images/33.png"/> annuler</button>
+	<button onclick='doCreateProcess()'><img style="height:14px" src="images/78.png"/> créer</button>
+	<button onclick='$("#process_create_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
+</div>
+<div id="search_domain_form" style="display:none">
+	Domaine : <select id="search_domain_form_list"></select>
+	<hr/>
+	<button onclick='$("#search_domain_form").dialog("close");searchDomain();'><img style="height:14px" src="images/93.png"/> valider</button>
+	<button onclick='$("#search_domain_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
+</div>
+<div id="search_service_form" style="display:none">
+	Service : <select id="search_service_form_list"></select>
+	<hr/>
+	<button onclick='$("#search_service_form").dialog("close");searchService();'><img style="height:14px" src="images/93.png"/> valider</button>
+	<button onclick='$("#search_service_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </div>
 <div id="create_service_form" style="display:none">
 	Nom : 	<input type="text"		id="create_service_form_name" 		name="name"/><br/>
 	Code :	<input type="text"		id="create_service_form_code" 		name="code"/><br/>
 			<input type="hidden" 	id="create_service_form_domain_id" 	name='domain_id'/>
 	<hr/>
-	<button onclick='doCreateService()'><img src="images/78.png"/> cr&eacute;er</button>
-	<button onclick='$("#create_service_form").dialog("close");'><img src="images/33.png"/> annuler</button>
+	<button onclick='doCreateService()'><img style="height:14px" src="images/78.png"/> cr&eacute;er</button>
+	<button onclick='$("#create_service_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </div>
 <div id="create_instance_form" style="display:none">
 	Nom : 			<input type="text"		id="create_instance_form_name" 		name="name"/><br/>
 	Environment :	<select id="create_instance_form_environment"/><br/>
 			<input type="hidden" 	id="create_instance_form_service_id" 	name='service_id'/>
 	<hr/>
-	<button onclick='doCreateServiceInstance()'><img src="images/78.png"/> cr&eacute;er</button>
-	<button onclick='$("#create_instance_form").dialog("close");'><img src="images/33.png"/> annuler</button>
+	<button onclick='doCreateServiceInstance()'><img style="height:14px" src="images/78.png"/> cr&eacute;er</button>
+	<button onclick='$("#create_instance_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </div>
 <!--img id="frame" src="" style="width:90%;height:94%;position:absolute;right:0;bottom:0px"/-->
 <!--iframe id="frame" style="width:90%;height:94%;position:absolute;right:0;bottom:0px">
@@ -204,29 +228,54 @@
 	function refreshDomainList(){
 		$.getJSON( "api/domain.php", function(result) {
 			var domains = result.domains;
-			$('#domainSelected').html("<option value='null' selected>--choisir un domaine--</option>");
-			var options = "";
+			var options = "<option value='null' selected>--choisir un domaine--</option>";
 			for (var i = 0; i < domains.length; i++){
 				var domain = domains[i];
 				options += '<option value="'+domain.id+'">'+domain.name+'</option>';
 			}
-			$('#domainSelected').append(options);
+			$('#search_domain_form_list').html(options);
   		}).fail(function(jxqr,textStatus,error) {
 			showPopup("Echec","<h1>Impossible de charger les domaines</h1>"+textStatus+ " : " + error);
+		});
+	}
+	function refreshAreaList(){
+		$.getJSON( "api/area.php?view=logique", function(result) {
+			var areas = result.areas;
+			var options = "<option value='null' selected>--choisir une zone--</option>";
+			for (var i = 0; i < areas.length; i++){
+				var area = areas[i];
+				options += '<option value="'+area.id+'">'+area.name+'</option>';
+			}
+			$('#edit_component_form_area').html(options);
+  		}).fail(function(jxqr,textStatus,error) {
+			showPopup("Echec","<h1>Impossible de charger les zones</h1>"+textStatus+ " : " + error);
 		});
 	}
 	function refreshEnvironmentList(){
 		$.getJSON("api/environment.php", function(result){
 			var environments = result.environments;
-			$('#create_instance_form_environment').html("<option value='null' selected>--choisir un environement--</option>");
-			var options = "";
+			var options = "<option value='null' selected>--choisir un environement--</option>";
 			for (var i = 0; i < environments.length; i++){
 				var environment = environments[i];
 				options += '<option value="'+environment.id+'">'+environment.name+'</option>';
 			}
-			$('#create_instance_form_environment').append(options);
+			$('#create_instance_form_environment').html(options);
 		}).fail(function(jxqr,textStatus,error) {
-			showPopup("Echec","<h1>Impossible de charger les domaines</h1>"+textStatus+ " : " + error);
+			showPopup("Echec","<h1>Impossible de charger les environnements</h1>"+textStatus+ " : " + error);
+		});
+	}
+	function refreshServiceList(){
+		$.getJSON("api/service.php", function(result){
+			var services = result.services;
+			var options = "<option value='null' selected>--choisir un service--</option>";
+			for (var i = 0; i < services.length; i++){
+				var service = services[i];
+				options += '<option value="'+service.id+'">'+service.name+'</option>';
+			}
+			$('#search_service_form_list').html(options);
+			$('#edit_component_form_service_list').html(options);
+		}).fail(function(jxqr,textStatus,error) {
+			showPopup("Echec","<h1>Impossible de charger les services</h1>"+textStatus+ " : " + error);
 		});
 	}
 	$( function() {
@@ -243,9 +292,19 @@
 			showPopup("Echec","<h1>Impossible de charger les vues</h1>"+textStatus+ " : " + error);
 		});
 		$("#viewSelected").on("selectmenuchange", selectView);
+		$("#edit_component_form_service_list").on("selectmenuchange", function(){
+		alert(""+serviceId);
+			var serviceId = $("#edit_component_form_service_list").val();
+			
+			if (serviceId == NULL){
+				serviceId = currentServiceId;
+			}
+			filterComponentList(serviceId);
+		});
 		refreshDomainList();
 		refreshEnvironmentList();
-		$("#domainSelected").on("selectmenuchange", selectDomain);
+		refreshAreaList();
+		refreshServiceList();
 	 });
 </script>
 </body>

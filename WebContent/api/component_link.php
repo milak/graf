@@ -31,10 +31,6 @@ while($row = $result->fetch_assoc()){
 $result->free();
 /** METHOD POST **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-	if (!isset($_POST["service_id"])){
-		die("Missing service_id argument");
-	}
-	$service_id = intval($_POST["service_id"]);
 	if (!isset($_POST["from_component_id"])){
 		die("Missing from_component_id argument");
 	}
@@ -52,7 +48,7 @@ $result->free();
 	}
 	$port = $db->real_escape_string($_POST["port"]);
 $sql = <<<SQL
-    insert into component_link (service_id,from_component_id,to_component_id,protocole,port) values ($service_id,$from_component_id,$to_component_id,"$protocole","$port")
+    insert into component_link (from_component_id,to_component_id,protocole,port) values ($from_component_id,$to_component_id,"$protocole","$port")
 SQL;
 	if(!$result = $db->query($sql)){
     	die('There was an error running the query [' . $db->error . ']');

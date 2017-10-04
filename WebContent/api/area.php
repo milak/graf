@@ -7,6 +7,7 @@ SQL;
 if (isset($_GET["view"])){
 	$sql .= " INNER JOIN view ON view.id = area.view_id where view.name = '".$_GET["view"]."'";
 }
+$sql .= " order by area.name";
 if(!$result = $db->query($sql)){
     die('There was an error running the query [' . $db->error . ']');
 }?>

@@ -11,7 +11,7 @@ SQL;
 if (isset($_GET["id"])){
 	$sql .= " where service.id = ".$_GET["id"];
 }
-$sql .= " ORDER by service.id";
+$sql .= " ORDER by service.name, service.id";
 if(!$result = $db->query($sql)){
     die('There was an error running the query [' . $db->error . ']');
 }?>

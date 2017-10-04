@@ -1,5 +1,6 @@
 function changeImage(url){
-	$("#frame").attr("src",url);
+	//$("#frame").attr("src",url);
+	$("#frame").attr("data",url);
 }
 function hideToolBox(){
 	$("#default_toolbox").hide();

@@ -83,18 +83,19 @@ create table component (
 	software_id  	 INT,
 	data_id			 INT,
 	service_id		 INT,
-	device_id		 INT
+	device_id		 INT,
+	area_id			 INT
 );
 
+ALTER TABLE `component` ADD CONSTRAINT `FK_component_to_area` 		FOREIGN KEY (`area_id`) 		REFERENCES `area`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
 create table component_link (
-	service_id			INT NOT NULL,
 	from_component_id	INT NOT NULL,
 	to_component_id 	INT NOT NULL,
 	protocole			VARCHAR(50),
 	port				VARCHAR(10)
 );
 
-ALTER TABLE `component_link` ADD CONSTRAINT `FK_component_link_service` 		FOREIGN KEY (`service_id`) 			REFERENCES `service`(`id`) 		ON DELETE RESTRICT ON UPDATE RESTRICT;
 ALTER TABLE `component_link` ADD CONSTRAINT `FK_component_link_from_component` 	FOREIGN KEY (`from_component_id`) 	REFERENCES `component`(`id`) 	ON DELETE RESTRICT ON UPDATE RESTRICT;
 ALTER TABLE `component_link` ADD CONSTRAINT `FK_component_link_to_component` 	FOREIGN KEY (`to_component_id`) 	REFERENCES `component`(`id`) 	ON DELETE RESTRICT ON UPDATE RESTRICT;
 

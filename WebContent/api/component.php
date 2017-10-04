@@ -33,7 +33,7 @@ while($row = $result->fetch_assoc()){
 	{
 		"id"    	:  <?php echo $row["id"]; ?>,
 		"type" 		: "<?php echo $type;      ?>",
-		"area_id"	:  <?php echo $area_id;   ?>,
+		"area_id"	:  <?php echo $row["area_id"];   ?>,
 		"name"		: "<?php 
 	if ($type == "device"){
 		echo $row["device_name"].'", "device_id" : '.$row["device_id"];

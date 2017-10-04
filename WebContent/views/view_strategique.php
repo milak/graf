@@ -4,7 +4,6 @@ require("../db/connect.php");
 require("../db/util.php");
 $areas = loadAreas($db,"strategique");
 require("../svg/body.php");
-//header('Content-Type: image/svg+xml'); ne fonctionne pas car le type mime n'est pas reconnu
 
 // Analyse des critères de recherche
 
