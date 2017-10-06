@@ -47,7 +47,7 @@ $area_composants->display   = "horizontal";
 $area_composants->elements  = array();
 $area_composants->subareas  = array();
 $area_composants->needed    = true;
-$area_composants->parent    = $area;
+$area_composants->parent    = null;
 $area->subareas[] = $area_composants;
 
 $area_ressources = new stdClass();
@@ -59,8 +59,18 @@ $area_ressources->display   = "horizontal";
 $area_ressources->elements  = array();
 $area_ressources->subareas  = array();
 $area_ressources->needed    = true;
-$area_ressources->parent    = $area;
+$area_ressources->parent    = null;
 
+$area_externes = new stdClass();
+$area_externes->id        = 0;
+$area_externes->code      = "";
+$area_externes->name      = "Composants externes";
+$area_externes->parent_id = null;
+$area_externes->display   = "horizontal";
+$area_externes->elements  = array();
+$area_externes->subareas  = array();
+$area_externes->needed    = true;
+$area_externes->parent    = $area;
 
 $area_instances = new stdClass();
 $area_instances->id        = 0;
@@ -86,11 +96,45 @@ while($row = $result->fetch_assoc()){
 		$area_instances->elements[] = $instance;
 	}
 }
-
 $result->free();
+
+
+function loadComponents($db,$sql){
+	if(!$result = $db->query($sql)){
+	    displayErrorAndDie('There was an error running the query [' . $db->error . ']');
+	}
+	$components = array();
+	while($row = $result->fetch_assoc()){
+		$type = $row["type"];
+		if ($type == "device"){
+			$name = $row["device_name"];
+		} else if ($type == "service"){
+			$name = $row["service_name"];
+		} else if ($type == "software"){
+			$name = $row["software_name"];
+		} else if ($type == "data"){
+			$name = $row["data_name"];
+		}
+		$component 				= new stdClass();
+		$component->linked		= 0;
+		$component->id 			= $row["id"];
+		$component->type 		= "component";
+		$component->subtype 	= $type;
+		$component->class 		= "component_".$type;
+		$component->name 		= $name;
+		$component->links 		= array();
+		$component->service_id  = $row["service_id"];
+		$component->allreadyComputed = false;// flag qui sera positionné lorsqu'on aura calculé sa position, cela évite de boucler
+		$components[$component->id] = $component;
+	}
+	$result->free();
+	return $components;
+}
+
 // Charger tous les composants liés au service
 $sql = <<<SQL
-    SELECT component.*, data.name as data_name, service.name as service_name, device.name as device_name, software.name as software_name from component
+    SELECT component.*, data.name as data_name, service.name as service_name, device.name as device_name, software.name as software_name, service_needs_component.service_id as service_id
+	from component
     INNER JOIN service_needs_component ON service_needs_component.component_id = component.id
 	LEFT OUTER JOIN data 		ON component.data_id 		= data.id
 	LEFT OUTER JOIN service 	ON component.service_id 	= service.id
@@ -98,34 +142,31 @@ $sql = <<<SQL
 	LEFT OUTER JOIN software	ON component.software_id 	= software.id
 	where service_needs_component.service_id = $service_id
 SQL;
-if(!$result = $db->query($sql)){
-    displayErrorAndDie('There was an error running the query [' . $db->error . ']');
-}
-$components = array();
+$components = loadComponents($db,$sql);
 
-while($row = $result->fetch_assoc()){
-	$type = $row["type"];
-	if ($type == "device"){
-		$name = $row["device_name"];
-	} else if ($type == "service"){
-		$name = $row["service_name"];
-	} else if ($type == "software"){
-		$name = $row["software_name"];
-	} else if ($type == "data"){
-		$name = $row["data_name"];
-	}
-	$component 				= new stdClass();
-	$component->linked		= 0;
-	$component->id 			= $row["id"];
-	$component->type 		= "component";
-	$component->subtype 	= $type;
-	$component->class 		= "component_".$type;
-	$component->name 		= $name;
-	$component->links 		= array();
-	$component->allreadyComputed = false;// flag qui sera positionné lorsqu'on aura calculé sa position, cela évite de boucler
+// Charger tous les composants d'autres services pour lesquels un des composants du service est lié
+$sql = <<<SQL
+SELECT component_externe.*, data.name as data_name, service.name as service_name, device.name as device_name, software.name as software_name, service_needs_component_externe.service_id as service_id
+	FROM component component_externe
+    INNER JOIN service_needs_component as service_needs_component_externe ON service_needs_component_externe.component_id = component_externe.id
+    INNER JOIN component_link ON component_link.to_component_id = component_externe.id
+	LEFT OUTER JOIN data 		ON component_externe.data_id 		= data.id
+	LEFT OUTER JOIN service 	ON component_externe.service_id 	= service.id
+	LEFT OUTER JOIN device 		ON component_externe.device_id 		= device.id
+	LEFT OUTER JOIN software	ON component_externe.software_id 	= software.id, component component_interne
+    INNER JOIN service_needs_component as service_needs_component_interne ON service_needs_component_interne.component_id = component_interne.id
+    where 	service_needs_component_externe.service_id != $service_id
+	and 	service_needs_component_interne.service_id = $service_id
+    and  	component_link.from_component_id = component_interne.id
+SQL;
+
+$externalComponents = loadComponents($db,$sql);
+
+foreach($externalComponents as $component){
+	$component->type 		= "external_component";
 	$components[$component->id] = $component;
 }
-$result->free();
+
 // Charger tous les liens pour lesquels le composant "from" est nécessaire au service (le to peut-être issu d'un autre service)
 $sql = <<<SQL
 	SELECT * FROM component_link
@@ -138,12 +179,10 @@ if(!$result = $db->query($sql)){
     displayErrorAndDie('There was an error running the query [' . $db->error . ']');
 }
 while($row = $result->fetch_assoc()){
-	$from_component = $components[$row["from_component_id"]];
-	$to_component 	= $components[$row["to_component_id"]];
-	// le composant lié n'est pas rattaché au service
-	if ($to_component == null){
-		// TODO chercher le composant dans la base de données et le ramener en attendant, cela va planter...
-	}
+	$from_component_id 	= $row["from_component_id"];
+	$from_component 	= $components[$from_component_id];
+	$to_component_id 	= $row["to_component_id"];
+	$to_component 		= $components[$to_component_id];
 	$port = $row["port"];
 	$protocole = $row["protocole"];
 	$label = "";
@@ -164,7 +203,11 @@ $componentsToPlace = array();
 // Déplacer tous les composants non liés dans la partie ressources, conserver les composants liés pour calcul de leur position
 foreach($components as $component){
 	if ((count($component->links) > 0) || ($component->linked > 0)){
-		$area_composants->elements[] = $component;
+		if ($component->service_id != $service_id){
+			$area_externes->elements[] = $component;
+		} else {
+			$area_composants->elements[] = $component;
+		}
 		$componentsToPlace[] = $component;
 	} else {
 		$area_ressources->elements[] = $component;
@@ -178,7 +221,7 @@ if (count($area_instances->elements) > 0){
 }
 // Positionner les composants reliés
 $stack = array();
-// -- recherche du premier composant
+// -- recherche du premier composant (un composant n'ayant pas de composant lié vers lui)
 foreach($componentsToPlace as $component){
 	if ($component->linked > 0) {
 		continue;
@@ -224,26 +267,41 @@ $maxwidth = $area_composants->width;
 $area->x = 0;
 $area->y = 0;
 // -- calculer le positionnement des autres zones
-	$x = AREA_GAP;
-	$y = $area_composants->y+$area_composants->height+AREA_GAP;
-	$first = true;
-	foreach ($area->subareas as $subarea){
-		if ($first){
-			$first = false;
-			continue;
-		}
-		$subarea->x = $x;
-		$subarea->y = $y;
-		computeSize($subarea);
-		$maxwidth = max($maxwidth,$subarea->width);
-		$y += $subarea->height + AREA_GAP;
-		//$x += $subarea->width + AREA_GAP;
+$x = AREA_GAP;
+$y = $area_composants->y+$area_composants->height+AREA_GAP;
+if (count($area_externes->elements) > 0){
+	$area_externes->x = $x;
+	$area_externes->y = $y;
+	$area_externes->width = $maxwidth;
+	$area_externes->height = ELEMENT_HEIGHT+(2*AREA_GAP);
+	foreach($area_externes->elements as $component){
+		$component->y = $area_externes->y + AREA_GAP;
 	}
+	$y += $area_externes->height+AREA_GAP;
+}
+$first = true;
+foreach ($area->subareas as $subarea){
+	if ($first){
+		$first = false;
+		continue;
+	}
+	$subarea->x = $x;
+	$subarea->y = $y;
+	computeSize($subarea);
+	$maxwidth = max($maxwidth,$subarea->width);
+	$y += $subarea->height + AREA_GAP;
+	//$x += $subarea->width + AREA_GAP;
+}
 $area->height = $y;
 $area->width = $maxwidth+(2*AREA_GAP);
 // Afficher le résultat
-displayArea(0,$area_composants);
 displayArea(0,$area);
+if (count($area_externes->elements) > 0){
+	displayArea(0,$area_externes);
+}
+displayArea(0,$area_composants);
+
+
 require("../db/disconnect.php");
 require("../svg/footer.php");
 ?>

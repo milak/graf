@@ -200,11 +200,13 @@ function createComponent(type){
 }
 function doCreateComponent(){
 	var type = $("#create_component_form_type").val();
+	var area_id = $("#create_component_form_area").val();
 	$.ajax({
 		type 	: "POST",
 		url 	: "api/component.php",
 		data	: {
 			"type"			: type,
+			"area_id"		: area_id,
 			"service"		: currentServiceId,
 			"data_id"		: $("#create_component_form_data").val(),
 			"device_id"		: $("#create_component_form_device").val(),
@@ -257,9 +259,7 @@ function refreshComponentContext(componentId){
 	});
 	$.getJSON( "api/component.php?service="+currentServiceId, function(result) {
 		var componentList = result.components;
-		componentList.sort(function(a, b){
-			return a.name.localeCompare(b.name);
-		});
+		componentList.sort(sortByName);
 		var componentsById = new Array();
 		for (var i = 0; i < componentList.length; i++){
 			var component = componentList[i];
@@ -272,8 +272,12 @@ function refreshComponentContext(componentId){
 			for (var i = 0; i < links.length; i++){
 				var link = links[i];
 				var to_component = componentsById[link.to_component_id];
+				if (to_component == null){
+					alert("TODO charger les composants externes");
+					to_component = {"name" : "TODO : externe"};
+				}
 				to_component.linked = true;
-				html += "<tr><td>"+to_component.name+"</td><td>"+link.protocole+"</td><td>"+link.port+"</td><td><a href='#' onclick='removeComponentLink("+componentId+","+to_component.id+")'>supprimer</a></td></tr>";
+				html += "<tr><td>"+to_component.name+"</td><td>"+link.protocole+"</td><td>"+link.port+"</td><td><a href='#' onclick='removeComponentLink("+componentId+","+link.to_component_id+")'>supprimer</a></td></tr>";
 			}
 			$("#edit_component_form_links").html(html);
 			html = "";
@@ -296,6 +300,8 @@ function refreshComponentContext(componentId){
 }
 function filterComponentList(serviceId){
 	$.getJSON( "api/component.php?service="+serviceId, function(result) {
+		var componentList = result.components;
+		componentList.sort(sortByName);
 		html = "";
 		for (var i = 0; i < componentList.length; i++){
 			var component = componentList[i];

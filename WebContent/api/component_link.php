@@ -63,7 +63,7 @@ SQL;
 		die("Missing to_component_id argument");
 	}
 	$to_component_id = intval($_GET["to_component_id"]);
-	error_log("Removing component_link ".$id);
+	error_log("Removing component_link ".$from_component_id.",".$to_component_id);
 $sql = <<<SQL
     delete from component_link where from_component_id = $from_component_id and to_component_id = $to_component_id
 SQL;

@@ -150,6 +150,7 @@
 	<select id="create_component_form_software"></select>
 	<select id="create_component_form_data"></select>
 	<select id="create_component_form_device"></select>
+	Zone : <select id="create_component_form_area"></select>
 	<hr/>
 	<button onclick='doCreateComponent()'><img style="height:14px" src="images/78.png"/> ajouter</button>
 	<button onclick='$("#create_component_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
@@ -241,12 +242,13 @@
 	function refreshAreaList(){
 		$.getJSON( "api/area.php?view=logique", function(result) {
 			var areas = result.areas;
-			var options = "<option value='null' selected>--choisir une zone--</option>";
+			var options = "";//<option value='null' selected>--choisir une zone--</option>";
 			for (var i = 0; i < areas.length; i++){
 				var area = areas[i];
 				options += '<option value="'+area.id+'">'+area.name+'</option>';
 			}
 			$('#edit_component_form_area').html(options);
+			$('#create_component_form_area').html(options);
   		}).fail(function(jxqr,textStatus,error) {
 			showPopup("Echec","<h1>Impossible de charger les zones</h1>"+textStatus+ " : " + error);
 		});
@@ -292,11 +294,9 @@
 			showPopup("Echec","<h1>Impossible de charger les vues</h1>"+textStatus+ " : " + error);
 		});
 		$("#viewSelected").on("selectmenuchange", selectView);
-		$("#edit_component_form_service_list").on("selectmenuchange", function(){
-		alert(""+serviceId);
+		$("#edit_component_form_service_list").on("change", function(){
 			var serviceId = $("#edit_component_form_service_list").val();
-			
-			if (serviceId == NULL){
+			if (serviceId == "null"){
 				serviceId = currentServiceId;
 			}
 			filterComponentList(serviceId);

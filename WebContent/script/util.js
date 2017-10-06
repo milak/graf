@@ -130,4 +130,7 @@ function svgElementClicked(what,id){
 	} else {
 		alert("An "+what+" of id "+id +" was clicked");
 	}
-}		
+}
+function sortByName(a, b){
+	return a.name.localeCompare(b.name);
+}

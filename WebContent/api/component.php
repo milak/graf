@@ -61,6 +61,11 @@ $result->free();
 	} else {
 		$service = intval($_POST["service"]);
 	}
+	if (!isset($_POST["area_id"])){
+		die("Missing service argument");
+	} else {
+		$area_id = intval($_POST["area_id"]);
+	}
 	if (!isset($_POST["type"])){
 		die("Missing type argument");
 	} else {
@@ -98,7 +103,7 @@ $result->free();
 		die("Unsupported type value : ".$type);
 	}
 $sql = <<<SQL
-    insert into component (type,$attributes) values ('$type',$values)
+    insert into component (area_id,type,$attributes) values ($area_id,'$type',$values)
 SQL;
 	if(!$result = $db->query($sql)){
     	die('There was an error running the query [' . $db->error . ']');
