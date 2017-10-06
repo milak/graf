@@ -28,23 +28,23 @@ while($row = $result->fetch_assoc()){
 	$areaid = $row['area_id'];
 	$area = $areas[$areaid];
 	if ($showProcess){
-		$domainAsArea = new stdClass();
-		$domainAsArea->id = $row["id"];
-		$domainAsArea->code = $row["name"];
-		$domainAsArea->name = $row["name"];
-		$domainAsArea->needed = true;
-		$domainAsArea->display = "vertical";
+		$domainAsArea			= new stdClass();
+		$domainAsArea->id		= $row["id"];
+		$domainAsArea->code		= $row["name"];
+		$domainAsArea->name		= $row["name"];
+		$domainAsArea->needed	= true;
+		$domainAsArea->display	= "vertical";
 		$domainAsArea->subareas = array();
 		$domainAsArea->elements = array();
-		$area->subareas[] = $domainAsArea;
+		$area->subareas[]		= $domainAsArea;
 		$domains[$domainAsArea->id] = $domainAsArea;
 	} else {
-		$domain = new stdClass();
-		$domain->id = $row["id"];
-	        $domain->class = "rect_180_80";
-	        $domain->type = "domain";
-		$domain->name = $row["name"];
-		$area->elements[] = $domain;
+		$domain 			= new stdClass();
+		$domain->id 		= $row["id"];
+	    $domain->class		= "rect_180_80";
+	    $domain->type		= "domain";
+		$domain->name		= $row["name"];
+		$area->elements[]	= $domain;
 	}
 }
 $result->free();
@@ -57,13 +57,13 @@ SQL;
  	   displayErrorAndDie('There was an error running the query [' . $db->error . ']');
 	}
 	while($row = $result->fetch_assoc()){
-		$process = new stdClass();
-		$process->id = $row["id"];
-		$process->class = "rect_180_80";
-	        $process->type = "process";
-		$process->name = $row["name"];
-		$domain_id = $row["domain_id"];
-		$domain = $domains[$domain_id];
+		$process 			= new stdClass();
+		$process->id		= $row["id"];
+		$process->class		= "rect_180_80";
+		$process->type		= "process";
+		$process->name		= $row["name"];
+		$domain_id			= $row["domain_id"];
+		$domain				= $domains[$domain_id];
 		if ($domain == null){
 			continue;
 		}

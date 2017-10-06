@@ -26,7 +26,7 @@
    			overflow: scroll; 
 		}
  	</style>
-	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<link rel="stylesheet" href="lib/jquery/ui/1.12.1/themes/base/jquery-ui.css">
 	<script type="text/javascript" src="script/util.js"></script>
 	<script type="text/javascript" src="script/strategic.js"></script>
 	<script type="text/javascript" src="script/service.js"></script>
@@ -35,7 +35,7 @@
 	<script type="text/javascript" src="script/actor.js"></script>
 	<script type="text/javascript" src="script/view.js"></script>
 	<script type="text/javascript" src="lib/jquery/jquery-3.2.1.min.js"></script>
-	<script type="text/javascript" src="lib/jquery/ui/jquery-ui.js"></script>
+	<script type="text/javascript" src="lib/jquery/ui/1.12.1/jquery-ui.js"></script>
 	<script>
 		function displayLogic(){
 			hideToolBox();
@@ -146,10 +146,18 @@
 </div>
 <div id="create_component_form" style="display:none">
 	<input type="hidden" id="create_component_form_type"/>
-	<select id="create_component_form_service"></select>
-	<select id="create_component_form_software"></select>
-	<select id="create_component_form_data"></select>
-	<select id="create_component_form_device"></select>
+	<div id="create_component_form_service">
+		<select id="create_component_form_service_list"></select>
+	</div>
+	<div id="create_component_form_software">
+		<select id="create_component_form_software_list"></select>	<button title="Créer un logiciel" onclick="createSoftware()"><img style="height:14px" src="images/78.png"/></button>
+	</div>
+	<div id="create_component_form_data">
+		<select id="create_component_form_data_list"></select>		<button title="Créer une donnée"  onclick="createData()"><img style="height:14px" src="images/78.png"/></button>
+	</div>
+	<div id="create_component_form_device">
+		<select id="create_component_form_device_list"></select>	<button title="Créer un matériel" onclick="createDevice()"><img style="height:14px" src="images/78.png"/></button>
+	</div>
 	Zone : <select id="create_component_form_area"></select>
 	<hr/>
 	<button onclick='doCreateComponent()'><img style="height:14px" src="images/78.png"/> ajouter</button>
@@ -266,20 +274,7 @@
 			showPopup("Echec","<h1>Impossible de charger les environnements</h1>"+textStatus+ " : " + error);
 		});
 	}
-	function refreshServiceList(){
-		$.getJSON("api/service.php", function(result){
-			var services = result.services;
-			var options = "<option value='null' selected>--choisir un service--</option>";
-			for (var i = 0; i < services.length; i++){
-				var service = services[i];
-				options += '<option value="'+service.id+'">'+service.name+'</option>';
-			}
-			$('#search_service_form_list').html(options);
-			$('#edit_component_form_service_list').html(options);
-		}).fail(function(jxqr,textStatus,error) {
-			showPopup("Echec","<h1>Impossible de charger les services</h1>"+textStatus+ " : " + error);
-		});
-	}
+	
 	$( function() {
 	 	$(".controlgroup" ).controlgroup();
 		$.getJSON( "api/view.php", function(result) {

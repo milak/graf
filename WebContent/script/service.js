@@ -1,5 +1,19 @@
 var currentServiceId = null;
 var currentComponentId = null;
+function refreshServiceList(){
+	$.getJSON("api/service.php", function(result){
+		var services = result.services;
+		var options = "<option value='null' selected>--choisir un service--</option>";
+		for (var i = 0; i < services.length; i++){
+			var service = services[i];
+			options += '<option value="'+service.id+'">'+service.name+'</option>';
+		}
+		$('#search_service_form_list').html(options);
+		$('#edit_component_form_service_list').html(options);
+	}).fail(function(jxqr,textStatus,error) {
+		showPopup("Echec","<h1>Impossible de charger les services</h1>"+textStatus+ " : " + error);
+	});
+}
 function createService(){
 	$("#create_service_form_domain_id").val(currentDomainId);
 	$("#create_service_form").dialog({"modal":true,"title":"Création d'un service"});
@@ -36,7 +50,7 @@ function displayService(serviceId){
 		$("#service_create_instance_button").button("disable");
 		currentServiceId = null;
 	} else {
-		changeImage("views/view_service.php?id="+serviceId);
+		changeImage("views/view_service2.php?id="+serviceId);
 		$("#service_create_software_button").button("enable");
 		$("#service_create_device_button").button("enable");
 		$("#service_create_service_button").button("enable");
@@ -83,6 +97,7 @@ function doCreateServiceInstance(){
 		success	: function( data ) {
 			$("#create_instance_form").dialog("close");
 			displayService(currentServiceId);
+			refreshServiceList();
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -121,9 +136,9 @@ function subCreateComponent(type,aServices,aSoftwares,aDevices,aDatas){
 					html += "<option value='"+devices[i].id+"'>"+devices[i].name+"</option>";
 				}
 			}
-			$("#create_component_form_device").html(html);
+			$("#create_component_form_device_list").html(html);
 			$("#create_component_form_device").show();
-			$("#create_component_form").dialog({"modal":true,"title":"Ajout d'un matériel"});
+			$("#create_component_form").dialog({"modal":true,"title":"Ajout d'un matériel","width":400});
 		}).fail(function(jxqr,textStatus,error){
 			alert(textStatus+" : "+error);
 		});
@@ -136,9 +151,9 @@ function subCreateComponent(type,aServices,aSoftwares,aDevices,aDatas){
 					html += "<option value='"+softwares[i].id+"'>"+softwares[i].name+"</option>";
 				}
 			}
-			$("#create_component_form_software").html(html);
+			$("#create_component_form_software_list").html(html);
 			$("#create_component_form_software").show();
-			$("#create_component_form").dialog({"modal":true,"title":"Ajout d'un logiciel"});
+			$("#create_component_form").dialog({"modal":true,"title":"Ajout d'un logiciel","width":400});
 		}).fail(function(jxqr,textStatus,error){
 			alert(textStatus+" : "+error);
 		});
@@ -151,9 +166,9 @@ function subCreateComponent(type,aServices,aSoftwares,aDevices,aDatas){
 					html += "<option value='"+data[i].id+"'>"+data[i].name+"</option>";
 				}
 			}
-			$("#create_component_form_data").html(html);
+			$("#create_component_form_data_list").html(html);
 			$("#create_component_form_data").show();
-			$("#create_component_form").dialog({"modal":true,"title":"Ajout d'une donnée"});
+			$("#create_component_form").dialog({"modal":true,"title":"Ajout d'une donnée","width":400});
 		}).fail(function(jxqr,textStatus,error){
 			alert(textStatus+" : "+error);
 		});
@@ -166,9 +181,9 @@ function subCreateComponent(type,aServices,aSoftwares,aDevices,aDatas){
 					html += "<option value='"+services[i].id+"'>"+services[i].name+"</option>";
 				}
 			}
-			$("#create_component_form_service").html(html);
+			$("#create_component_form_service_list").html(html);
 			$("#create_component_form_service").show();
-			$("#create_component_form").dialog({"modal":true,"title":"Ajout d'un service"});
+			$("#create_component_form").dialog({"modal":true,"title":"Ajout d'un service","width":400});
 		}).fail(function(jxqr,textStatus,error){
 			alert(textStatus+" : "+error);
 		});
@@ -208,10 +223,10 @@ function doCreateComponent(){
 			"type"			: type,
 			"area_id"		: area_id,
 			"service"		: currentServiceId,
-			"data_id"		: $("#create_component_form_data").val(),
-			"device_id"		: $("#create_component_form_device").val(),
-			"software_id"	: $("#create_component_form_software").val(),
-			"service_id"	: $("#create_component_form_service").val()
+			"data_id"		: $("#create_component_form_data_list").val(),
+			"device_id"		: $("#create_component_form_device_list").val(),
+			"software_id"	: $("#create_component_form_software_list").val(),
+			"service_id"	: $("#create_component_form_service_list").val()
 		},
 		dataType: "text",
 		success	: function( data ) {
