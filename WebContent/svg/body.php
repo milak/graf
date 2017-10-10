@@ -73,11 +73,11 @@ function computeSize($area){
 			$row = 0;
 			$col = 0;
 			foreach ($area->elements as $element){
-				$element->x = $area->x + AREA_GAP + $col * ($element->width + 30);
-				$element->y = $area->y + AREA_GAP + 10 + $row * ($element->height + 30);
+				$element->x = $area->x + AREA_GAP + $col * ($element->width + ELEMENT_GAP);
+				$element->y = $area->y + AREA_GAP + 10 + $row * ($element->height + ELEMENT_GAP);
 				if ($row == 0){
-					$area->width  += $element->width + 30;
-					$area->height += $element->height + 30;
+					$area->width  += $element->width + ELEMENT_GAP;
+					$area->height += $element->height + ELEMENT_GAP;
 				}
 				$col++;
 				if ($col >= $nbCol){
@@ -94,8 +94,8 @@ function computeSize($area){
 			foreach ($area->elements as $element){
 				$element->x = $x;
 				$element->y = $y;
-				$x = $x + $element->width + AREA_GAP;
-				$area->width += $element->width + AREA_GAP;
+				$x = $x + $element->width + ELEMENT_GAP;
+				$area->width += $element->width + ELEMENT_GAP;
 				$maxheight = max($maxheight,$element->height);
 			}
 			$area->width += (AREA_GAP*2);
@@ -107,8 +107,8 @@ function computeSize($area){
 			foreach ($area->elements as $element){
 				$element->x = $x;
 				$element->y = $y;
-				$y = $y + $element->height + AREA_GAP;
-				$area->height += $element->height + AREA_GAP;
+				$y = $y + $element->height + ELEMENT_GAP;
+				$area->height += $element->height + ELEMENT_GAP;
 				$maxwidth = max($maxwidth,$element->width);
 			}
 			$area->height += AREA_GAP + 20;
@@ -154,17 +154,23 @@ function displayArea($level,$area){
 			_drawElement($element);
 		}
 	}
-	// ** Affichage des liens **
-	foreach ($area->elements as $from){
-		if (isset($from->links)){
-			foreach ($from->links as $link){
-			//if (isset($link->backlink)){
-				// TODO outch comment faire ??	
-			//} else {
-				_drawLink($from,$link->to,$link->label);
-			//}
+	
+}
+function displayLinks($areas){
+	foreach($areas as $area){
+		// ** Affichage des liens **
+		foreach ($area->elements as $from){
+			if (isset($from->links)){
+				foreach ($from->links as $link){
+				//if (isset($link->backlink)){
+					// TODO outch comment faire ??	
+				//} else {
+					_drawLink($from,$link->to,$link->label);
+				//}
+				}
 			}
 		}
+		displayLinks($area->subareas);
 	}
 }
 /**
@@ -341,5 +347,6 @@ function display($areas){
 			displayArea(1,$area);
 		}
 	}
+	displayLinks($areas);
 }
 ?>
