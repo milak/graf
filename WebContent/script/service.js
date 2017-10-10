@@ -247,6 +247,33 @@ function displayComponent(componentId){
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
 }
+function onEditComponentFormAreaChanged(){
+	var area_id = $("#edit_component_form_area").val();
+	var orig_area_id = $("#edit_component_form_area_orig_value").val();
+	if (area_id != orig_area_id){
+		$("#edit_component_form_valider").prop("disabled",false);
+	} else {
+		$("#edit_component_form_valider").prop("disabled",true);
+	}
+}
+function updateComponent(){
+	var area_id = $("#edit_component_form_area").val();
+	var component_id = $("#edit_component_form_component_id").val();
+	$.ajax({
+		type 	: "POST",
+		url 	: "api/component.php",
+		dataType: "text",
+		data	: {
+			id 		: component_id,
+			area_id : area_id
+		},
+		success	: function(data) {
+			displayService(currentServiceId);
+		}
+	}).fail(function(jxqr,textStatus,error){
+		alert(textStatus+" : "+error);
+	});
+}
 function unlinkComponent(componentId){
 	$.ajax({
 		type 	: "DELETE",
@@ -260,15 +287,19 @@ function unlinkComponent(componentId){
 	});
 }
 function refreshComponentContext(componentId){
-	$("#edit_component_form_valider").prop("disabled","true");
+	$("#edit_component_form_valider").prop("disabled",true);
 	$("#edit_component_form_service_list").val(currentServiceId);
 	$.getJSON( "api/component.php?id="+componentId, function(result) {
 		var component = result.components[0];
 		if (component.type == "service"){
 			$("#edit_component_form_ouvrir").show();
+		} else {
+			$("#edit_component_form_ouvrir").hide();
 		}
 		$("#edit_component_form_name").val(component.name);
 		$("#edit_component_form_area").val(component.area_id);
+		$("#edit_component_form_area_orig_value").val(component.area_id);
+		$("#edit_component_form_component_id").val(component.id);
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});

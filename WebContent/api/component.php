@@ -53,68 +53,82 @@ while($row = $result->fetch_assoc()){
 $result->free();
 /** METHOD POST **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-// Create component
-	$attributes = "";
-	$values 	= "";
-	if (!isset($_POST["service"])){
-		die("Missing service argument");
-	} else {
-		$service = intval($_POST["service"]);
-	}
-	if (!isset($_POST["area_id"])){
-		die("Missing service argument");
-	} else {
-		$area_id = intval($_POST["area_id"]);
-	}
-	if (!isset($_POST["type"])){
-		die("Missing type argument");
-	} else {
-		$type = $_POST["type"];
-	}
-	if ($type == "service"){
-		if (!isset($_POST["service_id"])){
-			die("Missing service_id argument");
+	if (isset($_POST["id"])){ // Update Component
+		$id = intval($_POST["id"]);
+		if (!isset($_POST["area_id"])){
+			die("Missing area_id argument");
+		} else {
+			$area_id = intval($_POST["area_id"]);
 		}
-		$service_id = intval($_POST["service_id"]);
-		$attributes = "service_id";
-		$values = $service_id;
-	} else if ($type == "device") { 
-		if (!isset($_POST["device_id"])){
-			die("Missing device_id argument");
+$sql = <<<SQL
+    update component set area_id = $area_id where id = $id
+SQL;
+		if(!$result = $db->query($sql)){
+    		die('There was an error running the query [' . $db->error . ']');
 		}
-		$service_id = intval($_POST["device_id"]);
-		$attributes = "device_id";
-		$values = $device_id;
-	} else if ($type == "data") {
-		if (!isset($_POST["data_id"])){
-			die("Missing data_id argument");
+	} else {	// Create component
+		$attributes = "";
+		$values 	= "";
+		if (!isset($_POST["service"])){
+			die("Missing service argument");
+		} else {
+			$service = intval($_POST["service"]);
 		}
-		$data_id = intval($_POST["data_id"]);
-		$attributes = "data_id";
-		$values = $data_id;
-	} else if ($type == "software") {
-		if (!isset($_POST["software_id"])){
-			die("Missing software_id argument");
+		if (!isset($_POST["area_id"])){
+			die("Missing area_id argument");
+		} else {
+			$area_id = intval($_POST["area_id"]);
 		}
-		$software_id = intval($_POST["software_id"]);
-		$attributes = "software_id";
-		$values = $software_id;
-	} else {
-		die("Unsupported type value : ".$type);
-	}
+		if (!isset($_POST["type"])){
+			die("Missing type argument");
+		} else {
+			$type = $_POST["type"];
+		}
+		if ($type == "service"){
+			if (!isset($_POST["service_id"])){
+				die("Missing service_id argument");
+			}
+			$service_id = intval($_POST["service_id"]);
+			$attributes = "service_id";
+			$values = $service_id;
+		} else if ($type == "device") { 
+			if (!isset($_POST["device_id"])){
+				die("Missing device_id argument");
+			}
+			$service_id = intval($_POST["device_id"]);
+			$attributes = "device_id";
+			$values = $device_id;
+		} else if ($type == "data") {
+			if (!isset($_POST["data_id"])){
+				die("Missing data_id argument");
+			}
+			$data_id = intval($_POST["data_id"]);
+			$attributes = "data_id";
+			$values = $data_id;
+		} else if ($type == "software") {
+			if (!isset($_POST["software_id"])){
+				die("Missing software_id argument");
+			}
+			$software_id = intval($_POST["software_id"]);
+			$attributes = "software_id";
+			$values = $software_id;
+		} else {
+			die("Unsupported type value : ".$type);
+		}
 $sql = <<<SQL
     insert into component (area_id,type,$attributes) values ($area_id,'$type',$values)
 SQL;
-	if(!$result = $db->query($sql)){
-    	die('There was an error running the query [' . $db->error . ']');
-	}
-	$component_id = $db->insert_id;
-// Insert link to service
+		if(!$result = $db->query($sql)){
+    		die('There was an error running the query [' . $db->error . ']');
+		}
+		$component_id = $db->insert_id;
+		// Insert link to service
 $sql = <<<SQL
     insert into service_needs_component (service_id,component_id) values ($service,$component_id)
 SQL;
-	if(!$result = $db->query($sql)){
-    	die('There was an error running the query [' . $db->error . ']');
+		if(!$result = $db->query($sql)){
+   		 	die('There was an error running the query [' . $db->error . ']');
+		}
 	}
 /** METHOD DELETE **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {

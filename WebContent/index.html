@@ -166,7 +166,9 @@
 <div id="edit_component_form" style="display:none">
 	<p>Composant</p>
 	<b>Nom</b> : <input type="text" id="edit_component_form_name" disabled="true"/><br/><br/>
-	<b>Zone</b> : <select id="edit_component_form_area"></select><br/><br/>
+	<b>Zone</b> : <select id="edit_component_form_area" onchange="onEditComponentFormAreaChanged()"></select><br/><br/>
+	<input type="hidden" id="edit_component_form_area_orig_value"/>
+	<input type="hidden" id="edit_component_form_component_id"/>
 	<hr/>
 	<b>Lié à</b> : <br/>
 	<table style="border:1px solid black;width:100%">
@@ -191,7 +193,7 @@
 	<hr/>
 	<button onclick='$("#edit_component_form").dialog("close");displayComponent(currentComponentId)' id="edit_component_form_ouvrir"><img src='images/63.png'/> ouvrir</button>
 	<button onclick='$("#edit_component_form").dialog("close");unlinkComponent(currentComponentId)'><img src='images/14.png'/> retirer</button>
-	<button onclick='$("#edit_component_form").dialog("close");' id="edit_component_form_valider" disabled="true"><img src='images/93.png'/> valider</button>
+	<button onclick='$("#edit_component_form").dialog("close");updateComponent()' id="edit_component_form_valider" disabled="true"><img src='images/93.png'/> valider</button>
 	<button onclick='$("#edit_component_form").dialog("close");'><img src='images/33.png'/> fermer</button>
 </div>
 <div id="process_create_form" style="display:none">
