@@ -1,0 +1,25 @@
+iframe {
+	border: 0px;
+	overflow: scroll;
+}
+
+body {
+	margin: 0px
+}
+
+.menu {
+	border: 4px outset;
+	padding: 10px;
+	margin: 5px;
+	background-color: #ffde49;
+}
+
+.menu:hover {
+	border: 4px inset;
+	background-color: white;
+}
+
+.frame {
+	height: 95%;
+	overflow: scroll;
+}
