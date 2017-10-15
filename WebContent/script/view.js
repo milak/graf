@@ -34,11 +34,25 @@ function updateView() {
 			$("#update_view_form").dialog({
 				"modal" : true,
 				"title" : "Mise à jour de la vue",
-				"width" : 400,
+				"width" : 500,
 				"height" : 400
 			});
 		}
 	}).fail(function(jxqr, textStatus, error) {
 		alert(textStatus + " : " + error);
+	});
+}
+function refreshAreaList(){
+	$.getJSON( "api/area.php?view=logique", function(result) {
+		var areas = result.areas;
+		var options = "";//<option value='null' selected>--choisir une zone--</option>";
+		for (var i = 0; i < areas.length; i++){
+			var area = areas[i];
+			options += '<option value="'+area.id+'">'+area.name+'</option>';
+		}
+		$('#edit_component_form_area').html(options);
+		$('#create_component_form_area').html(options);
+		}).fail(function(jxqr,textStatus,error) {
+		showPopup("Echec","<h1>Impossible de charger les zones</h1>"+textStatus+ " : " + error);
 	});
 }

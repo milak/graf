@@ -10,6 +10,7 @@ function refreshServiceList(){
 		}
 		$('#search_service_form_list').html(options);
 		$('#edit_component_form_service_list').html(options);
+		$('#process_step_create_form_service_list').html(options);
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Impossible de charger les services</h1>"+textStatus+ " : " + error);
 	});
@@ -76,7 +77,7 @@ function deleteService(id){
 }
 function createServiceInstance(){
 	$("#create_instance_form_service_id").val(currentServiceId);
-	$("#create_instance_form").dialog({"modal":true,"title":"Création d'une instance"});
+	$("#create_instance_form").dialog({"modal":true,"title":"Création d'une instance","minWidth":500});
 }
 function doCreateServiceInstance(){
 	var name = $("#create_instance_form_name").val();
@@ -138,7 +139,7 @@ function subCreateComponent(type,aServices,aSoftwares,aDevices,aDatas){
 			}
 			$("#create_component_form_device_list").html(html);
 			$("#create_component_form_device").show();
-			$("#create_component_form").dialog({"modal":true,"title":"Ajout d'un matériel","width":400});
+			$("#create_component_form").dialog({"modal":true,"title":"Ajout d'un matériel","minWidth":600});
 		}).fail(function(jxqr,textStatus,error){
 			alert(textStatus+" : "+error);
 		});
@@ -153,7 +154,7 @@ function subCreateComponent(type,aServices,aSoftwares,aDevices,aDatas){
 			}
 			$("#create_component_form_software_list").html(html);
 			$("#create_component_form_software").show();
-			$("#create_component_form").dialog({"modal":true,"title":"Ajout d'un logiciel","width":400});
+			$("#create_component_form").dialog({"modal":true,"title":"Ajout d'un logiciel","minWidth":600});
 		}).fail(function(jxqr,textStatus,error){
 			alert(textStatus+" : "+error);
 		});
@@ -168,7 +169,7 @@ function subCreateComponent(type,aServices,aSoftwares,aDevices,aDatas){
 			}
 			$("#create_component_form_data_list").html(html);
 			$("#create_component_form_data").show();
-			$("#create_component_form").dialog({"modal":true,"title":"Ajout d'une donnée","width":400});
+			$("#create_component_form").dialog({"modal":true,"title":"Ajout d'une donnée","minWidth":600});
 		}).fail(function(jxqr,textStatus,error){
 			alert(textStatus+" : "+error);
 		});
@@ -183,7 +184,7 @@ function subCreateComponent(type,aServices,aSoftwares,aDevices,aDatas){
 			}
 			$("#create_component_form_service_list").html(html);
 			$("#create_component_form_service").show();
-			$("#create_component_form").dialog({"modal":true,"title":"Ajout d'un service","width":400});
+			$("#create_component_form").dialog({"modal":true,"title":"Ajout d'un service","minWidth":600});
 		}).fail(function(jxqr,textStatus,error){
 			alert(textStatus+" : "+error);
 		});
@@ -370,7 +371,7 @@ function showComponentContext(componentId){
 	$("#edit_component_form_ouvrir").hide();
 	currentComponentId = componentId;
 	refreshComponentContext(componentId);
-	$("#edit_component_form").dialog({"modal":true,"title":"Détail du composant","minWidth":400});
+	$("#edit_component_form").dialog({"modal":true,"title":"Détail du composant","minWidth":500});
 }
 function hideAddComponentLinkForm(){
 	$('#edit_component_form_toggle2').hide();

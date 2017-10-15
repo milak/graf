@@ -36,7 +36,7 @@ function createDomain(){
 			options += '<option value="'+area.id+'">'+area.name+'</option>';
 		}
 		$('#create_domain_form_area').append(options);
-		$("#create_domain_form").dialog({"modal":true,"title":"Création d'un domaine"});
+		$("#create_domain_form").dialog({"modal":true,"title":"Création d'un domaine","minWidth":500});
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
@@ -83,5 +83,18 @@ function deleteDomain(domainId){
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
+	});
+}
+function refreshDomainList(){
+	$.getJSON( "api/domain.php", function(result) {
+		var domains = result.domains;
+		var options = "<option value='null' selected>--choisir un domaine--</option>";
+		for (var i = 0; i < domains.length; i++){
+			var domain = domains[i];
+			options += '<option value="'+domain.id+'">'+domain.name+'</option>';
+		}
+		$('#search_domain_form_list').html(options);
+	}).fail(function(jxqr,textStatus,error) {
+		showPopup("Echec","<h1>Impossible de charger les domaines</h1>"+textStatus+ " : " + error);
 	});
 }

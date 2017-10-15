@@ -65,24 +65,7 @@ function svgElementClicked(what,id){
 			showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 		});
 	} else if (what == "step"){
-		$.getJSON( "api/step.php?id="+id, function(result) {
-			var step = result.steps[0];
-			var html = "<p>Etape</p>";
-			html += "<b>Nom</b> : "+step.name+"<br/><br/>";
-			html += "<b>Type</b> : "+step.step_type_name+"<br/><br/>";
-			html += "<hr/>";
-			var sub_process_id = step.sub_process_id;
-			if (sub_process_id != ""){
-				html+="<button onclick='hidePopup();displayProcess("+sub_process_id+")'><img src='images/63.png'/> ouvrir</button>";
-			}
-			if (step.step_type_name != "START") {
-				html += " <button>Supprimer</button>";
-			}
-			html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
-			showPopup("Détail",html);
-			}).fail(function(jxqr,textStatus,error) {
-			showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-		});
+		showProcessStepContext(id);
 	} else if (what == "box"){
 		// nothing to do at now
 	} else if (what == "instance"){

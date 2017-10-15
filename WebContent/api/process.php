@@ -31,6 +31,7 @@ while($row = $result->fetch_assoc()){
 	}<?php
 	$first = false;
 }
+echo "]}";
 $result->free();
 /** METHOD POST **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -93,4 +94,3 @@ SQL;
 }
 require("../db/disconnect.php");
 ?>
-]}
