@@ -56,8 +56,7 @@ function doCreateDomain(){
 			displayStrategic();
 			$("#create_domain_form").dialog("close");
 		}
-	})
-		.fail(function(jxqr,textStatus,error){
+	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
 	});
 }

@@ -309,9 +309,36 @@
 		<legend>Liens</legend>
 		<table style="width:100%" class="pure-table">
 			<thead><tr><td>Etape</td><td>Label</td><td></td></tr></thead>
-			<tbody id="process_step_create_form_step_list"></tbody>
+			<tbody id="edit_process_step_form_link_list"></tbody>
 		</table>
 	</fieldset>
+	
+	<div id="edit_process_step_form_toggle1" style="width: 100%;text-align: right;">
+		<a href="#" onclick="$('#edit_process_step_form_toggle1').hide();$('#edit_process_step_form_toggle2').show();">Ajouter un lien</a>
+	</div>
+	<div id="edit_process_step_form_toggle2" style="display:none">
+		<fieldset>
+			<legend>Nouveau lien</legend>
+		<div class="pure-control-group">
+			<label  for="edit_process_step_form_step_list">Etape</label>
+			<select id ="edit_process_step_form_step_list"></select>
+		</div>
+		<div class="pure-control-group">
+			<label for="edit_process_step_form_label">Label</label>
+			<input id ="edit_process_step_form_label" type='text'/>
+		</div>
+		<div class="pure-control-group">
+			<label for="edit_process_step_form_data">Donnée</label>
+			<input id ="edit_process_step_form_data" type='text'/>
+		</div>
+		<div id="edit_component_form_toggle1" style="width: 100%;text-align: right;">
+			<a href="#" onclick="addProcessStepLink()">Valider</a>
+			<a href="#" onclick="$('#edit_process_step_form_toggle2').hide();$('#edit_process_step_form_toggle1').show();">Annuler</a>
+		</div>
+		</fieldset>
+	</div>
+	
+	
 	<hr/>
 	<button onclick='hidePopup();displayProcess($("#edit_process_step_form_sub_process_id").val())' style="display:none" id="edit_process_step_form_open_process">
 		<img style="height:14px" src='images/63.png'/> ouvrir
@@ -320,7 +347,7 @@
 		<img style="height:14px" src='images/14.png'/> supprimer
 	</button>
 	<button onclick='updateProcessStep()' id="edit_process_step_form_submit" disabled="true">
-		<img style="height:14px" src="images/78.png"/> créer
+		<img style="height:14px" src="images/78.png"/> valider
 	</button>
 	<button onclick='$("#edit_process_step_form").dialog("close");'>
 		<img style="height:14px" src="images/33.png"/> annuler

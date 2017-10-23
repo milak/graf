@@ -165,9 +165,19 @@ function deleteProcessStep(processStepId){
 	});
 }
 function showProcessStepContext(id){
+	// Bascule afficher le formulaire d'ajout de liens
+	$('#edit_process_step_form_toggle2').hide();
+	$('#edit_process_step_form_toggle1').show();
+	
 	$("#edit_process_step_form_open_process").hide();
-	$("edit_process_step_form_delete").hide();
-	$.getJSON( "api/step.php?id="+id, function(result) {
+	$("#edit_process_step_form_delete").hide();
+	$("#edit_process_step_form_submit").hide();
+	$("#edit_process_step_form_link_list").html("");
+	refreshProcessStepContext(id);
+	$("#edit_process_step_form").dialog({"modal":true,"title":"Edition d'une étape","minWidth":500});
+}
+function refreshProcessStepContext(id){
+	$.getJSON( "api/process_step.php?id="+id, function(result) {
 		var step = result.steps[0];
 		$("#edit_process_step_form_id").val(id);
 		$("#edit_process_step_form_name").val(step.name);
@@ -180,9 +190,77 @@ function showProcessStepContext(id){
 		if (step.step_type_name != "START") {
 			$("#edit_process_step_form_delete").show();
 		}
-		$("#edit_process_step_form").dialog({"modal":true,"title":"Edition d'une étape " + step.step_type_name,"minWidth":500});
+		if (step.step_type_name == "END") {
+			$('#edit_process_step_form_toggle1').hide();
+		}
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+	});
+	$.getJSON("api/process_step.php?process_id="+currentProcessId,function(result){
+		var options = "<option value='null' selected>--choisir une étape--</option>";
+		var steps = result.steps;
+		for (var i = 0; i < steps.length; i++){
+			var step = steps[i];
+			if (step.step_type_name == "START"){
+				continue;
+			}
+			options += '<option value="'+step.id+'">'+step.name+'</option>';
+		}
+		$("#edit_process_step_form_step_list").html(options);
+	}).fail(function(jxqr,textStatus,error) {
+		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+	});
+	$.getJSON("api/process_step_link.php?from_step_id="+id,function(result){
+		var html = "";
+		var links = result.links;
+		for (var i = 0; i < links.length; i++){
+			var link = links[i];
+			html += "<tr><td></td>";
+			html += "<td>"+link.label+"</td>";
+			html += "<td><a href='#' onclick='deleteProcessStepLink("+link.process_id+","+link.from_step_id+","+link.to_step_id+")'><img style='height:14px' src='images/14.png'/> supprimer</a></td>";
+			html += "</tr>";
+		}
+		$("#edit_process_step_form_link_list").html(html);
+	}).fail(function(jxqr,textStatus,error) {
+		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+	});
+}
+function deleteProcessStepLink(process_id,from_step_id,to_step_id){
+	$.ajax({
+		type 	: "DELETE",
+		url 	: "api/process_step_link.php?process_id="+process_id+"&from_step_id="+from_step_id+"&to_step_id="+to_step_id,
+		dataType: "text",
+		success	: function( data ) {
+			refreshProcessStepContext(from_step_id);
+			displayProcess(currentProcessId);
+		}
+	}).fail(function(jxqr,textStatus,error){
+		alert(textStatus+" : "+error);
+	});
+}
+function addProcessStepLink(){
+	var from_process_step_id= $("#edit_process_step_form_id").val();
+	var to_process_step_id 	= $("#edit_process_step_form_step_list").val();
+	var label  				= $("#edit_process_step_form_label").val();
+	var data  				= $("#edit_process_step_form_label").val();
+	var area_id 	= $("#create_domain_form_area").val();
+	$.ajax({
+		type 	: "POST",
+		url 	: "api/process_step_link.php",
+		data	: {
+			"process_id"	: currentProcessId,
+			"label"			: label,
+			"data"			: data,
+			"from_step_id"	: from_process_step_id,
+			"to_step_id"	: to_process_step_id},
+		dataType: "text",
+		success	: function( data ) {
+			displayProcess(currentProcessId);
+			refreshProcessStepContext(from_process_step_id);
+			//$("#edit_process_step_form").dialog("close");
+		}
+	}).fail(function(jxqr,textStatus,error){
+		alert(textStatus+" : "+error);
 	});
 }
 function refreshProcessLists(){
@@ -208,7 +286,7 @@ function doSearchProcess(){
 		displayProcess(process);
 	}
 }
-function onChangeSearchProcessFormDomainList(){
+function onSearchProcessFormDomainListChange(){
 	var domain = $("#search_process_form_domain_list").val();
 	$.getJSON("api/process.php", function(result){
 		var process = result.process;
