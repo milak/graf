@@ -180,7 +180,7 @@ function showProcessStepContext(id){
 		if (step.step_type_name != "START") {
 			$("#edit_process_step_form_delete").show();
 		}
-		$("#edit_process_step_form").dialog({"modal":true,"title":"Edition d'une étape","minWidth":500});
+		$("#edit_process_step_form").dialog({"modal":true,"title":"Edition d'une étape " + step.step_type_name,"minWidth":500});
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
@@ -194,6 +194,33 @@ function refreshProcessLists(){
 			options += '<option value="'+proc.id+'">'+proc.name+'</option>';
 		}
 		$('#process_step_create_form_process_list').html(options);
+	}).fail(function(jxqr,textStatus,error) {
+		showPopup("Echec","<h1>Impossible de charger les processus</h1>"+textStatus+ " : " + error);
+	});
+}
+function searchProcess(){
+	onSearchProcessFormDomainListChange();
+	$("#search_process_form").dialog({"modal":true,"title":"Chercher un processus","minWidth":500});
+}
+function doSearchProcess(){
+	var process = $("#search_process_form_process_list").val();
+	if (process != "null"){
+		displayProcess(process);
+	}
+}
+function onChangeSearchProcessFormDomainList(){
+	var domain = $("#search_process_form_domain_list").val();
+	$.getJSON("api/process.php", function(result){
+		var process = result.process;
+		var options = "<option value='null' selected>--choisir un processus--</option>";
+		for (var i = 0; i < process.length; i++){
+			var proc = process[i];
+			if ((domain != "null") && (proc.domain_id != domain)) {
+				continue;
+			}
+			options += '<option value="'+proc.id+'">'+proc.name+'</option>';
+		}
+		$('#search_process_form_process_list').html(options);
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Impossible de charger les processus</h1>"+textStatus+ " : " + error);
 	});

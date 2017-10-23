@@ -94,6 +94,7 @@ function refreshDomainList(){
 			options += '<option value="'+domain.id+'">'+domain.name+'</option>';
 		}
 		$('#search_domain_form_list').html(options);
+		$('#search_process_form_domain_list').html(options);
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Impossible de charger les domaines</h1>"+textStatus+ " : " + error);
 	});

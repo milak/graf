@@ -62,6 +62,7 @@
 			<button id="service_create_instance_button" title="Créer une instance de ce service" onclick="createServiceInstance()" 		disabled="true"><img style="height:14px" src="images/78.png"/> instance</button>
 		</div>
 		<div id="process_toolbox" style="width:100%;display:none" class="controlgroup">
+			<button id="process_search_process_button" onclick='searchProcess()'><img style="height:14px" src="images/65.png"/> chercher un processus</button>
 			<button id="process_create_step_button" onclick="createProcessStep()" disabled="true"><img style="height:14px" src="images/78.png"/> étape</button>
 		</div>
 		<div id="business_toolbox" style="width:100%;display:none" class="controlgroup">
@@ -333,6 +334,19 @@
 	<hr/>
 	<button onclick='$("#search_domain_form").dialog("close");searchDomain();'><img style="height:14px" src="images/93.png"/> valider</button>
 	<button onclick='$("#search_domain_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
+</form>
+<form id="search_process_form" class="pure-form pure-form-aligned" style="display:none">
+	<div class="pure-control-group">
+		<label for="search_process_form_domain_list">Domaine</label>
+		<select id="search_process_form_domain_list" onchange="onSearchProcessFormDomainListChange()"></select>
+	</div>
+	<div class="pure-control-group">
+		<label for="search_process_form_process_list">Processus</label>
+		<select id="search_process_form_process_list"></select>
+	</div>
+	<hr/>
+	<button onclick='$("#search_process_form").dialog("close");doSearchProcess();'><img style="height:14px" src="images/93.png"/> valider</button>
+	<button onclick='$("#search_process_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </form>
 <form id="search_service_form" class="pure-form pure-form-aligned" style="display:none">
 	<div class="pure-control-group">
