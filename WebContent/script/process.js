@@ -7,7 +7,7 @@ function displayProcess(processId){
 		clearFrame();
 		$("#process_create_step_button").button("disable");
 	} else {
-		changeImage("views/view_process.php?id="+processId);
+		changeImage("views/view_process2.php?id="+processId);
 		$("#process_create_step_button").button("enable");
 	}
 }
