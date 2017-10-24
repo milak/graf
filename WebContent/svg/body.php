@@ -6,6 +6,7 @@ function computeSize($area){
 	$y = $area->y + AREA_GAP;
 	$area->width = 0;
 	$area->height = 0;
+	// Positionner les sous zones
 	if (count($area->subareas) != 0){
 		foreach ($area->subareas as $subarea){
 			if (!$subarea->needed) {
@@ -25,6 +26,7 @@ function computeSize($area){
 			} else {
 			}
 		}
+		// Egaliser la taille des sous zones en largeur ou hauteur selon l'alignement horizontal ou vertical
 		foreach ($area->subareas as $subarea){
 			if ($area->display == "horizontal"){
 				$subarea->height = $area->height;
@@ -32,6 +34,7 @@ function computeSize($area){
 				$subarea->width = $area->width;
 			}
 		}
+		// Déterminer exactement la largeur et la hauteur de la zone
 		if ($area->display == "horizontal"){
 			$area->width += AREA_GAP;
 			$area->height += 2 * AREA_GAP + 10;
@@ -39,15 +42,17 @@ function computeSize($area){
 			$area->width += 2*AREA_GAP;
 			$area->height += AREA_GAP + 10;
 		}
+		// Les élements contenus ne seront pas affichés, on l'indique dans les logs
 		foreach ($area->elements as $element){
-			error_log($element->name." will not be displayed");
+			error_log($element->name." will not be displayed because this area contains sub areas");
 			$element->x = 0;
 			$element->y = 0;
 			$element->width = 0;
 			$element->height = 0;
 		}
-	} else if (count($area->elements) != 0){ // si la zone contient des éléments
-		// Positionner la taille de chacue element (par défaut ELEMENT_WIDTH et ELEMENT_HEIGHT)
+    // si la zone contient des éléments
+	} else if (count($area->elements) != 0){ 
+		// Positionner la taille de chaque element (par défaut ELEMENT_WIDTH et ELEMENT_HEIGHT)
 		foreach ($area->elements as $element){
 			$class = $element->class;
 			if (!isset($element->width)){
@@ -87,6 +92,7 @@ function computeSize($area){
 			}
 			$area->width  += AREA_GAP * 2;
 			$area->height += AREA_GAP * 2;
+		// Disposer les éléments horizontalement
 		} else if ($area->display == "horizontal"){
 			$x = $area->x + AREA_GAP;
 			$y = $area->y + AREA_GAP + 10;
@@ -100,6 +106,7 @@ function computeSize($area){
 			}
 			$area->width += (AREA_GAP*2);
 			$area->height = $maxheight + (AREA_GAP*2) + 10;
+		// Disposer les elements verticalement
 		} else if ($area->display == "vertical"){
 			$x = $area->x + AREA_GAP;
 			$y = $area->y + AREA_GAP + 10;
@@ -154,8 +161,8 @@ function displayArea($level,$area){
 			_drawElement($element);
 		}
 	}
-	
 }
+/** Afficher tous les liens récursivement */
 function displayLinks($areas){
 	foreach($areas as $area){
 		// ** Affichage des liens **
@@ -285,7 +292,9 @@ function _drawLink($from,$to,$label){
 		echo '<circle cx="'.$x2.'" cy="'.$y2.'" r="5" style="fill:gray"/>';
 	}
 }
-// Truncate a text according the maxWidth
+/**
+ * Truncate a text according the maxWidth
+ */
 function _truncateText($text,$maxWidth,$charWidth){
 	$textWidth = strlen($text) * $charWidth;
 	if ($textWidth > $maxWidth){
@@ -294,11 +303,15 @@ function _truncateText($text,$maxWidth,$charWidth){
 	}
 	return $text;
 }
-// Compute a text width
+/**
+ * Compute a text width
+ */
 function _textWidth($text,$charWidth){
 	return strlen($text) * $charWidth;
 }
-// Split a text in lines according the maxWidth and maxHeight
+/**
+ * Split a text in lines according the maxWidth and maxHeight
+ */
 function _splitTextInLines($textToSplit,$charWidth,$charHeight,$maxWidth,$maxHeight){
 	$textwidth = _textWidth($textToSplit,$charWidth);
 	$lines = array();
@@ -331,6 +344,9 @@ function _splitTextInLines($textToSplit,$charWidth,$charHeight,$maxWidth,$maxHei
 	}
 	return $lines;
 }
+/**
+ * Afficher toutes les zones
+ */
 function display($areas){
 	// Calculer la position et la taille des zones par rapport à leur contenu
 	$x = 0;
