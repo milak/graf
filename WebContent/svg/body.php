@@ -3,11 +3,11 @@
 function computeSize($area){
 	// on calcule la taille de chaque sous zone
 	$x = $area->x + AREA_GAP;
-	$y = $area->y + AREA_GAP;
 	$area->width = 0;
 	$area->height = 0;
 	// Positionner les sous zones
 	if (count($area->subareas) != 0){
+		$y = $area->y + AREA_GAP;
 		foreach ($area->subareas as $subarea){
 			if (!$subarea->needed) {
 				continue;
@@ -51,7 +51,8 @@ function computeSize($area){
 			$element->height = 0;
 		}
     // si la zone contient des éléments
-	} else if (count($area->elements) != 0){ 
+	} else if (count($area->elements) != 0){
+		$y = $area->y + AREA_GAP + 10;
 		// Positionner la taille de chaque element (par défaut ELEMENT_WIDTH et ELEMENT_HEIGHT)
 		foreach ($area->elements as $element){
 			$class = $element->class;
@@ -74,11 +75,11 @@ function computeSize($area){
 				break;
 			}
 		}
-		$first = null;
-		// Au moins un lien a été trouvé, on va donc chercher le premier à disposer
+		$stack = array();
+		// Au moins un lien a été trouvé, on va donc chercher les premier à disposer
 		if ($atleastonelinkfound) {
 			// Ordonner les élements pour prendre en compte les liens s'il y en a
-			// Cherchons le premier (cad celui qui n'a aucun element interieur à la zone qui pointe vers lui)
+			// Cherchons les premiers (cad ceux qui n'ont aucun element interieur à la zone qui pointe vers eux)
 			foreach ($area->elements as $element){
 				$canbefirst = true;
 				foreach ($area->elements as $otherelement){
@@ -99,17 +100,17 @@ function computeSize($area){
 						break;
 					}
 				}
-				// Aucun lien trouvé vers lui, c'est le bon candidat
+				// Aucun lien trouvé vers lui, c'est un bon candidat
 				if ($canbefirst){
-					$first = $element;
-					break;
+					$set = new stdClass();
+					$set->element = $element;
+					$set->y = $y; // TODO voir s'il ne faudrait pas incrémenter $y
+					$stack[] = $set;
 				}
 			}
 		}
-		// On a trouvé un premier, on va ajouter les autres elements à partir de lui
-		if ($first != null){
-			$orderedElements[] = $first;
-			$stack = array();
+		// On a trouvé les premiers, on va calculer les autres elements à partir de ceux-là
+		if (count($stack) != 0){
 			$elementsInArea = array(); // lister tous les éléments qui sont dans la zone pour pouvoir identifier ceux qu'il ne faudra pas positionner s'il y a des liens externes à la zone
 			// On indique que chaque element doit être calculé
 			foreach ($area->elements as $element){
@@ -118,20 +119,14 @@ function computeSize($area){
 			}
 			$maxy = 0;
 			$maxx = 0;
-			// J'empile l'étape start dans la pile
 			$waitstack = array();
-			$stack = array();
-			$set = new stdClass();
-			$set->element = $first;
-			$set->y = $y;
-			$stack[] = $set;
 			$antiInfiniteLoop = 30;
 			while (count($stack) > 0){
 				$antiInfiniteLoop--;
 				if ($antiInfiniteLoop == 0){	// Indispensable pour le debug
 					displayErrorAndDie("Boucle infinie détectée");
 				}
-				// voir s'il ne faut pas basculer des éléments de la pile dans la pile d'attente
+				// voir s'il ne faut pas basculer des éléments de la pile dans la pile d'attente pour les afficher plus tard
 				$newStack = array();
 				foreach ($stack as $set){
 					$waited = false;
@@ -140,6 +135,7 @@ function computeSize($area){
 							continue;
 						}
 						if (isset($element->links)){
+							// Est-ce qu'un autre élément pointe sur cet élément ? Si oui, on le met en attente.
 							foreach($element->links as $link){
 								if ($link->to == $set->element){
 									$waitstack[] = $set;
@@ -149,6 +145,7 @@ function computeSize($area){
 							}
 						}
 					}
+					// Pas de mise en attente ? On le prend.
 					if ($waited == false){
 						$newStack[] = $set;
 					}
@@ -158,7 +155,7 @@ function computeSize($area){
 				if (count($stack) == 0){
 					$set = $waitstack[0];
 					unset($waitstack[0]);
-					// indiquer à tous ceux qui pointent dessus et qui ne sont pas calculés qu'il s'agit d'un lien arrière
+					// TODO indiquer à tous ceux qui pointent dessus et qui ne sont pas calculés qu'il s'agit d'un lien arrière
 					foreach($area->elements as $element){
 						if ($element->allreadyComputed) {
 							continue;
@@ -183,6 +180,7 @@ function computeSize($area){
 					$element->x = $x;
 					$element->y = $y;
 					$element->allreadyComputed = true;
+					// On injecte dans la pile tous les elements pointés par l'élément courrant à condition qu'ils soient dans la zone courrante et qu'ils n'aient pas déjà été positionnés
 					foreach ($element->links as $link){
 						$to_element = $link->to;
 						if ((!$to_element->allreadyComputed) && (isset($elementsInArea[$to_element->id]))){
@@ -192,19 +190,19 @@ function computeSize($area){
 							$newStack[] = $newSet;
 						}
 					}
-					$y += AREA_GAP + $element->height + 50;
+					$y += AREA_GAP + $element->height + 10;// 10 = la hauteur de la légende TODO mettre une constante
 					$maxy = max($maxy,$y);
 				}
 				$stack = $newStack;
-				$x += AREA_GAP + ELEMENT_WIDTH + 100;
-				$y = AREA_GAP + 10;
+				$x += AREA_GAP + ELEMENT_WIDTH + 100; // 100 = la taille du lien TODO mettre une constante
+				$y = $area->y + AREA_GAP + 10;
 				// On rebascule les éléments en attente dans la pile
 				foreach($waitstack as $set){
 					$stack[] = $set;
 				}
 				$waitstack = array();
 			}
-			$area->width = $x;
+			$area->width = $x - $area->x;
 			$area->height = $maxy;
 		} else {
 			// disposer les composants via une grille
@@ -235,8 +233,6 @@ function computeSize($area){
 				$area->height += AREA_GAP * 2;
 			// Disposer les éléments horizontalement
 			} else if ($area->display == "horizontal"){
-				$x = $area->x + AREA_GAP;
-				$y = $area->y + AREA_GAP + 10;
 				$maxheight = 0;
 				foreach ($area->elements as $element){
 					$element->x = $x;
@@ -249,8 +245,6 @@ function computeSize($area){
 				$area->height = $maxheight + (AREA_GAP*2) + 10;
 			// Disposer les elements verticalement
 			} else if ($area->display == "vertical"){
-				$x = $area->x + AREA_GAP;
-				$y = $area->y + AREA_GAP + 10;
 				$maxwidth = 0;
 				foreach ($area->elements as $element){
 					$element->x = $x;
@@ -277,14 +271,14 @@ function displayArea($level,$area){
 	} else if (count($area->subareas) == 0){
 		$class = "areaEmpty";
 	}
-	echo '<rect class="'.$class.'" x="'.($area->x).'" y="'.($area->y).'" width="'.$area->width.'" height="'.$area->height.'" rx="10" ry="10"/>';
+	echo "<rect class='".$class."' x='".($area->x)."' y='".($area->y)."' width='".$area->width."' height='".$area->height."' rx='10' ry='10'/>\n";
 	$label = $area->code;
 	if (($label == "") || ($label == null)){
 		$label = $area->name;
 	}
 	// ** Afficher le label de la zone **
 	$label = _truncateText($label,$area->width - 15,AREA_CHAR_WIDTH);
-	echo '<text x="'.($area->x+15).'" y="'.($area->y+25).'" class="'.$class.'_title">'.$label.'</text>';
+	echo "<text x='".($area->x+15)."' y='".($area->y+25)."' class='".$class."_title'>".$label."</text>\n";
 	// ** Affichage des sous zones récursivement **
 	$subx = $area->x;
 	$suby = $area->y;
@@ -327,7 +321,7 @@ function displayLinks($areas){
  */
 function _drawElement($element){
 	$style = "";
-	echo '<use id="element_'.$element->id.'" href="#'.$element->class.'" x="'.($element->x).'" y="'.($element->y).'" onclick=" window.parent.svgElementClicked(\''.$element->type.'\',\''.$element->id.'\')" style="'.$style.'"><title>'.$element->name.'</title></use>';
+	echo "\t<use id='element_".$element->id."' href='#".$element->class."' x='".($element->x)."' y='".($element->y)."' onclick='window.parent.svgElementClicked(\"".$element->type."\",\"".$element->id."\")' style='".$style."'><title>".$element->name."</title></use>\n";
 	$textwidth = _textWidth($element->name,ELEMENT_CHAR_WIDTH);
 	$x = $element->x;
 	$maxsize = $element->width + 30;
@@ -339,13 +333,13 @@ function _drawElement($element){
 		$x = $element->x + ceil(($element->width - $textwidth) / 2);
 		$text = $element->name;
 	}
-	echo '<text x="'.$x.'" y="'.($element->y+$element->height+20).'" class="element_label"><title>'.$element->name.'</title>'.$text.'</text>';
+	echo "\t<text x='".$x."' y='".($element->y+$element->height+20)."' class='element_label'><title>".$element->name."</title>".$text."</text>\n";
 }
 /**
  * Afficher un élément sous forme d'un rectangle
  */
 function _drawElementAsRect($element){
-	echo '<rect x="'.$element->x.'" y="'.$element->y.'" width="'.$element->width.'" height="'.$element->height.'" rx="5" ry="5" class="rect_www_hhh" filter="url(#shadow)" onclick="window.parent.svgElementClicked(\''.$element->type.'\',\''.$element->id.'\')"/>';
+	echo "\t<rect x='".$element->x."' y='".$element->y."' width='".$element->width."' height='".$element->height."' rx='5' ry='5' class='rect_www_hhh' filter='url(#shadow)' onclick='window.parent.svgElementClicked(\"".$element->type."\",\"".$element->id."\")'/>\n";
 	$lines = _splitTextInLines($element->name,ELEMENT_CHAR_WIDTH,CHAR_HEIGHT,$element->width,$element->height);
 	$verticalgap = round(($element->height - (count($lines) * CHAR_HEIGHT)) / (count($lines) + 1));
 	$y = $element->y + CHAR_HEIGHT + $verticalgap;
@@ -361,6 +355,7 @@ function _drawElementAsRect($element){
  * Afficher un lien
  */
 function _drawLink($from,$to,$label){
+	echo "\t";
 	$x1 = 0;
 	$y1 = 0;
 	$x2 = 0;
@@ -435,6 +430,7 @@ function _drawLink($from,$to,$label){
 	} else {
 		echo '<circle cx="'.$x2.'" cy="'.$y2.'" r="5" style="fill:gray"/>';
 	}
+	echo "\n";
 }
 /**
  * Truncate a text according the maxWidth
@@ -492,6 +488,7 @@ function _splitTextInLines($textToSplit,$charWidth,$charHeight,$maxWidth,$maxHei
  * Afficher toutes les zones
  */
 function display($areas){
+	echo "<!-- areas -->\n";
 	// Calculer la position et la taille des zones par rapport à leur contenu
 	$x = 0;
 	foreach ($areas as $area){
@@ -507,6 +504,7 @@ function display($areas){
 			displayArea(1,$area);
 		}
 	}
+	echo "<!-- links -->\n";
 	displayLinks($areas);
 }
 ?>

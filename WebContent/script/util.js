@@ -1,6 +1,24 @@
+var panZoomInstance = null;
 function changeImage(url){
-	//$("#frame").attr("src",url);
-	$("#frame").attr("data",url);
+	if (panZoomInstance != null){
+		panZoomInstance.destroy();
+		panZoomInstance = null;
+	}
+	if (url == null){
+		$('#frame').html("");
+		return;
+	}
+	$.get( url, function( data ) {
+		$('#frame').html(data);
+		panZoomInstance = svgPanZoom("#frame", {
+		    zoomEnabled: true,
+		    controlIconsEnabled: true,
+		    fit: true,
+		    center: false,
+		    minZoom: 0.1,
+		    zoomScaleSensitivity : 0.3
+		});
+	});
 }
 function hideToolBox(){
 	$("#default_toolbox").hide();
@@ -13,7 +31,7 @@ function hideToolBox(){
 	$("#service_toolbox").hide();
 }
 function clearFrame(){
-	changeImage("");
+	changeImage(null);
 }
 function showPopup(title,body){
 	$("#popup").html(body);

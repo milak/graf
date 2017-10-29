@@ -9,6 +9,7 @@ define("LINK_CHAR_WIDTH",8);
 define("AREA_CHAR_WIDTH",10);
 define("CHAR_HEIGHT",11);
 //header('Content-Type: image/svg+xml'); //ne fonctionne pas car le type mime n'est pas reconnu
+//header('Content-Type: image/svg+xml'); //ne fonctionne pas car le type mime n'est pas reconnu
 // ************
 // Début de l'image
 // ************
@@ -16,9 +17,11 @@ function displayErrorAndDie($error){
 	die('<text x="1" y="50" class="error_text">'.$error.'</text>');
 }
 ?><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?php if (isset($_REQUEST["ashtml"])){?>
 <html>
 <body style="margin:0px 0px 0px 0px">
-<svg viewBox="0 0 1500 1500" preserveAspectRatio="xMaxYMid"><!--width="100%" height="100%"-->
+<?php }?>
+<svg viewBox="0 0 10000 10000" preserveAspectRatio="xMaxYMid">
 <style><?php
 require("style.css");
 ?></style>
