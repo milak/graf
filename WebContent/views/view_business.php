@@ -169,13 +169,16 @@ while($row = $result->fetch_assoc()){
 $result->free();
 
 $sql = <<<SQL
-   SELECT * from actor
+   SELECT element.* from element
+   INNER JOIN element_class ON element.element_class_id = element_class.id
+   INNER JOIN element_category ON element_class.element_category_id = element_category.id
    WHERE domain_id = $domain_id
+	AND element_category.name = 'actor'
 SQL;
 if(!$result = $db->query($sql)){
     displayErrorAndDie('There was an error running the query [' . $db->error . ']');
 }
-// Charger tous les services
+// Charger tous les acteurs
 while($row = $result->fetch_assoc()){
 	$obj = new stdClass();
 	$obj->id 		= $row["id"];

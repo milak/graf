@@ -51,7 +51,7 @@
 		<div id="default_toolbox" style="width:100%">
 		</div>
 		<div id="strategic_toolbox" style="width:100%;display:none" class="controlgroup">
-			<button onclick="createDomain()"><img style="height:14px" src="images/78.png"/> domaine</button>
+			<button type="button" onclick="createDomain()"><img style="height:14px" src="images/78.png"/> domaine</button>
 			<label for="strategic_viewprocess">Voir les processus</label>
 			<input type="checkbox" name="strategic_viewprocess" id="strategic_viewprocess" onclick="strategic_checkSeeProcess()"/>
 		</div>
@@ -145,17 +145,21 @@ $(function() {
 		</div>
 	</fieldset>
 	<hr/>
-	<button onclick='doUpdateView()'><img style="height:14px" src="images/78.png"/> valider</button>
-	<button onclick='$("#update_view_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
+	<button type="button" onclick='doUpdateView()'><img style="height:14px" src="images/78.png"/> valider</button>
+	<button type="button" onclick='$("#update_view_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </form>
 <form id="create_actor_form" style="display:none" class="pure-form pure-form-aligned">
 	<div class="pure-control-group">
 		<label for="create_actor_form_name">Nom</label>
 		<input type="text" 	id="create_actor_form_name" 		name="name"/>
 	</div>
+	<div class="pure-control-group">
+		<label for="create_actor_form_class">Classe</label>
+		<select id="create_actor_form_class"></select>
+	</div>
 	<hr/>
-	<button onclick='doCreateActor()'><img style="height:14px" src="images/78.png"/> créer</button>
-	<button onclick='$("#create_actor_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
+	<button type="button" onclick='doCreateActor()'><img style="height:14px" src="images/78.png"/> créer</button>
+	<button type="button" onclick='$("#create_actor_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </form>
 <form id="create_domain_form" style="display:none" class="pure-form pure-form-aligned">
 	<div class="pure-control-group">
@@ -167,8 +171,8 @@ $(function() {
 		<select id="create_domain_form_area"></select>
 	</div>
 	<hr/>
-	<button onclick='doCreateDomain()'><img style="height:14px" src="images/78.png"/> cr&eacute;er</button>
-	<button onclick='$("#create_domain_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
+	<button type="button" onclick='doCreateDomain()'><img style="height:14px" src="images/78.png"/> cr&eacute;er</button>
+	<button type="button" onclick='$("#create_domain_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </form>
 <form id="create_component_form" style="display:none" class="pure-form pure-form-aligned">
 	<input type="hidden" id="create_component_form_type"/>
@@ -202,8 +206,8 @@ $(function() {
 		<select id="create_component_form_area"></select>
 	</div>
 	<hr/>
-	<button onclick='doCreateComponent()'><img style="height:14px" src="images/78.png"/> ajouter</button>
-	<button onclick='$("#create_component_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
+	<button type="button" onclick='doCreateComponent()'><img style="height:14px" src="images/78.png"/> ajouter</button>
+	<button type="button" onclick='$("#create_component_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </form>
 <form id="edit_component_form" style="display:none" class="pure-form pure-form-aligned">
 	<fieldset>
@@ -260,10 +264,10 @@ $(function() {
 		</fieldset>
 	</div>
 	<hr/>
-	<button onclick='$("#edit_component_form").dialog("close");displayComponent(currentComponentId)' id="edit_component_form_ouvrir"><img src='images/63.png'/> ouvrir</button>
-	<button onclick='$("#edit_component_form").dialog("close");unlinkComponent(currentComponentId)'><img src='images/14.png'/> retirer</button>
-	<button onclick='$("#edit_component_form").dialog("close");updateComponent()' id="edit_component_form_valider" disabled="true"><img src='images/93.png'/> valider</button>
-	<button onclick='$("#edit_component_form").dialog("close");'><img src='images/33.png'/> fermer</button>
+	<button type="button" onclick='$("#edit_component_form").dialog("close");displayComponent(currentComponentId)' id="edit_component_form_ouvrir"><img src='images/63.png'/> ouvrir</button>
+	<button type="button" onclick='$("#edit_component_form").dialog("close");unlinkComponent(currentComponentId)'><img src='images/14.png'/> retirer</button>
+	<button type="button" onclick='$("#edit_component_form").dialog("close");updateComponent()' id="edit_component_form_valider" disabled="true"><img src='images/93.png'/> valider</button>
+	<button type="button" onclick='$("#edit_component_form").dialog("close");'><img src='images/33.png'/> fermer</button>
 </form>
 <form id="process_create_form" class="pure-form pure-form-aligned" style="display:none">
 	<fieldset>
@@ -278,8 +282,8 @@ $(function() {
 		<input type="hidden" 	id="process_create_form_domain_id" 		name='domain_id' value=""/>
 	</fieldset>
 	<hr/>
-	<button onclick='doCreateProcess()'><img style="height:14px" src="images/78.png"/> créer</button>
-	<button onclick='$("#process_create_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
+	<button type="button" onclick='doCreateProcess()'><img style="height:14px" src="images/78.png"/> créer</button>
+	<button type="button" onclick='$("#process_create_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </form>
 <form id="process_step_create_form" class="pure-form pure-form-aligned" style="display:none">
 	<input type="hidden" 	id="process_step_create_form_process_id"/>
@@ -313,8 +317,8 @@ $(function() {
 		</div>
 	</fieldset>
 	<hr/>
-	<button onclick='doCreateProcessStep()' id="process_step_create_form_submit" disabled="true"><img style="height:14px" src="images/78.png"/> créer</button>
-	<button onclick='$("#process_step_create_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
+	<button type="button" onclick='doCreateProcessStep()' id="process_step_create_form_submit" disabled="true"><img style="height:14px" src="images/78.png"/> créer</button>
+	<button type="button" onclick='$("#process_step_create_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </form>
 <form id="edit_process_step_form" class="pure-form pure-form-aligned" style="display: none;">
 	<input type="hidden"	id="edit_process_step_form_id"/>
@@ -367,16 +371,16 @@ $(function() {
 	
 	
 	<hr/>
-	<button onclick='hidePopup();displayProcess($("#edit_process_step_form_sub_process_id").val())' style="display:none" id="edit_process_step_form_open_process">
+	<button type="button" onclick='hidePopup();displayProcess($("#edit_process_step_form_sub_process_id").val())' style="display:none" id="edit_process_step_form_open_process">
 		<img style="height:14px" src='images/63.png'/> ouvrir
 	</button>
-	<button onclick='$("#edit_process_step_form").dialog("close");deleteProcessStep($("#edit_process_step_form_id").val())' style="display:none" id="edit_process_step_form_delete">
+	<button type="button" onclick='$("#edit_process_step_form").dialog("close");deleteProcessStep($("#edit_process_step_form_id").val())' style="display:none" id="edit_process_step_form_delete">
 		<img style="height:14px" src='images/14.png'/> supprimer
 	</button>
-	<button onclick='updateProcessStep()' id="edit_process_step_form_submit" disabled="true">
+	<button type="button" onclick='updateProcessStep()' id="edit_process_step_form_submit" disabled="true">
 		<img style="height:14px" src="images/78.png"/> valider
 	</button>
-	<button onclick='$("#edit_process_step_form").dialog("close");'>
+	<button type="button" onclick='$("#edit_process_step_form").dialog("close");'>
 		<img style="height:14px" src="images/33.png"/> annuler
 	</button>
 </form>
@@ -386,8 +390,8 @@ $(function() {
 		<select id="search_domain_form_list"></select>
 	</div>
 	<hr/>
-	<button onclick='$("#search_domain_form").dialog("close");searchDomain();'><img style="height:14px" src="images/93.png"/> valider</button>
-	<button onclick='$("#search_domain_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
+	<button type="button" onclick='$("#search_domain_form").dialog("close");searchDomain();'><img style="height:14px" src="images/93.png"/> valider</button>
+	<button type="button" onclick='$("#search_domain_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </form>
 <form id="search_process_form" class="pure-form pure-form-aligned" style="display:none">
 	<div class="pure-control-group">
@@ -399,8 +403,8 @@ $(function() {
 		<select id="search_process_form_process_list"></select>
 	</div>
 	<hr/>
-	<button onclick='$("#search_process_form").dialog("close");doSearchProcess();'><img style="height:14px" src="images/93.png"/> valider</button>
-	<button onclick='$("#search_process_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
+	<button type="button" onclick='$("#search_process_form").dialog("close");doSearchProcess();'><img style="height:14px" src="images/93.png"/> valider</button>
+	<button type="button" onclick='$("#search_process_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </form>
 <form id="search_service_form" class="pure-form pure-form-aligned" style="display:none">
 	<div class="pure-control-group">
@@ -408,16 +412,16 @@ $(function() {
 		<select id="search_service_form_list"></select>
 	</div>
 	<hr/>
-	<button onclick='$("#search_service_form").dialog("close");searchService();'><img style="height:14px" src="images/93.png"/> valider</button>
-	<button onclick='$("#search_service_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
+	<button type="button" onclick='$("#search_service_form").dialog("close");searchService();'><img style="height:14px" src="images/93.png"/> valider</button>
+	<button type="button" onclick='$("#search_service_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </form>
 <div id="create_service_form" style="display:none">
 	Nom : 	<input type="text"		id="create_service_form_name" 		name="name"/><br/>
 	Code :	<input type="text"		id="create_service_form_code" 		name="code"/><br/>
 			<input type="hidden" 	id="create_service_form_domain_id" 	name='domain_id'/>
 	<hr/>
-	<button onclick='doCreateService()'><img style="height:14px" src="images/78.png"/> cr&eacute;er</button>
-	<button onclick='$("#create_service_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
+	<button type="button" onclick='doCreateService()'><img style="height:14px" src="images/78.png"/> cr&eacute;er</button>
+	<button type="button" onclick='$("#create_service_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </div>
 <form id="create_instance_form" style="display:none" class="pure-form pure-form-aligned">
 	<input type="hidden" 	id="create_instance_form_service_id" 	name='service_id'/>
@@ -432,8 +436,8 @@ $(function() {
 		</div>
 	</fieldset>
 	<hr/>
-	<button onclick='doCreateServiceInstance()'><img style="height:14px" src="images/78.png"/> cr&eacute;er</button>
-	<button onclick='$("#create_instance_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
+	<button type="button" onclick='doCreateServiceInstance()'><img style="height:14px" src="images/78.png"/> cr&eacute;er</button>
+	<button type="button" onclick='$("#create_instance_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </form>
 <script>
 	function refreshEnvironmentList(){

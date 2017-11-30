@@ -70,8 +70,8 @@ function doCreateProcessStep(){
 	}
 	var type = $("#process_step_create_form_type").val();
 	var process_id = $("#process_step_create_form_process_id").val();
-	var actor_id = $("#process_step_create_form_actor_list").val();
-	if ((type == "ACTOR") && (actor_id == "null")){
+	var element_id = $("#process_step_create_form_actor_list").val();
+	if ((type == "ACTOR") && (element_id == "null")){
 		alert("Vous devez choisir un acteur");
 		return;
 	}
@@ -92,7 +92,7 @@ function doCreateProcessStep(){
 			"name"			 : name,
 			"process_id"	 : process_id,
 			"type"			 : type,
-			"actor_id"		 : actor_id,
+			"element_id"	 : element_id,
 			"sub_process_id" : sub_process_id,
 			"service_id"	 : service_id},
 		dataType: "text",
@@ -215,7 +215,7 @@ function refreshProcessStepContext(id){
 		var links = result.links;
 		for (var i = 0; i < links.length; i++){
 			var link = links[i];
-			html += "<tr><td></td>";
+			html += "<tr><td>"+link.to_step.name+"</td>";
 			html += "<td>"+link.label+"</td>";
 			html += "<td><a href='#' onclick='deleteProcessStepLink("+link.process_id+","+link.from_step_id+","+link.to_step_id+")'><img style='height:14px' src='images/14.png'/> supprimer</a></td>";
 			html += "</tr>";

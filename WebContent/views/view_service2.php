@@ -24,8 +24,30 @@ $sql .= " ORDER by service.id";
 if (!$result = $db->query($sql)){
     displayErrorAndDie('There was an error running the query [' . $db->error . ']');
 }
+$root = new stdClass();
+$root->name      = "Service";
+$root->code      = "Service";
+$root->display   = "vertical";
+$root->position	 = 0;
+$root->elements  = array();
+$root->subareas  = array();
+$root->needed    = true;
+$root->parent    = null;
 
+
+$area_instances = new stdClass();
+$area_instances->id        = 0;
+$area_instances->name      = "Instances";
+$area_instances->code      = "Instances";
+$area_instances->parent_id = 0;
+$area_instances->display   = "horizontal";
+$area_instances->position  = 0;
+$area_instances->elements  = array();
+$area_instances->subareas  = array();
+$area_instances->needed    = true;
+$area_instances->parent    = null;
 while($row = $result->fetch_assoc()){
+	$root->code      = "Service ".$row["name"];
 	if (isset($row["instance_id"])){
 		$instance 				= new stdClass();
 		$instance->id 			= $row["instance_id"];
@@ -33,7 +55,7 @@ while($row = $result->fetch_assoc()){
 		$instance->class 		= "service_instance";
 		$instance->name 		= $row["instance_name"];
 		$instance->links 		= array();
-		$area->elements[] 		= $instance;
+		$area_instances->elements[] 		= $instance;
 	}
 }
 $result->free();
@@ -153,7 +175,6 @@ while($row = $result->fetch_assoc()){
 $result->free();
 $componentsToPlace = array();
 // Afficher le résultat
-$roots = array();
 foreach ($areas as $area){
 	if (!$area->needed){
 		continue;
@@ -161,8 +182,11 @@ foreach ($areas as $area){
 	if ($area->parent != null){
 		continue;
 	}
-	$roots[] = $area;
+	$root->subareas[] = $area;
 }
+$root->subareas[] = $area_instances;
+$roots = array();
+$roots[] = $root;
 display($roots);
 
 require("../db/disconnect.php");

@@ -30,7 +30,7 @@ while($row = $result->fetch_assoc()){
 		"step_type_id"   : "<?php echo $row["step_type_id"]; ?>",
 		"step_type_name" : "<?php echo $row["step_type_name"]; ?>",
 		"service_id"     : "<?php echo $row["service_id"]; ?>",
-		"actor_id"       : "<?php echo $row["actor_id"]; ?>",
+		"element_id"     : "<?php echo $row["element_id"]; ?>",
 		"sub_process_id" : "<?php echo $row["sub_process_id"]; ?>"
 	}<?php
 	$first = false;
@@ -78,11 +78,11 @@ SQL;
 		}
 		$val = ",".intval($_POST["service_id"]);
 	} else if ($type == "ACTOR"){
-		$id = ", actor_id";
-		if (!isset($_POST["actor_id"])){
-			die("Missing actor_id argument");
+		$id = ", element_id";
+		if (!isset($_POST["element_id"])){
+			die("Missing element_id argument");
 		}
-		$val = ",".intval($_POST["actor_id"]);
+		$val = ",".intval($_POST["element_id"]);
 	} else if ($type == "SUB-PROCESS"){
 		$id = ", sub_process_id";
 		if (!isset($_POST["sub_process_id"])){

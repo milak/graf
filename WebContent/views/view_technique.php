@@ -18,13 +18,17 @@ if (isset($_GET["tags"])){
 // Chercher tous les noeuds correspondant aux critères de recherche
 // ****************************************************************
 $sql = <<<SQL
-    SELECT node.id as node_id, node.area_id as area_id, node.name as node_name, node_type.class as node_class, machine.id as machine_id, machine.fqdn, machine.alias, node_has_tag.tag_id as tag_id
-    FROM node
+    SELECT instance.*
+    FROM instance
     INNER JOIN node_type ON node.node_type_id = node_type.id
     LEFT OUTER JOIN machine ON node.id = machine.node_id
     INNER JOIN area ON node.area_id = area.id
     LEFT OUTER JOIN node_has_tag ON node.id = node_has_tag.node_id
 SQL;
+if (isset($_GET["service_id"])){
+	$sql .= " where instance.service_id = ".$_GET["service_id"];
+}
+
 // Appliquer les filtres
 $filter_tag_as_id_list = "";
 if ($filter_tag != ""){

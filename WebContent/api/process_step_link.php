@@ -5,7 +5,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 header("Content-Type: application/json");
 
 $sql = <<<SQL
-	select * from step_link
+	select step_link.*, process_step.name as to_step_name from step_link
+	LEFT OUTER JOIN process_step ON step_link.to_step_id = process_step.id
 SQL;
 if (isset($_GET["process_id"])){
 	$process_id = $_GET["process_id"];
@@ -28,8 +29,8 @@ while($row = $result->fetch_assoc()){
 		"process_id"	: 	<?php echo $row["process_id"]; ?>,
 		"label"			: 	"<?php echo $row["label"]; ?>",
 		"data"			: 	"<?php echo $row["data"]; ?>",
-		"from_step_id"	: 	<?php echo $row["from_step_id"]; ?>,
-		"to_step_id"	: 	<?php echo $row["to_step_id"]; ?>
+		"from_step"	: 	{ "id" : <?php echo $row["from_step_id"]; ?>, "name" : "TODO"},
+		"to_step"	: 	{ "id" : <?php echo $row["to_step_id"]; ?>, "name" : "<?php echo $row["to_step_name"]; ?>" }
 	}
 	<?php
 	$first = false;
