@@ -1,5 +1,7 @@
-create database carto;
-use carto;
+create database graf 
+	DEFAULT CHARACTER SET utf8
+  	DEFAULT COLLATE utf8_general_ci;
+use graf;
 create table area (
     id        INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     code      VARCHAR(20),
@@ -84,7 +86,8 @@ create table component (
 	data_id			 INT,
 	service_id		 INT,
 	device_id		 INT,
-	area_id			 INT
+	area_id			 INT,
+	element_id		 INT
 );
 
 ALTER TABLE `component` ADD CONSTRAINT `FK_component_to_area` 		FOREIGN KEY (`area_id`) 		REFERENCES `area`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
@@ -115,6 +118,12 @@ create table instance (
 );
 ALTER TABLE `instance` ADD CONSTRAINT `FK_instance_service` 	FOREIGN KEY (`service_id`) 		REFERENCES `service`(`id`) 		ON DELETE RESTRICT ON UPDATE RESTRICT;
 ALTER TABLE `instance` ADD CONSTRAINT `FK_instance_environment` FOREIGN KEY (`environment_id`) 	REFERENCES `environment`(`id`) 	ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+//TODO terminer cette table
+create table instance_uses_as_component (
+	instance_id,
+	component_id,
+);
 
 create table environment (
     id     INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -160,14 +169,14 @@ create table process_step (
     name                VARCHAR(100) 	NOT NULL,
     step_type_id  		INT 			NOT NULL,
     service_id          INT,
-    actor_id            INT,
+    element_id          INT,
     sub_process_id      INT
 );
 
 ALTER TABLE `process_step` ADD CONSTRAINT `FK_process_step_process` 		FOREIGN KEY (`process_id`) 		REFERENCES `process`(`id`) 		ON DELETE RESTRICT ON UPDATE RESTRICT;
 ALTER TABLE `process_step` ADD CONSTRAINT `FK_process_step_step_type` 		FOREIGN KEY (`step_type_id`) 	REFERENCES `step_type`(`id`)	ON DELETE RESTRICT ON UPDATE RESTRICT;
 ALTER TABLE `process_step` ADD CONSTRAINT `FK_process_step_service` 		FOREIGN KEY (`service_id`) 		REFERENCES `service`(`id`) 		ON DELETE RESTRICT ON UPDATE RESTRICT;
-ALTER TABLE `process_step` ADD CONSTRAINT `FK_process_step_actor` 			FOREIGN KEY (`actor_id`) 		REFERENCES `actor`(`id`) 		ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `process_step` ADD CONSTRAINT `FK_process_step_element` 		FOREIGN KEY (`element_id`) 		REFERENCES `element`(`id`) 		ON DELETE RESTRICT ON UPDATE RESTRICT;
 ALTER TABLE `process_step` ADD CONSTRAINT `FK_process_step_sub_process` 	FOREIGN KEY (`sub_process_id`) 	REFERENCES `process`(`id`) 		ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 create table step_link (
@@ -181,14 +190,6 @@ create table step_link (
 ALTER TABLE `step_link` ADD CONSTRAINT `FK_step_link_process` 				FOREIGN KEY (`process_id`) 		REFERENCES `process`(`id`) 		ON DELETE RESTRICT ON UPDATE RESTRICT;
 ALTER TABLE `step_link` ADD CONSTRAINT `FK_step_link_from_process_step` 	FOREIGN KEY (`from_step_id`) 	REFERENCES `process_step`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 ALTER TABLE `step_link` ADD CONSTRAINT `FK_step_link_to_process_step` 		FOREIGN KEY (`to_step_id`) 		REFERENCES `process_step`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
-
-create table actor (
-	id           		INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	name				VARCHAR(50)     NOT NULL,
-	domain_id			INT				NOT NULL
-);
-
-ALTER TABLE `actor` ADD CONSTRAINT `FK_actor_domain` 	FOREIGN KEY (`domain_id`) 	REFERENCES `domain`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 create table device (
 	id           		INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -210,3 +211,52 @@ create table software (
 );
 
 ALTER TABLE `component` ADD CONSTRAINT `FK_component_to_software` 		FOREIGN KEY (`software_id`) 		REFERENCES `software`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+
+
+/** categories d'éléments : actor, device, software, etc. */
+create table element_category (
+	id					INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	name 				VARCHAR(100)    NOT NULL,
+	display_class		VARCHAR(100)
+);
+insert into element_category (name) values ('device');
+insert into element_category (name) values ('software');
+insert into element_category (name) values ('actor');
+insert into element_category (name) values ('data');
+insert into element_category (name) values ('server');
+
+/** classes d'éléments : serveur web, utilisateur, administrateur, imprimante, load balancer, referentiel, etc. */
+create table element_class (
+	id					INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	name 				VARCHAR(100)    NOT NULL,
+	display_class		VARCHAR(100),
+	element_category_id	INT				NOT NULL
+);
+
+ALTER TABLE `element_class` ADD CONSTRAINT `FK_element_class_to_element_category` 		FOREIGN KEY (`element_category_id`) 		REFERENCES `element_category`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+/** element apache, comptable, epson 8000, logiciel de comptabilité, etc.*/
+create table element (
+	id					INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	name 				VARCHAR(100)    NOT NULL,
+	version				VARCHAR(100),
+	icon				VARCHAR(100),
+	element_class_id	INT				NOT NULL,
+	domain_id			INT
+);
+
+ALTER TABLE `element` ADD CONSTRAINT `FK_element_to_element_class` 		FOREIGN KEY (`element_class_id`) 		REFERENCES `element_class`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `element` ADD CONSTRAINT `FK_element_to_domain` 			FOREIGN KEY (`domain_id`) 		REFERENCES `domain`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+ALTER TABLE `component` ADD CONSTRAINT `FK_component_to_element` 		FOREIGN KEY (`element_id`) 		REFERENCES `element`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+/** Propriétés de l'élément */
+create table element_property (
+	id					INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	name 				VARCHAR(100)    NOT NULL,
+	value 				VARCHAR(1000)   NOT NULL,
+	element_id			INT				NOT NULL
+);
+
+ALTER TABLE `element_property` ADD CONSTRAINT `FK_element_property_to_element` 		FOREIGN KEY (`element_id`) 		REFERENCES `element`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;

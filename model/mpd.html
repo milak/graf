@@ -239,9 +239,9 @@
 	<text x="5" y="50" class="primary_key">id (PK)</text>
 	<text x="5" y="70" class="foreign_key">process_id (FK)</text>
 	<text x="5" y="90">name</text>
-	<text x="5" y="110"  class="foreign_key">step_type_id (FK)</text>
+	<text x="5" y="110" class="foreign_key">step_type_id (FK)</text>
 	<text x="5" y="130" class="foreign_key">service_id (FK)</text>
-	<text x="5" y="150" class="foreign_key">actor_id (FK)</text>
+	<text x="5" y="150" class="foreign_key">element_id (FK)</text>
 	<text x="5" y="170" class="foreign_key">sub_process_id (FK)</text>
 </g>
 
@@ -277,13 +277,13 @@
 <g width="160" height="105" transform="translate(700,1100)">
 	<rect x="0" y="0" width="160" height="30" class="entity_header"/>
 	<rect x="0" y="30" width="160" height="70" class="entity"/>
-	<text x="5" y="20">actor</text>
+	<text x="5" y="20">element</text>
 	<text x="5" y="50" class="primary_key">id (PK)</text>
 	<text x="5" y="70">name</text>
 	<text x="5" y="90" class="foreign_key">domain_id (FK)</text>
 </g>
 
-<line x1="650" y1="1300" x2="700" y2="1200" style="stroke:black" comment="Process_step to actor link"/>
+<line x1="650" y1="1300" x2="700" y2="1200" style="stroke:black" comment="Process_step to element link"/>
 
 <g width="160" height="105" transform="translate(1200,700)">
 	<rect x="0" y="0" width="160" height="30" class="entity_header"/>
