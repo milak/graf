@@ -12,6 +12,7 @@ function changeImage(url){
 		$('#frame').html(data);
 		panZoomInstance = svgPanZoom("#frame", {
 		    zoomEnabled				: true,
+		    dblClickZoomEnabled		: false,
 		    controlIconsEnabled		: true,
 		    fit						: true,
 		    center					: false,
@@ -39,6 +40,9 @@ function showPopup(title,body){
 }
 function hidePopup(){
 	$("#popup").dialog("close");
+}
+function svgElementDblClicked(what,id){
+	alert("svgElementDblClicked()");
 }
 function svgElementClicked(what,id){
 	if (what == "process"){

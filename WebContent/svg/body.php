@@ -321,7 +321,7 @@ function displayLinks($areas){
  */
 function _drawElement($element){
 	$style = "";
-	echo "\t<use id='element_".$element->id."' href='#".$element->class."' x='".($element->x)."' y='".($element->y)."' onclick='window.parent.svgElementClicked(\"".$element->type."\",\"".$element->id."\")' style='".$style."'><title>".$element->name."</title></use>\n";
+	echo "\t<use id='element_".$element->id."' href='#".$element->class."' x='".($element->x)."' y='".($element->y)."' ondbclick='window.parent.svgElementDblClicked(\"".$element->type."\",\"".$element->id."\")' onclick='window.parent.svgElementClicked(\"".$element->type."\",\"".$element->id."\")' style='".$style."'><title>".$element->name."</title></use>\n";
 	$textwidth = _textWidth($element->name,ELEMENT_CHAR_WIDTH);
 	$x = $element->x;
 	$maxsize = $element->width + 30;
