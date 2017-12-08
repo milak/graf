@@ -1,6 +1,8 @@
 <?php
 header("Content-Type: application/json");
-require("../db/connect.php");
+require("../dao/dao.php");
+$dao->connect();
+$db = $dao->getDB();
 $sql = <<<SQL
     SELECT * from environment
 SQL;
@@ -21,6 +23,6 @@ while($row = $result->fetch_assoc()){
 	$first = false;
 }
 $result->free();
-require("../db/disconnect.php");
+$dao->disconnect();
 ?>
 ]}

@@ -1,6 +1,8 @@
 <?php
 header("Content-Type: application/json");
-require("../db/connect.php");
+require("../dao/dao.php");
+$dao->connect();
+$db = $dao->getDB();
 /** METHOD GET **/
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 $sql = <<<SQL
@@ -50,7 +52,6 @@ while($row = $result->fetch_assoc()){
 	$first = false;
 }
 $result->free();
-require("../db/disconnect.php");
 if ($first != true) {?>
 					]
 		}
@@ -91,3 +92,5 @@ SQL;
 	    	die('There was an error running the query [' . $db->error . ']');
 	}
 }
+$dao->disconnect();
+?>

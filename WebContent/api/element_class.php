@@ -1,5 +1,7 @@
 <?php
-require("../db/connect.php");
+require("../dao/dao.php");
+$dao->connect();
+$db = $dao->getDB();
 /** METHOD GET **/
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 header("Content-Type: application/json");
@@ -61,5 +63,5 @@ SQL;
     	die('There was an error running the query [' . $db->error . ']');
 	}
 }
-require("../db/disconnect.php");
+$dao->disconnect();
 ?>

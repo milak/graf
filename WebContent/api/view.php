@@ -1,7 +1,9 @@
 <?php
 header("Content-Type: application/json");
-require("../db/connect.php");
-require("../db/util.php");
+require("../dao/dao.php");
+$dao->connect();
+$db = $dao->getDB();
+require("../dao/db/util.php");
 function recursiveDisplayArea($level,$area){
 	$tab = "";
 	for ($i = 0; $i < $level; $i++){
@@ -85,5 +87,5 @@ echo "]}";
 /** METHOD DELETE **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 }
-require("../db/disconnect.php");
+$dao->disconnect();
 ?>

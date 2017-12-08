@@ -1,4 +1,7 @@
 <?php
 header("Content-Type: application/json");
-require("../db/connect.php");
-
+require("../dao/dao.php");
+$dao->connect();
+$db = $dao->getDB();
+$dao->disconnect();
+?>

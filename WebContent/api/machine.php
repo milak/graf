@@ -1,6 +1,8 @@
 <?php
 header("Content-Type: application/json");
-require("start.php");
+require("../dao/dao.php");
+$dao->connect();
+$db = $dao->getDB();
 $sql = <<<SQL
     SELECT * from machine
 SQL;
@@ -22,6 +24,6 @@ while($row = $result->fetch_assoc()){
 	$first = false;
 }
 $result->free();
-require("stop.php");
+$dao->disconnect();
 ?>
 ]}
