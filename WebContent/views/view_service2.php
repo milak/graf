@@ -1,7 +1,9 @@
 <?php
 require("../svg/header.php");
-require("../db/connect.php");
-require("../db/util.php");
+require("../dao/dao.php");
+$dao->connect();
+$db = $dao->getDB();
+require("../dao/db/util.php");
 require("../svg/body.php");
 $areas = loadAreas($db,"logique");
 // ****************************************************************
@@ -188,7 +190,6 @@ $root->subareas[] = $area_instances;
 $roots = array();
 $roots[] = $root;
 display($roots);
-
-require("../db/disconnect.php");
+$dao->disconnect();
 require("../svg/footer.php");
 ?>

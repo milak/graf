@@ -1,7 +1,9 @@
 <?php
 require("../svg/header.php");
-require("../db/connect.php");
-require("../db/util.php");
+require("../dao/dao.php");
+$dao->connect();
+$db = $dao->getDB();
+require("../dao/db/util.php");
 $areas = loadAreas($db,"strategique");
 require("../svg/body.php");
 
@@ -82,6 +84,6 @@ foreach ($areas as $area){
 }
 // Afficher le résultat
 display($roots);
-require("../db/disconnect.php");
+$dao->disconnect();
 require("../svg/footer.php");
 ?>

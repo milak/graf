@@ -1,7 +1,9 @@
 <?php
 require("../svg/header.php");
-require("../db/connect.php");
-require("../db/util.php");
+require("../dao/dao.php");
+$dao->connect();
+$db = $dao->getDB();
+require("../dao/db/util.php");
 $view = null;
 if (isset($_GET["view"])){
 	$view = $_GET["view"];
@@ -38,6 +40,6 @@ function addElementsToAreas($areas,$nbelements){
 }
 $roots = addElementsToAreas($areas,$nbelements);
 display($roots);
-require("../db/disconnect.php");
+$dao->disconnect();
 require("../svg/footer.php");
 ?>

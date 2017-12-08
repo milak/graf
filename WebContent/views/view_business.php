@@ -1,8 +1,10 @@
 <?php
 //header('Content-Type: image/svg+xml'); //ne fonctionne pas car le type mime n'est pas reconnu
 require("../svg/header.php");
-require("../db/connect.php");
-require("../db/util.php");
+require("../dao/dao.php");
+$dao->connect();
+$db = $dao->getDB();
+require("../dao/db/util.php");
 require("../svg/body.php");
 if (!isset($_GET["id"])){
     displayErrorAndDie('Need domain "id" argument');
@@ -206,6 +208,6 @@ if (count($roots) == 0){
 } else {
 	display($roots);
 }
-require("../db/disconnect.php");
+$dao->disconnect();
 require("../svg/footer.php");
 ?>
