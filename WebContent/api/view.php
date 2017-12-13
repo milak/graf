@@ -29,7 +29,7 @@ function recursiveDisplayArea($level,$area){
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 if (isset($_GET["view"])){
 	$viewName = $_GET["view"];
-	$areas = loadAreas($db,$viewName);
+	$areas = $dao->getViewByName($viewName);
 	if (count($areas) == 0){
 		die("View not found");
 	}
@@ -56,26 +56,20 @@ if (isset($_GET["view"])){
 	echo "           ]}\n";
 	echo "}";
 } else {
-$sql = <<<SQL
-    SELECT * from view
-SQL;
-if(!$result = $db->query($sql)){
-    die('There was an error running the query [' . $db->error . ']');
-}?>
+    $views = $dao->getViews();
+    $first = true;?>
 { "views" : [
 <?php
-$first = true;
-while($row = $result->fetch_assoc()){
-	if ($first != true) {
-		echo ",\n";
-	}?>
-	{
-		"id"    : <?php echo $row["id"]; ?>,
-		"name" : "<?php echo $row["name"]; ?>"
-	}<?php
-	$first = false;
-}
-$result->free();
+    foreach ($views as $view){
+	   if ($first != true) {
+	       echo ",\n";
+	   }?>
+		{
+			"id"    : <?php echo $view->id; ?>,
+			"name" : "<?php echo $view->name; ?>"
+		}<?php
+	   $first = false;
+    }
 echo "]}";
 }
 /** METHOD POST **/

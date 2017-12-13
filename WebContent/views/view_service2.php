@@ -5,7 +5,7 @@ $dao->connect();
 $db = $dao->getDB();
 require("../dao/db/util.php");
 require("../svg/body.php");
-$areas = loadAreas($db,"logique");
+$areas = $dao->getViewByName("logique");
 // ****************************************************************
 // Chercher tous les noeuds correspondant aux critères de recherche
 // ****************************************************************

@@ -4,7 +4,7 @@ require("../dao/dao.php");
 $dao->connect();
 $db = $dao->getDB();
 require("../dao/db/util.php");
-$areas = loadAreas($db,"logique");
+$areas = $dao->getViewByName("logique");
 $tags = loadTags($db);
 require("../svg/body.php");
 $filter_tag = "";

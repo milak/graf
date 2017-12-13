@@ -4,8 +4,6 @@ require("../dao/dao.php");
 $dao->connect();
 $db = $dao->getDB();
 require("../dao/db/util.php");
-//$areas = loadAreas($db,"process");
-//$tags = loadTags($db);
 require("../svg/body.php");
 $filter_id = "";
 if (isset($_GET["id"])){

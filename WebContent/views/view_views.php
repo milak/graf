@@ -15,7 +15,7 @@ if (isset($_GET["fill"])){
 		$nbelements = 0;
 	}
 }
-$areas = loadAreas($db,$view);
+$areas = $dao->getViewByName($view);
 require("../svg/body.php");
 //header('Content-Type: image/svg+xml'); ne fonctionne pas car le type mime n'est pas reconnu
 function addElementsToAreas($areas,$nbelements){

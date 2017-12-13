@@ -4,7 +4,7 @@ require("../dao/dao.php");
 $dao->connect();
 $db = $dao->getDB();
 require("../dao/db/util.php");
-$areas = loadAreas($db,"strategique");
+$areas = $dao->getViewByName("strategique");
 require("../svg/body.php");
 
 // Analyse des critères de recherche
