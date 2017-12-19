@@ -19,6 +19,7 @@ ALTER TABLE `area` ADD CONSTRAINT `FK_area_view` FOREIGN KEY (`view_id`) 	REFERE
 create table view (
     id        INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name      VARCHAR(100) NOT NULL
+    text      VARCHAR(1000) NOT NULL
 );
 
 create table node_type (

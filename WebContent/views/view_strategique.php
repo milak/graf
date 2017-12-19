@@ -2,54 +2,55 @@
 require("../svg/header.php");
 require("../dao/dao.php");
 $dao->connect();
-$db = $dao->getDB();
-require("../dao/db/util.php");
 $areas = $dao->getViewByName("strategique");
 require("../svg/body.php");
-
-// Analyse des critères de recherche
-
-
+// Conserver uniquement les zones racines nécessaires et forcer toutes les zones à visibles
+$roots = array();
+foreach ($areas as $area){
+    $area->needed = true;
+    if ($area->parent != null){
+        continue;
+    }
+    $roots[] = $area;
+}
+$areas["default"]->needed=false;
 // ****************************************************************
 // Chercher tous les noeuds correspondant aux critères de recherche
 // ****************************************************************
-$sql = <<<SQL
-    SELECT domain.*
-    FROM domain
-SQL;
+$domains = $dao->getDomains();
 $showProcess = false;
 if (isset($_GET["showProcess"])){
 	$showProcess = true;
 }
-if(!$result = $db->query($sql)){
-    displayErrorAndDie('There was an error running the query [' . $db->error . ']');
-}
-$domains = array();
 // Charger tous les noeuds dans leur zone respective
-while($row = $result->fetch_assoc()){
-	$areaid = $row['area_id'];
+foreach($domains as $domain){
+    $areaid = $domain->area_id;
 	$area = $areas[$areaid];
+	if ($area == null) {
+	    $area = $areas["default"];
+	}
 	if ($showProcess){
 		$domainAsArea			= new stdClass();
-		$domainAsArea->id		= $row["id"];
-		$domainAsArea->code		= $row["name"];
-		$domainAsArea->name		= $row["name"];
+		$domainAsArea->id		= $domain->id;
+		$domainAsArea->code		= $domain->name;
+		$domainAsArea->name		= $domain->name;
 		$domainAsArea->needed	= true;
 		$domainAsArea->display	= "vertical";
 		$domainAsArea->subareas = array();
 		$domainAsArea->elements = array();
 		$area->subareas[]		= $domainAsArea;
+		$area->needed = true;
 		$domains[$domainAsArea->id] = $domainAsArea;
 	} else {
-		$domain 			= new stdClass();
-		$domain->id 		= $row["id"];
-	    $domain->class		= "rect_180_80";
-	    $domain->type		= "domain";
-		$domain->name		= $row["name"];
-		$area->elements[]	= $domain;
+		$domainAsElement 			= new stdClass();
+		$domainAsElement->id 		= $domain->id;
+		$domainAsElement->class		= "rect_180_80";
+		$domainAsElement->type		= "domain";
+		$domainAsElement->name		= $domain->name;
+		$area->needed = true;
+		$area->elements[]	        = $domainAsElement;
 	}
 }
-$result->free();
 if ($showProcess){
 $sql = <<<SQL
     SELECT *
@@ -73,15 +74,7 @@ SQL;
 	}
 	$result->free();
 }
-// Conserver uniquement les zones racines nécessaires et forcer toutes les zones à visibles
-$roots = array();
-foreach ($areas as $area){
-	$area->needed = true;
-	if ($area->parent != null){
-		continue;
-	}
-	$roots[] = $area;
-}
+
 // Afficher le résultat
 display($roots);
 $dao->disconnect();

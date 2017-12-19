@@ -26,20 +26,36 @@ function displayBusiness(domainId){
 		changeImage("views/view_business.php?id="+domainId);
 	}
 }
-function createDomain(){
-	$.getJSON( "api/area.php?view=strategique", function(result) {
-		var areas = result.areas;
+function recursiveRefreshStrategicAreaList(area){
+	var html = "";
+	if (area.areas.length == 0){
+		html = '<option value="'+area.id+'">'+area.name+'</option>';
+	} else {
+		for (var i = 0; i < area.areas.length; i++){
+			var subarea = area.areas[i];
+			html += recursiveRefreshStrategicAreaList(subarea);
+		}
+	}
+	return html;
+}
+function refreshStrategicAreaList(){
+	$.getJSON( "api/view.php?view=strategique", function(result) {
+		var areas = result.view.areas;
 		$('#create_domain_form_area').html("");
 		var options = "<option value='null'>~~Choisir une zone~~</option>";
 		for (var i = 0; i < areas.length; i++){
 			var area = areas[i];
-			options += '<option value="'+area.id+'">'+area.name+'</option>';
+			//options += '<option value="'+area.id+'">'+area.name+'</option>';
+			options += recursiveRefreshStrategicAreaList(area);
 		}
 		$('#create_domain_form_area').append(options);
-		$("#create_domain_form").dialog({"modal":true,"title":"Création d'un domaine","minWidth":500});
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
+}
+function createDomain(){
+	refreshStrategicAreaList();
+	$("#create_domain_form").dialog({"modal":true,"title":"Création d'un domaine","minWidth":500});
 }
 function doCreateDomain(){
 	var name 	= $("#create_domain_form_name").val();

@@ -272,9 +272,9 @@ function displayArea($level,$area){
 		$class = "areaEmpty";
 	}
 	echo "<rect class='".$class."' x='".($area->x)."' y='".($area->y)."' width='".$area->width."' height='".$area->height."' rx='10' ry='10'/>\n";
-	$label = $area->code;
+	$label = $area->name;
 	if (($label == "") || ($label == null)){
-		$label = $area->name;
+		$label = $area->code;
 	}
 	// ** Afficher le label de la zone **
 	$label = _truncateText($label,$area->width - 15,AREA_CHAR_WIDTH);
