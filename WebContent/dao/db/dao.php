@@ -35,19 +35,20 @@ class DBDao {
         if(!$dbresult = $this->db->query($sql)){
             die('There was an error running the query [' . $this->db->error . ']');
         }
-        $result = array();
+        $result = null;
         while($dbrow = $dbresult->fetch_assoc()){
             $row = new stdClass();
             $row->id = $dbrow["id"];
             $row->name = $dbrow["name"];
             $row->area_id = $dbrow["area_id"];
-			$result[] = $row;
+			$result = $row;
+			break;
 	    }
         $dbresult->free();
         return $result;
     }
     public function createDomain($name, $area_id){
-        error_log("Création d'un domaine : ".$name);
+        error_log("Création d'un domaine : ".$name.",".$area_id);
         $name = $this->db->real_escape_string($name);
         $sql = "insert into domain (name,area_id) values ('$name',$area_id)";
         if(!$result = $this->db->query($sql)){
@@ -245,38 +246,81 @@ SQL;
     // ********************
     function getViewByName($view_name){
         $sql = <<<SQL
-    SELECT area.* from area
-    INNER JOIN view ON view.id = area.view_id where view.name = '$view_name'
-    ORDER by position
+    SELECT text from view
+    where name = '$view_name'
 SQL;
-        if (!$result = $db->query($sql)){
+        if (!$result = $this->db->query($sql)){
             displayErrorAndDie('There was an error running the query [' . $db->error . ']');
         }
-        $areas = array();
+        $text = "";
         while($row = $result->fetch_assoc()){
-            $area = new stdClass();
-            $area->id        = $row['id'];
-            $area->name      = $row['name'];
-            $area->code      = $row['code'];
-            $area->parent_id = $row['parent_id'];
-            $area->display   = $row['display'];
-            $area->position  = $row['position'];
-            $area->elements  = array();
-            $area->subareas  = array();
-            $area->needed    = false;
-            $area->parent    = null;
-            $areas[$area->id] = $area;
+            $text = $row["text"];
+            break;
         }
         $result->free();
-        // Raccrocher les zones à leur parent
-        foreach ($areas as $area){
-            if ($area->parent_id != null){
-                $areaparent = $areas[$area->parent_id];
-                $areaparent->subareas[] = $area;
-                $area->parent = $areaparent;
-            }
+        $text = json_decode($text, JSON_UNESCAPED_UNICODE);
+        return parseViewToArray($text);
+    }
+    public function getServices(){
+        $sql = <<<SQL
+   SELECT * from service
+   ORDER BY name
+SQL;
+        if(!$dbresult = $this->db->query($sql)){
+            die('There was an error running the query [' . $this->db->error . ']');
         }
-        return $areas;
+        $result = array();
+        // Charger tous les services
+        while($dbrow = $dbresult->fetch_assoc()){
+            $row = new stdClass();
+            $row->id 		= $dbrow["id"];
+            $row->name 		= $dbrow["name"];
+            $row->code 		= $dbrow["code"];
+            $result[] = $row;
+        }
+        $dbresult->free();
+        return $result;
+    }
+    public function getServiceById($id){
+        $sql = <<<SQL
+   SELECT * from service
+   WHERE id = $id
+SQL;
+        if(!$dbresult = $this->db->query($sql)){
+            die('There was an error running the query [' . $this->db->error . ']');
+        }
+        $result = null;
+        // Charger tous les services
+        while($dbrow = $dbresult->fetch_assoc()){
+            $row = new stdClass();
+            $row->id 		= $dbrow["id"];
+            $row->name 		= $dbrow["name"];
+            $row->code 		= $dbrow["code"];
+            $result = $row;
+            break;
+        }
+        $dbresult->free();
+        return $result;
+    }
+    public function getServicesByDomainId($id){
+        $sql = <<<SQL
+   SELECT * from service
+   WHERE domain_id = $id
+SQL;
+        if(!$dbresult = $this->db->query($sql)){
+            die('There was an error running the query [' . $this->db->error . ']');
+        }
+        $result = array();
+        // Charger tous les services
+        while($dbrow = $dbresult->fetch_assoc()){
+            $row = new stdClass();
+            $row->id 		= $dbrow["id"];
+            $row->name 		= $dbrow["name"];
+            $row->code 		= $dbrow["code"];
+            $result[] = $row;
+        }
+        $dbresult->free();
+        return $result;
     }
     public function query($sql) {
         return $this->db->query($sql);

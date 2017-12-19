@@ -94,13 +94,16 @@ class ITopDao {
         if ($response->code != 0) {
             die("Error : ".$response->message);
         }
-        $result = array();
-        foreach ($response->objects as $object){
-            $row = new stdClass();
-            $row->id = $object->key;
-            $row->name = $object->fields->name;
-            $row->area_id = $object->fields->description;
-            $result[] = $row;
+        $result = null;
+        if ($response->objects != null){
+            foreach ($response->objects as $object){
+                $row = new stdClass();
+                $row->id = $object->key;
+                $row->name = $object->fields->name;
+                $row->area_id = $object->fields->description;
+                $result = $row;
+                break;
+            }
         }
         return $result;
     }
@@ -117,7 +120,7 @@ class ITopDao {
                 'name' => $name,
                 'type' => 'businessDomain',
                 'status' => 'production',
-                'description' => "area_id=$area_id"
+                'description' => $area_id
             )
         ));
         $response = $this->DoPostRequest($jsonData);
@@ -142,7 +145,7 @@ class ITopDao {
         $jsonData = json_encode(array(
 		    'operation' => 'core/get',
 		    'class' => 'BusinessProcess',
-		    'key' => 'SELECT BusinessProcess',
+		    'key' => "SELECT BusinessProcess WHERE organization_name = '$this->organisation'",
 		    'output_fields' => 'id, name, friendlyname, description, business_criticity, status, applicationsolutions_list'//, document_name',
 		));
         $response = json_decode($this->DoPostRequest($jsonData));
@@ -333,6 +336,8 @@ class ITopDao {
     }
     public function createBusinessProcess($name,$description,$domain_id){
         error_log("Création d'un BusinessProcess : ".$name);
+        $defaultContent = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;bpmn:startEvent name="" id="1"/&gt;&lt;/bpmn:definitions&gt;';
+        //$defaultContent = urlencode($defaultContent);
         // Créer le contenu
         $jsonData = json_encode(array(
             'operation' => 'core/create', // operation code
@@ -345,10 +350,13 @@ class ITopDao {
                 'name' => "BPMN document of process ".$name,
                 'status' => 'published',
                 'documenttype_id' => "SELECT DocumentType WHERE name = 'BPMN'",
-                'text' => '&lt;hello&gt;&lt;/hello&gt;'
+                'text' => $defaultContent
             )
         ));
         $response = json_decode($this->DoPostRequest($jsonData));
+        if ($response->code != 0) {
+            die("Error : ".$response->message);
+        }
         $documentid = "";
         foreach($response->objects as $object){
             if ($object->code != 0){
@@ -375,8 +383,28 @@ class ITopDao {
         if ($response->code != 0) {
             die("Error : ".$response->message);
         }
+        $businessProcessId = null;
+        foreach ($response->objects as $object){
+            if ($object->code != 0){
+                die($object->message);
+            }
+            $businessProcessId = $object->fields->id;
+        }
         // Le rajouter au domaine
-        // TODO
+        $jsonData = json_encode(array(
+            'operation' => 'core/create', // operation code
+            'comment' => 'Inserted from GRAF',
+            'class' => 'lnkGroupToCI',
+            'output_fields' => 'id, friendlyname',
+            // Values for the object to create
+            'fields' => array(
+                'group_id' => $domain_id,
+                'ci_id' => $businessProcessId,
+                'reason' => 'BusinessProcess of this domain'
+            )
+        ));
+        $response = json_decode($this->DoPostRequest($jsonData));
+        print_r($response);
     }
     public function deleteBusinessProcess($id){
         // Obtenir le numéro du document
@@ -440,27 +468,6 @@ class ITopDao {
     // ********************
     // Chargement des zones
     // ********************
-    private function recursive_getViewByName(&$list, $parent, $currentArea){
-        $area = new stdClass();
-        $area->id        = $currentArea["name"];
-        $area->name      = $currentArea["label"];
-        $area->code      = $currentArea["name"];
-        $area->parent_id = null;
-        $area->display   = 'vertical';
-        $area->position  = 0;
-        $area->elements  = array();
-        $area->subareas  = array();
-        $area->needed    = false;
-        $area->parent    = $parent;
-        $list[$area->id] = $area;
-        if (isset($currentArea["children"])) {
-            foreach($currentArea["children"] as $child){
-                $subarea = $this->recursive_getViewByName($list, $area, $child);
-                $area->subareas[] = $subarea;
-            }
-        }
-        return $area;
-    }
     public function getViewByName($name){
         $jsonData = json_encode(array(
             'operation' => 'core/get',
@@ -475,11 +482,70 @@ class ITopDao {
             break;
         }
         $text = $this->cleanContent($text);
-        error_log($text);
         $view = json_decode($text, JSON_UNESCAPED_UNICODE);
-        $areas = array();
-        $this->recursive_getViewByName($areas, null, $view);
+        $areas = parseViewToArray($view);
         return $areas;
+    }
+    public function getServices(){
+        $jsonData = json_encode(array(
+            'operation' => 'core/get',
+            'class'     => 'Service',
+            'key'       => "SELECT Service WHERE organization_name = '$this->organisation'",
+            'output_fields' => 'id, name'
+        ));
+        $response = json_decode($this->DoPostRequest($jsonData));
+        $result = array();
+        foreach ($response->objects as $object){
+            $row = new stdClass();
+            $row->id    = $object->key;
+            $row->name  = $object->fields->name;
+            $row->code  = $object->fields->name;
+            $result[]   = $row;
+        }
+        return $result;
+    }
+    public function getServiceById($id){
+        $jsonData = json_encode(array(
+            'operation' => 'core/get',
+            'class'     => 'Service',
+            'key'       => "SELECT Service WHERE id = '$id' AND organization_name = '$this->organisation'",
+            'output_fields' => 'id, name'
+        ));
+        $response = json_decode($this->DoPostRequest($jsonData));
+        $result = null;
+        foreach ($response->objects as $object){
+            $row = new stdClass();
+            $row->id    = $object->key;
+            $row->name  = $object->fields->name;
+            $result   = $row;
+            break;
+        }
+        return $result;
+    }
+    public function getServicesByDomainId($id){
+        $domain = $this->getDomainById($id);
+        if ($domain == null){
+            return array();
+        }
+        $key = "%$domain->name%";
+        $jsonData = json_encode(array(
+            'operation' => 'core/get',
+            'class'     => 'Service',
+            'key'       => "SELECT Service WHERE description LIKE '$key'",
+            'output_fields' => 'id, name'
+        ));
+        $response = json_decode($this->DoPostRequest($jsonData));
+        $result = array();
+        if ($response->objects != null){
+            foreach ($response->objects as $object){
+                $row = new stdClass();
+                $row->id    = $object->key;
+                $row->name  = $object->fields->name;
+                $row->code  = $object->fields->name;
+                $result[]   = $row;
+            }
+        }
+        return $result;
     }
     public function getDB(){
         global $configuration;
@@ -489,7 +555,7 @@ class ITopDao {
         // Rien à faire
     }
     private function cleanContent($content){
-        $result = str_replace(array("<p>","</p>","\n","\r"), "", $content);
+        $result = str_replace(array("<br>","<p>","</p>","\n","\r"), "", $content);
         $result = htmlspecialchars_decode(htmlspecialchars_decode($result));
         $result = preg_replace('~\xc2\xa0~', '', $result);
         return $result;

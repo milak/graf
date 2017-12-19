@@ -2,17 +2,40 @@
 header("Content-Type: application/json");
 require("../dao/dao.php");
 $dao->connect();
-$db = $dao->getDB();
 /** METHOD GET **/
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-$sql = <<<SQL
+    $services = array();
+    if (isset($_GET["id"])){
+        $result = $dao->getServiceById($_GET["id"]);
+        if ($result != null){
+            $services[] = $result;
+        }
+    } else if (isset($_GET["domain_id"])){
+        $services = $dao->getServicesByDomainId($_GET["domain_id"]);
+    } else {
+        $services = $dao->getServices();
+    }?>
+{ "services" : [<?php
+    $first = true;
+    foreach ($services as $service){
+        if ($first != true) {
+            echo ",";
+        }
+        $first = false;
+        ?>
+        {	"id"        : <?php echo $service->id; ?>,
+			"name"      : "<?php echo $service->name; ?>",
+			"code"      : "<?php echo $service->code; ?>"
+		}<?php
+    }?>
+]}
+<?php
+/*$sql = <<<SQL
     SELECT service.*, instance.id as instance_id, instance.name as instance_name, environment.id as environment_id, environment.name as environment_name, environment.code as environment_code from service
     LEFT OUTER JOIN instance ON service.id = instance.service_id
     LEFT OUTER JOIN environment ON instance.environment_id = environment.id
 SQL;
-if (isset($_GET["id"])){
-	$sql .= " where service.id = ".$_GET["id"];
-}
+
 $sql .= " ORDER by service.name, service.id";
 if(!$result = $db->query($sql)){
     die('There was an error running the query [' . $db->error . ']');
@@ -57,9 +80,10 @@ if ($first != true) {?>
 		}
 <?php } ?>
 ]}
-<?php
+<?php*/
 /** METHOD POST **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $db = $dao->getDB();
 	if (!isset($_POST["domain_id"])){
 		die("Missing domain_id argument");
 	}
@@ -84,6 +108,7 @@ SQL;
 	if (!isset($_GET["id"])){
 		die("Missing id argument");
 	}
+	$db = $dao->getDB();
 	$id = intval($_GET["id"]);
 $sql = <<<SQL
 	delete from service where id = $id

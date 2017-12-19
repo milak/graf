@@ -10,6 +10,7 @@ function recursiveDisplayArea($level,$area){
 		$tab .= "\t";
 	}
 	echo $tab."{\"name\"     : \"".$area->name."\",\n";
+	echo $tab." \"id\"       : \"".$area->id."\",\n";
 	echo $tab." \"code\"     : \"".$area->code."\",\n";
 	echo $tab." \"display\"  : \"".$area->display."\",\n";
 	echo $tab." \"position\" : \"".$area->position."\",\n";

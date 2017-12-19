@@ -5,7 +5,7 @@ $dao->connect();
 /** METHOD GET **/
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($_GET["id"])){
-        $domains = $dao->getDomainById($_GET["id"]);
+        $domains = array($dao->getDomainById($_GET["id"]));
     } else {
         $domains = $dao->getDomains();
     }?>
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 	if (!isset($_POST["area_id"])){
 		die("Missing area_id argument");
 	}
-	$area_id = intval($_POST["area_id"]);
+	$area_id = $_POST["area_id"];
 	if (!isset($_POST["name"])){
 		die("Missing name argument");
 	}
