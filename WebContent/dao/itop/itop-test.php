@@ -297,7 +297,7 @@ $aData['json_data'] = json_encode(array(
 		'key' => 'SELECT Person',
 		'output_fields' => 'id, friendlyname',
 	));
-// Obtenir toutes les VMs
+/** / Obtenir toutes les VMs
 $aData['json_data'] = json_encode(array(
 		'operation' => 'core/get',
 		'class' => 'VirtualDevice',
@@ -326,7 +326,15 @@ $aData['json_data'] = json_encode(array(
 		'key' => 'SELECT BusinessProcess',
 		'output_fields' => '*'//id, name, friendlyname, description, business_criticity, status, applicationsolutions_list',
 	));
-/*/ Obtenir tous les services
+// Obtenir tous les attachements
+ $aData['json_data'] = json_encode(array(
+ 'operation' => 'list_operations', // operation code core/get_related
+ 'class' => 'FunctionalCI',
+ 'key' => 'SELECT FunctionalCI',
+ 'relation' => '*',
+ 'output_fields' => '*'
+ ));
+// Obtenir tous les services
 $aData['json_data'] = json_encode(array(
 		'operation' => 'core/get',
 		'class' => 'Service',
@@ -340,23 +348,23 @@ $aData['json_data'] = json_encode(array(
 		'key' => 'SELECT ServiceFamily',
 		'output_fields' => 'id, name, friendlyname',
 	));
-// Obtenir tous les groupes ????
+// Obtenir tous les groupes ???? 
 $aData['json_data'] = json_encode(array(
 		'operation' => 'core/get',
 		'class' => 'Group',
-		'key' => 'SELECT Group WHERE type="domain"',
+		'key' => 'SELECT Group WHERE type="businessDomain"',// AND ci_id = 32',
 		'output_fields' => 'id, name, friendlyname, status, description, type, parent_id, parent_name, ci_list, obsolescence_flag',
 	));
 
-// Obtenir tous les groupes ????
+//  Obtenir tous les Organization ????
 $aData['json_data'] = json_encode(array(
 		'operation' => 'core/get',
 		'class' => 'Organization',
 		'key' => 'SELECT Organization',
-		'output_fields' => 'id, name, friendlyname',
+		'output_fields' => '*',//id, name, friendlyname',
 	));
-// */
-// Obtenir tous les attachements 
+//
+/** / Obtenir tous les attachements 
 $aData['json_data'] = json_encode(array(
     'operation' => 'core/get', // operation code
     'class' => 'Attachment',
@@ -370,6 +378,7 @@ $aData['json_data'] = json_encode(array(
     'key' => 'SELECT Document',
     'output_fields' => 'text',
 ));
+//*/
 print_r($aOperation);
 $response = DoPostRequest($sUrl, $aData);
 $aResults = json_decode($response);
