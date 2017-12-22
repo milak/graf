@@ -21,21 +21,9 @@ $process = array();
 $services = array();
 
 $processarea = $areas["process"];
-if ($processarea == null){
-    $processarea = $areas["default"];
-}
 $servicearea = $areas["service"];
-if ($servicearea == null){
-    $servicearea = $areas["default"];
-}
 $actorarea = $areas["actor"];
-if ($actorarea == null){
-    $actorarea = $areas["default"];
-}
 $resourcesarea = $areas["resource"];
-if ($resourcesarea == null){
-    $resourcesarea = $areas["default"];
-}
 foreach ($businessProcesses as $businessProcess){
     if ($processarea != null){
         $obj = new stdClass();
@@ -93,8 +81,8 @@ if ($servicearea != null){
     	$obj->class 	= "process_service";
     	$obj->name 		= $service->name;
     	$obj->links 	= array();
-    	$area_service->elements[] = $obj;
-    	$area_service->needed = true;
+    	$servicearea->elements[] = $obj;
+    	$servicearea->needed = true;
     }
 }
 
