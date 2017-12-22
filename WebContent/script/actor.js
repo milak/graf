@@ -49,7 +49,7 @@ function deleteActor(id){
 	});
 }
 function refreshActorLists(){
-	$.getJSON("api/element.php?catagory_name=actor", function(result){
+	$.getJSON("api/element.php?category_name=actor", function(result){
 		var elements = result.elements;
 		var options = "<option value='null' selected>--choisir un acteur--</option>";
 		for (var i = 0; i < elements.length; i++){

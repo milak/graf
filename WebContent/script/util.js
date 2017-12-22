@@ -46,46 +46,9 @@ function svgElementDblClicked(what,id){
 }
 function svgElementClicked(what,id){
 	if (what == "process"){
-		$.getJSON( "api/process.php?id="+id, function(result) {
-			var process = result.process[0];
-			var html = "<p>Processus</p>";
-			html +=  " <b>Nom</b> : " +     process.name + "<br/><br/>";
-			html +=  " <b>Domaine</b> : " + process.domain_name+"<br/><br/>";
-			html +=  " <hr/>";
-			html +=  " <button onclick='hidePopup();displayProcess("+process.id+")'><img src='images/63.png'/> ouvrir</button>";
-			html +=  " <button onclick='deleteProcess("+process.id+");hidePopup()'><img src='images/14.png'/> supprimer</button>";
-			html +=  " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
-			showPopup("Détail",html);
-			}).fail(function(jxqr,textStatus,error) {
-			showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-		});
+		showProcessContext(id);
 	} else if (what == "domain"){
-		$.getJSON( "api/domain.php?id="+id, function(domain_result) {
-			var domain = domain_result.domains[0];
-			var html = "<p>Domaine</p>";
-			html +=  "<b>Nom</b> : "+domain.name + "<br/><br/>";
-			$.getJSON( "api/process.php?domain_id="+id, function(result) {
-				var processes = result.process;
-				html += "<b>Processus</b> :";
-				if (processes.length == 0){
-					html += " aucun<br/>";
-				} else {
-					html += "<br/><ul>";
-					for (var i = 0; i < processes.length; i++){
-						process = processes[i];
-						html += "<li><a href=\"#\" onclick='hidePopup();displayProcess("+process.id+")'>"+process.name+"</a></li>";
-					}
-					html += "</ul>";
-				}
-				html += "<hr/>";
-				html += " <button onclick='hidePopup();displayBusiness("+domain.id+")'><img src='images/63.png'/> ouvrir</button>";
-				html += " <button onclick='hidePopup();deleteDomain("+domain.id+")'><img src='images/14.png'/> supprimer</button>";
-				html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
-				showPopup("Détail",html);
-			});
-			}).fail(function(jxqr,textStatus,error) {
-			showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-		});
+		showDomainContext(id);
 	} else if (what == "step"){
 		showProcessStepContext(id);
 	} else if (what == "box"){

@@ -1,4 +1,9 @@
 <?php
+const DATA_CLASSES = "~DatabaseSchema~";
+const DEVICE_CLASSES = "~NetworkDevice~VirtualDevice~Rack~PhysicalDevice~TelephonyCI~Phone~IPPhone~MobilePhone~ConnectableCI~Printer~DatacenterDevice~TapeLibrary~NAS~SANSwitch~StorageSystem~PC~Enclosure~PowerConnection~PowerSource~PDU~Peripheral~Tablet~VirtualMachine~VirtualHost~Hypervisor~Farm~";
+const SERVER_CLASSES = "~Server~";
+const SOFTWARE_CLASSES = "~WebServer~DBServer~WebApplication~MiddlewareInstance~SoftwareInstance~OtherSoftware~PCSoftware~Middleware~";
+const SOLUTION_CLASSES = "~ApplicationSolution~";
 /**
  * Dao accédant aux données de itop
  */
@@ -83,7 +88,7 @@ class ITopDao {
     }
     public function getDomainById($id){
         $clause = 'SELECT Group WHERE type="businessDomain"';
-            $clause .= " AND id=".$id;
+        $clause .= " AND id=$id";
         $jsonData = json_encode(array(
             'operation' => 'core/get',
             'class' => 'Group',
@@ -141,6 +146,15 @@ class ITopDao {
             die("Error : ".$response->message);
         }
     }
+    private function businessProcessPopulate($object){
+        $row = new stdClass();
+        $row->id = $object->key;
+        $row->name = $object->fields->name;
+        // TODO trouver comment identifier le group auquel appartient le process
+        $row->domain_id = "??";
+        $row->domain_name = "???";
+        return $row;
+    }
     public function getBusinessProcesses(){
         $jsonData = json_encode(array(
 		    'operation' => 'core/get',
@@ -151,13 +165,7 @@ class ITopDao {
         $response = json_decode($this->DoPostRequest($jsonData));
         $result = array();
         foreach ($response->objects as $object){
-            $row = new stdClass();
-            $row->id = $object->key;
-            $row->name = $object->fields->name;
-            // TODO trouver comment identifier le group auquel appartient le process
-            $row->domain_id = "??";
-            $row->domain_name = "???";
-            $result[] = $row;
+            $result[] = $this->businessProcessPopulate($object);
         }
         return $result;
     }
@@ -171,13 +179,7 @@ class ITopDao {
         $response = json_decode($this->DoPostRequest($jsonData));
         $result = array();
         foreach ($response->objects as $object){
-            $row = new stdClass();
-            $row->id = $object->key;
-            $row->name = $object->fields->name;
-            // TODO trouver comment identifier le group auquel appartient le process
-            $row->domain_id = "??";
-            $row->domain_name = "???";
-            $result[] = $row;
+            $result[] = $this->businessProcessPopulate($object);
         }
         return $result;
     }
@@ -220,7 +222,6 @@ class ITopDao {
                 $row = new stdClass();
                 $row->id = $object->key;
                 $row->name = $object->fields->name;
-                // TODO trouver comment identifier le domain auquel appartient le process
                 $row->domain_id = $id;
                 $row->domain_name = $domainName;
                 $result[] = $row;
@@ -517,6 +518,7 @@ class ITopDao {
             $row = new stdClass();
             $row->id    = $object->key;
             $row->name  = $object->fields->name;
+            $row->code  = $object->fields->name;
             $result   = $row;
             break;
         }
@@ -543,6 +545,210 @@ class ITopDao {
                 $row->name  = $object->fields->name;
                 $row->code  = $object->fields->name;
                 $result[]   = $row;
+            }
+        }
+        return $result;
+    }
+    public function createService($code,$name,$domain_id){
+        $domain = $this->getDomainById($domain_id);
+        error_log("itop.createService");
+        if ($domain == null){
+            return false;
+        }
+        error_log("itop.createService");
+        $jsonData = json_encode(array(
+            'operation' => 'core/create', // operation code
+            'comment' => 'Inserted from GRAF',
+            'class' => 'Service',
+            'output_fields' => 'id', // list of fields to show in the results (* or a,b,c)
+            // Values for the object to create
+            'fields' => array(
+                'org_id' => "SELECT Organization WHERE name = '$this->organisation'",
+                'name' => $name,
+                'servicefamily_id' => "SELECT ServiceFamily WHERE name = 'IT Services'",
+                'status' => 'production',
+                'description' => $domain->name
+            )
+        ));
+        $response = json_decode($this->DoPostRequest($jsonData));
+        print_r($response);
+    }
+    public function deleteService($id){
+        // Supprimer le process
+        $jsonData = json_encode(array(
+            'operation' => 'core/delete',
+            'comment' => 'Delete from GRAF',
+            'class' => 'Service',
+            'key' => $id,
+            'simulate' => false
+        ));
+        $response = json_decode($this->DoPostRequest($jsonData));
+    }
+    private function newItemCategory($name){
+        $category = new stdClass();
+        $category->id = $name;
+        $category->name = $name;
+        $category->class = null;
+        return $category;
+    }
+    public function getItemCategories(){
+        $result = array();
+        // TODO trouver un moyen de ne pas le mettre en dur et surtout définir des classes
+        $result[] = $this->newItemCategory("actor");
+        $result[] = $this->newItemCategory("data");
+        $result[] = $this->newItemCategory("device");
+        $result[] = $this->newItemCategory("server");
+        $result[] = $this->newItemCategory("software");
+        $result[] = $this->newItemCategory("solution");
+        return $result;
+    }
+    public function getItemsByCategory($category){
+        $result = array();
+        if (($category == "actor") || ($category == "*")){
+            $jsonData = json_encode(array(
+                'operation' => 'core/get',
+                'class'     => 'Team',
+                'key'       => "SELECT Team WHERE org_name = '$this->organisation'", // NB : org_name n'est pas standard, d'habitude c'est organization_name
+                'output_fields' => 'id, name'
+            ));
+            $response = json_decode($this->DoPostRequest($jsonData));
+            $result = array();
+            if ($response->objects != null){
+                foreach ($response->objects as $object){
+                    $row = new stdClass();
+                    $row->id    = "actor_".$object->key; // en ajoutant actor, cela me permet de savoir que c'est dans Team qu'il faut que j'aille chercher dans getItemById()
+                    $row->name  = $object->fields->name;
+                    $row->code  = $object->fields->name;
+                    $row->domain_id = 1; // TODO voir si necessaire
+                    $row->class = new stdClass();
+                    $row->class->id = 1;
+                    $row->class->name = "Team";
+                    $row->category = $this->newItemCategory("actor");
+                    $result[]   = $row;
+                }
+            }
+        }
+        if ($category != "actor"){
+            $class = "";
+            // Les ~ permettent d'éviter que "Server" soit considéré comme software parce qu'il y a "DBServer" dans la liste
+            if ($category == "data") {
+                $class = DATA_CLASSES;
+            } else if ($category == "device") {
+                $class = DEVICE_CLASSES;
+            } else if ($category == "server") {
+                $class = SERVER_CLASSES;
+            } else if ($category == "software") {
+                $class = SOFTWARE_CLASSES;
+            } else if ($category == "solution") {
+                $class = SOLUTION_CLASSES;
+            } else {
+                $class = "UNDEFINED";
+            }
+            $jsonData = json_encode(array(
+                'operation' => 'core/get',
+                'class'     => 'FunctionalCI',
+                'key'       => "SELECT FunctionalCI WHERE organization_name = '$this->organisation'",
+                'output_fields' => 'id, name'
+            ));
+            $response = json_decode($this->DoPostRequest($jsonData));
+            $result = array();
+            if ($response->objects != null){
+                foreach ($response->objects as $object){
+                    $rowclass = $object->class;
+                    $rowcategory = $category;
+                    if ($category == "*"){
+                        if ($rowclass == "BusinessProcess"){
+                            continue;
+                        }
+                        if (strpos(DATA_CLASSES,"~".$rowclass."~") !== false){
+                            $rowcategory = "data";
+                        } else if (strpos(DEVICE_CLASSES,"~".$rowclass."~") !== false){
+                            $rowcategory = "device";
+                        } else if (strpos(SERVER_CLASSES,"~".$rowclass."~") !== false){
+                            $rowcategory = "server";
+                        } else if (strpos(SOFTWARE_CLASSES,"~".$rowclass."~") !== false){
+                            $rowcategory = "software";
+                        } else if (strpos(SOLUTION_CLASSES,"~".$rowclass."~") !== false){
+                            $rowcategory = "solution";
+                        } else {
+                            $rowcategory = "????";
+                        }
+                    } else if (strpos($class,"~".$rowclass."~") === false){
+                        continue;
+                    }
+                    $row = new stdClass();
+                    $row->id    = $object->key;
+                    $row->name  = $object->fields->name;
+                    $row->code  = $object->fields->name;
+                    $row->domain_id = 1; // TODO voir si necessaire
+                    $row->class = new stdClass();
+                    $row->class->id = 1;
+                    $row->class->name = $object->class;
+                    $row->category = $this->newItemCategory($rowcategory);
+                    $result[]   = $row;
+                }
+            }
+        }
+        return $result;
+    }
+    public function getItems(){
+        return $this->getItemsByCategory("*");
+    }
+    public function getItemById($id){
+        $result = array();
+        if (strpos("actor",$id) == 0){ // On recherche un actor
+            $id = substr($id,6);
+            $jsonData = json_encode(array(
+                'operation' => 'core/get',
+                'class'     => 'Team',
+                'key'       => "SELECT Team WHERE id = '$id'",
+                'output_fields' => 'id, name'
+            ));
+            $response = json_decode($this->DoPostRequest($jsonData));
+            $result = null;
+            if ($response->objects != null){
+                foreach ($response->objects as $object){
+                    $row = new stdClass();
+                    $row->id    = "actor_".$object->key; // en ajoutant actor, cela me permet de savoir que c'est dans Team qu'il faut que j'aille chercher dans getItemById()
+                    $row->name  = $object->fields->name;
+                    $row->code  = $object->fields->name;
+                    $row->domain_id = 1; // TODO voir si necessaire
+                    $row->class = new stdClass();
+                    $row->class->id = 1;
+                    $row->class->name = "Team";
+                    $row->category = $this->newItemCategory("actor");
+                    $result = $row;
+                    break;
+                }
+            }
+        } else {
+            $jsonData = json_encode(array(
+                'operation' => 'core/get',
+                'class'     => 'FunctionalCI',
+                'key'       => "SELECT FunctionalCI WHERE id = '$id'",
+                'output_fields' => 'id, name'
+            ));
+            $response = json_decode($this->DoPostRequest($jsonData));
+            $result = null;
+            if ($response->objects != null){
+                foreach ($response->objects as $object){
+                    $rowclass = $object->class;
+                    if (strpos($class,"~".$rowclass."~") === false){
+                        error_log("Filtering ".$object->fields->name." ".$rowclass." not in ".$class);
+                        continue;
+                    }
+                    $row = new stdClass();
+                    $row->id    = $object->key;
+                    $row->name  = $object->fields->name;
+                    $row->code  = $object->fields->name;
+                    $row->domain_id = 1; // TODO voir si necessaire
+                    $row->class = new stdClass();
+                    $row->class->id = 1;
+                    $row->class->name = $object->class;
+                    $row->category = $this->newItemCategory($category);
+                    $result   = $row;
+                    break;
+                }
             }
         }
         return $result;

@@ -322,6 +322,136 @@ SQL;
         $dbresult->free();
         return $result;
     }
+    public function createService($code,$name,$domain_id){
+        $code = $this->db->real_escape_string($code);
+        $name = $this->db->real_escape_string($name);
+        $sql = <<<SQL
+	insert into service (code,name,domain_id) values ('$code','$name',$domain_id)
+SQL;
+        if(!$result = $this->db->query($sql)){
+            die('There was an error running the query [' . $this->db->error . ']');
+        }
+    }
+    public function deleteService($id){
+        $sql = <<<SQL
+	delete from service where id = $id
+SQL;
+        if(!$result = $this->db->query($sql)){
+            die('There was an error running the query [' . $this->db->error . ']');
+        }
+    }
+    public function getItemsByCategory($category){
+        $sql = <<<SQL
+    SELECT element.*, element_class.id as class_id, element_class.name as class_name, element_category.id as category_id, element_category.name as category_name  from element
+	INNER JOIN element_class ON element.element_class_id 					= element_class.id
+	INNER JOIN element_category ON element_class.element_category_id 		= element_category.id
+	LEFT OUTER JOIN domain 		ON element.domain_id 		= domain.id
+    where element_category.name = '$category'
+SQL;
+        if(!$dbresult = $this->db->query($sql)){
+            die('There was an error running the query [' . $this->db->error . ']');
+        }
+        $result = array();
+        while($dbrow = $dbresult->fetch_assoc()){
+            $row = new stdClass();
+            $row->id = $dbrow["id"];
+            $row->name = $dbrow["name"];
+            $row->domain_id = $dbrow["domain_id"];
+            $row->class = new stdClass();
+            $row->class->id = $dbrow["class_id"];
+            $row->class->name = $dbrow["class_name"];
+            $row->category = new stdClass();
+            $row->category->id = $dbrow["category_id"];
+            $row->category->name = $dbrow["category_name"];
+            $result[] = $row;
+	   }
+	   $dbresult->free();
+	   return $result;
+    }
+    public function getItemsByClass($class_id){
+        $sql = <<<SQL
+    SELECT element.*, element_class.id as class_id, element_class.name as class_name, element_category.id as category_id, element_category.name as category_name  from element
+	INNER JOIN element_class ON element.element_class_id 					= element_class.id
+	INNER JOIN element_category ON element_class.element_category_id 		= element_category.id
+	LEFT OUTER JOIN domain 		ON element.domain_id 		= domain.id
+    where element_class.id = $class_id
+SQL;
+        if(!$dbresult = $this->db->query($sql)){
+            die('There was an error running the query [' . $this->db->error . ']');
+        }
+        $result = array();
+        while($dbrow = $dbresult->fetch_assoc()){
+            $row = new stdClass();
+            $row->id = $dbrow["id"];
+            $row->name = $dbrow["name"];
+            $row->domain_id = $dbrow["domain_id"];
+            $row->class = new stdClass();
+            $row->class->id = $dbrow["class_id"];
+            $row->class->name = $dbrow["class_name"];
+            $row->category = new stdClass();
+            $row->category->id = $dbrow["category_id"];
+            $row->category->name = $dbrow["category_name"];
+            $result[] = $row;
+        }
+        $dbresult->free();
+        return $result;
+    }
+    public function getItemById($id){
+    $sql = <<<SQL
+    SELECT element.*, element_class.id as class_id, element_class.name as class_name, element_category.id as category_id, element_category.name as category_name  from element
+	INNER JOIN element_class ON element.element_class_id 					= element_class.id
+	INNER JOIN element_category ON element_class.element_category_id 		= element_category.id
+	LEFT OUTER JOIN domain 		ON element.domain_id 		= domain.id
+    where element.id = $id
+SQL;
+        if(!$result = $db->query($sql)){
+            die('There was an error running the query [' . $db->error . ']');
+        }
+        $result = null;
+        while($dbrow = $dbresult->fetch_assoc()){
+            $row = new stdClass();
+            $row->id = $dbrow["id"];
+            $row->name = $dbrow["name"];
+            $row->domain_id = $dbrow["domain_id"];
+            $row->class = new stdClass();
+            $row->class->id = $dbrow["class_id"];
+            $row->class->name = $dbrow["class_name"];
+            $row->category = new stdClass();
+            $row->category->id = $dbrow["category_id"];
+            $row->category->name = $dbrow["category_name"];
+            $result = $row;
+            break;
+        }
+        $dbresult->free();
+        return $result;
+    }
+    public function getItems(){
+        $sql = <<<SQL
+    SELECT element.*, element_class.id as class_id, element_class.name as class_name, element_category.id as category_id, element_category.name as category_name  from element
+	INNER JOIN element_class ON element.element_class_id 					= element_class.id
+	INNER JOIN element_category ON element_class.element_category_id 		= element_category.id
+	LEFT OUTER JOIN domain 		ON element.domain_id 		= domain.id
+SQL;
+		if(!$dbresult = $this->db->query($sql)){
+            die('There was an error running the query [' . $this->db->error . ']');
+        }
+        $result = array();
+        while($dbrow = $dbresult->fetch_assoc()){
+            $row = new stdClass();
+            $row->id = $dbrow["id"];
+            $row->name = $dbrow["name"];
+            $row->domain_id = $dbrow["domain_id"];
+            $row->class = new stdClass();
+            $row->class->id = $dbrow["class_id"];
+            $row->class->name = $dbrow["class_name"];
+            $row->category = new stdClass();
+            $row->category->id = $dbrow["category_id"];
+            $row->category->name = $dbrow["category_name"];
+            $result[] = $row;
+        }
+        $dbresult->free();
+        return $result;
+    }
     public function query($sql) {
         return $this->db->query($sql);
     }

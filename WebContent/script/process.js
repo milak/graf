@@ -164,6 +164,21 @@ function deleteProcessStep(processStepId){
 		alert(textStatus+" : "+error);
 	});
 }
+function showProcessContext(id){
+	$.getJSON( "api/process.php?id="+id, function(result) {
+		var process = result.process[0];
+		var html = "<p>Processus</p>";
+		html +=  " <b>Nom</b> : " +     process.name + "<br/><br/>";
+		html +=  " <b>Domaine</b> : " + process.domain_name+"<br/><br/>";
+		html +=  " <hr/>";
+		html +=  " <button onclick='hidePopup();displayProcess("+process.id+")'><img src='images/63.png'/> ouvrir</button>";
+		html +=  " <button onclick='deleteProcess("+process.id+");hidePopup()'><img src='images/14.png'/> supprimer</button>";
+		html +=  " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
+		showPopup("Détail",html);
+		}).fail(function(jxqr,textStatus,error) {
+		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+	});
+}
 function showProcessStepContext(id){
 	// Bascule afficher le formulaire d'ajout de liens
 	$('#edit_process_step_form_toggle2').hide();
@@ -288,14 +303,15 @@ function doSearchProcess(){
 }
 function onSearchProcessFormDomainListChange(){
 	var domain = $("#search_process_form_domain_list").val();
-	$.getJSON("api/process.php", function(result){
+	var url = "api/process.php";
+	if (domain != "null"){
+		url += "?domain_id="+domain;
+	}
+	$.getJSON(url, function(result){
 		var process = result.process;
 		var options = "<option value='null' selected>--choisir un processus--</option>";
 		for (var i = 0; i < process.length; i++){
 			var proc = process[i];
-			if ((domain != "null") && (proc.domain_id != domain)) {
-				continue;
-			}
 			options += '<option value="'+proc.id+'">'+proc.name+'</option>';
 		}
 		$('#search_process_form_process_list').html(options);

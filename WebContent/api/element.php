@@ -1,46 +1,36 @@
 <?php
 require("../dao/dao.php");
 $dao->connect();
-$db = $dao->getDB();
 /** METHOD GET **/
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 header("Content-Type: application/json");
-$sql = <<<SQL
-    SELECT element.*, element_class.id as class_id, element_class.name as class_name, element_category.id as category_id, element_category.name as category_name  from element
-	INNER JOIN element_class ON element.element_class_id 					= element_class.id
-	INNER JOIN element_category ON element_class.element_category_id 		= element_category.id
-	LEFT OUTER JOIN domain 		ON element.domain_id 		= domain.id
-SQL;
-if (isset($_GET["id"])){
-	$sql .= " where element.id = ".$_GET["id"];
-}
 if (isset($_GET["category_name"])){
-	$sql .= " where element_category.name = '".$_GET["category_name"]."'";
+    $items = $dao->getItemsByCategory($_GET["category_name"]);
+} else if (isset($_GET["class_id"])){
+    $items = $dao->getItemsByClassId($_GET["class_id"]);
+} else if (isset($_GET["id"])){
+    $items = array($dao->getItemById($_GET["id"]));
+} else {
+    $items = $dao->getItems();
 }
-if (isset($_GET["class_id"])){
-	$sql .= " where element_class.id = ".$_GET["class_id"];
-}
-if(!$result = $db->query($sql)){
-    die('There was an error running the query [' . $db->error . ']');
-}?>
+?>
 { "elements" : [
 <?php
 $first = true;
-while($row = $result->fetch_assoc()){
+foreach ($items as $item){
 	if ($first != true) {
 		echo ",\n";
 	}?>
 	{
-		"id"    	: <?php echo $row["id"]; ?>,
-		"name" 		: "<?php echo $row["name"]; ?>",
-		"domain_id" : "<?php echo $row["domain_id"]; ?>",
-		"class" 	: { "id" : "<?php echo $row["class_id"]; ?>", "name" : "<?php echo $row["class_name"]; ?>"},
-		"category" 	: { "id" : "<?php echo $row["category_id"]; ?>", "name" : "<?php echo $row["category_name"]; ?>"}
+		"id"    	: "<?php echo $item->id; ?>",
+		"name" 		: "<?php echo $item->name; ?>",
+		"domain_id" : "<?php echo $item->domain_id; ?>",
+		"class" 	: { "id" : "<?php echo $item->class->id; ?>", "name" : "<?php echo $item->class->name; ?>"},
+		"category" 	: { "id" : "<?php echo $item->category->id; ?>", "name" : "<?php echo $item->category->name; ?>"}
 	}<?php
 	$first = false;
 }?>
 ]}<?php
-$result->free();
 /** METHOD POST **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	if (!isset($_POST["name"])){

@@ -11,18 +11,14 @@
 	<script type="text/javascript" src="lib/svgtool/svg-pan-zoom.js"></script>
 	<script type="text/javascript" src="script/util.js"></script>
 	<script type="text/javascript" src="script/strategic.js"></script>
-	<script type="text/javascript" src="script/service.js"></script>
-	<script type="text/javascript" src="script/process.js"></script>
 	<script type="text/javascript" src="script/business.js"></script>
+	<script type="text/javascript" src="script/process.js"></script>
+	<script type="text/javascript" src="script/service.js"></script>
+	<script type="text/javascript" src="script/logic.js"></script>
 	<script type="text/javascript" src="script/actor.js"></script>
 	<script type="text/javascript" src="script/view.js"></script>
-	
 	<script>
-		function displayLogic(){
-			hideToolBox();
-			$("#logic_toolbox").show();
-			clearFrame();
-		}
+		
 		function displayTechnic(){
 			hideToolBox();
 			$("#technic_toolbox").show();
@@ -38,7 +34,7 @@
 	</div>
 	<div class="menu" onclick="displayStrategic(null)">Vue strat&eacute;gique</div>
 	<div class="menu" onclick="displayBusiness(null)">Vue métier</div>
-	<div class="menu" onclick="displayLogic(null)">Vue logique</div>
+	<div class="menu" onclick="displaySolution(null)">Vue logique</div>
 	<div class="menu" onclick="displayService(null)">Vue service</div>
 	<div class="menu" onclick="displayProcess(null)">Vue processus</div>
 	<div class="menu" onclick="displayTechnic(null)">Vue technique</div>
@@ -62,6 +58,14 @@
 			<button id="service_create_software_button" title="Importer un logiciel"			onclick="createComponent('software')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> logiciel</button>
 			<button id="service_create_service_button" 	title="Importer un service"				onclick="createComponent('service')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> service</button>
 			<button id="service_create_instance_button" title="Créer une instance de ce service" onclick="createServiceInstance()" 		disabled="true"><img style="height:14px" src="images/78.png"/> instance</button>
+		</div>
+		<div id="logic_toolbox" style="width:100%;display:none" class="controlgroup">
+			<button id="logic_search_solution_button" 	onclick='$("#search_solution_form").dialog({"modal":true,"title":"Chercher une solution","minWidth":500})'><img style="height:14px" src="images/65.png"/> chercher une solution</button>
+			<button id="logic_create_device_button" 	title="Importer un matériel" 			onclick="createComponent('device')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> matériel</button>
+			<button id="logic_create_data_button" 		title="Importer une donnée"				onclick="createComponent('data')" 		disabled="true"><img style="height:14px" src="images/1633.png"/> donnée</button>
+			<button id="logic_create_software_button" 	title="Importer un logiciel"			onclick="createComponent('software')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> logiciel</button>
+			<button id="logic_create_service_button" 	title="Importer un service"				onclick="createComponent('service')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> service</button>
+			<button id="logic_create_instance_button" 	title="Créer une instance de ce service" onclick="createSolutionInstance()" 		disabled="true"><img style="height:14px" src="images/78.png"/> instance</button>
 		</div>
 		<div id="process_toolbox" style="width:100%;display:none" class="controlgroup">
 			<button id="process_search_process_button" onclick='searchProcess()'><img style="height:14px" src="images/65.png"/> chercher un processus</button>
@@ -415,6 +419,15 @@ $(function() {
 	<button type="button" onclick='$("#search_service_form").dialog("close");searchService();'><img style="height:14px" src="images/93.png"/> valider</button>
 	<button type="button" onclick='$("#search_service_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </form>
+<form id="search_solution_form" class="pure-form pure-form-aligned" style="display:none">
+	<div class="pure-control-group">
+		<label for="search_solution_form_list">Solution</label>
+		<select id="search_solution_form_list"></select>
+	</div>
+	<hr/>
+	<button type="button" onclick='$("#search_solution_form").dialog("close");searchSolution();'><img style="height:14px" src="images/93.png"/> valider</button>
+	<button type="button" onclick='$("#search_solution_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
+</form>
 <div id="create_service_form" style="display:none">
 	Nom : 	<input type="text"		id="create_service_form_name" 		name="name"/><br/>
 	Code :	<input type="text"		id="create_service_form_code" 		name="code"/><br/>
@@ -480,6 +493,7 @@ $(function() {
 		refreshServiceList();
 		refreshActorLists();
 		refreshProcessLists();
+		refreshSolutionLists();
 	 });
 </script>
 </body>
