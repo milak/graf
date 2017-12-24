@@ -753,6 +753,12 @@ class ITopDao {
         }
         return $result;
     }
+    public function getItemsByDomain($domainId){
+	return array();
+    }
+    public function getSubItems($itemID){
+	return array();
+    }
     public function getDB(){
         global $configuration;
         return new mysqli($configuration->db->host, $configuration->db->user, $configuration->db->password, $configuration->db->instance);
