@@ -452,6 +452,12 @@ SQL;
         $dbresult->free();
         return $result;
     }
+    public function getItemsByDomain($domainId){
+	return array();
+    }
+    public function getSubItems($itemID){
+	return array();
+    }
     public function query($sql) {
         return $this->db->query($sql);
     }
