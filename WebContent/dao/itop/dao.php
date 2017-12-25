@@ -757,7 +757,37 @@ class ITopDao {
 	return array();
     }
     public function getSubItems($itemID){
-	return array();
+	$jsonData = json_encode(array(
+                'operation' => 'core/get',
+                'class'     => 'FunctionalCI',
+                'key'       => "SELECT FunctionalCI WHERE id = '$itemID'",
+                'output_fields' => 'id, name'
+        ));
+        $response = json_decode($this->DoPostRequest($jsonData));
+        $result = array();
+        if ($response->objects != null){
+           foreach ($response->objects as $object){
+	      foreach ($object->fields->functionalcis_list as $subitem) {
+                 $rowclass = $object->class;
+                 if (strpos($class,"~".$rowclass."~") === false){
+                    error_log("Filtering ".$object->fields->name." ".$rowclass." not in ".$class);
+                    continue;
+                 }
+                 $row = new stdClass();
+                 $row->id    = $object->key;
+                 $row->name  = $object->fields->name;
+                 $row->code  = $object->fields->name;
+                 $row->domain_id = 1; // TODO voir si necessaire
+                 $row->class = new stdClass();
+                 $row->class->id = 1;
+                 $row->class->name = $object->class;
+                 $row->category = $this->newItemCategory($category);
+                 $result[]   = $row;
+	      }
+	      break;
+           }
+        }
+	return $result;
     }
     public function getDB(){
         global $configuration;
