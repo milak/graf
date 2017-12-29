@@ -13,8 +13,6 @@ if (!isset($_GET["id"])){
 $domain = $dao->getDomainById($domain_id);
 // Chercher tous les process du domaine
 $businessProcesses = $dao->getBusinessProcessByDomainId($domain_id);
-$rootarea = $areas["root"];
-$rootarea->needed = true;
 // Chargement des processus
 $actors = array();
 $process = array();
@@ -24,6 +22,8 @@ $processarea = $areas["process"];
 $servicearea = $areas["service"];
 $actorarea = $areas["actor"];
 $resourcesarea = $areas["resource"];
+$dataarea = $areas["data"];
+$solutionarea = $areas["solution"];
 foreach ($businessProcesses as $businessProcess){
     if ($processarea != null){
         $obj = new stdClass();
@@ -32,8 +32,7 @@ foreach ($businessProcesses as $businessProcess){
         $obj->class 	= "process_".strtolower("sub-process");
         $obj->name 		= $businessProcess->name;
         $obj->links 	= array();
-        $processarea->elements[] = $obj;
-        $processarea->needed = true;
+        $processarea->addElement($obj);
     }
     $steps = $dao->getBusinessProcessStructure($businessProcess->id);
     foreach ($steps as $step){
@@ -59,15 +58,59 @@ foreach ($businessProcesses as $businessProcess){
         } else if ($type_name == "SUB-PROCESS") {
             if ($processarea != null){
                 $obj = new stdClass();
-                $obj->id 		= $row["sub_process_id"];
+                $obj->id 		= $step->id;
                 $obj->type 		= "process";
                 $obj->class 	= "process_".strtolower($type_name);
-                $obj->name 		= $row["step_name"];
+                $obj->name 		= $step->name;
                 $obj->links 	= array();
-                $processarea->elements[] = $obj;
-                $processarea->needed = true;
+                $processarea->addElement($obj);
             }
         }
+    }
+}
+error_log("Looking for items");
+$items = $dao->getItemsByDomainId($domain_id);
+foreach($items as $item){
+    $obj = new stdClass();
+    $obj->id 		= $item->id;
+    $obj->type 		= "item";
+    $obj->name 		= $item->name;
+    $obj->links 	= array();
+    error_log("Category ".$item->category->name);
+    if ($item->category->name == "actor") {
+        $obj->type 	    = "actor";
+        $obj->class 	= "actor";
+        if ($actorarea != null){
+            $actorarea->addElement($obj);
+        }
+    } else if ($item->category->name == "data") {
+        $obj->class 	= "component_data";
+        if ($dataarea != null){
+            $dataarea->addElement($obj);
+        }
+    } else if ($item->category->name == "device") {
+        $obj->class 	= "component_device";
+        if ($resourcesarea != null){
+            $resourcesarea->addElement($obj);
+        }
+    } else if ($item->category->name == "process") {
+    } else if ($item->category->name == "server") {
+        $obj->class 	= "server";
+        if ($resourcesarea != null){
+            $resourcesarea->addElement($obj);
+        }
+    } else if ($item->category->name == "service") {
+    } else if ($item->category->name == "software") {
+        $obj->class 	= "component_software";
+        if ($resourcesarea != null){
+            $resourcesarea->addElement($obj);
+        }
+    } else if ($item->category->name == "solution") {
+        $obj->class 	= "component_software";
+        if ($solutionarea != null){
+            $solutionarea->addElement($obj);
+        }
+    } else {
     }
 }
 if ($servicearea != null){
@@ -81,8 +124,7 @@ if ($servicearea != null){
     	$obj->class 	= "process_service";
     	$obj->name 		= $service->name;
     	$obj->links 	= array();
-    	$servicearea->elements[] = $obj;
-    	$servicearea->needed = true;
+    	$servicearea->addElement($obj);
     }
 }
 

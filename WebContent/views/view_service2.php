@@ -2,30 +2,19 @@
 require("../svg/header.php");
 require("../dao/dao.php");
 $dao->connect();
-$db = $dao->getDB();
 require("../dao/db/util.php");
 require("../svg/body.php");
 $areas = $dao->getViewByName("logique");
 // ****************************************************************
 // Chercher tous les noeuds correspondant aux critères de recherche
 // ****************************************************************
-$sql = <<<SQL
-    SELECT service.*, instance.id as instance_id, instance.name as instance_name, environment.id as environment_id, environment.name as environment_name, environment.code as environment_code from service
-    LEFT OUTER JOIN instance ON service.id = instance.service_id
-    LEFT OUTER JOIN environment ON instance.environment_id = environment.id
-SQL;
-$showProcess = false;
-
 if (isset($_GET["id"])){
 	$service_id = $_GET["id"];
 } else {
 	displayErrorAndDie('Missing id argument');
 }
-$sql .= " where service.id = ".$service_id;
-$sql .= " ORDER by service.id";
-if (!$result = $db->query($sql)){
-    displayErrorAndDie('There was an error running the query [' . $db->error . ']');
-}
+$items=$dao->getItemsByServiceId($service_id);
+
 $root = new stdClass();
 $root->name      = "Service";
 $root->code      = "Service";

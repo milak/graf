@@ -55,7 +55,11 @@ function computeSize($area){
 		$y = $area->y + AREA_GAP + 10;
 		// Positionner la taille de chaque element (par défaut ELEMENT_WIDTH et ELEMENT_HEIGHT)
 		foreach ($area->elements as $element){
-			$class = $element->class;
+		    if (!isset($element->class)){
+		        $class = "rect_100_100";
+		    } else {
+		        $class = $element->class;
+		    }
 			if (!isset($element->width)){
 				if (substr($class, 0, 5) === "rect_"){ // rect_width_height ex : rect_100_100
 					$sizes = explode("_",$class);

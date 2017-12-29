@@ -34,6 +34,7 @@ function doCreateService(){
 		success	: function( data ) {
 			$("#create_service_form").dialog("close");
 			displayBusiness(currentDomainId);
+			refreshServiceList();
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
