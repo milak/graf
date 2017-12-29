@@ -1,6 +1,7 @@
 <?php
 const DATA_CLASSES = "~DatabaseSchema~";
 const DEVICE_CLASSES = "~NetworkDevice~VirtualDevice~Rack~PhysicalDevice~TelephonyCI~Phone~IPPhone~MobilePhone~ConnectableCI~Printer~DatacenterDevice~TapeLibrary~NAS~SANSwitch~StorageSystem~PC~Enclosure~PowerConnection~PowerSource~PDU~Peripheral~Tablet~VirtualMachine~VirtualHost~Hypervisor~Farm~";
+const PROCESS_CLASSES = "~BusinessProcess~";
 const SERVER_CLASSES = "~Server~";
 const SOFTWARE_CLASSES = "~WebServer~DBServer~WebApplication~MiddlewareInstance~SoftwareInstance~OtherSoftware~PCSoftware~Middleware~";
 const SOLUTION_CLASSES = "~ApplicationSolution~";
@@ -73,13 +74,7 @@ class ITopDao {
     }
     public function getActorsByDomain($domainName) {
         $result = array();
-        $jsonData = json_encode(array(
-            'operation' => 'core/get',
-            'class'     => 'Team',
-            'key'       => "SELECT Team WHERE function = '$domainName'",
-            'output_fields' => 'id, name'
-        ));
-        $response = $this->call($jsonData);
+        $response = $this->getObjects("Team","id, name","WHERE function = '$domainName'");
         foreach ($response->objects as $object){
             $row = new stdClass();
             $row->id    = "actor_".$object->key; // en ajoutant actor, cela me permet de savoir que c'est dans Team qu'il faut que j'aille chercher dans getItemById()
@@ -96,14 +91,7 @@ class ITopDao {
     }
     // déclaration des méthodes
     public function getDomains() {
-        $clause = 'SELECT Group WHERE type="businessDomain"';
-        $jsonData = json_encode(array(
-            'operation' => 'core/get',
-            'class' => 'Group',
-            'key' => $clause,
-            'output_fields' => 'id, name, friendlyname, status, description, type, parent_id, parent_name, ci_list, obsolescence_flag'
-        ));
-        $response = $this->call($jsonData);
+        $response = $this->getObjects("Group", 'id, name, friendlyname, status, description, type, parent_id, parent_name, ci_list, obsolescence_flag','WHERE type="businessDomain"');
         $result = array();
         foreach ($response->objects as $object){
             $row = new stdClass();
@@ -115,15 +103,9 @@ class ITopDao {
         return $result;
     }
     public function getDomainById($id){
-        $clause = 'SELECT Group WHERE type="businessDomain"';
+        $clause = 'WHERE type="businessDomain"';
         $clause .= " AND id=$id";
-        $jsonData = json_encode(array(
-            'operation' => 'core/get',
-            'class' => 'Group',
-            'key' => $clause,
-            'output_fields' => 'id, name, friendlyname, status, description, type, parent_id, parent_name, ci_list, obsolescence_flag'
-        ));
-        $response = $this->call($jsonData);
+        $response = $this->getObjects('Group','id, name, friendlyname, status, description, type, parent_id, parent_name, ci_list, obsolescence_flag',$clause);
         $result = null;
         foreach ($response->objects as $object){
             $row = new stdClass();
@@ -137,21 +119,14 @@ class ITopDao {
     }
     public function createDomain($name,$area_id){
         error_log("Création d'un domaine : ".$name);
-        $jsonData = json_encode(array(
-            'operation' => 'core/create', // operation code
-            'comment' => 'Inserted from GRAF',
-            'class' => 'Group',
-            'output_fields' => 'id, friendlyname', // list of fields to show in the results (* or a,b,c)
-            // Values for the object to create
-            'fields' => array(
-                'org_id' => "SELECT Organization WHERE name = '$this->organisation'",
-                'name' => $name,
-                'type' => 'businessDomain',
-                'status' => 'production',
-                'description' => $area_id
-            )
+        $id = $this->createObject('Group', array(
+            'org_id'        => "SELECT Organization WHERE name = '$this->organisation'",
+            'name'          => $name,
+            'type'          => 'businessDomain',
+            'status'        => 'production',
+            'description'   => $area_id
         ));
-        $response = $this->call($jsonData);
+        return $id;
     }
     public function deleteDomain($id){
         $jsonData = json_encode(array(
@@ -173,13 +148,7 @@ class ITopDao {
         return $row;
     }
     public function getBusinessProcesses(){
-        $jsonData = json_encode(array(
-		    'operation' => 'core/get',
-		    'class' => 'BusinessProcess',
-		    'key' => "SELECT BusinessProcess WHERE organization_name = '$this->organisation'",
-		    'output_fields' => 'id, name, friendlyname, description, business_criticity, status, applicationsolutions_list'//, document_name',
-		));
-        $response = $this->call($jsonData);
+        $response = $this->getObjects('BusinessProcess', 'id, name, friendlyname, description, business_criticity, status, applicationsolutions_list',"WHERE organization_name = '$this->organisation'");
         $result = array();
         foreach ($response->objects as $object){
             $result[] = $this->businessProcessPopulate($object);
@@ -187,13 +156,7 @@ class ITopDao {
         return $result;
     }
     public function getBusinessProcessById($id){
-        $jsonData = json_encode(array(
-            'operation' => 'core/get',
-            'class' => 'BusinessProcess',
-            'key' => 'SELECT BusinessProcess WHERE id = "'.$id.'"',
-            'output_fields' => 'id, name, friendlyname, description, business_criticity, status, applicationsolutions_list'//, document_name',
-        ));
-        $response = $this->call($jsonData);
+        $response = $this->getObjects('BusinessProcess','id, name, friendlyname, description, business_criticity, status, applicationsolutions_list','WHERE id = "'.$id.'"');
         $result = array();
         foreach ($response->objects as $object){
             $result[] = $this->businessProcessPopulate($object);
@@ -202,17 +165,9 @@ class ITopDao {
     }
     public function getBusinessProcessByDomainId($id){
         // Chercher le domaine
-        $clause = 'SELECT Group WHERE type="businessDomain"';
-        $clause .= " AND id=".$id;
-        $jsonData = json_encode(array(
-            'operation' => 'core/get',
-            'class' => 'Group',
-            'key' => $clause,
-            'output_fields' => 'id, name, ci_list'
-        ));
         $processes = "";
         // Récupérer la liste des businessId
-        $response = $this->call($jsonData);
+        $response = $this->getObjects('Group','id, name, ci_list',"WHERE id=$id");
         foreach($response->objects as $object){
             $domainName = $object->fields->name;
             foreach($object->fields->ci_list as $ci){
@@ -227,13 +182,7 @@ class ITopDao {
         // Chercher les processus
         $result = array();
         if (strlen($processes) != 0){
-            $jsonData = json_encode(array(
-                'operation' => 'core/get',
-                'class' => 'BusinessProcess',
-                'key' => 'SELECT BusinessProcess WHERE id IN ('.$processes.')',
-                'output_fields' => 'id, name, friendlyname, description, business_criticity, status, applicationsolutions_list' //, document_name',
-            ));
-            $response = $this->call($jsonData);
+            $response = $this->getObjects('BusinessProcess','id, name, friendlyname, description, business_criticity, status, applicationsolutions_list','WHERE id IN ('.$processes.')');
             $result = array();
             foreach ($response->objects as $object){
                 $row = new stdClass();
@@ -323,109 +272,43 @@ class ITopDao {
         return $result;
     }
     public function getBusinessProcessStructureAsXML($id){
-        $jsonData = json_encode(array(
-            'operation' => 'core/get',
-            'class' => 'BusinessProcess',
-            'key' => 'SELECT BusinessProcess WHERE id = "'.$id.'"',
-            'output_fields' => 'documents_list'
-        ));
-        $response = $this->call($jsonData);
-        $result = "";
+        $response = $this->getObjects('BusinessProcess','documents_list',"WHERE id = $id");
+        $content = null;
         foreach ($response->objects as $object){
             foreach ($object->fields->documents_list as $document){
                 $document_id = $document->document_id;
-                $jsonData = json_encode(array(
-                    'operation' => 'core/get',
-                    'class' => 'DocumentNote',
-                    'key' => 'SELECT DocumentNote WHERE id = "'.$document_id.'"',
-                    'output_fields' => 'text'
-                ));
-                $documentresponse = $this->call($jsonData);
-                foreach ($documentresponse->objects as $documentObject){
-                    $result = $documentObject->fields->text;
-                    break;
-                }
+                $content = $this->getDocumentContent($document_id);
                 break;
             }
             break;
         }
         // Virer tous les caractères et tags qu'a ajouté ITOP...
-        return $this->cleanContent($result);
+        return $this->cleanContent($content);
     }
     public function createBusinessProcess($name,$description,$domain_id){
         error_log("Création d'un BusinessProcess : ".$name);
         $defaultContent = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;bpmn:startEvent name="" id="1"/&gt;&lt;/bpmn:definitions&gt;';
         //$defaultContent = urlencode($defaultContent);
         // Créer le contenu
-        $jsonData = json_encode(array(
-            'operation' => 'core/create', // operation code
-            'comment' => 'Inserted from GRAF',
-            'class' => 'DocumentNote',
-            'output_fields' => 'id', // list of fields to show in the results (* or a,b,c)
-            // Values for the object to create
-            'fields' => array(
-                'org_id' => "SELECT Organization WHERE name = '$this->organisation'",
-                'name' => "BPMN document of process ".$name,
-                'status' => 'published',
-                'documenttype_id' => "SELECT DocumentType WHERE name = 'BPMN'",
-                'text' => $defaultContent
-            )
-        ));
-        $response = $this->call($jsonData);
-        $documentid = "";
-        foreach($response->objects as $object){
-            if ($object->code != 0){
-                die($object->message);
-            }
-            $documentid = $object->fields->id;
-        }
+        $documentid = $this->createDocument("BPMN document of process ".$name, "BPMN", $defaultContent);
         // Créer le BusinessProcess
-        $jsonData = json_encode(array(
-            'operation' => 'core/create', // operation code
-            'comment' => 'Inserted from GRAF',
-            'class' => 'BusinessProcess',
-            'output_fields' => 'id, friendlyname', // list of fields to show in the results (* or a,b,c)
-            // Values for the object to create
-            'fields' => array(
-                'org_id' => "SELECT Organization WHERE name = '$this->organisation'",
-                'name' => $name,
-                'status' => 'active',
-                'description' => $description,
-                'documents_list' => array(array("document_id" => $documentid))
-            )
+        $businessProcessId = $this->createObject("BusinessProcess", array(
+            'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
+            'name'              => $name,
+            'status'            => 'active',
+            'description'       => $description,
+            'documents_list'    => array(array("document_id" => $documentid))
         ));
-        $response = $this->call($jsonData);
-        $businessProcessId = null;
-        foreach ($response->objects as $object){
-            if ($object->code != 0){
-                die($object->message);
-            }
-            $businessProcessId = $object->fields->id;
-        }
         // Le rajouter au domaine
-        $jsonData = json_encode(array(
-            'operation' => 'core/create', // operation code
-            'comment' => 'Inserted from GRAF',
-            'class' => 'lnkGroupToCI',
-            'output_fields' => 'id, friendlyname',
-            // Values for the object to create
-            'fields' => array(
-                'group_id' => $domain_id,
-                'ci_id' => $businessProcessId,
-                'reason' => 'BusinessProcess of this domain'
-            )
+        $this->createObject("lnkGroupToCI", array(
+            'group_id'  => $domain_id,
+            'ci_id'     => $businessProcessId,
+            'reason'    => 'BusinessProcess of this domain'
         ));
-        $response = $this->call($jsonData);
     }
     public function deleteBusinessProcess($id){
         // Obtenir le numéro du document
-        $jsonData = json_encode(array(
-            'operation' => 'core/get',
-            'class' => 'BusinessProcess',
-            'key' => 'SELECT BusinessProcess',
-            'output_fields' => 'id, documents_list'//, document_name',
-        ));
-        $response = $this->call($jsonData);
+        $response = $this->getObjects('BusinessProcess','id, documents_list',"WHERE id = $id");
         $result = array();
         $document_id = null;
         foreach ($response->objects as $object){
@@ -436,7 +319,7 @@ class ITopDao {
         }
         // Supprimer le document rattaché
         if ($document_id != null){
-            // Supprimer le process
+            // Supprimer le document
             $jsonData = json_encode(array(
                 'operation' => 'core/delete',
                 'comment' => 'Delete from GRAF',
@@ -457,13 +340,7 @@ class ITopDao {
         $response = $this->call($jsonData);
     }
     public function getViews(){
-        $jsonData = json_encode(array(
-            'operation' => 'core/get',
-            'class'     => 'DocumentNote',
-            'key'       => 'SELECT DocumentNote WHERE documenttype_name = "Template"',
-            'output_fields' => 'id, name'
-        ));
-        $response = $this->call($jsonData);
+        $response = $this->getObjects('DocumentNote','id, name','WHERE documenttype_name = "Template"');
         $result = array();
         foreach ($response->objects as $object){
             $row = new stdClass();
@@ -477,13 +354,7 @@ class ITopDao {
     // Chargement des zones
     // ********************
     public function getViewByName($name){
-        $jsonData = json_encode(array(
-            'operation' => 'core/get',
-            'class'     => 'DocumentNote',
-            'key'       => 'SELECT DocumentNote WHERE name = "'.$name.'"',
-            'output_fields' => 'text'
-        ));
-        $response = $this->call($jsonData);
+        $response = $this->getObjects('DocumentNote','text','WHERE name = "'.$name.'"');
         $text = null;
         foreach ($response->objects as $object){
             $text  = $object->fields->text;
@@ -495,13 +366,7 @@ class ITopDao {
         return $areas;
     }
     public function getServices(){
-        $jsonData = json_encode(array(
-            'operation' => 'core/get',
-            'class'     => 'Service',
-            'key'       => "SELECT Service WHERE organization_name = '$this->organisation'",
-            'output_fields' => 'id, name'
-        ));
-        $response = $this->call($jsonData);
+        $response = $this->getObjects('Service','id, name',"WHERE organization_name = '$this->organisation'");
         $result = array();
         foreach ($response->objects as $object){
             $row = new stdClass();
@@ -513,13 +378,7 @@ class ITopDao {
         return $result;
     }
     public function getServiceById($id){
-        $jsonData = json_encode(array(
-            'operation' => 'core/get',
-            'class'     => 'Service',
-            'key'       => "SELECT Service WHERE id = '$id' AND organization_name = '$this->organisation'",
-            'output_fields' => 'id, name'
-        ));
-        $response = $this->call($jsonData);
+        $response = $this->getObjects('Service','id, name',"WHERE id = '$id' AND organization_name = '$this->organisation'");
         $result = null;
         foreach ($response->objects as $object){
             $row = new stdClass();
@@ -537,13 +396,7 @@ class ITopDao {
             return array();
         }
         $key = "%$domain->name%";
-        $jsonData = json_encode(array(
-            'operation' => 'core/get',
-            'class'     => 'Service',
-            'key'       => "SELECT Service WHERE description LIKE '$key'",
-            'output_fields' => 'id, name'
-        ));
-        $response = $this->call($jsonData);
+        $response = $this->getObjects('Service','id, name',"WHERE description LIKE '$key'");
         $result = array();
         foreach ($response->objects as $object){
             $row = new stdClass();
@@ -556,26 +409,17 @@ class ITopDao {
     }
     public function createService($code,$name,$domain_id){
         $domain = $this->getDomainById($domain_id);
-        error_log("itop.createService");
         if ($domain == null){
             return false;
         }
-        error_log("itop.createService");
-        $jsonData = json_encode(array(
-            'operation' => 'core/create', // operation code
-            'comment' => 'Inserted from GRAF',
-            'class' => 'Service',
-            'output_fields' => 'id', // list of fields to show in the results (* or a,b,c)
-            // Values for the object to create
-            'fields' => array(
-                'org_id' => "SELECT Organization WHERE name = '$this->organisation'",
-                'name' => $name,
-                'servicefamily_id' => "SELECT ServiceFamily WHERE name = 'IT Services'",
-                'status' => 'production',
-                'description' => $domain->name
-            )
+        $id = $this->createObject("Service", array(
+            'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
+            'name'              => $name,
+            'servicefamily_id'  => "SELECT ServiceFamily WHERE name = 'IT Services'",
+            'status'            => 'production',
+            'description'       => $domain->name
         ));
-        $response = $this->call($jsonData);
+        return $id;
     }
     public function deleteService($id){
         // Supprimer le process
@@ -613,6 +457,8 @@ class ITopDao {
             $result = "software";
         } else if (strpos(SOLUTION_CLASSES,"~".$class."~") !== false){
             $result = "solution";
+        } else if (strpos(PROCESS_CLASSES,"~".$class."~") !== false){
+            $result = "process";
         } else {
             $result = "Unable to determine category from ".$class;
         }
@@ -632,13 +478,7 @@ class ITopDao {
     public function getItemsByCategory($category){
         $result = array();
         if (($category == "actor") || ($category == "*")){
-            $jsonData = json_encode(array(
-                'operation' => 'core/get',
-                'class'     => 'Team',
-                'key'       => "SELECT Team WHERE org_name = '$this->organisation'", // NB : org_name n'est pas standard, d'habitude c'est organization_name
-                'output_fields' => 'id, name'
-            ));
-            $response = $this->call($jsonData);
+            $response = $this->getObjects('Team','id, name',"WHERE org_name = '$this->organisation'"); // NB : org_name n'est pas standard, d'habitude c'est organization_name)
             $result = array();
             foreach ($response->objects as $object){
                 $row = new stdClass();
@@ -660,6 +500,8 @@ class ITopDao {
                 $class = DATA_CLASSES;
             } else if ($category == "device") {
                 $class = DEVICE_CLASSES;
+            } else if ($category == "process") {
+                $class = PROCESS_CLASSES;
             } else if ($category == "server") {
                 $class = SERVER_CLASSES;
             } else if ($category == "software") {
@@ -669,20 +511,11 @@ class ITopDao {
             } else {
                 $class = "UNDEFINED";
             }
-            $jsonData = json_encode(array(
-                'operation' => 'core/get',
-                'class'     => 'FunctionalCI',
-                'key'       => "SELECT FunctionalCI WHERE organization_name = '$this->organisation'",
-                'output_fields' => 'id, name'
-            ));
-            $response = $this->call($jsonData);
+            $response = $this->getObjects('FunctionalCI','id, name',"WHERE organization_name = '$this->organisation'");
             $result = array();
             foreach ($response->objects as $object){
                 $rowclass = $object->class;
                 if ($category == "*"){
-                    if ($rowclass == "BusinessProcess"){
-                        continue;
-                    }
                     $rowcategory = $this->getItemCategoryByClass($object->class);
                 } else if (strpos($class,"~".$rowclass."~") === false){
                     continue;
@@ -707,16 +540,26 @@ class ITopDao {
         return $this->getItemsByCategory("*");
     }
     public function getItemById($id){
-        $result = array();
-        if (strpos("actor",$id) == 0){ // On recherche un actor
+        $result = null;
+        if (strpos($id,"actor") === false){ // On ne recherche pas un actor
+            $response = $this->getObjects('FunctionalCI','id, name',"WHERE id = '$id'");
+            $result = null;
+            foreach ($response->objects as $object){
+                $row = new stdClass();
+                $row->id    = $object->key;
+                $row->name  = $object->fields->name;
+                $row->code  = $object->fields->name;
+                $row->domain_id = 1; // TODO voir si necessaire
+                $row->class = new stdClass();
+                $row->class->id = 1;
+                $row->class->name = $object->class;
+                $row->category = $this->getItemCategoryByClass($object->class);
+                $result   = $row;
+                break;
+            }
+        } else { // On recherche un actor
             $id = substr($id,6);
-            $jsonData = json_encode(array(
-                'operation' => 'core/get',
-                'class'     => 'Team',
-                'key'       => "SELECT Team WHERE id = '$id'",
-                'output_fields' => 'id, name'
-            ));
-            $response = $this->call($jsonData);
+            $response = $this->getObjects('Team','id, name',"WHERE id = '$id'");
             $result = null;
             foreach ($response->objects as $object){
                 $row = new stdClass();
@@ -731,47 +574,13 @@ class ITopDao {
                 $result = $row;
                 break;
             }
-        } else {
-            $jsonData = json_encode(array(
-                'operation' => 'core/get',
-                'class'     => 'FunctionalCI',
-                'key'       => "SELECT FunctionalCI WHERE id = '$id'",
-                'output_fields' => 'id, name'
-            ));
-            $response = $this->call($jsonData);
-            $result = null;
-            foreach ($response->objects as $object){
-                $rowclass = $object->class;
-                if (strpos($class,"~".$rowclass."~") === false){
-                    error_log("Filtering ".$object->fields->name." ".$rowclass." not in ".$class);
-                    continue;
-                }
-                $row = new stdClass();
-                $row->id    = $object->key;
-                $row->name  = $object->fields->name;
-                $row->code  = $object->fields->name;
-                $row->domain_id = 1; // TODO voir si necessaire
-                $row->class = new stdClass();
-                $row->class->id = 1;
-                $row->class->name = $object->class;
-                $row->category = $this->getItemCategoryByClass($object->class);
-                $result   = $row;
-                break;
-            }
         }
         return $result;
     }
     public function getItemsByServiceId($serviceId){
         $result = array();
-        // Chercher le domaine
-        $jsonData = json_encode(array(
-            'operation' => 'core/get',
-            'class' => 'Service',
-            'key' => "SELECT Service WHERE id = $serviceId",
-            'output_fields' => 'id, name, functionalcis_list, contacts_list'
-        ));
         // Récupérer la liste des itemsId
-        $response = $this->call($jsonData);
+        $response = $this->getObjects('Service','id, name, functionalcis_list, contacts_list',"WHERE id = $serviceId");
         foreach($response->objects as $object){
             $domainName = $object->fields->name;
             foreach($object->fields->functionalcis_list as $ci){
@@ -788,7 +597,7 @@ class ITopDao {
             }
             foreach($object->fields->contacts_list as $ci){
                 $row = new stdClass();
-                $row->id = $ci->contact_id;
+                $row->id = "actor_".$ci->contact_id;
                 $row->name = $ci->contact_name;
                 /*$row->domain_id = $domainId;
                  $row->domain_name = $domainName;*/
@@ -802,84 +611,75 @@ class ITopDao {
         return $result;
     }
     public function getItemsByDomainId($domainId,$class="FunctionalCI"){
-        // Chercher le domaine
-        $clause = 'SELECT Group WHERE type="businessDomain"';
-        $clause .= " AND id=".$domainId;
-        $jsonData = json_encode(array(
-            'operation' => 'core/get',
-            'class' => 'Group',
-            'key' => $clause,
-            'output_fields' => 'id, name, ci_list'
-        ));
-        $items = "";
-        // Récupérer la liste des itemsId
-        $response = $this->call($jsonData);
+        // Chercher le items
+        $result = array();
+        $response = $this->getObjects('Group','id, name, ci_list',"WHERE id=$domainId");
         foreach($response->objects as $object){
             $domainName = $object->fields->name;
             foreach($object->fields->ci_list as $ci){
-                if (strlen($items) != 0){
-                     $items .= ",";
-                }
-                $items .= $ci->ci_id;
-            }
-        }
-        // Chercher les items
-        $result = array();
-        if (strlen($items) != 0){
-            error_log("Looking for Sub items ".$class);
-            $jsonData = json_encode(array(
-                'operation' => 'core/get',
-                'class' => $class,
-                'key' => 'SELECT '.$class.' WHERE id IN ('.$items.')',
-                'output_fields' => 'id, name' //, document_name',
-            ));
-            $response = $this->call($jsonData);
-            $result = array();
-            foreach ($response->objects as $object){
                 $row = new stdClass();
-                $row->id = $object->key;
-                $row->name = $object->fields->name;
+                $row->id = $ci->ci_id;
+                $row->name = $ci->ci_name;
                 $row->domain_id = $domainId;
                 $row->domain_name = $domainName;
                 $row->class = new stdClass();
                 $row->class->id = 1;
-                $row->class->name = $object->class;
-                $row->category = $this->getItemCategoryByClass($object->class);
+                $row->class->name = $ci->ci_id_finalclass_recall;
+                $row->category = $this->getItemCategoryByClass($ci->ci_id_finalclass_recall);
                 $result[] = $row;
             }
         }
+        $domain = $this->getDomainById($domainId);
         // Chercher les acteurs
-        $actors = $this->getActorsByDomain($domainName);
+        $actors = $this->getActorsByDomain($domain->name);
         foreach ($actors as $actor){
             $result[] = $actor;
         }
         return $result;
     }
-    public function getSubItems($itemID){
-	   $jsonData = json_encode(array(
-                'operation' => 'core/get',
-                'class'     => 'FunctionalCI',
-                'key'       => "SELECT FunctionalCI WHERE id = '$itemID'",
-                'output_fields' => 'id, name'
-       ));
-	   $response = $this->call($jsonData);
+    public function getSolutionStructure($itemID){
+        $xml = $this->getSolutionStructureAsXML($itemID);
+        if ($xml == null){
+            $xml = "";
+        }
+        $xml = new SimpleXMLElement($xml);
+        $xml->registerXPathNamespace('prefix', 'http://www.omg.org/spec/BPMN/20100524/MODEL');
+        $children = $xml->xpath("//prefix:*");
+        $result = array();
+        return $result;
+    }
+    public function getSolutionStructureAsXML($itemID){
+        $response = $this->getObjects('ApplicationSolution','documents_list',"WHERE id = $itemID");
+        $content = null;
+        foreach ($response->objects as $object){
+            foreach ($object->fields->documents_list as $document){
+                $document_id = $document->document_id;
+                $content = $this->getDocumentContent($document_id);
+                break;
+            }
+            break;
+        }
+        if ($content == null){
+            return $content;
+        } else {
+            // Virer tous les caractères et tags qu'a ajouté ITOP...
+            return $this->cleanContent($content);
+        }
+    }
+    public function getSolutionItems($itemID){
+	   $response = $this->call('ApplicationSolution','id, name, functionalcis_list',"WHERE id = $itemID");
        $result = array();
        foreach ($response->objects as $object){
            foreach ($object->fields->functionalcis_list as $subitem) {
-                $rowclass = $object->class;
-                if (strpos($class,"~".$rowclass."~") === false){
-                    error_log("Filtering ".$object->fields->name." ".$rowclass." not in ".$class);
-                    continue;
-                }
                 $row = new stdClass();
-                $row->id    = $object->key;
-                $row->name  = $object->fields->name;
-                $row->code  = $object->fields->name;
+                $row->id    = $subitem->functionalci_id;
+                $row->name  = $subitem->functionalci_name;
+                $row->code  = $subitem->functionalci_name;
                 $row->domain_id = 1; // TODO voir si necessaire
                 $row->class = new stdClass();
                 $row->class->id = 1;
-                $row->class->name = $object->class;
-                $row->category = $this->getItemCategoryByClass($object->class);
+                $row->class->name = $subitem->functionalci_id_finalclass_recall;
+                $row->category = $this->getItemCategoryByClass($subitem->functionalci_id_finalclass_recall);
                 $result[]   = $row;
            }
        }
@@ -897,6 +697,59 @@ class ITopDao {
         $result = htmlspecialchars_decode(htmlspecialchars_decode($result));
         $result = preg_replace('~\xc2\xa0~', '', $result);
         return $result;
+    }
+    private function getDocumentContent($id){
+        $result = null;
+        $documentresponse = $this->getObjects('DocumentNote','text','WHERE id = "'.$id.'"');
+        foreach ($documentresponse->objects as $documentObject){
+            $result = $documentObject->fields->text;
+            break;
+        }
+        return $result;
+    }
+    private function createDocument($name,$type,$content){
+        // Créer le contenu
+        $documentid = $this->createObject('DocumentNote', array(
+            'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
+            'name'              => $name,
+            'status'            => 'published',
+            'documenttype_id'   => "SELECT DocumentType WHERE name = '$type'",
+            'text'              => $content
+        ));
+        return $documentid;
+    }
+    private function createObject($object,$fields){
+        $jsonData = json_encode(array(
+            'operation'     => 'core/create', // operation code
+            'comment'       => 'Inserted from GRAF',
+            'class'         => $object,
+            'output_fields' => 'id',
+            'fields'        => fields
+        ));
+        // Créer et récupérer l'id
+        $response = $this->call($jsonData);
+        $id = "";
+        foreach($response->objects as $object){
+            if ($object->code != 0){
+                die($object->message);
+            }
+            $id = $object->fields->id;
+            break;
+        }
+        return $id;
+    }
+    private function getObjects($object,$fields,$key = ""){
+        $clause = "SELECT ".$object;
+        if ($key != ""){
+            $clause .= " ".$key;
+        }
+        $jsonData = json_encode(array(
+            'operation'     => 'core/get',
+            'class'         => $object,
+            'key'           => $clause,
+            'output_fields' => $fields
+        ));
+        return $this->call($jsonData);
     }
 }
 $dao = new ITopDao();
