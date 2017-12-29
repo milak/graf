@@ -2,28 +2,29 @@
 //header('Content-Type: image/svg+xml'); //ne fonctionne pas car le type mime n'est pas reconnu
 require("../svg/header.php");
 require("../dao/dao.php");
-$dao->connect();
-$areas = $dao->getViewByName("metier");
 require("../svg/body.php");
 if (!isset($_GET["id"])){
     displayErrorAndDie('Need domain "id" argument');
 } else {
     $domain_id = $_GET["id"];
 }
+$dao->connect();
+$areas = $dao->getViewByName("metier");
 $domain = $dao->getDomainById($domain_id);
 // Chercher tous les process du domaine
 $businessProcesses = $dao->getBusinessProcessByDomainId($domain_id);
 // Chargement des processus
-$actors = array();
-$process = array();
-$services = array();
-
-$processarea = $areas["process"];
-$servicearea = $areas["service"];
-$actorarea = $areas["actor"];
-$resourcesarea = $areas["resource"];
-$dataarea = $areas["data"];
-$solutionarea = $areas["solution"];
+$actors     = array();
+$process    = array();
+$services   = array();
+$rootarea       = $areas["root"];
+$rootarea->name = $rootarea->name." ".$domain->name;
+$processarea    = $areas["process"];
+$servicearea    = $areas["service"];
+$actorarea      = $areas["actor"];
+$resourcesarea  = $areas["resource"];
+$dataarea       = $areas["data"];
+$solutionarea   = $areas["solution"];
 foreach ($businessProcesses as $businessProcess){
     if ($processarea != null){
         $obj = new stdClass();
@@ -68,7 +69,6 @@ foreach ($businessProcesses as $businessProcess){
         }
     }
 }
-error_log("Looking for items");
 $items = $dao->getItemsByDomainId($domain_id);
 foreach($items as $item){
     $obj = new stdClass();
@@ -76,7 +76,6 @@ foreach($items as $item){
     $obj->type 		= "item";
     $obj->name 		= $item->name;
     $obj->links 	= array();
-    error_log("Category ".$item->category->name);
     if ($item->category->name == "actor") {
         $obj->type 	    = "actor";
         $obj->class 	= "actor";
@@ -84,6 +83,7 @@ foreach($items as $item){
             $actorarea->addElement($obj);
         }
     } else if ($item->category->name == "data") {
+        $obj->type 		= "data";
         $obj->class 	= "component_data";
         if ($dataarea != null){
             $dataarea->addElement($obj);
@@ -127,45 +127,8 @@ if ($servicearea != null){
     	$servicearea->addElement($obj);
     }
 }
-
-/*$sql = <<<SQL
-   SELECT element.* from element
-   INNER JOIN element_class ON element.element_class_id = element_class.id
-   INNER JOIN element_category ON element_class.element_category_id = element_category.id
-   WHERE domain_id = $domain_id
-	AND element_category.name = 'actor'
-SQL;
-if(!$result = $db->query($sql)){
-    displayErrorAndDie('There was an error running the query [' . $db->error . ']');
-}
-// Charger tous les acteurs
-while($row = $result->fetch_assoc()){
-	$obj = new stdClass();
-	$obj->id 		= $row["id"];
-	$obj->type 		= "actor";
-	$obj->class 	= "process_actor";
-	$obj->name 		= $row["name"];
-	$obj->links 	= array();
-	$area_actor->elements[] = $obj;
-}
-$result->free();*/
-// Conserver uniquement les zones racines nécessaires
-$roots = array();
-foreach ($areas as $area){
-	if (!$area->needed){
-		continue;
-	}
-	if ($area->parent != null){
-		continue;
-	}
-	$roots[] = $area;
-}
 // Afficher le résultat
-if (count($roots) == 0){
-	echo("<text x='50' y='50'>Aucun processus</text>");
-} else {
-	display($roots);
-}
+display(array($rootarea));
 $dao->disconnect();
 require("../svg/footer.php");
 ?>
