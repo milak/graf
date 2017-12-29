@@ -52,7 +52,7 @@ function displayService(serviceId){
 		$("#service_create_instance_button").button("disable");
 		currentServiceId = null;
 	} else {
-		changeImage("views/view_service2.php?id="+serviceId);
+		changeImage("views/view_service.php?id="+serviceId);
 		$("#service_create_software_button").button("enable");
 		$("#service_create_device_button").button("enable");
 		$("#service_create_service_button").button("enable");
