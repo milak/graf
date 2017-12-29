@@ -9,7 +9,11 @@ if (isset($_GET["category_name"])){
 } else if (isset($_GET["class_id"])){
     $items = $dao->getItemsByClassId($_GET["class_id"]);
 } else if (isset($_GET["id"])){
-    $items = array($dao->getItemById($_GET["id"]));
+    $items = array();
+    $item = $dao->getItemById($_GET["id"]);
+    if ($item != null) {
+        $items[] = $item;
+    }
 } else {
     $items = $dao->getItems();
 }
