@@ -6,14 +6,7 @@ $areas = $dao->getViewByName("strategique");
 require("../svg/body.php");
 // Conserver uniquement les zones racines nécessaires et forcer toutes les zones à visibles
 $roots = array();
-foreach ($areas as $area){
-    $area->needed = true;
-    if ($area->parent != null){
-        continue;
-    }
-    $roots[] = $area;
-}
-$areas["default"]->needed=false;
+$roots[] = $areas["root"];
 // ****************************************************************
 // Chercher tous les noeuds correspondant aux critères de recherche
 // ****************************************************************
@@ -30,26 +23,43 @@ foreach($domains as $domain){
 	    $area = $areas["default"];
 	}
 	if ($showProcess){
-		$domainAsArea			= new stdClass();
+		$domainAsArea			= new Area();
 		$domainAsArea->id		= $domain->id;
 		$domainAsArea->code		= $domain->name;
 		$domainAsArea->name		= $domain->name;
-		$domainAsArea->needed	= true;
+		$domainAsArea->setNeeded();
 		$domainAsArea->display	= "vertical";
-		$domainAsArea->subareas = array();
-		$domainAsArea->elements = array();
 		$area->subareas[]		= $domainAsArea;
-		$area->needed = true;
+		$area->setNeeded();
 		$domains[$domainAsArea->id] = $domainAsArea;
 	} else {
-		$domainAsElement 			= new stdClass();
+		$domainAsElement 			= new Area();
 		$domainAsElement->id 		= $domain->id;
 		$domainAsElement->class		= "rect_180_80";
 		$domainAsElement->type		= "domain";
 		$domainAsElement->name		= $domain->name;
-		$area->needed = true;
-		$area->elements[]	        = $domainAsElement;
+		$area->addElement($domainAsElement);
 	}
+}
+// Chercher les clients
+$clientarea = $areas["client"];
+if ($clientarea != null){
+    $actors = $dao->getActorsByDomain("client");
+    foreach($actors as $actor){
+        $actor->type = "actor";
+        $actor->class = "actor";
+        $clientarea->addElement($actor);
+    }
+}
+// Chercher les fournisseurs
+$clientarea = $areas["provider"];
+if ($clientarea != null){
+    $actors = $dao->getActorsByDomain("provider");
+    foreach($actors as $actor){
+        $actor->type = "actor";
+        $actor->class = "actor";
+        $clientarea->addElement($actor);
+    }
 }
 if ($showProcess){
 $sql = <<<SQL
@@ -70,11 +80,10 @@ SQL;
 		if ($domain == null){
 			continue;
 		}
-		$domain->elements[] = $process;
+		$domain->addElement($process);
 	}
 	$result->free();
 }
-
 // Afficher le résultat
 display($roots);
 $dao->disconnect();
