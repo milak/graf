@@ -14,7 +14,7 @@ define("CHAR_HEIGHT",11);
 // Début de l'image
 // ************
 function displayErrorAndDie($error){
-	die('<text x="1" y="50" class="error_text">'.$error.'</text>');
+	die('<text x="1" y="50" class="error_text">'.$error.'</text></svg>');
 }
 ?><?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?php if (isset($_REQUEST["ashtml"])){?>
