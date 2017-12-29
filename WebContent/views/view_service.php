@@ -62,6 +62,7 @@ foreach ($items as $item){
             $resourcesarea->addElement($obj);
         }
     } else if ($item->category->name == "solution") {
+        $obj->type 		= "solution";
         $obj->class 	= "component_software";
         if ($solutionarea != null){
             $solutionarea->addElement($obj);
