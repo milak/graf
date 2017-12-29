@@ -5,6 +5,8 @@ const PROCESS_CLASSES = "~BusinessProcess~";
 const SERVER_CLASSES = "~Server~";
 const SOFTWARE_CLASSES = "~WebServer~DBServer~WebApplication~MiddlewareInstance~SoftwareInstance~OtherSoftware~PCSoftware~Middleware~";
 const SOLUTION_CLASSES = "~ApplicationSolution~";
+const DEFAULT_SOLUTION_CONTENT = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;/bpmn:definitions&gt;';
+const DEFAULT_PROCESS_CONTENT = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;bpmn:startEvent name="" id="1"/&gt;&lt;/bpmn:definitions&gt;';
 /**
  * Dao accédant aux données de itop
  */
@@ -129,14 +131,7 @@ class ITopDao {
         return $id;
     }
     public function deleteDomain($id){
-        $jsonData = json_encode(array(
-            'operation' => 'core/delete',
-            'comment' => 'Delete from GRAF',
-            'class' => 'Group',
-            'key' => $id,
-            'simulate' => false
-        ));
-        $response = $this->call($jsonData);
+        return $this->deleteObject('Group',$id);
     }
     private function businessProcessPopulate($object){
         $row = new stdClass();
@@ -287,10 +282,8 @@ class ITopDao {
     }
     public function createBusinessProcess($name,$description,$domain_id){
         error_log("Création d'un BusinessProcess : ".$name);
-        $defaultContent = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;bpmn:startEvent name="" id="1"/&gt;&lt;/bpmn:definitions&gt;';
-        //$defaultContent = urlencode($defaultContent);
         // Créer le contenu
-        $documentid = $this->createDocument("BPMN document of process ".$name, "BPMN", $defaultContent);
+        $documentid = $this->createDocument("BPMN document of process ".$name, "BPMN", DEFAULT_PROCESS_CONTENT);
         // Créer le BusinessProcess
         $businessProcessId = $this->createObject("BusinessProcess", array(
             'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
@@ -320,24 +313,10 @@ class ITopDao {
         // Supprimer le document rattaché
         if ($document_id != null){
             // Supprimer le document
-            $jsonData = json_encode(array(
-                'operation' => 'core/delete',
-                'comment' => 'Delete from GRAF',
-                'class' => 'DocumentNote',
-                'key' => $document_id,
-                'simulate' => false
-            ));
-            $response = $this->call($jsonData);
+            $this->deleteObject('DocumentNote',$document_id);
         }
         // Supprimer le process
-        $jsonData = json_encode(array(
-            'operation' => 'core/delete',
-            'comment' => 'Delete from GRAF',
-            'class' => 'BusinessProcess',
-            'key' => $id,
-            'simulate' => false
-        ));
-        $response = $this->call($jsonData);
+        return $this->deleteObject('BusinessProcess',$id);
     }
     public function getViews(){
         $response = $this->getObjects('DocumentNote','id, name','WHERE documenttype_name = "Template"');
@@ -410,8 +389,9 @@ class ITopDao {
     public function createService($code,$name,$domain_id){
         $domain = $this->getDomainById($domain_id);
         if ($domain == null){
-            return false;
+            return null;
         }
+        // Créer le service
         $id = $this->createObject("Service", array(
             'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
             'name'              => $name,
@@ -422,15 +402,8 @@ class ITopDao {
         return $id;
     }
     public function deleteService($id){
-        // Supprimer le process
-        $jsonData = json_encode(array(
-            'operation' => 'core/delete',
-            'comment' => 'Delete from GRAF',
-            'class' => 'Service',
-            'key' => $id,
-            'simulate' => false
-        ));
-        $response = $this->call($jsonData);
+        // Supprimer le service
+        return $this->deleteObject('Service',$id);
     }
     private function newItemCategory($name){
         $category = new stdClass();
@@ -637,15 +610,105 @@ class ITopDao {
         }
         return $result;
     }
+    public function createSolution($name){
+        // Créer le contenu
+        $documentid = $this->createDocument("BPMN document of service ".$name, "BPMN", DEFAULT_SOLUTION_CONTENT);
+        // Créer la solution
+        $this->createObject('ApplicationSolution', array(
+            'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
+            'name'              => $name,
+            'documents_list'    => array(array("document_id" => $documentid))
+        ));
+    }
+    public function deleteSolution($id){
+        // Supprimer le contenu
+        $response = $this->getObjects('Service','documents_list',"WHERE id = $id");
+        foreach ($response->objects as $object){
+            foreach ($object->fields->documents_list as $document){
+                $this->deleteObject('DocumentNote', $document->document_id);
+            }
+        }
+        // Supprimer la solution
+        $this->deleteObject('ApplicationSolution', $id);
+    }
     public function getSolutionStructure($itemID){
+        $result = array();
         $xml = $this->getSolutionStructureAsXML($itemID);
         if ($xml == null){
-            $xml = "";
+            $xml = DEFAULT_SOLUTION_CONTENT;
         }
         $xml = new SimpleXMLElement($xml);
         $xml->registerXPathNamespace('prefix', 'http://www.omg.org/spec/BPMN/20100524/MODEL');
-        $children = $xml->xpath("//prefix:*");
         $result = array();
+        $stepsById = array();
+        $links = array();
+        $children = $xml->xpath("//prefix:*");
+        foreach($children as $node){
+            $name = $node->getName();
+            if ($name == "definitions"){
+                continue;
+            } else if ($name == "startEvent"){
+                $step = new stdClass();
+                $step->type_name = "START";
+            } else if ($name == "endEvent"){
+                $step = new stdClass();
+                $step->type_name = "END";
+            } else if ($name == "userTask"){
+                $step = new stdClass();
+                $step->type_name = "ACTOR";
+            } else if ($name == "exclusiveGateway"){
+                $step = new stdClass();
+                $step->type_name = "CHOICE";
+            } else if ($name == "parallelGateway"){
+                $step = new stdClass();
+                $step->type_name = "CHOICE";
+            } else if ($name == "serviceTask"){
+                $step = new stdClass();
+                $step->type_name = "SERVICE";
+            } else if ($name == "task"){
+                $step = new stdClass();
+                $step->type_name = "SERVICE";
+            } else if ($name == "scriptTask"){
+                $step = new stdClass();
+                $step->type_name = "SERVICE";
+            } else if ($name == "subProcess"){
+                $step = new stdClass();
+                $step->type_name = "SUB-PROCESS";
+            } else if ($name == "sequenceFlow"){
+                $link = new stdClass();
+                $link->id    = "".$node["id"];
+                $link->label = "".$node["name"];
+                $link->name  = "".$node["name"];
+                $link->from_id  = "".$node["sourceRef"];
+                $link->to_id    = "".$node["targetRef"];
+                $links[] = $link;
+                continue;
+            } else {
+                error_log("Type non reconnu : $name");
+                $step = new stdClass();
+                $step->type_name = "SERVICE";
+            }
+            $step->id    = "".$node["id"];
+            $step->name  = "".$node["name"];
+            $step->links = array();
+            $stepsById[$step->id] = $step;
+            $result[] = $step;
+        }
+        // Raccrocher toutes les étapes entre elles
+        foreach ($links as $link){
+            $stepFrom = $stepsById[$link->from_id];
+            if ($stepFrom == null){
+                echo "Step (id=$$link->from_id) not found, skipped";
+                continue;
+            }
+            $stepTo = $stepsById[$link->to_id];
+            if ($stepTo == null){
+                echo "Step (id=$$link->to_id) not found, skipped";
+                continue;
+            }
+            $link->to 	= $stepTo;
+            $stepFrom->links[] = $link;
+        }
         return $result;
     }
     public function getSolutionStructureAsXML($itemID){
@@ -667,7 +730,7 @@ class ITopDao {
         }
     }
     public function getSolutionItems($itemID){
-	   $response = $this->call('ApplicationSolution','id, name, functionalcis_list',"WHERE id = $itemID");
+	   $response = $this->getObjects('ApplicationSolution','id, name, functionalcis_list',"WHERE id = $itemID");
        $result = array();
        foreach ($response->objects as $object){
            foreach ($object->fields->functionalcis_list as $subitem) {
@@ -724,7 +787,7 @@ class ITopDao {
             'comment'       => 'Inserted from GRAF',
             'class'         => $object,
             'output_fields' => 'id',
-            'fields'        => fields
+            'fields'        => $fields
         ));
         // Créer et récupérer l'id
         $response = $this->call($jsonData);
@@ -748,6 +811,16 @@ class ITopDao {
             'class'         => $object,
             'key'           => $clause,
             'output_fields' => $fields
+        ));
+        return $this->call($jsonData);
+    }
+    private function deleteObject($object,$id){
+        $jsonData = json_encode(array(
+            'operation' => 'core/delete',
+            'comment'   => 'Delete from GRAF',
+            'class'     => $object,
+            'key'       => $id,
+            'simulate'  => false
         ));
         return $this->call($jsonData);
     }
