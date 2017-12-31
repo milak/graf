@@ -1,0 +1,10 @@
+{
+	'dao'  : 'itop',
+	'itop' : {
+		'url'      		: 'http://localhost/itop/webservices/rest.php?version=1.3',
+		'user'     		: 'admin',
+		'password' 		: 'admin',
+		'version'  		: '1.3',
+		'organisation'  : 'Demo'
+	}
+}

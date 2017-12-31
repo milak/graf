@@ -14,8 +14,8 @@ php-mysql
 
 RUN mkdir /home/graf
 RUN rm /var/www/html/index.html
-ADD scripts/build_configuration.sh /home/graf
-ADD scripts/run.sh /home/graf
+ADD docker/main/scripts/build_configuration.sh /home/graf
+ADD docker/main/scripts/run.sh /home/graf
 RUN chmod a+x /home/graf/*.sh
 ADD WebContent /var/www/html/
 
