@@ -2,7 +2,6 @@
 
 ## General display
 	- refactor main page
-	- display configuration page at first start
 	- create full featured docker image with a BD, ITOP and GRAF preinstalled for DEMO usage
 	- use best wiziwig BPMN and other formats editor like https://bpmn.io/
 	- add pages with list of all objects : Items, Solutions, etc.
