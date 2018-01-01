@@ -13,9 +13,12 @@ php-json \
 php-mysql
 
 RUN mkdir /home/graf
+ADD model/views /home/graf
 RUN rm /var/www/html/index.html
 ADD docker/main/scripts/build_configuration.sh /home/graf
 ADD docker/main/scripts/run.sh /home/graf
+RUN chmod a+rw /home/graf
+RUN chmod a+rw /home/graf/configuration
 RUN chmod a+x /home/graf/*.sh
 ADD WebContent /var/www/html/
 
