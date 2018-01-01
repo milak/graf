@@ -2,7 +2,7 @@
 require("../svg/header.php");
 require("../dao/dao.php");
 $dao->connect();
-$areas = $dao->getViewByName("logique");
+$areas = $dao->getViewByName("logical");
 $rootarea = $areas["root"];
 $instancearea = $areas["instance"];
 $defaultarea = $areas["default"];

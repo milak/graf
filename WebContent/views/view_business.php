@@ -9,7 +9,7 @@ if (!isset($_GET["id"])){
     $domain_id = $_GET["id"];
 }
 $dao->connect();
-$areas = $dao->getViewByName("metier");
+$areas = $dao->getViewByName("business");
 $domain = $dao->getDomainById($domain_id);
 // Chercher tous les process du domaine
 $businessProcesses = $dao->getBusinessProcessByDomainId($domain_id);

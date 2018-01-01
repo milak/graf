@@ -2,7 +2,7 @@
 require("../svg/header.php");
 require("../dao/dao.php");
 $dao->connect();
-$areas = $dao->getViewByName("strategique");
+$areas = $dao->getViewByName("strategic");
 require("../svg/body.php");
 // Conserver uniquement les zones racines nécessaires et forcer toutes les zones à visibles
 $roots = array();
