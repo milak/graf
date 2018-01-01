@@ -1,0 +1,32 @@
+{
+	"name"		: "root",
+	"label"		: "Vue stratégique",
+	"children"	: [{
+		"name"		: "client",
+		"label"		: "Clients",
+		"display"	: "horizontal"
+	},{
+		"name"		: "domain",
+		"label"		: "Domains",
+		"children"	: [{
+			"name"		: "strategic",
+			"label"		: "Domaines d'activité stratégiques",
+			"display"	: "horizontal"
+		},{
+			"name"		: "support",
+			"label"		: "Domaines d'activité support",
+			"display"	: "horizontal"
+		},{
+			"name"		: "internal",
+			"label"		: "Domaines d'activité interne",
+			"display"	: "horizontal"
+		}]
+	},{
+		"name"		: "provider",
+		"label"		: "Fournisseurs de l'entreprise",
+		"display"	: "horizontal"
+	},{
+		"name"		: "default",
+		"label"		: "Autres"
+	}]
+}

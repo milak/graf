@@ -1,0 +1,40 @@
+{
+	"name"		: "root",
+	"label"		: "Vue service",
+	"display"	: "vertical",
+	"children"	: [{
+		"name"		: "functional",
+		"label"		: "Fonctionel",
+		"display"	: "horizontal",
+		"children"	: [{
+			"name"		: "process",
+			"label"		: "Processus",
+			"display"	: "vertical"
+		},{
+			"name"		: "actor",
+			"label"		: "Acteurs",
+			"display"	: "vertical"
+		}]
+	},{
+		"name"		: "technical",
+		"label"		: "Technique",
+		"display"	: "horizontal",
+		"children"	: [{
+			"name"		: "solution",
+			"label"		: "Solutions",
+			"display"	: "vertical"
+		},{
+			"name"		: "resource",
+			"label"		: "Ressources",
+			"display"	: "vertical"
+		},{
+			"name"		: "data",
+			"label"		: "Données",
+			"display"	: "vertical"
+		},{
+			"name"		: "default",
+			"label"		: "Autres",
+			"display"	: "vertical"
+		}]
+	}]
+}

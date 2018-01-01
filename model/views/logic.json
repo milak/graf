@@ -1,0 +1,34 @@
+{
+	"name"		: "root",
+	"label"		: "Vue logique",
+	"display"	: "horizontal",
+	"children"	: [{
+		"name" 		: "external",
+		"label"  	: "SI externes",
+		"display"	: "vertical",
+		"children" 	: []
+	},{
+		"name" 		: "network",
+		"label"  	: "Réseaux",
+		"display"	: "vertical"
+	},{
+		"name"		: "internal",
+		"label"		: "Internal",
+		"display"	: "horizontal",
+		"children" 	: [{
+			"name"		: "dmz",
+			"label"		: "DMZ",
+			"display"	: "vertical",
+			"children"	: []
+		},{
+			"name"		: "si",
+			"label"		: "Système d'information'",
+			"display"	: "horizontal",
+			"children"	: []
+		},{
+			"name"		: "default",
+			"label"		: "Hors POS",
+			"display"	: "horizontal"
+		}]
+	}]
+}
