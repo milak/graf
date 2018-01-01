@@ -5,7 +5,7 @@ then
 	echo "  'dao' : 'db',               						>> /home/graf/configuration.json
 	echo "  'db'  : {"                 		        			>> /home/graf/configuration.json
 	echo "  		'host'     		: '$DB_HOST',"   			>> /home/graf/configuration.json
-	echo "  		'user'     		: '$DB_USER',"   			>> /home/graf/configuration.json
+	echo "  		'login'    		: '$DB_LOGIN',"   			>> /home/graf/configuration.json
 	echo "  		'password' 		: '$DB_PASSWORD',"			>> /home/graf/configuration.json
 	echo "  		'instance' 		: '$DB_INSTANCE'"			>> /home/graf/configuration.json
 	echo "   }"                                  	 			>> /home/graf/configuration.json
@@ -15,7 +15,7 @@ elif [ $DAO = "itop" ]
 	echo "  'dao'  : 'itop',                      				>> /home/graf/configuration.json
 	echo "  'itop' : {"                           				>> /home/graf/configuration.json
 	echo "  		'url'      		: '$ITOP_URL',"    			>> /home/graf/configuration.json
-	echo "  		'user'     		: '$ITOP_USER',"   			>> /home/graf/configuration.json
+	echo "  		'login'    		: '$ITOP_LOGIN',"  			>> /home/graf/configuration.json
 	echo "  		'password' 		: '$ITOP_PASSWORD'," 		>> /home/graf/configuration.json
 	echo "  		'version'  		: '$ITOP_VERSION'," 		>> /home/graf/configuration.json
 	echo "  		'organisation'  : '$ITOP_ORGANISATION'"		>> /home/graf/configuration.json

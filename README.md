@@ -25,7 +25,7 @@ For standalone usage
 	"dao" : "db",
 	"db" : {
 		"host"     : "mydb.com",
-		"user"     : "john",
+		"login"    : "john",
 		"password" : "mypassord",
 		"instance" : "graf"
 	}
@@ -37,7 +37,7 @@ For ITOP based usage
 	"dao" : "itop",
 	"itop" : {
 		"url"     		: "http://myitop.com/webservices/rest.php",
-		"user"     		: "john",
+		"login"    		: "john",
 		"password"     	: "mypassord",
 		"organisation" 	: "myenterprise",
 		"version" 		: "1.3"
@@ -49,10 +49,10 @@ For ITOP based usage
 For standalone usage
 ```shell
 docker pull milak/graf
-docker run -e DAO=db -e DB_USER=_user_ -e DB_PASSWORD=_password_ -e DB_INSTANCE=_instancename_ -e DB_HOST=_db host_ milak/graf
+docker run -e DAO=db -e DB_LOGIN=_LOGIN_ -e DB_PASSWORD=_password_ -e DB_INSTANCE=_instancename_ -e DB_HOST=_db host_ milak/graf
 ```
 For ITOP based usage
 ```shell
 docker pull milak/graf
-docker run -e DAO=itop -e ITOP_USER=_user_ -e ITOP_PASSWORD=_password_ -e ITOP_URL=_url_ -e ITOP_VERSION=_version_ -e ITOP_ORGANISATION=_organisation_ milak/graf
+docker run -e DAO=itop -e ITOP_LOGIN=_login_ -e ITOP_PASSWORD=_password_ -e ITOP_URL=_url_ -e ITOP_VERSION=_version_ -e ITOP_ORGANISATION=_organisation_ milak/graf
 ```
