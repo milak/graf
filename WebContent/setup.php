@@ -1,3 +1,6 @@
+<?php
+    require("dao/daoutil.php");
+?>
 <html>
 <head>
 	<title>GRAF - setup</title>
@@ -12,9 +15,8 @@
  	 		var value = $("#selectDAO").val();
  	 		if (value == "null"){
  	 			frameDAOSetup.attr("src","about:blank");
- 	 			//frameDAOSetup.html("")
  	 		} else {
- 	 			frameDAOSetup.attr("src","dao/"+value+"/config.php");
+ 	 			frameDAOSetup.attr("src","dao/"+value+"/setup.php");
  	 		}
  		}
  	</script>
@@ -59,6 +61,14 @@
         <td></td>
     </tr>
 	</table>
+	<script type="text/javascript">
+<?php 
+    if ($configuration != null){?>
+        $("#selectDAO").val("<?php echo $configuration->dao ?>");
+        onDAOChange();
+<?php }
+?>
+	</script>
 </div>
 </body>
 </html>

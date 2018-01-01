@@ -14,16 +14,25 @@ class ITopDao {
     // déclaration d'une propriété
     private $organisation;
     private $url;
-    private $auth_user;
-    private $auth_pwd;
+    private $login;
+    private $password;
     private $version;
+    public $error = null;
     public function connect(){
         global $configuration;
         $this->organisation = $configuration->itop->organisation;
         $this->url          = $configuration->itop->url;
-        $this->auth_user    = $configuration->itop->auth_user;
-        $this->auth_pwd     = $configuration->itop->auth_pwd;
+        $this->login        = $configuration->itop->login;
+        $this->password     = $configuration->itop->password;
         $this->version      = $configuration->itop->version;
+        try{
+            $this->getObjects("Team", "id");
+            $result = true;
+        } catch (Exception $e) {
+            $this->error = $e->getMessage();
+            $result = false;
+        }
+        return $result;
     }
     /**
      * Helper to execute an HTTP POST request
@@ -32,10 +41,10 @@ class ITopDao {
      * $sOptionnalHeaders is a string containing additional HTTP headers that you would like to send in your request.
      */
     private function DoPostRequest($jsonData, $sOptionnalHeaders = null) {
-        $sUrl = "http://localhost/itop/web/webservices/rest.php?version=1.3";
+        $sUrl = $this->url."?version=".$this->version;
         $aData = array();
-        $aData['auth_user'] = 'admin';
-        $aData['auth_pwd'] = 'admin';
+        $aData['auth_user'] = $this->login;
+        $aData['auth_pwd'] = $this->password;
         $aData['json_data'] = $jsonData;
         $sData = http_build_query($aData);
         $aParams = array('http' => array(
@@ -47,7 +56,6 @@ class ITopDao {
             $aParams['http']['header'] .= $sOptionnalHeaders;
         }
         $ctx = stream_context_create($aParams);
-            
         $fp = @fopen($sUrl, 'rb', false, $ctx);
         if (!$fp) {
                 global $php_errormsg;
@@ -96,10 +104,10 @@ class ITopDao {
         $response = $this->getObjects("Group", 'id, name, friendlyname, status, description, type, parent_id, parent_name, ci_list, obsolescence_flag','WHERE type="businessDomain"');
         $result = array();
         foreach ($response->objects as $object){
-            $row = new stdClass();
-            $row->id = $object->key;
-            $row->name = $object->fields->name;
-            $row->area_id = $object->fields->description;
+            $row            = new stdClass();
+            $row->id        = $object->key;
+            $row->name      = $object->fields->name;
+            $row->area_id   = $object->fields->description;
             $result[] = $row;
         }
         return $result;
@@ -751,7 +759,7 @@ class ITopDao {
     }
     public function getDB(){
         global $configuration;
-        return new mysqli($configuration->db->host, $configuration->db->user, $configuration->db->password, $configuration->db->instance);
+        return new mysqli($configuration->db->host, $configuration->db->login, $configuration->db->password, $configuration->db->instance);
     }
     public function disconnect(){
         // Rien à faire

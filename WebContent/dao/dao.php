@@ -1,18 +1,16 @@
 <?php
-// TODO trouver comment ne plus avoir à ajouter en dur /graf. Problème de conf apache ?
-$root = realpath($_SERVER["DOCUMENT_ROOT"])."/graf";
-/**
- * Dao chapeau qui va charger le dao adapté à la configuration
- */
-$configurationFileName = "/home/graf/configuration.json";
-if (!file_exists($configurationFileName)) {
+require_once('daoutil.php');
+if ($configuration == null) {
     header('Location: setup.php');
     exit();
 }
-$configurationFile = file_get_contents($configurationFileName);
-$configuration = json_decode($configurationFile);
-$plugin = $root."/dao/".$configuration->dao."/dao.php";
-if (!file_exists($plugin)) {
+/**
+ * Dao chapeau qui va charger le dao adapté à la configuration
+ */
+// TODO trouver comment ne plus avoir à ajouter en dur /graf. Problème de conf apache ?
+$root = realpath($_SERVER["DOCUMENT_ROOT"])."/graf";
+$pluginFile = $root."/dao/".$configuration->dao."/dao.php";
+if (!file_exists($pluginFile)) {
     die("plugin ".$configuration->dao." not installed. File ".$plugin." doesn't exist");
     exit();
 }

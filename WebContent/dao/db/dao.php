@@ -5,15 +5,19 @@
 class DBDao {
     // déclaration d'une propriété
     private $db = null;
+    public $error = null;
     public function connect(){
         global $configuration;
         // Connection à la BDD
-        $this->db = new mysqli($configuration->db->host, $configuration->db->user, $configuration->db->password, $configuration->db->instance);
-        if (!$this->db) {
-            displayErrorAndDie('Impossible de se connecter : ' . $this->db->connect_error);
+        $this->db = new mysqli($configuration->db->host, $configuration->db->login, $configuration->db->password, $configuration->db->instance);
+        if ($this->db->connect_errno) {
+            $result = false;
+            $this->error = $this->db->connect_error;
+        } else {
+            $result = true;
         }
+        return $result;
     }
-    // déclaration des méthodes
     public function getDomains() {
         $sql = "SELECT domain.* from domain order by name";
         if(!$dbresult = $this->db->query($sql)){
