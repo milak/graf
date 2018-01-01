@@ -1,3 +1,7 @@
+<?php
+// Réalise un test de connection et redirige éventuellement sur la page setup
+require("dao/dao.php");
+?>
 <html lang="fr">
 <head>
   <meta charset="utf-8">
@@ -18,7 +22,6 @@
 	<script type="text/javascript" src="script/actor.js"></script>
 	<script type="text/javascript" src="script/view.js"></script>
 	<script>
-		
 		function displayTechnic(){
 			hideToolBox();
 			$("#technic_toolbox").show();

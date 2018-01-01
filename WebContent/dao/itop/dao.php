@@ -647,6 +647,8 @@ class ITopDao {
             $name = $node->getName();
             if ($name == "definitions"){
                 continue;
+            } else if ($name == "process"){
+                continue;
             } else if ($name == "startEvent"){
                 $step = new stdClass();
                 $step->type_name = "START";
@@ -685,8 +687,7 @@ class ITopDao {
                 continue;
             } else {
                 error_log("Type non reconnu : $name");
-                $step = new stdClass();
-                $step->type_name = "SERVICE";
+                continue;
             }
             $step->id    = "".$node["id"];
             $step->name  = "".$node["name"];

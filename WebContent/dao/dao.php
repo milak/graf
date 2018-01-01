@@ -1,10 +1,22 @@
 <?php
+// TODO trouver comment ne plus avoir à ajouter en dur /graf. Problème de conf apache ?
+$root = realpath($_SERVER["DOCUMENT_ROOT"])."/graf";
 /**
  * Dao chapeau qui va charger le dao adapté à la configuration
  */
-$configurationFile = file_get_contents("/home/graf/configuration.json");
+$configurationFileName = "/home/graf/configuration.json";
+if (!file_exists($configurationFileName)) {
+    header('Location: setup.php');
+    exit();
+}
+$configurationFile = file_get_contents($configurationFileName);
 $configuration = json_decode($configurationFile);
-require("../dao/".$configuration->dao."/dao.php");
+$plugin = $root."/dao/".$configuration->dao."/dao.php";
+if (!file_exists($plugin)) {
+    die("plugin ".$configuration->dao." not installed. File ".$plugin." doesn't exist");
+    exit();
+}
+require($root."/dao/".$configuration->dao."/dao.php");
 function recursive_parseViewToArray(&$list, $parent, $currentArea){
     $area = new Area();
     $area->id        = $currentArea["name"];
