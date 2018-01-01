@@ -1,20 +1,25 @@
 <?php
 require_once('daoutil.php');
 if ($configuration == null) {
-    header('Location: setup.php');
+    error_log("No configuration loaded, redirecting to setup.php");
+    header('Location: /setup.php');
     exit();
 }
 /**
  * Dao chapeau qui va charger le dao adapté à la configuration
  */
 // TODO trouver comment ne plus avoir à ajouter en dur /graf. Problème de conf apache ?
-$root = realpath($_SERVER["DOCUMENT_ROOT"])."/graf";
+$root = realpath($_SERVER["DOCUMENT_ROOT"]);
 $pluginFile = $root."/dao/".$configuration->dao."/dao.php";
 if (!file_exists($pluginFile)) {
-    die("plugin ".$configuration->dao." not installed. File ".$plugin." doesn't exist");
+    $root = realpath($_SERVER["DOCUMENT_ROOT"])."/graf";
+    $pluginFile = $root."/dao/".$configuration->dao."/dao.php";
+}
+if (!file_exists($pluginFile)) {
+    die("Plugin ".$configuration->dao." not installed. File ".$pluginFile." doesn't exist");
     exit();
 }
-require($root."/dao/".$configuration->dao."/dao.php");
+require($pluginFile);
 function recursive_parseViewToArray(&$list, $parent, $currentArea){
     $area = new Area();
     $area->id        = $currentArea["name"];

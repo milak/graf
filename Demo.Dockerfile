@@ -44,7 +44,7 @@ ADD model/views /home/graf
 ADD docker/demo/conf/configuration.json /home/graf
 ADD docker/demo/scripts/run.sh /home/graf
 RUN chmod a+rw /home/graf
-RUN chmod a+rw /home/graf/configuration
+RUN chmod a+rw /home/graf/configuration.json
 RUN chmod a+x /home/graf/*.sh
 RUN mkdir /var/www/html/graf
 ADD WebContent /var/www/html/graf

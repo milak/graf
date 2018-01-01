@@ -54,5 +54,5 @@ docker run -e DAO=db -e DB_LOGIN=_LOGIN_ -e DB_PASSWORD=_password_ -e DB_INSTANC
 For ITOP based usage
 ```shell
 docker pull milak/graf
-docker run -e DAO=itop -e ITOP_LOGIN=_login_ -e ITOP_PASSWORD=_password_ -e ITOP_URL=_url_ -e ITOP_VERSION=_version_ -e ITOP_ORGANISATION=_organisation_ milak/graf
+sudo docker run -e "DAO=itop" -e "ITOP_LOGIN=admin" -e "ITOP_PASSWORD=admin" -e "ITOP_VERSION=1.3" -e "ITOP_ORGANISATION=Demo" -e "ITOP_URL=http://localhost/itop/webservices/rest.php" milak/graf
 ```

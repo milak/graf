@@ -1,3 +1,6 @@
 #!/bin/sh
 /home/graf/build_configuration.sh
-/usr/sbin/apache2ctl -DFOREGROUND
+if [ $? -eq 0 ]
+then
+	/usr/sbin/apache2ctl -DFOREGROUND
+fi
