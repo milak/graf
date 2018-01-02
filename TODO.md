@@ -3,7 +3,7 @@
 ## General display
 	- refactor main page
 	- create full featured docker image with a BD, ITOP and GRAF preinstalled for DEMO usage
-	- use best wiziwig BPMN and other formats editor like https://bpmn.io/
+	- use best wiziwig BPMN and other formats editor like https://bpmn.io/ ou https://app.genmymodel.com
 	- add pages with list of all objects : Items, Solutions, etc.
 	- implement data models and support standard formats (DMN ?)
 

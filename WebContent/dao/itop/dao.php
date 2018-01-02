@@ -5,8 +5,6 @@ const PROCESS_CLASSES = "~BusinessProcess~";
 const SERVER_CLASSES = "~Server~";
 const SOFTWARE_CLASSES = "~WebServer~DBServer~WebApplication~MiddlewareInstance~SoftwareInstance~OtherSoftware~PCSoftware~Middleware~";
 const SOLUTION_CLASSES = "~ApplicationSolution~";
-const DEFAULT_SOLUTION_CONTENT = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;/bpmn:definitions&gt;';
-const DEFAULT_PROCESS_CONTENT = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;bpmn:startEvent name="" id="1"/&gt;&lt;/bpmn:definitions&gt;';
 /**
  * Dao accédant aux données de itop
  */
@@ -199,82 +197,6 @@ class ITopDao {
         return $result;
     }
     public function getBusinessProcessStructure($id){
-        $xml = $this->getBusinessProcessStructureAsXML($id);
-        $xml = new SimpleXMLElement($xml);
-        $xml->registerXPathNamespace('prefix', 'http://www.omg.org/spec/BPMN/20100524/MODEL');
-        $children = $xml->xpath("//prefix:*");
-        $result = array();
-        $stepsById = array();
-        $links = array();
-        foreach($children as $node){
-            $name = $node->getName();
-            if ($name == "definitions"){
-                continue;
-            } else if ($name == "startEvent"){
-                $step = new stdClass();
-                $step->type_name = "START";
-            } else if ($name == "endEvent"){
-                $step = new stdClass();
-                $step->type_name = "END";
-            } else if ($name == "userTask"){
-                $step = new stdClass();
-                $step->type_name = "ACTOR";
-            } else if ($name == "exclusiveGateway"){
-                $step = new stdClass();
-                $step->type_name = "CHOICE";
-            } else if ($name == "parallelGateway"){
-                $step = new stdClass();
-                $step->type_name = "CHOICE";
-            } else if ($name == "serviceTask"){
-                $step = new stdClass();
-                $step->type_name = "SERVICE";
-            } else if ($name == "task"){
-                $step = new stdClass();
-                $step->type_name = "SERVICE";
-            } else if ($name == "scriptTask"){
-                $step = new stdClass();
-                $step->type_name = "SERVICE";
-            } else if ($name == "subProcess"){
-                $step = new stdClass();
-                $step->type_name = "SUB-PROCESS";
-            } else if ($name == "sequenceFlow"){
-                $link = new stdClass();
-                $link->id    = "".$node["id"];
-                $link->label = "".$node["name"];
-                $link->name  = "".$node["name"];
-                $link->from_id  = "".$node["sourceRef"];
-                $link->to_id    = "".$node["targetRef"];
-                $links[] = $link;
-                continue;
-            } else {
-                error_log("Type non reconnu : $name");
-                $step = new stdClass();
-                $step->type_name = "SERVICE";
-            }
-            $step->id    = "".$node["id"];
-            $step->name  = "".$node["name"];
-            $step->links = array();
-            $stepsById[$step->id] = $step;
-            $result[] = $step;
-        }
-        // Raccrocher toutes les étapes entre elles
-        foreach ($links as $link){
-            $stepFrom = $stepsById[$link->from_id];
-            if ($stepFrom == null){
-                echo "Step (id=$$link->from_id) not found, skipped";
-                continue;
-            }
-            $stepTo = $stepsById[$link->to_id];
-            if ($stepTo == null){
-                echo "Step (id=$$link->to_id) not found, skipped";
-                continue;
-            }
-            $link->to 	= $stepTo;
-            $stepFrom->links[] = $link;
-        }
-        return $result;
-    }
-    public function getBusinessProcessStructureAsXML($id){
         $response = $this->getObjects('BusinessProcess','documents_list',"WHERE id = $id");
         $content = null;
         foreach ($response->objects as $object){
@@ -286,12 +208,13 @@ class ITopDao {
             break;
         }
         // Virer tous les caractères et tags qu'a ajouté ITOP...
-        return $this->cleanContent($content);
+        return new Process($this->cleanContent($content));
     }
     public function createBusinessProcess($name,$description,$domain_id){
         error_log("Création d'un BusinessProcess : ".$name);
+        $process = new Process();
         // Créer le contenu
-        $documentid = $this->createDocument("BPMN document of process ".$name, "BPMN", DEFAULT_PROCESS_CONTENT);
+        $documentid = $this->createDocument("BPMN document of process ".$name, "BPMN", $process->getXML());
         // Créer le BusinessProcess
         $businessProcessId = $this->createObject("BusinessProcess", array(
             'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
@@ -640,87 +563,6 @@ class ITopDao {
         $this->deleteObject('ApplicationSolution', $id);
     }
     public function getSolutionStructure($itemID){
-        $result = array();
-        $xml = $this->getSolutionStructureAsXML($itemID);
-        if ($xml == null){
-            $xml = DEFAULT_SOLUTION_CONTENT;
-        }
-        $xml = new SimpleXMLElement($xml);
-        $xml->registerXPathNamespace('prefix', 'http://www.omg.org/spec/BPMN/20100524/MODEL');
-        $result = array();
-        $stepsById = array();
-        $links = array();
-        $children = $xml->xpath("//prefix:*");
-        foreach($children as $node){
-            $name = $node->getName();
-            if ($name == "definitions"){
-                continue;
-            } else if ($name == "process"){
-                continue;
-            } else if ($name == "startEvent"){
-                $step = new stdClass();
-                $step->type_name = "START";
-            } else if ($name == "endEvent"){
-                $step = new stdClass();
-                $step->type_name = "END";
-            } else if ($name == "userTask"){
-                $step = new stdClass();
-                $step->type_name = "ACTOR";
-            } else if ($name == "exclusiveGateway"){
-                $step = new stdClass();
-                $step->type_name = "CHOICE";
-            } else if ($name == "parallelGateway"){
-                $step = new stdClass();
-                $step->type_name = "CHOICE";
-            } else if ($name == "serviceTask"){
-                $step = new stdClass();
-                $step->type_name = "SERVICE";
-            } else if ($name == "task"){
-                $step = new stdClass();
-                $step->type_name = "SERVICE";
-            } else if ($name == "scriptTask"){
-                $step = new stdClass();
-                $step->type_name = "SERVICE";
-            } else if ($name == "subProcess"){
-                $step = new stdClass();
-                $step->type_name = "SUB-PROCESS";
-            } else if ($name == "sequenceFlow"){
-                $link = new stdClass();
-                $link->id    = "".$node["id"];
-                $link->label = "".$node["name"];
-                $link->name  = "".$node["name"];
-                $link->from_id  = "".$node["sourceRef"];
-                $link->to_id    = "".$node["targetRef"];
-                $links[] = $link;
-                continue;
-            } else {
-                error_log("Type non reconnu : $name");
-                continue;
-            }
-            $step->id    = "".$node["id"];
-            $step->name  = "".$node["name"];
-            $step->links = array();
-            $stepsById[$step->id] = $step;
-            $result[] = $step;
-        }
-        // Raccrocher toutes les étapes entre elles
-        foreach ($links as $link){
-            $stepFrom = $stepsById[$link->from_id];
-            if ($stepFrom == null){
-                echo "Step (id=$$link->from_id) not found, skipped";
-                continue;
-            }
-            $stepTo = $stepsById[$link->to_id];
-            if ($stepTo == null){
-                echo "Step (id=$$link->to_id) not found, skipped";
-                continue;
-            }
-            $link->to 	= $stepTo;
-            $stepFrom->links[] = $link;
-        }
-        return $result;
-    }
-    public function getSolutionStructureAsXML($itemID){
         $response = $this->getObjects('ApplicationSolution','documents_list',"WHERE id = $itemID");
         $content = null;
         foreach ($response->objects as $object){
@@ -732,10 +574,10 @@ class ITopDao {
             break;
         }
         if ($content == null){
-            return $content;
+            return new Schema($content);
         } else {
             // Virer tous les caractères et tags qu'a ajouté ITOP...
-            return $this->cleanContent($content);
+            return new Schema($this->cleanContent($content));
         }
     }
     public function getSolutionItems($itemID){

@@ -7,7 +7,7 @@ if (isset($_GET["id"])){
 }
 require("../dao/dao.php");
 $dao->connect();
-$steps = $dao->getBusinessProcessStructure($id);
+$steps = $dao->getBusinessProcessStructure($id)->elements;
 require("../svg/header.php");
 require("../svg/body.php");
 
