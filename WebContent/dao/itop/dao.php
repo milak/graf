@@ -8,14 +8,18 @@ const SOLUTION_CLASSES = "~ApplicationSolution~";
 /**
  * Dao accédant aux données de itop
  */
-class ITopDao {
-    // déclaration d'une propriété
+class ITopDao implements IDAO {
+    // déclaration des propriétés
     private $organisation;
     private $url;
     private $login;
     private $password;
     private $version;
     public $error = null;
+    /**
+     * prend en compte les parametres de connection et effectue un test de connection
+     * @return boolean true si la connection s'est bien passée, false sinon. Dans ce cas, error contient le message d'erreur
+     */
     public function connect(){
         global $configuration;
         $this->organisation = $configuration->itop->organisation;
@@ -514,7 +518,10 @@ class ITopDao {
         }
         return $result;
     }
-    public function getItemsByDomainId($domainId,$class="FunctionalCI"){
+    public function getItemsByDomainId($domainId,$class="*"){
+        if ($class = "*"){
+            $class = "FunctionalCI";
+        }
         // Chercher le items
         $result = array();
         $response = $this->getObjects('Group','id, name, ci_list',"WHERE id=$domainId");

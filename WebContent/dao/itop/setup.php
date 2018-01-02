@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (!$dao->connect()){
         $message = "Echec : ".$dao->error;
     } else {
-        writeConfiguration();
+        writeConfiguration($configuration);
         $message = 'Mise à jour effectuée <a href="../../index.php" target="top">retour à GRAF</a>';
     }
 }

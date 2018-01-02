@@ -2,10 +2,14 @@
 /**
  * Dao accédant à la base de donnée spécifique graf 
  */
-class DBDao {
+class DBDao implements IDAO {
     // déclaration d'une propriété
     private $db = null;
     public $error = null;
+    /**
+     * prend en compte les parametres de connection et effectue un test de connection
+     * @return boolean true si la connection s'est bien passée, false sinon. Dans ce cas, error contient le message d'erreur
+     */
     public function connect(){
         global $configuration;
         // Connection à la BDD

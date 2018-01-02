@@ -3,11 +3,17 @@
  * Ce script propose des fonctions disponibles à tous les plugins dao chargés.
  * Il propose des classes et des fonctions pour parser les formats Process et Schema
  */
+// Objet qui sera modifié une fois le plugin chargé
+$dao = null;
 // ***********************************
 // Gestion du fichier de configuration
 // ***********************************
 $configuration = null;
 $configurationFileName = null;
+/**
+ * Charger la configuration
+ * @return l'objet configuration
+ */
 function loadConfiguration(){
     global $configurationFileName;
     $configurationFileName = "/home/graf/configuration.json";
@@ -21,13 +27,18 @@ function loadConfiguration(){
     }
     return $configuration;
 }
-function writeConfiguration(){
-    global $configuration;
+/**
+ * Sérialise la configuration
+ */
+function writeConfiguration($configuration){
     global $configurationFileName;
     $configurationAsText = json_encode($configuration, JSON_PRETTY_PRINT);
     file_put_contents($configurationFileName,$configurationAsText);
 }
-$dao = null;
+/**
+ * Charge le plugin
+ * @param string $daoName
+ */
 function loadPlugin($daoName){
     global $dao;
     // TODO trouver comment ne plus avoir à ajouter en dur /graf. Problème de conf apache ?
@@ -78,6 +89,12 @@ function parseViewToArray($view){
     recursive_parseViewToArray($result, null, $view);
     return $result;
 }
+/**
+ * Classe Area
+ * 
+ * Correspond à une zone à afficher dans une vue
+ *
+ */
 class Area {
     public $id;
     public $name;
@@ -100,6 +117,12 @@ class Area {
         }
     }
 }
+/**
+ * Class Parseable
+ *
+ * Classe abstraite qui sera réutilisée pour parser des formats de données dans le but de fournis des éléments à afficher dans la vue.
+ * 
+ */
 abstract class Parseable {
     protected $xml;
     public $elements;
@@ -138,9 +161,12 @@ abstract class Parseable {
     }
 }
 
-// *********************
-// Gestion des processus
-// *********************
+/**
+ * Class Process
+ * 
+ * Permet de parser Process dans un format BPMN pour l'afficher dans une vue
+ * 
+ */
 //const DEFAULT_PROCESS_CONTENT = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;bpmn:startEvent name="" id="1"/&gt;&lt;/bpmn:definitions&gt;';
 const DEFAULT_PROCESS_CONTENT = '<bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"><bpmn:startEvent name="" id="1"/></bpmn:definitions>';
 class Process extends Parseable {
@@ -209,9 +235,12 @@ class Process extends Parseable {
         }
     }
 }
-// *******************
-// Gestion des schémas
-// *******************
+/**
+ * Class Schéma
+ *
+ * Permet de parser un Schéma (dans un format BPMN-like pour le moment) pour l'afficher dans une vue
+ *
+ */
 //const DEFAULT_SCHEMA_CONTENT = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;/bpmn:definitions&gt;';
 const DEFAULT_SCHEMA_CONTENT = '<bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"></bpmn:definitions>';
 class Schema extends Parseable {
@@ -291,5 +320,28 @@ class Schema extends Parseable {
             $this->addLink($link);
         }
     }
+}
+/**
+ * Classe abstraite à implementer pour représenter un dao.
+ */
+interface IDAO {
+    public function connect();
+    
+    public function getDomains();
+    public function getDomainById($id);
+    public function createDomain($name,$area_id);
+    public function deleteDomain($id);
+    
+    public function getViews();
+    public function getViewByName($name);
+    
+    public function getItemCategories();
+    public function getItemsByCategory($category);
+    public function getItems();
+    public function getItemById($id);
+    public function getItemsByServiceId($serviceId);
+    public function getItemsByDomainId($domainId,$class="*");
+    
+    public function disconnect();
 }
 ?>
