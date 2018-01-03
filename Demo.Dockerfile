@@ -14,6 +14,12 @@ libapache2-mod-php \
 php-json \
 php-mysql
 
+# Installer l'extension YAML pour PHP
+RUN apt-get install libyaml-dev
+RUN apt-get install php7.0-dev
+RUN pecl install yaml
+RUN echo "extension=yaml.so" >> /etc/php/7.0/apache2/php.ini
+
 # Install Mysql
 RUN DEBIAN_FRONTEND=noninteractive apt-get -yq install mysql-server
 RUN mkdir -p /var/run/mysqld

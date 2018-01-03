@@ -12,6 +12,12 @@ libapache2-mod-php \
 php-json \
 php-mysql
 
+# Installer l'extension YAML pour PHP
+RUN apt-get install libyaml-dev
+RUN apt-get install php7.0-dev
+RUN pecl install yaml
+RUN echo "extension=yaml.so" >> /etc/php/7.0/apache2/php.ini
+
 RUN mkdir /home/graf
 ADD model/views /home/graf
 RUN rm /var/www/html/index.html
