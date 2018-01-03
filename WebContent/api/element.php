@@ -8,6 +8,8 @@ if (isset($_GET["category_name"])){
     $items = $dao->getItemsByCategory($_GET["category_name"]);
 } else if (isset($_GET["class_id"])){
     $items = $dao->getItemsByClassId($_GET["class_id"]);
+} else if (isset($_GET["domain_id"])){
+    $items = $dao->getItemsByDomainId($_GET["domain_id"]);
 } else if (isset($_GET["id"])){
     $items = array();
     $item = $dao->getItemById($_GET["id"]);
