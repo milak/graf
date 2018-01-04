@@ -1,3 +1,6 @@
+/**
+ * Script contenant toutes les fonctions liées aux processus
+ */
 var currentProcessId;
 function displayProcess(processId){
 	hideToolBox();
@@ -5,11 +8,28 @@ function displayProcess(processId){
 	$("#process_toolbox").show();
 	if (processId == null){
 		clearFrame();
+		$("#script_editor_form_text").val("");
 		$("#process_create_step_button").button("disable");
+		$("#process_edit_button").button("disable");
 	} else {
 		changeImage("views/view_process.php?id="+processId);
 		$("#process_create_step_button").button("enable");
+		$("#process_edit_button").button("enable");
+		loadProcessScript(processId);
 	}
+}
+function loadProcessScript(processId){
+	$.ajax({
+		type : "GET",
+		url  : "api/process.php?asXML=true&id="+processId,
+		dataType : "text",
+		success : function (data){
+			$("#process_script_editor_form_text").val(data);
+		}
+	});
+}
+function editProcessScript(){
+	$("#process_script_editor_form").dialog({"modal":false,"title":"Edition du processus","minWidth":500,"minHeight":500});
 }
 function createProcess(domainId){
 	if ((domainId == null) || (domainId == "null")){

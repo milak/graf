@@ -46,7 +46,8 @@ require("dao/dao.php");
 <div style="width:90%;height:100%;float:right">
 	<table style="width:100%;height:100%;border:0px;border-collapse:collapse">
 	<tbody>
-		<tr><td>
+		<tr>
+		<td>
 		<div id="default_toolbox" style="width:100%">
 		</div>
 		<div id="strategic_toolbox" style="width:100%;display:none" class="controlgroup">
@@ -69,10 +70,12 @@ require("dao/dao.php");
 			<button id="logic_create_software_button" 	title="Importer un logiciel"			onclick="createComponent('software')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> logiciel</button>
 			<button id="logic_create_service_button" 	title="Importer un service"				onclick="createComponent('service')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> service</button>
 			<button id="logic_create_instance_button" 	title="Créer une instance de ce service" onclick="createSolutionInstance()" 		disabled="true"><img style="height:14px" src="images/78.png"/> instance</button>
+			<button id="logic_edit_button" 				onclick="editSolutionScript()" disabled="true"><img style="height:14px" src="images/63.png"/> editer</button>
 		</div>
 		<div id="process_toolbox" style="width:100%;display:none" class="controlgroup">
-			<button id="process_search_process_button" onclick='searchProcess()'><img style="height:14px" src="images/65.png"/> chercher un processus</button>
-			<button id="process_create_step_button" onclick="createProcessStep()" disabled="true"><img style="height:14px" src="images/78.png"/> étape</button>
+			<button id="process_search_process_button" 	onclick='searchProcess()'><img style="height:14px" src="images/65.png"/> chercher un processus</button>
+			<button id="process_create_step_button" 	onclick="createProcessStep()" disabled="true"><img style="height:14px" src="images/78.png"/> étape</button>
+			<button id="process_edit_button" 			onclick="editProcessScript()" disabled="true"><img style="height:14px" src="images/63.png"/> editer</button>
 		</div>
 		<div id="business_toolbox" style="width:100%;display:none" class="controlgroup">
 			<button id="business_search_domain_button" 	onclick='$("#search_domain_form").dialog({"modal":true,"title":"Chercher un domain","minWidth":500})'><img style="height:14px" src="images/65.png"/> chercher un domaine</button>
@@ -101,40 +104,33 @@ require("dao/dao.php");
       <input id="horizontal-spinner" class="ui-spinner-input">
       <button>Book Now!</button-->
 		</div>
-	</td></tr>
-	<tr style="height:100%"><td>
+	</td>
+	</tr>
+	<tr style="height:100%">
+	<td>
 		<svg id="frame" style="width:100%;height:100%"></svg>
-		<!--object id="frame" type="image/svg+xml" data="" onload="onFrameLoad()" style="width:100%;height:100%"></object-->
-		
-		<!--img id="frame" src="" style="width:100%;height:100%"-->
-		<!--iframe id="frame" style="width:100%;height:100%" scrolling="yes"></iframe-->
-	<!--img id="frame" src="views/view_process.php?id=1" style="width:100%;height:100%"/-->
-	
-	
-	
-<script type="text/javascript">
-$(function() {
-  /*panZoomInstance = svgPanZoom('#frame', {
-    zoomEnabled: true,
-    controlIconsEnabled: true,
-    fit: true,
-    center: true,
-    minZoom: 0.1
-  });*/
-  
-  // zoom out
-  //panZoomInstance.zoom(0.2)
-
-  /*$("#move").on("click", function() {
-    // Pan by any values from -80 to 80
-    panZoomInstance.panBy({x: Math.round(Math.random() * 160 - 80), y: Math.round(Math.random() * 160 - 80)})
-  });*/
-})
-</script>
-
-	</td></tr>
+	</td>
+	</tr>
 	</tbody>
 	</table>
+</div>
+<div id="process_script_editor_form" style="display:none">
+	<div style="position: absolute; top: 5px;      bottom: 45px;      left: 0;      right: 0;">
+		<textarea id="process_script_editor_form_text" style="border:4px groove black;width:100%;height:100%;resize: none;"></textarea>
+	</div>
+	<div style="position: absolute; bottom: 0px;      left: 0;      right: 0;">
+		<button>Enregistrer</button>
+		<button onclick="loadProcessScript(currentProcessId)">Annuler les changements</button>
+	</div>
+</div>
+<div id="solution_script_editor_form" style="display:none;width: 100%;height: 100%">
+	<div style="position: absolute; top: 5px;      bottom: 45px;      left: 0;      right: 0;">
+		<textarea id="solution_script_editor_form_text" style="border:4px groove black;width:100%;height:100%;resize: none;"></textarea>
+	</div>
+	<div style="position: absolute; bottom: 0px;      left: 0;      right: 0;">
+		<button>Enregistrer</button>
+		<button onclick="loadSolutionScript(currentSolutionId)">Annuler les changements</button>
+	</div>
 </div>
 <div id="frameMenu" style="display:none;z-index:1000;right:0px;position: absolute;"><button><img style="height:14px" src="images/82.png"/></button><button><img style="height:14px" src="images/83.png"/></button></div>
 <div id="popup" style="display:none">

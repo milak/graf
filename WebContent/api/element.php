@@ -3,22 +3,28 @@ require("../dao/dao.php");
 $dao->connect();
 /** METHOD GET **/
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-header("Content-Type: application/json");
-if (isset($_GET["category_name"])){
-    $items = $dao->getItemsByCategory($_GET["category_name"]);
-} else if (isset($_GET["class_id"])){
-    $items = $dao->getItemsByClassId($_GET["class_id"]);
-} else if (isset($_GET["domain_id"])){
-    $items = $dao->getItemsByDomainId($_GET["domain_id"]);
-} else if (isset($_GET["id"])){
-    $items = array();
-    $item = $dao->getItemById($_GET["id"]);
-    if ($item != null) {
-        $items[] = $item;
+    header("Content-Type: application/json");
+    if (isset($_GET["category_name"])){
+        $items = $dao->getItemsByCategory($_GET["category_name"]);
+    } else if (isset($_GET["class_id"])){
+        $items = $dao->getItemsByClassId($_GET["class_id"]);
+    } else if (isset($_GET["domain_id"])){
+        $items = $dao->getItemsByDomainId($_GET["domain_id"]);
+    } else if (isset($_GET["id"])){
+        if (isset($_GET["structure"])){
+            $structure = $dao->getItemStructure($_GET["id"]);
+            echo $structure;
+            return;
+        } else {    
+            $items = array();
+            $item = $dao->getItemById($_GET["id"]);
+            if ($item != null) {
+                $items[] = $item;
+            }
+        }
+    } else {
+        $items = $dao->getItems();
     }
-} else {
-    $items = $dao->getItems();
-}
 ?>
 { "elements" : [
 <?php

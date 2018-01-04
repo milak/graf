@@ -22,6 +22,7 @@ function displaySolution(solutionId){
 		$("#logic_create_service_button").button("disable");
 		$("#logic_create_data_button").button("disable");
 		$("#logic_create_instance_button").button("disable");
+		$("#logic_edit_button").button("disable");
 		currentSolutionId = null;
 	} else {
 		changeImage("views/view_logique.php?id="+solutionId);
@@ -30,8 +31,20 @@ function displaySolution(solutionId){
 		$("#logic_create_service_button").button("enable");
 		$("#logic_create_data_button").button("enable");
 		$("#logic_create_instance_button").button("enable");
+		$("#logic_edit_button").button("enable");
 		currentSolutionId = solutionId;
+		loadSolutionScript(solutionId);
 	}
+}
+function loadSolutionScript(solutionId){
+	$.ajax({
+		type : "GET",
+		url  : "api/element.php?structure=true&id="+solutionId,
+		dataType : "text",
+		success : function (data){
+			$("#solution_script_editor_form_text").val(data);
+		}
+	});
 }
 function searchSolution(){
 	var selectedSolution = $("#search_solution_form_list").val();
@@ -53,4 +66,8 @@ function showSolutionContext(id){
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
+}
+function editSolutionScript(){
+	$("#solution_script_editor_form").dialog({"modal":false,"title":"Edition de la solution","minWidth":500,"minHeight":500});
+	$("#solution_script_editor_form").dialog("update");
 }

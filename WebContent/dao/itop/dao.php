@@ -200,20 +200,6 @@ class ITopDao implements IDAO {
         }
         return $result;
     }
-    public function getBusinessProcessStructure($id){
-        $response = $this->getObjects('BusinessProcess','documents_list',"WHERE id = $id");
-        $content = null;
-        foreach ($response->objects as $object){
-            foreach ($object->fields->documents_list as $document){
-                $document_id = $document->document_id;
-                $content = $this->getDocumentContent($document_id);
-                break;
-            }
-            break;
-        }
-        // Virer tous les caractères et tags qu'a ajouté ITOP...
-        return new Process($this->cleanContent($content));
-    }
     public function createBusinessProcess($name,$description,$domain_id){
         error_log("Création d'un BusinessProcess : ".$name);
         $process = new Process();
@@ -420,7 +406,6 @@ class ITopDao implements IDAO {
                 $class = "UNDEFINED";
             }
             $response = $this->getObjects('FunctionalCI','id, name',"WHERE organization_name = '$this->organisation'");
-            $result = array();
             foreach ($response->objects as $object){
                 $rowclass = $object->class;
                 if ($category == "*"){
@@ -485,6 +470,26 @@ class ITopDao implements IDAO {
         }
         return $result;
     }
+    public function getItemStructure($itemId){
+        $response = $this->getObjects('FunctionalCI','documents_list',"WHERE id = $itemId");
+        $content = null;
+        foreach ($response->objects as $object){
+            // TODO ne pas forcément prendre le premier document venu
+            foreach ($object->fields->documents_list as $document){
+                $document_id = $document->document_id;
+                $content = $this->getDocumentContent($document_id);
+                break;
+            }
+            break;
+        }
+        if ($content == null){
+            return null;
+        } else {
+            // Virer tous les caractères et tags qu'a ajouté ITOP...
+            return $this->cleanContent($content);
+        }
+    }
+    
     public function getItemsByServiceId($serviceId){
         $result = array();
         // Récupérer la liste des itemsId
@@ -568,24 +573,6 @@ class ITopDao implements IDAO {
         }
         // Supprimer la solution
         $this->deleteObject('ApplicationSolution', $id);
-    }
-    public function getSolutionStructure($itemID){
-        $response = $this->getObjects('ApplicationSolution','documents_list',"WHERE id = $itemID");
-        $content = null;
-        foreach ($response->objects as $object){
-            foreach ($object->fields->documents_list as $document){
-                $document_id = $document->document_id;
-                $content = $this->getDocumentContent($document_id);
-                break;
-            }
-            break;
-        }
-        if ($content == null){
-            return new Schema($content);
-        } else {
-            // Virer tous les caractères et tags qu'a ajouté ITOP...
-            return new Schema($this->cleanContent($content));
-        }
     }
     public function getSolutionItems($itemID){
 	   $response = $this->getObjects('ApplicationSolution','id, name, functionalcis_list',"WHERE id = $itemID");

@@ -1,5 +1,13 @@
 var panZoomInstance = null;
 function changeImage(url){
+	try{
+		$("#process_script_editor_form").dialog("close");
+	} catch(e){} // ignorer les erreurs de non initialisation de la fenetre
+	
+	try{
+		$("#solution_script_editor_form").dialog("close");
+	} catch(e){} // ignorer les erreurs de non initialisation de la fenetre
+
 	if (panZoomInstance != null){
 		panZoomInstance.destroy();
 		panZoomInstance = null;

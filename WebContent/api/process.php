@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($_GET["id"])){
         if (isset($_GET["asXML"])){
             header("Content-Type: text/xml");
-            $xml = $dao->getBusinessProcessStructureAsXML($_GET["id"]);
+            $xml = $dao->getItemStructure($_GET["id"]);
             echo $xml;
             return;
         } else {
