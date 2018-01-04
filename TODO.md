@@ -9,10 +9,11 @@
 
 ## Views
 	- implement technical view
+	- parse Solution description with Tosca format
 	- add physical view with CTIO, sites, cubes and hardware
  
 ## ITOP plugin
-	- parse Solution description
+	- Add all needed functions
 
 ## DB plugin
 	- full refactor of the BD and plugin
