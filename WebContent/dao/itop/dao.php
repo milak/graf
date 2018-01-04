@@ -470,17 +470,24 @@ class ITopDao implements IDAO {
         }
         return $result;
     }
-    public function getItemStructure($itemId){
+    private function getItemDocumentId($itemId){
         $response = $this->getObjects('FunctionalCI','documents_list',"WHERE id = $itemId");
-        $content = null;
+        $document_id = null;
         foreach ($response->objects as $object){
             // TODO ne pas forcément prendre le premier document venu
             foreach ($object->fields->documents_list as $document){
                 $document_id = $document->document_id;
-                $content = $this->getDocumentContent($document_id);
                 break;
             }
             break;
+        }
+        return $document_id;
+    }
+    public function getItemStructure($itemId){
+        $document_id = $this->getItemDocumentId($itemId);
+        $content = null;
+        if ($document_id != null){
+            $content = $this->getDocumentContent($document_id);
         }
         if ($content == null){
             return null;
@@ -489,7 +496,22 @@ class ITopDao implements IDAO {
             return $this->cleanContent($content);
         }
     }
-    
+    public function updateItemStructure($itemId,$type,$newContent){
+        // Vérifier si on a déjà une structure pour cet item
+        $document_id = $this->getItemDocumentId($itemId);
+        if ($document_id == null){
+            $document_id = $this->createDocument($name, $type, $newContent);
+            $businessProcessId = $this->updateObject("FunctionalCI", $itemId, array(
+                'documents_list'    => array(array("document_id" => $documentid))
+            ));
+        } else {
+            error_log("Mise à jour du document : ".$newContent);
+            error_log("Mise à jour du document : ".htmlspecialchars($newContent));
+            $this->updateObject("DocumentNote", $document_id, array(
+                'text'              => htmlspecialchars($newContent)
+            ));
+        }
+    }
     public function getItemsByServiceId($serviceId){
         $result = array();
         // Récupérer la liste des itemsId
@@ -645,6 +667,17 @@ class ITopDao implements IDAO {
             break;
         }
         return $id;
+    }
+    private function updateObject($object,$id,$fields){
+        $jsonData = json_encode(array(
+            'operation' => 'core/update',
+            'comment' => 'Update of object',
+            'class' => $object,
+            'key' => 'SELECT '.$object.' WHERE id='.$id,
+            'output_fields' => 'id',
+            'fields' => $fields
+        ));
+        return $this->call($jsonData);
     }
     private function getObjects($object,$fields,$key = ""){
         $clause = "SELECT ".$object;

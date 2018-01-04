@@ -1,13 +1,5 @@
 var panZoomInstance = null;
 function changeImage(url){
-	try{
-		$("#process_script_editor_form").dialog("close");
-	} catch(e){} // ignorer les erreurs de non initialisation de la fenetre
-	
-	try{
-		$("#solution_script_editor_form").dialog("close");
-	} catch(e){} // ignorer les erreurs de non initialisation de la fenetre
-
 	if (panZoomInstance != null){
 		panZoomInstance.destroy();
 		panZoomInstance = null;
@@ -38,6 +30,12 @@ function hideToolBox(){
 	$("#technic_toolbox"  ).hide();
 	$("#views_toolbox"    ).hide();
 	$("#service_toolbox"  ).hide();
+	try{
+		$("#process_script_editor_form").dialog("close");
+	} catch(e){} // ignorer les erreurs de non initialisation de la fenetre
+	try{
+		$("#solution_script_editor_form").dialog("close");
+	} catch(e){} // ignorer les erreurs de non initialisation de la fenetre
 }
 function clearFrame(){
 	changeImage(null);

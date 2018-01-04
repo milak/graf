@@ -1,13 +1,14 @@
 <?php
-$filter_id = "";
 if (isset($_GET["id"])){
     $id = $_GET["id"];
 } else {
     die("Missing id argument");
 }
 require("../dao/dao.php");
+require("util.php");
 $dao->connect();
-$steps = $dao->getBusinessProcessStructure($id)->elements;
+$process = $dao->getItemById($id);
+$steps = (new Process($dao->getItemStructure($id)))->elements;
 require("../svg/header.php");
 require("../svg/body.php");
 
@@ -17,7 +18,7 @@ $areas = array();
 $area = new stdClass();
 $area->id        = 0;
 // TODO retrouver le nom du process
-$area->name     	= "Process ".$filter_id;
+$area->name     	= "Processus ".$process->name;
 $area->code      = "";
 $area->parent_id = null;
 $area->display   = "horizontal";

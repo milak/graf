@@ -153,6 +153,10 @@ class Process extends Parseable {
  * Permet de parser un Schéma (dans un format BPMN-like pour le moment) pour l'afficher dans une vue
  *
  */
+function parseTOSCA($content){
+    
+}
+
 //const DEFAULT_SCHEMA_CONTENT = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;/bpmn:definitions&gt;';
 const DEFAULT_SCHEMA_CONTENT = '<bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"></bpmn:definitions>';
 class Schema extends Parseable {

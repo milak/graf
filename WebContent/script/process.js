@@ -3,9 +3,11 @@
  */
 var currentProcessId;
 function displayProcess(processId){
-	hideToolBox();
+	if ($("#process_toolbox").is(":hidden")){
+		hideToolBox();
+		$("#process_toolbox").show();
+	}
 	currentProcessId = processId;
-	$("#process_toolbox").show();
 	if (processId == null){
 		clearFrame();
 		$("#script_editor_form_text").val("");
@@ -21,11 +23,29 @@ function displayProcess(processId){
 function loadProcessScript(processId){
 	$.ajax({
 		type : "GET",
-		url  : "api/process.php?asXML=true&id="+processId,
+		url  : "api/element.php?structure=true&id="+processId,
 		dataType : "text",
 		success : function (data){
 			$("#process_script_editor_form_text").val(data);
 		}
+	});
+}
+function saveProcessScript(processId){
+	var script = $("#process_script_editor_form_text").val();
+	$.ajax({
+		type 	: "POST",
+		url 	: "api/element.php",
+		data	: {
+			"id"		: processId,
+			"structure"	: script
+		},
+		dataType: "text",
+		success	: function( data ) {
+			//$("#process_script_editor_form").dialog("close");
+			displayProcess(processId);
+		}
+	}).fail(function(jxqr,textStatus,error){
+		alert(textStatus+" : "+error);
 	});
 }
 function editProcessScript(){

@@ -119,8 +119,8 @@ require("dao/dao.php");
 		<textarea id="process_script_editor_form_text" style="border:4px groove black;width:100%;height:100%;resize: none;"></textarea>
 	</div>
 	<div style="position: absolute; bottom: 0px;      left: 0;      right: 0;">
-		<button>Enregistrer</button>
-		<button onclick="loadProcessScript(currentProcessId)">Annuler les changements</button>
+		<button onclick="saveProcessScript(currentProcessId)"><img style="height:14px" src="images/78.png"/> enregistrer</button>
+		<button onclick="loadProcessScript(currentProcessId)"><img style="height:14px" src="images/33.png"/> annuler les changements</button>
 	</div>
 </div>
 <div id="solution_script_editor_form" style="display:none;width: 100%;height: 100%">
@@ -128,8 +128,8 @@ require("dao/dao.php");
 		<textarea id="solution_script_editor_form_text" style="border:4px groove black;width:100%;height:100%;resize: none;"></textarea>
 	</div>
 	<div style="position: absolute; bottom: 0px;      left: 0;      right: 0;">
-		<button>Enregistrer</button>
-		<button onclick="loadSolutionScript(currentSolutionId)">Annuler les changements</button>
+		<button onclick="saveSolutionScript(currentSolutionId)"><img style="height:14px" src="images/78.png"/> enregistrer</button>
+		<button onclick="loadSolutionScript(currentSolutionId)"><img style="height:14px" src="images/33.png"/> annuler les changements</button>
 	</div>
 </div>
 <div id="frameMenu" style="display:none;z-index:1000;right:0px;position: absolute;"><button><img style="height:14px" src="images/82.png"/></button><button><img style="height:14px" src="images/83.png"/></button></div>

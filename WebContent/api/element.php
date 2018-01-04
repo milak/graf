@@ -45,27 +45,42 @@ foreach ($items as $item){
 ]}<?php
 /** METHOD POST **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-	if (!isset($_POST["name"])){
-		die("Missing name argument");
-	}
-	$name = $db->real_escape_string($_POST["name"]);
-	if (!isset($_POST["class_id"])){
-		die("Missing class_id argument");
-	}
-	$class_id = intval($_POST["class_id"]);
-	if (!isset($_POST["domain_id"])){
-$sql = <<<SQL
+    if (isset($_POST["id"])){
+        // Update
+        $id = $_POST["id"];
+        if (isset($_POST["structure"])){
+            // Structure update only
+            $dao->updateItemStructure($id,"BPMN",$_POST["structure"]);
+        } else {
+            // Element update
+            
+        }
+    } else {
+        // Insert
+        if (!isset($_POST["name"])){
+            die("Missing name argument");
+        }
+        $name = $db->real_escape_string($_POST["name"]);
+        if (!isset($_POST["class_id"])){
+            die("Missing class_id argument");
+        }
+        $class_id = intval($_POST["class_id"]);
+        if (!isset($_POST["domain_id"])){
+            $sql = <<<SQL
     insert into element (name,element_class_id) values ('$name',$class_id)
 SQL;
-	} else {
-		$domain_id = intval($_POST["domain_id"]);
-$sql = <<<SQL
+        } else {
+            $domain_id = intval($_POST["domain_id"]);
+            $sql = <<<SQL
     insert into element (name,domain_id,element_class_id) values ('$name',$domain_id,$class_id)
 SQL;
-	}
-	if(!$result = $db->query($sql)){
-    	die('There was an error running the query [' . $db->error . ']');
-	}
+        }
+        if(!$result = $db->query($sql)){
+            die('There was an error running the query [' . $db->error . ']');
+        }
+    }
+    
+	
 /** METHOD DELETE **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 	if (!isset($_GET["id"])){

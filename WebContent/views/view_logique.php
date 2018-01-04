@@ -1,26 +1,39 @@
 <?php
 require("../svg/header.php");
 require("../dao/dao.php");
-$dao->connect();
-$areas = $dao->getViewByName("logical");
-$rootarea = $areas["root"];
-$instancearea = $areas["instance"];
-$defaultarea = $areas["default"];
 require("../svg/body.php");
+require("util.php");
 if (isset($_GET["id"])){
     $itemId = $_GET["id"];
 } else {
     displayErrorAndDie("Missing id argument");
 }
+$dao->connect();
+$areas = $dao->getViewByName("logical");
+$rootarea       = $areas["root"];
+if (isset($areas["instance"])){
+    $instancearea = $areas["instance"];
+} else {
+    $instancearea = null;
+}
+if (isset($areas["default"])){
+    $defaultarea  = $areas["default"];
+} else {
+    $defaultarea  = null;
+}
 // Afficher la description de la solution
-$structure = $dao->getSolutionStructure($itemId);
+$structure = (new Schema($dao->getItemStructure($itemId)))->elements;
 foreach ($structure as $element){
     $obj = new stdClass();
     $obj->id 		= $element->id;
     $obj->name 		= $element->name;
     $obj->class 	= "rect_100_100";
     $obj->links 	= array();
-    $obj->type 		= "instance";
+    if ($element->category = "actor"){
+        $obj->type 		= "actor";
+    } else {
+        $obj->type 		= "item";
+    }
     if ($defaultarea != null){
         $defaultarea->addElement($obj);
     }
