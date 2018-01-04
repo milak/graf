@@ -52,24 +52,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // On vérifie que l'on a les vues disponibles
         $viewsRoot = "/home/graf/views";
         if (file_exists($viewsRoot)){
-            error_log("Vérification de la présence des vues");
+//            error_log("Vérification de la présence des vues");
             $views = scandir($viewsRoot);
             foreach ($views as $viewFileName){
                 if ($viewFileName{0} == '.'){
                     continue;
                 }
-                error_log('Fichier '.$viewFileName);
                 $viewName = preg_replace('/\\.[^.\\s]{3,4}$/', '', $viewFileName);
                 error_log('Vue '.$viewName);
                 $view = $dao->getViewByName($viewName);
                 if ($view == null) {
-                    error_log('La vue n\'existe pas');
+                    error_log("Création de la vue $viewName manquante");
                     $dao->createDocument($viewName,"Template",file_get_contents($viewsRoot."/".$viewFileName));
                 }
             }
             
         }
-        
         $message = 'Mise à jour effectuée <a href="../../index.php" target="top">retour à GRAF</a>';
     }
 }
