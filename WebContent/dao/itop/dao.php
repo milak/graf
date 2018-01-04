@@ -260,6 +260,9 @@ class ITopDao implements IDAO {
             $text  = $object->fields->text;
             break;
         }
+        if ($text == null){
+            return null;
+        }
         $text = $this->cleanContent($text);
         $view = json_decode($text, JSON_UNESCAPED_UNICODE);
         $areas = parseViewToArray($view);
@@ -637,7 +640,7 @@ class ITopDao implements IDAO {
         }
         return $result;
     }
-    private function createDocument($name,$type,$content){
+    public function createDocument($name,$type,$content){
         // Créer le contenu
         $documentid = $this->createObject('DocumentNote', array(
             'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",

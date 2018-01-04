@@ -7,8 +7,9 @@
 </head>
 <body>
 <?php
-require("dao.php");
 require("../daoutil.php");
+require("dao.php");
+$configuration = loadConfiguration();
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (($configuration != null) && (isset($configuration->db))){
         $login      = $configuration->db->login;

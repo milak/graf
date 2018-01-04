@@ -7,8 +7,9 @@
 </head>
 <body>
 <?php
-require("dao.php");
 require("../daoutil.php");
+require("dao.php");
+$configuration = loadConfiguration();
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (($configuration != null) && (isset($configuration->itop))){
         $login      = $configuration->itop->login;
@@ -47,6 +48,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $message = "Echec : ".$dao->error;
     } else {
         writeConfiguration($configuration);
+        // Tester si le serveur ITOP possède les vues nécessaires
+        // On vérifie que l'on a les vues disponibles
+        $viewsRoot = "/home/graf/views";
+        if (file_exists($viewsRoot)){
+            error_log("Vérification de la présence des vues");
+            $views = scandir($viewsRoot);
+            foreach ($views as $viewFileName){
+                if ($viewFileName{0} == '.'){
+                    continue;
+                }
+                error_log('Fichier '.$viewFileName);
+                $viewName = preg_replace('/\\.[^.\\s]{3,4}$/', '', $viewFileName);
+                error_log('Vue '.$viewName);
+                $view = $dao->getViewByName($viewName);
+                if ($view == null) {
+                    error_log('La vue n\'existe pas');
+                    $dao->createDocument($viewName,"Template",file_get_contents($viewsRoot."/".$viewFileName));
+                }
+            }
+            
+        }
+        
         $message = 'Mise à jour effectuée <a href="../../index.php" target="top">retour à GRAF</a>';
     }
 }
