@@ -13,8 +13,10 @@ function refreshSolutionLists(){
 	});
 }
 function displaySolution(solutionId){
-	hideToolBox();
-	$("#logic_toolbox").show();
+	if ($("#logic_toolbox").is(":hidden")){
+		hideToolBox();
+		$("#logic_toolbox").show();
+	}
 	if (solutionId == null){
 		clearFrame();
 		$("#logic_create_software_button").button("disable");
@@ -44,6 +46,23 @@ function loadSolutionScript(solutionId){
 		success : function (data){
 			$("#solution_script_editor_form_text").val(data);
 		}
+	});
+}
+function saveSolutionScript(itemId){
+	var script = $("#solution_script_editor_form_text").val();
+	$.ajax({
+		type 	: "POST",
+		url 	: "api/element.php",
+		data	: {
+			"id"		: itemId,
+			"structure"	: script
+		},
+		dataType: "text",
+		success	: function( data ) {
+			displaySolution(itemId);
+		}
+	}).fail(function(jxqr,textStatus,error){
+		alert(textStatus+" : "+error);
 	});
 }
 function searchSolution(){

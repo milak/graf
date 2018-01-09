@@ -153,8 +153,103 @@ class Process extends Parseable {
  * Permet de parser un Schéma (dans un format BPMN-like pour le moment) pour l'afficher dans une vue
  *
  */
-function parseTOSCA($content){
-    
+function parseTOSCA($text){
+    $parsed = yaml_parse($text,-1);
+    $document = $parsed[0];
+    $links = array();
+    $elements = array();
+    //echo $document["description"]."<br/>";
+    foreach($document["topology_template"]["node_templates"] as $name => $template){
+        $element = new Element();
+        $element->id = $name;
+        $element->name = $name;
+        $element->subElements = array();
+        $nodeType = $template["type"];
+        if (startsWith($nodeType, 'tosca.nodes.')){
+            $nodeType = substr($nodeType, strlen('tosca.nodes.'));
+        }
+        if ($nodeType == "Compute") {
+            $element->type = "server";
+        } else if ($nodeType == "Root") {
+            $element->type = "solution";
+        } else if ($nodeType == "WebServer") {
+            $element->type = "server";
+        } else if ($nodeType == "SoftwareComponent") {
+            $element->type = "software";
+        } else if ($nodeType == "WebApplication") {
+            $element->type = "server";
+        } else if ($nodeType == "DBMS") {
+            $element->type = "data";
+        } else if ($nodeType == "Database") {
+            $element->type = "data";
+        } else if ($nodeType == "ObjectStorage") {
+            $element->type = "data";
+        } else if ($nodeType == "BlockStorage") {
+            $element->type = "data";
+        } else if ($nodeType == "Container.Runtime") {
+            $element->type = "server";
+        } else if ($nodeType == "Container.Application") {
+            $element->type = "software";
+        } else if ($nodeType == "LoadBalancer") {
+            $element->type = "device";
+        } else {
+            $element->type = "inconnu";
+        }
+        if (isset($template["properties"])){
+            foreach($template["properties"] as $propertyName => $property){
+                if (is_array($property)){
+                    /*foreach ($property as $key => $prop){
+                        error_log("Property : $propertyName $key -> $prop");
+                    }*/
+                } else {
+                    if ($propertyName == "id"){
+                        
+                    }
+                    //error_log("Property : $propertyName -> $property");
+                }
+            }
+        }
+        if (isset($template["requirements"])){
+            foreach($template["requirements"] as $requirement){
+                foreach ($requirement as $key => $req){
+                    if (is_array($req)){
+                        foreach ($req as $reqType => $reqValue){
+                            $link = new Link($element->name,$reqValue,$key);
+                            $links[] = $link;
+                            break;
+                        }
+                    } else {
+                        $node = $req;
+                        $link = new Link($element->name,$node,$key);
+                        $links[] = $link;
+                    }
+                }
+            }
+        }
+        $elements[$element->name] = $element;
+    }
+    // Raccrocher les liens
+    foreach($links as $link){
+        $from = $elements[$link->from];
+        $link->from = $from;
+        $to = $elements[$link->to];
+        $link->to = $to;
+        /*if ($link->label == "host"){
+            $link->from->subElements[] = $link->to;
+            $link->to->remove = true; // indiquer qu'il faudra retirer ce noeud
+        } else {*/
+            $link->from->links[] = $link;
+        //}
+    }
+    $result = array();
+    // Retirer tous les sous éléments de la liste
+    foreach ($elements as $element){
+        if (isset($element->remove)){
+            continue;
+        }
+        $result[] = $element;
+    }
+    return $result;
 }
 
 //const DEFAULT_SCHEMA_CONTENT = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;/bpmn:definitions&gt;';

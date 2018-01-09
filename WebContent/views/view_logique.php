@@ -22,20 +22,16 @@ if (isset($areas["default"])){
     $defaultarea  = null;
 }
 // Afficher la description de la solution
-$structure = (new Schema($dao->getItemStructure($itemId)))->elements;
-foreach ($structure as $element){
-    $obj = new stdClass();
-    $obj->id 		= $element->id;
-    $obj->name 		= $element->name;
-    $obj->class 	= "rect_100_100";
-    $obj->links 	= array();
+$elements = parseTOSCA($dao->getItemStructure($itemId));
+foreach ($elements as $element){
+    $element->class 	= "rect_100_100";
     if ($element->category = "actor"){
-        $obj->type 		= "actor";
+        $element->type 		= "actor";
     } else {
-        $obj->type 		= "item";
+        $element->type 		= "item";
     }
     if ($defaultarea != null){
-        $defaultarea->addElement($obj);
+        $defaultarea->addElement($element);
     }
 }
 // Afficher les instances 

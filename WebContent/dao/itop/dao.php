@@ -626,7 +626,7 @@ class ITopDao implements IDAO {
         // Rien à faire
     }
     private function cleanContent($content){
-        $result = str_replace(array("<br>","<p>","</p>","\n","\r"), "", $content);
+        $result = str_replace(array("<br>","<p>","</p>"), "", $content);
         $result = htmlspecialchars_decode(htmlspecialchars_decode($result));
         $result = preg_replace('~\xc2\xa0~', '', $result);
         return $result;

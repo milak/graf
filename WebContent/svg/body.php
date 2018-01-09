@@ -338,6 +338,14 @@ function _drawElement($element){
 		$text = $element->name;
 	}
 	echo "\t<text x='".$x."' y='".($element->y+$element->height+20)."' class='element_label'><title>".$element->name."</title>".$text."</text>\n";
+	if (isset($element->subElements)){
+	    error_log("Subs ");
+	    $delta = 0;
+	    foreach ($element->subElements as $subElement){
+	        echo "\t<text x='".$x."' y='".($element->y+$element->height+20+delta)."' class='element_label'><title>".$subElement->name."</title>".$subElement->name."</text>\n";
+	        $delta++;
+	    }
+	}
 }
 /**
  * Afficher un élément sous forme d'un rectangle
@@ -345,14 +353,25 @@ function _drawElement($element){
 function _drawElementAsRect($element){
 	echo "\t<rect x='".$element->x."' y='".$element->y."' width='".$element->width."' height='".$element->height."' rx='5' ry='5' class='rect_www_hhh' filter='url(#shadow)' onclick='window.parent.svgElementClicked(\"".$element->type."\",\"".$element->id."\")'/>\n";
 	$lines = _splitTextInLines($element->name,ELEMENT_CHAR_WIDTH,CHAR_HEIGHT,$element->width,$element->height);
-	$verticalgap = round(($element->height - (count($lines) * CHAR_HEIGHT)) / (count($lines) + 1));
-	$y = $element->y + CHAR_HEIGHT + $verticalgap;
 	$x = $element->x+2;
-	foreach ($lines as $line){
-		$textwidth = strlen($line) * ELEMENT_CHAR_WIDTH;
-		$x = $element->x + round(($element->width - $textwidth) / 2);
-		echo '<text x="'.$x.'" y="'.($y).'" class="element_label">'.$line.'</text>';
-		$y+=$verticalgap+ CHAR_HEIGHT;
+	if (isset($element->subElements) && count($element->subElements) > 0){
+	    $verticalgap = round(($element->height - (count($element->subElements) * CHAR_HEIGHT)) / (count($lines) + 1));
+	    $y = $element->y + (CHAR_HEIGHT * 2);
+	    echo '<text x="'.$x.'" y="'.($y).'" class="element_label">'.$lines[0].'</text>';
+	    $y+=$verticalgap+ CHAR_HEIGHT;
+	    foreach ($element->subElements as $subElement){
+	        echo '<text x="'.$x.'" y="'.($y).'" fill="blue">'.$subElement->name.'</text>';
+	        $y+=$verticalgap+ CHAR_HEIGHT;
+	    }
+	} else {
+    	$verticalgap = round(($element->height - (count($lines) * CHAR_HEIGHT)) / (count($lines) + 1));
+    	$y = $element->y + CHAR_HEIGHT + $verticalgap;
+    	foreach ($lines as $line){
+    		$textwidth = strlen($line) * ELEMENT_CHAR_WIDTH;
+    		$x = $element->x + round(($element->width - $textwidth) / 2);
+    		echo '<text x="'.$x.'" y="'.($y).'" class="element_label">'.$line.'</text>';
+    		$y+=$verticalgap+ CHAR_HEIGHT;
+    	}
 	}
 }
 /**
