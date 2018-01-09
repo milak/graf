@@ -2,269 +2,287 @@
 // Fonctions liées à l'affichage
 function computeSize($area){
 	// on calcule la taille de chaque sous zone
-	$x = $area->x + AREA_GAP;
 	$area->width = 0;
 	$area->height = 0;
 	// Positionner les sous zones
+	$hasSubAreasToDraw = false;
+	// Il s'agit de vérifier qu'il y aura bien des sous zones à afficher
 	if (count($area->subareas) != 0){
-		$y = $area->y + AREA_GAP;
-		foreach ($area->subareas as $subarea){
-			if (!$subarea->needed) {
-				continue;
-			}
-			$subarea->x = $x;
-			$subarea->y = $y + 10;
-			computeSize($subarea);
-			if ($area->display == "horizontal"){
-				$x = $x + $subarea->width+AREA_GAP;
-				$area->height  = max($area->height,$subarea->height);
-				$area->width += $subarea->width + AREA_GAP;
-			} else if ($area->display == "vertical"){
-				$y = $y + $subarea->height+AREA_GAP;
-				$area->width  = max($area->width,$subarea->width);
-				$area->height += $subarea->height + AREA_GAP;
-			} else {
-			}
-		}
-		// Egaliser la taille des sous zones en largeur ou hauteur selon l'alignement horizontal ou vertical
-		foreach ($area->subareas as $subarea){
-			if ($area->display == "horizontal"){
-				$subarea->height = $area->height;
-			} else if ($area->display == "vertical"){
-				$subarea->width = $area->width;
-			}
-		}
-		// Déterminer exactement la largeur et la hauteur de la zone
-		if ($area->display == "horizontal"){
-			$area->width += AREA_GAP;
-			$area->height += 2 * AREA_GAP + 10;
-		} else if ($area->display == "vertical"){
-			$area->width += 2*AREA_GAP;
-			$area->height += AREA_GAP + 10;
-		}
-		// Les élements contenus ne seront pas affichés, on l'indique dans les logs
-		foreach ($area->elements as $element){
-			error_log($element->name." will not be displayed because this area contains sub areas");
-			$element->x = 0;
-			$element->y = 0;
-			$element->width = 0;
-			$element->height = 0;
-		}
+	    foreach ($area->subareas as $subarea){
+	        if ($subarea->needed) {
+	            $hasSubAreasToDraw = true;
+	            break;
+	        }
+	    }
+	}
+	if ($hasSubAreasToDraw){
+		_computeSubAreasCoords($area);
     // si la zone contient des éléments
 	} else if (count($area->elements) != 0){
-		$y = $area->y + AREA_GAP + 10;
-		// Positionner la taille de chaque element (par défaut ELEMENT_WIDTH et ELEMENT_HEIGHT)
-		foreach ($area->elements as $element){
-		    if (!isset($element->class)){
-		        $class = "rect_100_100";
-		    } else {
-		        $class = $element->class;
-		    }
-			if (!isset($element->width)){
-				if (substr($class, 0, 5) === "rect_"){ // rect_width_height ex : rect_100_100
-					$sizes = explode("_",$class);
-					$element->width = intval($sizes[1]);
-					$element->height = intval($sizes[2]);
-				} else {
-					$element->width = ELEMENT_WIDTH;
-					$element->height = ELEMENT_HEIGHT;
-				}
-			}
-		}
-		// Déterminer s'il faut répartir les éléments par rapport aux liens qu'ils ont entre eux
-		$atleastonelinkfound = false;
-		foreach ($area->elements as $element){
-			if (isset($element->links) && (count($element->links) > 0)){
-				$atleastonelinkfound = true; // TODO que fait-on s'il n'y a pas que des liens depuis l'exterieur ?
-				break;
-			}
-		}
-		$stack = array();
-		// Au moins un lien a été trouvé, on va donc chercher les premier à disposer
-		if ($atleastonelinkfound) {
-			// Ordonner les élements pour prendre en compte les liens s'il y en a
-			// Cherchons les premiers (cad ceux qui n'ont aucun element interieur à la zone qui pointe vers eux)
-			foreach ($area->elements as $element){
-				$canbefirst = true;
-				foreach ($area->elements as $otherelement){
-					if ($otherelement == $element){
-						continue;
-					}
-					if (!isset($otherelement->links)){
-						continue;
-					}
-					foreach($otherelement->links as $link){
-						if ($link->to == $element){
-							$canbefirst = false;
-							break;
-						}
-					}
-					// Au moins un lien vers lui trouvé, on laisse tomber le parcours des autres éléments
-					if (!$canbefirst) {
-						break;
-					}
-				}
-				// Aucun lien trouvé vers lui, c'est un bon candidat
-				if ($canbefirst){
-					$set = new stdClass();
-					$set->element = $element;
-					$set->y = $y; // TODO voir s'il ne faudrait pas incrémenter $y
-					$stack[] = $set;
-				}
-			}
-		}
-		// On a trouvé les premiers, on va calculer les autres elements à partir de ceux-là
-		if (count($stack) != 0){
-			$elementsInArea = array(); // lister tous les éléments qui sont dans la zone pour pouvoir identifier ceux qu'il ne faudra pas positionner s'il y a des liens externes à la zone
-			// On indique que chaque element doit être calculé
-			foreach ($area->elements as $element){
-				$element->allreadyComputed = false;
-				$elementsInArea[$element->id] = $element;
-			}
-			$maxy = 0;
-			$maxx = 0;
-			$waitstack = array();
-			$antiInfiniteLoop = 30;
-			while (count($stack) > 0){
-				$antiInfiniteLoop--;
-				if ($antiInfiniteLoop == 0){	// Indispensable pour le debug
-					displayErrorAndDie("Boucle infinie détectée");
-				}
-				// voir s'il ne faut pas basculer des éléments de la pile dans la pile d'attente pour les afficher plus tard
-				$newStack = array();
-				foreach ($stack as $set){
-					$waited = false;
-					foreach($area->elements as $element){
-						if ($element->allreadyComputed) {
-							continue;
-						}
-						if (isset($element->links)){
-							// Est-ce qu'un autre élément pointe sur cet élément ? Si oui, on le met en attente.
-							foreach($element->links as $link){
-								if ($link->to == $set->element){
-									$waitstack[] = $set;
-									$waited = true;
-									break 2; // sortir de la boucle sur les éléments
-								}
-							}
-						}
-					}
-					// Pas de mise en attente ? On le prend.
-					if ($waited == false){
-						$newStack[] = $set;
-					}
-				}
-				$stack = $newStack;
-				// si écarter les éléments en attente abouttit à tout vider, tant pis, on rebascule un des éléments
-				if (count($stack) == 0){
-					$set = $waitstack[0];
-					unset($waitstack[0]);
-					// TODO indiquer à tous ceux qui pointent dessus et qui ne sont pas calculés qu'il s'agit d'un lien arrière
-					foreach($area->elements as $element){
-						if ($element->allreadyComputed) {
-							continue;
-						}
-						/*TODO : voir comment faire pour traiter ça dans body.php
-						foreach($step->links as $link){
-							if ($link->to == $set->step){
-								$link->backlink = true;
-							}
-						}*/
-					}
-					$stack[] = $set;
-				}
-				$newStack = array();
-				// Pour chaque element dans la pile
-				foreach ($stack as $set){
-					$element = $set->element;
-					if ($element->allreadyComputed) {
-						continue;
-					}
-					$y = max($y,$set->y);
-					$element->x = $x;
-					$element->y = $y;
-					$element->allreadyComputed = true;
-					// On injecte dans la pile tous les elements pointés par l'élément courrant à condition qu'ils soient dans la zone courrante et qu'ils n'aient pas déjà été positionnés
-					foreach ($element->links as $link){
-						$to_element = $link->to;
-						if ((!$to_element->allreadyComputed) && (isset($elementsInArea[$to_element->id]))){
-							$newSet = new stdClass();
-							$newSet->element = $to_element;
-							$newSet->y = $y;
-							$newStack[] = $newSet;
-						}
-					}
-					$y += AREA_GAP + $element->height + 10;// 10 = la hauteur de la légende TODO mettre une constante
-					$maxy = max($maxy,$y);
-				}
-				$stack = $newStack;
-				$x += AREA_GAP + ELEMENT_WIDTH + 100; // 100 = la taille du lien TODO mettre une constante
-				$y = $area->y + AREA_GAP + 10;
-				// On rebascule les éléments en attente dans la pile
-				foreach($waitstack as $set){
-					$stack[] = $set;
-				}
-				$waitstack = array();
-			}
-			$area->width = $x - $area->x;
-			$area->height = $maxy;
-		} else {
-			// disposer les composants via une grille
-			if ($area->display == "grid"){
-				$elementsCount = count($area->elements);
-				$nbRow = 1;
-				$nbCol = $elementsCount;
-				while ($nbCol > ($nbRow + 1)) {
-					$nbRow++;
-					$nbCol = ceil($elementsCount / $nbRow);
-				}
-				$row = 0;
-				$col = 0;
-				foreach ($area->elements as $element){
-					$element->x = $area->x + AREA_GAP + $col * ($element->width + ELEMENT_GAP);
-					$element->y = $area->y + AREA_GAP + 10 + $row * ($element->height + ELEMENT_GAP);
-					if ($row == 0){
-						$area->width  += $element->width + ELEMENT_GAP;
-						$area->height += $element->height + ELEMENT_GAP;
-					}
-					$col++;
-					if ($col >= $nbCol){
-						$col = 0;
-						$row++;
-					}
-				}
-				$area->width  += AREA_GAP * 2;
-				$area->height += AREA_GAP * 2;
-			// Disposer les éléments horizontalement
-			} else if ($area->display == "horizontal"){
-				$maxheight = 0;
-				foreach ($area->elements as $element){
-					$element->x = $x;
-					$element->y = $y;
-					$x = $x + $element->width + ELEMENT_GAP;
-					$area->width += $element->width + ELEMENT_GAP;
-					$maxheight = max($maxheight,$element->height);
-				}
-				$area->width += (AREA_GAP*2);
-				$area->height = $maxheight + (AREA_GAP*2) + 10;
-			// Disposer les elements verticalement
-			} else if ($area->display == "vertical"){
-				$maxwidth = 0;
-				foreach ($area->elements as $element){
-					$element->x = $x;
-					$element->y = $y;
-					$y = $y + $element->height + ELEMENT_GAP;
-					$area->height += $element->height + ELEMENT_GAP;
-					$maxwidth = max($maxwidth,$element->width);
-				}
-				$area->height += AREA_GAP + 20;
-				$area->width = $maxwidth + (AREA_GAP*2);
-			}
-		}
+	    _computeElementsCoords($area);
 	} else { // Ni elements ni sous zones
 		$area->height = (AREA_GAP*2) + 80;
 		$area->width  = (AREA_GAP*2) + 80;
 	}
+}
+function _computeSubAreasCoords($area){
+    $x = $area->x + AREA_GAP;
+    $y = $area->y + AREA_GAP;
+    foreach ($area->subareas as $subarea){
+        if (!$subarea->needed) {
+            continue;
+        }
+        $subarea->x = $x;
+        $subarea->y = $y + 10;
+        computeSize($subarea);
+        if ($area->display == "horizontal"){
+            $x = $x + $subarea->width+AREA_GAP;
+            $area->height  = max($area->height,$subarea->height);
+            $area->width += $subarea->width + AREA_GAP;
+        } else if ($area->display == "vertical"){
+            $y = $y + $subarea->height+AREA_GAP;
+            $area->width  = max($area->width,$subarea->width);
+            $area->height += $subarea->height + AREA_GAP;
+        } else {
+        }
+    }
+    // Egaliser la taille des sous zones en largeur ou hauteur selon l'alignement horizontal ou vertical
+    foreach ($area->subareas as $subarea){
+        if ($area->display == "horizontal"){
+            $subarea->height = $area->height;
+        } else if ($area->display == "vertical"){
+            $subarea->width = $area->width;
+        }
+    }
+    // Déterminer exactement la largeur et la hauteur de la zone
+    if ($area->display == "horizontal"){
+        $area->width += AREA_GAP;
+        $area->height += 2 * AREA_GAP + 10;
+    } else if ($area->display == "vertical"){
+        $area->width += 2*AREA_GAP;
+        $area->height += AREA_GAP + 10;
+    }
+    // Les élements contenus ne seront pas affichés, on l'indique dans les logs
+    foreach ($area->elements as $element){
+        error_log($element->name." will not be displayed because this area contains sub areas");
+        $element->x = 0;
+        $element->y = 0;
+        $element->width = 0;
+        $element->height = 0;
+    }
+}
+function _computeElementsCoords($area){
+    $x = $area->x + AREA_GAP;
+    $y = $area->y + AREA_GAP + 10;
+    // Positionner la taille de chaque element (par défaut ELEMENT_WIDTH et ELEMENT_HEIGHT)
+    foreach ($area->elements as $element){
+        if (!isset($element->class)){
+            $class = "rect_100_100";
+        } else {
+            $class = $element->class;
+        }
+        // Si aucune taille n'est précisée
+        if (!isset($element->width)){
+            if (substr($class, 0, 5) === "rect_"){ // rect_width_height ex : rect_100_100
+                $sizes = explode("_",$class);
+                $element->width = intval($sizes[1]);
+                $element->height = intval($sizes[2]);
+            } else {
+                $element->width = ELEMENT_WIDTH;
+                $element->height = ELEMENT_HEIGHT;
+            }
+        }
+    }
+    // Déterminer s'il faut répartir les éléments par rapport aux liens qu'ils ont entre eux
+    $atleastonelinkfound = false;
+    foreach ($area->elements as $element){
+        if (isset($element->links) && (count($element->links) > 0)){
+            $atleastonelinkfound = true; // TODO que fait-on s'il n'y a pas que des liens depuis l'exterieur ?
+            break;
+        }
+    }
+    $stack = array();
+    // Au moins un lien a été trouvé, on va donc chercher les premiers à disposer
+    if ($atleastonelinkfound) {
+        // Ordonner les élements pour prendre en compte les liens s'il y en a
+        // Cherchons les premiers (cad ceux qui n'ont aucun element interieur à la zone qui pointe vers eux)
+        foreach ($area->elements as $element){
+            $canbefirst = true;
+            foreach ($area->elements as $otherelement){
+                if ($otherelement == $element){
+                    continue;
+                }
+                if (!isset($otherelement->links)){
+                    continue;
+                }
+                foreach($otherelement->links as $link){
+                    if ($link->to == $element){
+                        $canbefirst = false;
+                        break;
+                    }
+                }
+                // Au moins un lien vers lui trouvé, on laisse tomber le parcours des autres éléments
+                if (!$canbefirst) {
+                    break;
+                }
+            }
+            // Aucun lien trouvé vers lui, c'est un bon candidat
+            if ($canbefirst){
+                $set = new stdClass();
+                $set->element = $element;
+                $set->y = $y; // TODO voir s'il ne faudrait pas incrémenter $y
+                $stack[] = $set;
+            }
+        }
+    }
+    // On a trouvé les premiers, on va calculer les autres elements à partir de ceux-là
+    if (count($stack) != 0){
+        $elementsInArea = array(); // lister tous les éléments qui sont dans la zone pour pouvoir identifier ceux qu'il ne faudra pas positionner s'il y a des liens externes à la zone
+        // On indique que chaque element doit être calculé
+        foreach ($area->elements as $element){
+            $element->allreadyComputed = false;
+            $elementsInArea[$element->id] = $element;
+        }
+        $maxy = 0;
+        $maxx = 0;
+        $waitstack = array();
+        $antiInfiniteLoop = 30;
+        while (count($stack) > 0){
+            $antiInfiniteLoop--;
+            if ($antiInfiniteLoop == 0){	// Indispensable pour le debug
+                displayErrorAndDie("Boucle infinie détectée");
+            }
+            // voir s'il ne faut pas basculer des éléments de la pile dans la pile d'attente pour les afficher plus tard
+            $newStack = array();
+            foreach ($stack as $set){
+                $waited = false;
+                foreach($area->elements as $element){
+                    if ($element->allreadyComputed) {
+                        continue;
+                    }
+                    if (isset($element->links)){
+                        // Est-ce qu'un autre élément pointe sur cet élément ? Si oui, on le met en attente.
+                        foreach($element->links as $link){
+                            if ($link->to == $set->element){
+                                $waitstack[] = $set;
+                                $waited = true;
+                                break 2; // sortir de la boucle sur les éléments
+                            }
+                        }
+                    }
+                }
+                // Pas de mise en attente ? On le prend.
+                if ($waited == false){
+                    $newStack[] = $set;
+                }
+            }
+            $stack = $newStack;
+            // si écarter les éléments en attente abouttit à tout vider, tant pis, on rebascule un des éléments
+            if (count($stack) == 0){
+                $set = $waitstack[0];
+                unset($waitstack[0]);
+                // TODO indiquer à tous ceux qui pointent dessus et qui ne sont pas calculés qu'il s'agit d'un lien arrière
+                foreach($area->elements as $element){
+                    if ($element->allreadyComputed) {
+                        continue;
+                    }
+                    /*TODO : voir comment faire pour traiter ça dans body.php
+                     foreach($step->links as $link){
+                     if ($link->to == $set->step){
+                     $link->backlink = true;
+                     }
+                     }*/
+                }
+                $stack[] = $set;
+            }
+            $newStack = array();
+            // Pour chaque element dans la pile
+            foreach ($stack as $set){
+                $element = $set->element;
+                if ($element->allreadyComputed) {
+                    continue;
+                }
+                $y = max($y,$set->y);
+                $element->x = $x;
+                $element->y = $y;
+                $element->allreadyComputed = true;
+                // On injecte dans la pile tous les elements pointés par l'élément courrant à condition qu'ils soient dans la zone courrante et qu'ils n'aient pas déjà été positionnés
+                foreach ($element->links as $link){
+                    $to_element = $link->to;
+                    if ((!$to_element->allreadyComputed) && (isset($elementsInArea[$to_element->id]))){
+                        $newSet = new stdClass();
+                        $newSet->element = $to_element;
+                        $newSet->y = $y;
+                        $newStack[] = $newSet;
+                    }
+                }
+                $y += AREA_GAP + $element->height + 10;// 10 = la hauteur de la légende TODO mettre une constante
+                $maxy = max($maxy,$y);
+            }
+            $stack = $newStack;
+            $x += AREA_GAP + ELEMENT_WIDTH + 100; // 100 = la taille du lien TODO mettre une constante
+            $y = $area->y + AREA_GAP + 10;
+            // On rebascule les éléments en attente dans la pile
+            foreach($waitstack as $set){
+                $stack[] = $set;
+            }
+            $waitstack = array();
+        }
+        $area->width = $x - $area->x;
+        $area->height = $maxy;
+    } else {
+        // disposer les composants via une grille
+        if ($area->display == "grid"){
+            $elementsCount = count($area->elements);
+            $nbRow = 1;
+            $nbCol = $elementsCount;
+            while ($nbCol > ($nbRow + 1)) {
+                $nbRow++;
+                $nbCol = ceil($elementsCount / $nbRow);
+            }
+            $row = 0;
+            $col = 0;
+            foreach ($area->elements as $element){
+                $element->x = $area->x + AREA_GAP + $col * ($element->width + ELEMENT_GAP);
+                $element->y = $area->y + AREA_GAP + 10 + $row * ($element->height + ELEMENT_GAP);
+                if ($row == 0){
+                    $area->width  += $element->width + ELEMENT_GAP;
+                    $area->height += $element->height + ELEMENT_GAP;
+                }
+                $col++;
+                if ($col >= $nbCol){
+                    $col = 0;
+                    $row++;
+                }
+            }
+            $area->width  += AREA_GAP * 2;
+            $area->height += AREA_GAP * 2;
+            // Disposer les éléments horizontalement
+        } else if ($area->display == "horizontal"){
+            $maxheight = 0;
+            foreach ($area->elements as $element){
+                $element->x = $x;
+                $element->y = $y;
+                $x = $x + $element->width + ELEMENT_GAP;
+                $area->width += $element->width + ELEMENT_GAP;
+                $maxheight = max($maxheight,$element->height);
+            }
+            $area->width += (AREA_GAP*2);
+            $area->height = $maxheight + (AREA_GAP*2) + 10;
+            // Disposer les elements verticalement
+        } else if ($area->display == "vertical"){
+            $maxwidth = 0;
+            foreach ($area->elements as $element){
+                $element->x = $x;
+                $element->y = $y;
+                $y = $y + $element->height + ELEMENT_GAP;
+                $area->height += $element->height + ELEMENT_GAP;
+                $maxwidth = max($maxwidth,$element->width);
+            }
+            $area->height += AREA_GAP + 20;
+            $area->width = $maxwidth + (AREA_GAP*2);
+        }
+    }
 }
 // Afficher une zone
 function displayArea($level,$area){

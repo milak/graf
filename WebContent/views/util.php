@@ -196,16 +196,21 @@ function parseTOSCA($text){
             $element->type = "inconnu";
         }
         if (isset($template["properties"])){
-            foreach($template["properties"] as $propertyName => $property){
-                if (is_array($property)){
-                    /*foreach ($property as $key => $prop){
-                        error_log("Property : $propertyName $key -> $prop");
-                    }*/
+            foreach($template["properties"] as $propertyName => $propertyValue){
+                if (is_array($propertyValue)){
+                    foreach ($propertyValue as $key => $prop){
+                        if ($key == "id"){
+                            //TODO voir comment on traite cela ???
+                        } else if ($key == "area") {
+                            $element->area = $prop;
+                        }
+                    }
                 } else {
                     if ($propertyName == "id"){
-                        
+                        //TODO voir comment on traite cela ???
+                    } else if ($propertyName = "area") {
+                        $element->area = $propertyValue;
                     }
-                    //error_log("Property : $propertyName -> $property");
                 }
             }
         }

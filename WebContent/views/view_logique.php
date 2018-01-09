@@ -30,8 +30,17 @@ foreach ($elements as $element){
     } else {
         $element->type 		= "item";
     }
-    if ($defaultarea != null){
-        $defaultarea->addElement($element);
+    if (isset($element->area)){
+        if (isset($areas[$element->area])){
+            $area = $areas[$element->area];
+        } else {
+            $area = $defaultarea;
+        }
+    } else {
+        $area = $defaultarea;
+    }
+    if ($area != null){
+        $area->addElement($element);
     }
 }
 // Afficher les instances 

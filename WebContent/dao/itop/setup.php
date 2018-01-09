@@ -18,9 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $organisation = $configuration->itop->organisation;
         $version    = $configuration->itop->version;
     } else {
-        $login      = "";
+        $login      = "admin";
         $password   = "";
-        $url        = "";
+        $url        = "http://localhost/itop/webservices/rest.php";
         $version    = "1.3";
         $organisation = "";
     }
@@ -52,6 +52,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // On vérifie que l'on a les vues disponibles
         $viewsRoot = "/home/graf/views";
         if (file_exists($viewsRoot)){
+            $serviceFamily = $dao->getObjects("ServiceFamily","id","WHERE name = 'IT Services'");
+            if (count($serviceFamily->objects) == 0){
+                error_log("Création de la famille de services IT Services");
+                $dao->createObject("ServiceFamily",array(
+                    "name" => "IT Services"
+                ));
+            }
+            // On vérifie que l'on a le type Template
+            $templates = $dao->getObjects("DocumentType","id","WHERE name = 'Template'");
+            if (count($templates->objects) == 0){
+                error_log("Création du type de document Template");
+                $dao->createObject("DocumentType",array(
+                    "name" => "Template"
+                ));
+            }
+            $templates = $dao->getObjects("DocumentType","id","WHERE name = 'BPMN'");
+            if (count($templates->objects) == 0){
+                error_log("Création du type de document BPMN");
+                $dao->createObject("DocumentType",array(
+                    "name" => "BPMN"
+                ));
+            }
+            $templates = $dao->getObjects("DocumentType","id","WHERE name = 'TOSCA'");
+            if (count($templates->objects) == 0){
+                error_log("Création du type de document TOSCA");
+                $dao->createObject("DocumentType",array(
+                    "name" => "TOSCA"
+                ));
+            }
 //            error_log("Vérification de la présence des vues");
             $views = scandir($viewsRoot);
             foreach ($views as $viewFileName){

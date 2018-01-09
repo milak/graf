@@ -46,7 +46,8 @@ RUN chmod -R a+w /var/www/html/itop
 RUN rm /tmp/iTop-2.4.0-3585.zip
 # Install graf
 RUN mkdir /home/graf
-ADD model/views /home/graf
+RUN mkdir /home/graf/views
+ADD model/views /home/graf/views
 ADD docker/demo/conf/configuration.json /home/graf
 ADD docker/demo/scripts/run.sh /home/graf
 RUN chmod a+rw /home/graf

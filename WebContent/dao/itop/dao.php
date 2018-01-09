@@ -1,4 +1,5 @@
 <?php
+const DEFAULT_PROCESS_CONTENT = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;bpmn:startEvent name="" id="1"/&gt;&lt;/bpmn:definitions&gt;';
 const DATA_CLASSES = "~DatabaseSchema~";
 const DEVICE_CLASSES = "~NetworkDevice~VirtualDevice~Rack~PhysicalDevice~TelephonyCI~Phone~IPPhone~MobilePhone~ConnectableCI~Printer~DatacenterDevice~TapeLibrary~NAS~SANSwitch~StorageSystem~PC~Enclosure~PowerConnection~PowerSource~PDU~Peripheral~Tablet~VirtualMachine~VirtualHost~Hypervisor~Farm~";
 const PROCESS_CLASSES = "~BusinessProcess~";
@@ -202,9 +203,8 @@ class ITopDao implements IDAO {
     }
     public function createBusinessProcess($name,$description,$domain_id){
         error_log("Création d'un BusinessProcess : ".$name);
-        $process = new Process();
         // Créer le contenu
-        $documentid = $this->createDocument("BPMN document of process ".$name, "BPMN", $process->getXML());
+        $documentid = $this->createDocument("BPMN document of process ".$name, "BPMN", DEFAULT_PROCESS_CONTENT);
         // Créer le BusinessProcess
         $businessProcessId = $this->createObject("BusinessProcess", array(
             'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
@@ -503,9 +503,9 @@ class ITopDao implements IDAO {
         // Vérifier si on a déjà une structure pour cet item
         $document_id = $this->getItemDocumentId($itemId);
         if ($document_id == null){
-            $document_id = $this->createDocument($name, $type, $newContent);
+            $document_id = $this->createDocument("Document for item $itemId", $type, $newContent);
             $businessProcessId = $this->updateObject("FunctionalCI", $itemId, array(
-                'documents_list'    => array(array("document_id" => $documentid))
+                'documents_list'    => array(array("document_id" => $document_id))
             ));
         } else {
             error_log("Mise à jour du document : ".$newContent);
@@ -651,7 +651,7 @@ class ITopDao implements IDAO {
         ));
         return $documentid;
     }
-    private function createObject($object,$fields){
+    public function createObject($object,$fields){
         $jsonData = json_encode(array(
             'operation'     => 'core/create', // operation code
             'comment'       => 'Inserted from GRAF',
@@ -671,7 +671,7 @@ class ITopDao implements IDAO {
         }
         return $id;
     }
-    private function updateObject($object,$id,$fields){
+    public function updateObject($object,$id,$fields){
         $jsonData = json_encode(array(
             'operation' => 'core/update',
             'comment' => 'Update of object',
@@ -682,7 +682,7 @@ class ITopDao implements IDAO {
         ));
         return $this->call($jsonData);
     }
-    private function getObjects($object,$fields,$key = ""){
+    public function getObjects($object,$fields,$key = ""){
         $clause = "SELECT ".$object;
         if ($key != ""){
             $clause .= " ".$key;
