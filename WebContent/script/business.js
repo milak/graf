@@ -39,7 +39,7 @@ function recursiveRefreshStrategicAreaList(area){
 	return html;
 }
 function refreshStrategicAreaList(){
-	$.getJSON( "api/view.php?view=strategique", function(result) {
+	$.getJSON( "api/view.php?view=strategic", function(result) {
 		var areas = result.view.areas;
 		$('#create_domain_form_area').html("");
 		var options = "<option value='null'>~~Choisir une zone~~</option>";
