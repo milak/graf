@@ -71,6 +71,29 @@ function _computeSubAreasCoords($area){
         $element->height = 0;
     }
 }
+function _computeComposedElementSize($element){
+    $x = 0;
+    $y = AREA_GAP + CHAR_HEIGHT; // Passer le titre
+    $maxWidth = $element->width;
+    foreach($element->subElements as $subElement){
+        if (!isset($subElement->width)){
+            $subElement->width = ELEMENT_WIDTH;
+            $subElement->height = ELEMENT_HEIGHT;
+        }
+        $subElement->x = $x;
+        $subElement->y = $y;
+        if (isset($subElement->subElements) && (count($subElement->subElements) > 0)){
+            _computeComposedElementSize($subElement);
+        }
+        $newWidth = $subElement->width;
+        if ($newWidth > $maxWidth){
+            $maxWidth = $newWidth;
+        }
+        $y += $subElement->height;
+    }
+    $element->height = $y;
+    $element->width = $maxWidth;
+}
 function _computeElementsCoords($area){
     $x = $area->x + AREA_GAP;
     $y = $area->y + AREA_GAP + 10;
@@ -91,6 +114,9 @@ function _computeElementsCoords($area){
                 $element->width = ELEMENT_WIDTH;
                 $element->height = ELEMENT_HEIGHT;
             }
+        }
+        if (isset($element->subElements) && (count($element->subElements) > 0)){
+            _computeComposedElementSize($element);
         }
     }
     // Déterminer s'il faut répartir les éléments par rapport aux liens qu'ils ont entre eux
@@ -357,12 +383,12 @@ function _drawElement($element){
 	}
 	echo "\t<text x='".$x."' y='".($element->y+$element->height+20)."' class='element_label'><title>".$element->name."</title>".$text."</text>\n";
 	if (isset($element->subElements)){
-	    error_log("Subs ");
-	    $delta = 0;
+	    error_log("SubElements not supported for elements with class != rect_*_*");
+	/*    $delta = 0;
 	    foreach ($element->subElements as $subElement){
 	        echo "\t<text x='".$x."' y='".($element->y+$element->height+20+delta)."' class='element_label'><title>".$subElement->name."</title>".$subElement->name."</text>\n";
 	        $delta++;
-	    }
+	    }*/
 	}
 }
 /**
@@ -375,11 +401,14 @@ function _drawElementAsRect($element){
 	if (isset($element->subElements) && count($element->subElements) > 0){
 	    $verticalgap = round(($element->height - (count($element->subElements) * CHAR_HEIGHT)) / (count($lines) + 1));
 	    $y = $element->y + (CHAR_HEIGHT * 2);
-	    echo '<text x="'.$x.'" y="'.($y).'" class="element_label">'.$lines[0].'</text>';
-	    $y+=$verticalgap+ CHAR_HEIGHT;
+	    $line = $lines[0];
+	    $textwidth = strlen($line) * ELEMENT_CHAR_WIDTH;
+	    $x = $element->x + round(($element->width - $textwidth) / 2);
+	    echo '<text x="'.$x.'" y="'.($y).'" class="element_label">'.$line.'</text>';
 	    foreach ($element->subElements as $subElement){
-	        echo '<text x="'.$x.'" y="'.($y).'" fill="blue">'.$subElement->name.'</text>';
-	        $y+=$verticalgap+ CHAR_HEIGHT;
+	        $subElement->x = $subElement->x + $element->x;
+	        $subElement->y = $subElement->y + $element->y;
+	        _drawElementAsRect($subElement);
 	    }
 	} else {
     	$verticalgap = round(($element->height - (count($lines) * CHAR_HEIGHT)) / (count($lines) + 1));

@@ -4,7 +4,7 @@ define("ELEMENT_HEIGHT",50);
 define("ELEMENT_WIDTH",100);
 define("AREA_GAP",30);
 define("ELEMENT_GAP",80);
-define("ELEMENT_CHAR_WIDTH",6);
+define("ELEMENT_CHAR_WIDTH",7);
 define("LINK_CHAR_WIDTH",8);
 define("AREA_CHAR_WIDTH",10);
 define("CHAR_HEIGHT",11);

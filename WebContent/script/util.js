@@ -50,6 +50,71 @@ function hidePopup(){
 function svgElementDblClicked(what,id){
 	alert("svgElementDblClicked()");
 }
+function deleteToscaItem(id){
+	if (confirm("Etes-vous sur de vouloir supprimer le noeud "+id)){
+		var tosca = $("#solution_script_editor_form_text").val();
+		tosca = jsyaml.load(tosca);
+		var topology_template = tosca.topology_template;
+		var node_templates = topology_template.node_templates;
+		delete node_templates[id];
+		var text = jsyaml.safeDump(tosca);
+		$("#solution_script_editor_form_text").val(text.trim());
+		saveSolutionScript(currentSolutionId);
+	}
+}
+function showToscaItemContext(toscaItemId){
+	var tosca = $("#solution_script_editor_form_text").val();
+	tosca = jsyaml.load(tosca);
+	var html = "<p>Element</p>";
+	html += "<b>Nom</b> : "+toscaItemId+"<br/><br/>";
+	var topology_template = tosca.topology_template;
+	var node_templates = topology_template.node_templates;
+	var node = node_templates[toscaItemId];
+	html += "<b>Type</b> : " + node.type+"<br/><br/>";
+	var id = null;
+	if (typeof node.properties != 'undefined'){
+		html += "<b>Propriétés : </b>";
+		html += "<ul>";
+		for (var i = 0; i < node.properties.length; i++){
+			$.each(node.properties[i], function(index, value) {
+				if (index == "id"){
+					id = value;
+				}
+				html += "<li>"+index+" = "+value +"</li>";
+			});
+		}
+		html += "</ul>";
+	}
+	/*$.each(node_templates, function(index, value) {
+		html += index+" -> " + value+"<hr/>";
+	});*/ 
+	/*for (var i = 0; i < node_templates.length; i++){
+		html += node_templates[i]+"<hr/>";
+	}*/
+	//html += "Description "+tosca.description;
+	html += "<hr/>";
+	if (id != null){
+		$.getJSON( "api/element.php?id="+id, function(result) {
+			if (result.elements.length != 0){
+				var element = result.elements[0];
+				html += "Class : " + element.class.name + "<br/>";
+				html += "Category : " + element.category.name + "<br/>";
+			}
+			html += "<button onclick='hidePopup();displayServiceInstance("+id+")'><img src='images/63.png'/> ouvrir</button>";
+			html += " <button onclick='hidePopup();deleteToscaItem(\""+toscaItemId+"\")'><img src='images/14.png'/> supprimer</button>";
+			html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
+			showPopup("Détail",html);
+		});
+	} else {
+		html += " <button onclick='hidePopup();deleteToscaItem(\""+toscaItemId+"\")'><img src='images/14.png'/> supprimer</button>";
+		html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
+		showPopup("Détail",html);
+	}
+	// Pour sérialiser
+	// var text = YAML.stringify(tosca);
+	// $("#solution_script_editor_form_text").val(text);
+	//html += " <button onclick='hidePopup();deleteServiceInstance("+id+")'><img src='images/14.png'/> supprimer</button>";
+}
 function svgElementClicked(what,id){
 	if (what == "process"){
 		showProcessContext(id);
@@ -57,6 +122,8 @@ function svgElementClicked(what,id){
 		showDomainContext(id);
 	} else if (what == "step"){
 		showProcessStepContext(id);
+	} else if (what == "tosca_item"){
+		showToscaItemContext(id);
 	} else if (what == "box"){
 		// nothing to do at now
 	} else if (what == "instance"){

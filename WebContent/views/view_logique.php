@@ -25,11 +25,6 @@ if (isset($areas["default"])){
 $elements = parseTOSCA($dao->getItemStructure($itemId));
 foreach ($elements as $element){
     $element->class 	= "rect_100_100";
-    if ($element->category = "actor"){
-        $element->type 		= "actor";
-    } else {
-        $element->type 		= "item";
-    }
     if (isset($element->area)){
         if (isset($areas[$element->area])){
             $area = $areas[$element->area];

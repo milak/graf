@@ -508,8 +508,6 @@ class ITopDao implements IDAO {
                 'documents_list'    => array(array("document_id" => $document_id))
             ));
         } else {
-            error_log("Mise à jour du document : ".$newContent);
-            error_log("Mise à jour du document : ".htmlspecialchars($newContent));
             $this->updateObject("DocumentNote", $document_id, array(
                 'text'              => htmlspecialchars($newContent)
             ));

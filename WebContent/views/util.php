@@ -168,7 +168,7 @@ function parseTOSCA($text){
         if (startsWith($nodeType, 'tosca.nodes.')){
             $nodeType = substr($nodeType, strlen('tosca.nodes.'));
         }
-        if ($nodeType == "Compute") {
+        /*if ($nodeType == "Compute") {
             $element->type = "server";
         } else if ($nodeType == "Root") {
             $element->type = "solution";
@@ -194,7 +194,8 @@ function parseTOSCA($text){
             $element->type = "device";
         } else {
             $element->type = "inconnu";
-        }
+        }*/
+        $element->type = "tosca_item";
         if (isset($template["properties"])){
             foreach($template["properties"] as $propertyName => $propertyValue){
                 if (is_array($propertyValue)){
@@ -239,12 +240,12 @@ function parseTOSCA($text){
         $link->from = $from;
         $to = $elements[$link->to];
         $link->to = $to;
-        /*if ($link->label == "host"){
+        if ($link->label == "host"){
             $link->from->subElements[] = $link->to;
             $link->to->remove = true; // indiquer qu'il faudra retirer ce noeud
-        } else {*/
+        } else {
             $link->from->links[] = $link;
-        //}
+        }
     }
     $result = array();
     // Retirer tous les sous éléments de la liste

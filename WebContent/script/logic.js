@@ -88,5 +88,8 @@ function showSolutionContext(id){
 }
 function editSolutionScript(){
 	$("#solution_script_editor_form").dialog({"modal":false,"title":"Edition de la solution","minWidth":500,"minHeight":500});
-	$("#solution_script_editor_form").dialog("update");
+	try{
+		$("#solution_script_editor_form").dialog("update");
+	}catch(exception){}
+	}
 }
