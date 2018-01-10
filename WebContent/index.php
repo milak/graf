@@ -13,6 +13,7 @@ require("dao/dao.php");
 	<script type="text/javascript" src="lib/jquery/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="lib/jquery/ui/1.12.1/jquery-ui.js"></script>
 	<script type="text/javascript" src="lib/svgtool/svg-pan-zoom.js"></script>
+	<script type="text/javascript" src="lib/nodeca/js-yaml.min.js"></script>
 	<script type="text/javascript" src="script/util.js"></script>
 	<script type="text/javascript" src="script/strategic.js"></script>
 	<script type="text/javascript" src="script/business.js"></script>
@@ -20,6 +21,7 @@ require("dao/dao.php");
 	<script type="text/javascript" src="script/service.js"></script>
 	<script type="text/javascript" src="script/logic.js"></script>
 	<script type="text/javascript" src="script/actor.js"></script>
+	
 	<script type="text/javascript" src="script/view.js"></script>
 	<script>
 		function displayTechnic(){
