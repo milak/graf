@@ -8,9 +8,12 @@
 	- implement data models and support standard formats (DMN ?)
 
 ## Views
-	- implement technical view
-	- parse Solution description with Tosca format
+	- add technical view
+	- add element add/remove feature in BPMN
+	- add element add/remove feature in Tosca
 	- add physical view with CTIO, sites, cubes and hardware
+	- add actor view in businessView
+	- add data model view
  
 ## ITOP plugin
 	- Add all needed functions
