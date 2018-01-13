@@ -1,40 +1,42 @@
 <?php
 require("../dao/dao.php");
 $dao->connect();
-$db = $dao->getDB();
 /** METHOD GET **/
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 header("Content-Type: application/json");
-$sql = <<<SQL
-    SELECT element_class.*, element_category.id as category_id, element_category.name as category_name from element_class
-	INNER JOIN element_category ON element_class.element_category_id 		= element_category.id
-SQL;
-if (isset($_GET["category_name"])){
-	$sql .= " where element_category.name = '".$_GET["category_name"]."'";
-}
-if(!$result = $db->query($sql)){
-    die('There was an error running the query [' . $db->error . ']');
-}
-$sql .= "ORDER BY element_category.name, element_class.name";
+$categories = $dao->getItemCategories();
 ?>
-{ "classes" : [
+{ "categories" : [
 <?php
 $first = true;
-while($row = $result->fetch_assoc()){
+foreach($categories as $category){
 	if ($first != true) {
 		echo ",\n";
 	}?>
 	{
-		"id"    	: <?php echo $row["id"]; ?>,
-		"name" 		: "<?php echo $row["name"]; ?>",
-		"category" 	: { "id" : "<?php echo $row["category_id"]; ?>", "name" : "<?php echo $row["category_name"]; ?>"}
+		"id"    	: "<?php echo $category->id; ?>",
+		"name" 		: "<?php echo $category->name; ?>",
+		"classes" 	: [<?php
+            $firstclass = true;
+            foreach($category->classes as $class){
+                if ($firstclass != true) {
+                    echo ",\n";
+                }?>
+                	{
+                		"id" : "<?php echo $class->id; ?>",
+						"name" : "<?php echo $class->name; ?>"
+                	}
+                <?php
+                $firstclass = false;
+			}
+		?>]
 	}<?php
 	$first = false;
 }?>
 ]}<?php
-$result->free();
 /** METHOD POST **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $db = $dao->getDB();
 	if (!isset($_POST["name"])){
 		die("Missing name argument");
 	}
