@@ -26,29 +26,9 @@ function displayBusiness(domainId){
 		changeImage("views/view_business.php?id="+domainId);
 	}
 }
-function recursiveRefreshStrategicAreaList(area){
-	var html = "";
-	if (area.areas.length == 0){
-		html = '<option value="'+area.id+'">'+area.name+'</option>';
-	} else {
-		for (var i = 0; i < area.areas.length; i++){
-			var subarea = area.areas[i];
-			html += recursiveRefreshStrategicAreaList(subarea);
-		}
-	}
-	return html;
-}
 function refreshStrategicAreaList(){
 	$.getJSON( "api/view.php?view=strategic", function(result) {
-		var areas = result.view.areas;
-		$('#create_domain_form_area').html("");
-		var options = "<option value='null'>~~Choisir une zone~~</option>";
-		for (var i = 0; i < areas.length; i++){
-			var area = areas[i];
-			//options += '<option value="'+area.id+'">'+area.name+'</option>';
-			options += recursiveRefreshStrategicAreaList(area);
-		}
-		$('#create_domain_form_area').append(options);
+		$('#create_domain_form_area').html(buildAreaList(result.view));
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});

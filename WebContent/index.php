@@ -24,6 +24,7 @@ require("dao/dao.php");
 	<script type="text/javascript" src="script/logic.js"></script>
 	<script type="text/javascript" src="script/actor.js"></script>
 	<script type="text/javascript" src="script/view.js"></script>
+	<script type="text/javascript" src="script/item.js"></script>
 	<script>
 		function displayTechnic(){
 			hideToolBox();
@@ -68,10 +69,7 @@ require("dao/dao.php");
 		</div>
 		<div id="logic_toolbox" style="width:100%;display:none" class="controlgroup">
 			<button id="logic_search_solution_button" 	onclick='$("#search_solution_form").dialog({"modal":true,"title":"Chercher une solution","minWidth":500})'><img style="height:14px" src="images/65.png"/> chercher une solution</button>
-			<button id="logic_create_device_button" 	title="Importer un élément" 			onclick="openSearchElementForm()" 	disabled="true"><img style="height:14px" src="images/1633.png"/> élément</button>
-			<button id="logic_create_data_button" 		title="Importer une donnée"				onclick="createComponent('data')" 		disabled="true"><img style="height:14px" src="images/1633.png"/> donnée</button>
-			<button id="logic_create_software_button" 	title="Importer un logiciel"			onclick="createComponent('software')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> logiciel</button>
-			<button id="logic_create_service_button" 	title="Importer un service"				onclick="createComponent('service')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> service</button>
+			<button id="logic_create_device_button" 	title="Importer un élément" 			onclick="openSearchItemForm()" 	disabled="true"><img style="height:14px" src="images/1633.png"/> élément</button>
 			<button id="logic_create_instance_button" 	title="Créer une instance de ce service" onclick="createSolutionInstance()" 		disabled="true"><img style="height:14px" src="images/78.png"/> instance</button>
 			<button id="logic_edit_button" 				onclick="editSolutionScript()" disabled="true"><img style="height:14px" src="images/63.png"/> editer</button>
 		</div>
@@ -135,7 +133,6 @@ require("dao/dao.php");
 		<button onclick="loadSolutionScript(currentSolutionId)"><img style="height:14px" src="images/33.png"/> annuler les changements</button>
 	</div>
 </div>
-<div id="frameMenu" style="display:none;z-index:1000;right:0px;position: absolute;"><button><img style="height:14px" src="images/82.png"/></button><button><img style="height:14px" src="images/83.png"/></button></div>
 <div id="popup" style="display:none">
 </div>
 <form id="update_view_form" style="display:none" class="pure-form pure-form-aligned">
@@ -374,10 +371,8 @@ require("dao/dao.php");
 		</div>
 		</fieldset>
 	</div>
-	
-	
 	<hr/>
-	<button type="button" onclick='hidePopup();displayProcess($("#edit_process_step_form_sub_process_id").val())' style="display:none" id="edit_process_step_form_open_process">
+	<button type="button" onclick='$("#edit_process_step_form").dialog("close");displayProcess($("#edit_process_step_form_sub_process_id").val())' style="display:none" id="edit_process_step_form_open_process">
 		<img style="height:14px" src='images/63.png'/> ouvrir
 	</button>
 	<button type="button" onclick='$("#edit_process_step_form").dialog("close");deleteProcessStep($("#edit_process_step_form_id").val())' style="display:none" id="edit_process_step_form_delete">
@@ -390,35 +385,79 @@ require("dao/dao.php");
 		<img style="height:14px" src="images/33.png"/> annuler
 	</button>
 </form>
-<form id="search_element_form" class="pure-form pure-form-aligned" style="display:none">
+<form id="edit_item_form" class="pure-form pure-form-aligned" style="display:none">
 	<fieldset>
-		<legend>Chercher des éléments</legend>
+		<input type="hidden"		id="edit_item_form_target_id"/>
 		<div class="pure-control-group">
-			<label for="search_element_form_name">Nom</label>
-			<input type="text" 		id="search_element_form_name"/>
+			<label for="edit_item_form_name">Nom</label>
+			<input type="text" 		id="edit_item_form_name"/>
 		</div>
 		<div class="pure-control-group">
-			<label for="search_element_form_category">Catégorie</label>
-			<select id="search_element_form_category" onChange="onSearchElementFormCategoryChange()"></select>
+			<label for="edit_item_form_type">Type</label>
+			<input type="text" id="edit_item_form_type"/>
 		</div>
 		<div class="pure-control-group">
-			<label for="search_element_form_class">Classe</label>
-			<select id="search_element_form_class"></select>
+			<label for="edit_item_form_class">Classe</label>
+			<input type="text" id="edit_item_form_class"/>
 		</div>
-		<button type="button" onClick="onSearchElementFormSearchClick()"><img style="height:14px" src="images/65.png"/> chercher</button>
+		<div class="pure-control-group">
+			<label for="edit_item_form_category">Catégorie</label>
+			<input type="text" id="edit_item_form_category"/>
+		</div>
+		<label>Propriétés :</label><br/><br/>
+		<table class="pure-table" style="width: 100%;left:50px;right:50px">
+			<thead>
+				<tr><th>Clé</th><th>Valeur</th></tr>
+			</thead>
+			<tbody id="edit_item_form_properties"></tbody>
+		</table>
+		<br/>
 	</fieldset>
 	<hr/>
-	<table style="width: 100%" id="search_element_form_result">
+	<button type="button" id="edit_item_form_display_target" onclick='$("#edit_item_form").dialog("close");showToscaTargetItem($("#edit_item_form_target_id").val(),$("#edit_item_form_category").val())' style="display:none"><img src='images/63.png'/> ouvrir</button>
+	<button type="button" onclick='$("#edit_item_form").dialog("close");deleteToscaItem($("#edit_item_form_name").val())'><img src='images/14.png'/> supprimer</button>
+	<button type="button" onclick='$("#edit_item_form").dialog("close");'><img src='images/33.png'/> fermer</button>
+</form>
+<form id="search_item_form" class="pure-form pure-form-aligned" style="display:none">
+	<table style="width: 100%">
+		<tr>
+		<td>
+    		<fieldset>
+        		<legend>Chercher des éléments</legend>
+        		<div class="pure-control-group">
+        			<label for="search_item_form_name">Nom</label>
+        			<input type="text" 		id="search_item_form_name"/>
+        		</div>
+        		<div class="pure-control-group">
+        			<label for="search_item_form_category">Catégorie</label>
+        			<select id="search_item_form_category" onChange="onSearchItemFormCategoryChange()"></select>
+        		</div>
+        		<div class="pure-control-group">
+        			<label for="search_item_form_class">Classe</label>
+        			<select id="search_item_form_class"></select>
+        		</div>
+        		<button type="button" onClick="onSearchItemFormSearchClick()"><img style="height:14px" src="images/65.png"/> chercher</button>
+        	</fieldset>
+		</td>
+		<td>
+			<div class="pure-control-group">
+        		<label for="search_item_form_area">Zone où sera ajouté l'élément</label>
+        		<select id="search_item_form_area"></select>
+        	</div>
+		</td>
+		</tr>
+	</table>
+	<hr/>
+	<table style="width: 100%" id="search_item_form_result">
 		<thead style="width:100%">
 			<tr>
-				<td></td>
-				<td>Element</td>
+				<td>&Eacute;l&eacute;ment</td>
 				<td>Classe</td>
 				<td>Cat&eacute;gorie</td>
 				<td>Action</td>
 			</tr>
 		</thead>
-		<tbody id="search_element_form_result_body" style="width:100%">
+		<tbody>
 		</tbody>
 	</table>
 </form>
@@ -528,6 +567,7 @@ require("dao/dao.php");
 		refreshActorLists();
 		refreshProcessLists();
 		refreshSolutionLists();
+		refreshLogicalAreaList();
 	 });
 </script>
 </body>

@@ -12,6 +12,13 @@ function refreshSolutionLists(){
 		showPopup("Echec","<h1>Impossible de charger les solutions</h1>"+textStatus+ " : " + error);
 	});
 }
+function refreshLogicalAreaList(){
+	$.getJSON( "api/view.php?view=logical", function(result) {
+		$('#search_item_form_area').html(buildAreaList(result.view));
+	}).fail(function(jxqr,textStatus,error) {
+		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+	});
+}
 function displaySolution(solutionId){
 	if ($("#logic_toolbox").is(":hidden")){
 		hideToolBox();

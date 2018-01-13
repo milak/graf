@@ -457,7 +457,7 @@ class ITopDao implements IDAO {
                 $row->class = new stdClass();
                 $row->class->id = 1;
                 $row->class->name = "Team";
-                $row->category = $this->newItemCategory("actor");
+                $row->category = $this->_newItemCategory("actor");
                 $result = $row;
                 break;
             }
