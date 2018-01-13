@@ -348,6 +348,20 @@ SQL;
             die('There was an error running the query [' . $this->db->error . ']');
         }
     }
+    public function getItemCategories(){
+        $sql = <<<SQL
+    SELECT element_class.*, element_category.id as category_id, element_category.name as category_name from element_class
+	INNER JOIN element_category ON element_class.element_category_id 		= element_category.id
+SQL;
+        if (isset($_GET["category_name"])){
+            $sql .= " where element_category.name = '".$_GET["category_name"]."'";
+        }
+        $sql .= "ORDER BY element_category.name, element_class.name";
+        if(!$result = $db->query($sql)){
+            die('There was an error running the query [' . $db->error . ']');
+        }
+        
+    }
     public function getItemsByCategory($category){
         $sql = <<<SQL
     SELECT element.*, element_class.id as class_id, element_class.name as class_name, element_category.id as category_id, element_category.name as category_name  from element
