@@ -139,7 +139,7 @@ interface IDAO {
     public function getItemById($id);
     public function getItemsByServiceId($serviceId);
     public function getItemsByDomainId($domainId,$class="*");
-    
+    public function updateItemDocument($id,$type,$document);
     
     public function disconnect();
 }

@@ -23,7 +23,7 @@ function displayProcess(processId){
 function loadProcessScript(processId){
 	$.ajax({
 		type : "GET",
-		url  : "api/element.php?structure=true&id="+processId,
+		url  : "api/element.php?document=true&type=BPMN&id="+processId,
 		dataType : "text",
 		success : function (data){
 			$("#process_script_editor_form_text").val(data);
@@ -37,7 +37,8 @@ function saveProcessScript(processId){
 		url 	: "api/element.php",
 		data	: {
 			"id"		: processId,
-			"structure"	: script
+			"document"	: script,
+			"type"		: "BPMN"
 		},
 		dataType: "text",
 		success	: function( data ) {

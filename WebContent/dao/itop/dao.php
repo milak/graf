@@ -490,8 +490,8 @@ class ITopDao implements IDAO {
             return $this->cleanContent($content);
         }
     }
-    public function updateItemStructure($itemId,$type,$newContent){
-        // Vérifier si on a déjà une structure pour cet item
+    public function updateItemDocument($itemId,$type,$newContent){
+        // Vérifier si on a déjà un document pour cet item
         $document_id = $this->getItemDocumentId($itemId);
         if ($document_id == null){
             $document_id = $this->createDocument("Document for item $itemId", $type, $newContent);

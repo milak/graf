@@ -139,7 +139,7 @@ SQL;
         $dbresult->free();
         return $result;
     }
-    public function getBusinessProcessStructure($id){
+    public function getBusinessProcessDocument($id){
         // Chercher le étapes
         $sql = <<<SQL
     SELECT process_step.id as step_id, process_step.name as step_name, step_type.name as step_type_name, process_step.sub_process_id
@@ -184,7 +184,7 @@ SQL;
         $result->free();
         return $steps;
     }
-    public function getBusinessProcessStructureAsXML($id){
+    public function getBusinessProcessDocumentAsXML($id){
         return "";
     }
     public function createBusinessProcess($name,$description,$domain_id){

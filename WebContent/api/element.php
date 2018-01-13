@@ -11,8 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     } else if (isset($_GET["domain_id"])){
         $items = $dao->getItemsByDomainId($_GET["domain_id"]);
     } else if (isset($_GET["id"])){
-        if (isset($_GET["structure"])){
-            $document = $dao->getItemDocument($_GET["id"],"*");
+        if (isset($_GET["document"])){
+            if (!isset($_GET["type"])){
+                die("Missing type argument");
+            }
+            $document = $dao->getItemDocument($_GET["id"],$_GET["type"]);
             echo $document;
             return;
         } else {    
@@ -48,9 +51,12 @@ foreach ($items as $item){
     if (isset($_POST["id"])){
         // Update
         $id = $_POST["id"];
-        if (isset($_POST["structure"])){
-            // Structure update only
-            $dao->updateItemStructure($id,"BPMN",$_POST["structure"]);
+        if (isset($_POST["document"])){
+            if (!isset($_POST["type"])){
+                die("Missing type argument");
+            }
+            // Document update only
+            $dao->updateItemDocument($id,$_POST["type"],$_POST["document"]);
         } else {
             // Element update
             

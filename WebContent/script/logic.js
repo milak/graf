@@ -48,7 +48,7 @@ function displaySolution(solutionId){
 function loadSolutionScript(solutionId){
 	$.ajax({
 		type : "GET",
-		url  : "api/element.php?structure=true&id="+solutionId,
+		url  : "api/element.php?document=true&type=TOSCA&id="+solutionId,
 		dataType : "text",
 		success : function (data){
 			$("#solution_script_editor_form_text").val(data);
@@ -62,7 +62,8 @@ function saveSolutionScript(itemId){
 		url 	: "api/element.php",
 		data	: {
 			"id"		: itemId,
-			"structure"	: script
+			"document"	: script,
+			"type"		: "TOSCA"
 		},
 		dataType: "text",
 		success	: function( data ) {
