@@ -91,5 +91,4 @@ function editSolutionScript(){
 	try{
 		$("#solution_script_editor_form").dialog("update");
 	}catch(exception){}
-	}
 }

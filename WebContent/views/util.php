@@ -241,8 +241,8 @@ function parseTOSCA($text){
         $to = $elements[$link->to];
         $link->to = $to;
         if ($link->label == "host"){
-            $link->from->subElements[] = $link->to;
-            $link->to->remove = true; // indiquer qu'il faudra retirer ce noeud
+            $link->to->subElements[] = $link->from;
+            $link->from->remove = true; // indiquer qu'il faudra retirer ce noeud
         } else {
             $link->from->links[] = $link;
         }

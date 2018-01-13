@@ -360,9 +360,24 @@ function displayLinks($areas){
 				//}
 				}
 			}
+			_drawSubLinks($from);
 		}
 		displayLinks($area->subareas);
 	}
+}
+/** Afficher récursivement les liens des sous éléments */
+function _drawSubLinks($element){
+    if (!isset($element->subElements)){
+        return;
+    }
+    foreach ($element->subElements as $from){
+        if (isset($from->links)){
+            foreach ($from->links as $link){
+                _drawLink($from,$link->to,$link->label);
+            }
+        }
+        _drawSubLinks($from);
+    }
 }
 /**
  * Afficher un élément

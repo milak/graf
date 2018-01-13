@@ -134,6 +134,7 @@ interface IDAO {
     public function getItemCategories();
     public function getItemStructure($itemId);
     public function getItemsByCategory($category);
+    public function getItemsByClass($class);
     public function getItems();
     public function getItemById($id);
     public function getItemsByServiceId($serviceId);

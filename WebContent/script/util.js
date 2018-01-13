@@ -188,6 +188,154 @@ function svgElementClicked(what,id){
 		alert("An "+what+" of id "+id +" was clicked");
 	}
 }
+function onSearchElementFormCategoryChange(){
+	var categoryName = $("#search_element_form_category").val();
+	$.getJSON( "api/element_class.php", function(result) {
+		var categories = result.categories;
+		var htmlClasses = "<option value='NULL'>~~Sélectionner une classe~~</option>";
+		for (var i = 0; i < categories.length; i++){
+			var category = categories[i];
+			if (categoryName != "NULL"){
+				if (categoryName != category.name){
+					continue;
+				}
+			}
+			for (var j = 0; j < category.classes.length; j++){
+				var classe = category.classes[j];
+				htmlClasses += "<option value='"+classe.id+"'>"+classe.name+"</option>";
+			}
+		}
+		$("#search_element_form_class").html(htmlClasses);
+	}).fail(function(jxqr,textStatus,error) {
+		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+	});
+}
+var datatableElements = null;
+function getToscaNodeTypeFromCategory(itemCategory){
+	switch (itemCategory) {
+		case "actor" :
+			return "tosca.nodes.Root";
+		case "data" :
+			return "tosca.nodes.Database";
+		case "device" :
+			return "tosca.nodes.Root";
+		case "process" :
+			return "tosca.nodes.Compute";
+		case "server" :
+			return "tosca.nodes.Compute";
+		case "service" :
+			return "tosca.nodes.Compute";
+		case "software" :	
+			return "tosca.nodes.SoftwareComponent";
+		case "solution" :	
+			return "tosca.nodes.Compute";
+		default : 
+			return "tosca.nodes.Root";
+	}
+}
+function addElementInTosca(id,name,category){
+	var tosca = $("#solution_script_editor_form_text").val();
+	tosca = jsyaml.load(tosca);
+	var topology_template = tosca.topology_template;
+	var node_templates = topology_template.node_templates;
+	var index = 1;
+	var nodeName = name;
+	// Rechercher si l'élément n'a pas déjà été ajouté
+	while (true) {
+		var found = false;
+		for (var node in node_templates){
+			if (node == nodeName){
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			break;
+		}
+		// Si trouvé, ajouter un chiffre et chercher à nouveau
+		nodeName = name + "_" + index;
+		index++;
+	}
+	// Ajouter le node
+	var properties = new Array();
+	properties["id"] = id;
+	var node = { "type" : getToscaNodeTypeFromCategory(category), "name" : nodeName, properties : properties};
+	node_templates[nodeName] = node;
+	var text = jsyaml.safeDump(tosca);
+	$("#solution_script_editor_form_text").val(text.trim());
+	saveSolutionScript(currentSolutionId);
+}
+function onSearchElementFormSearchClick(){
+	if (datatableElements == null){
+		datatableElements = $("#search_element_form_result").dataTable(/* {
+	        "columnDefs": [ {
+	            "targets": -1,
+	            "data": null,
+	            "defaultContent": "<button>Add</button>"
+	        } ]
+	    }*/);
+	}
+	var url = "api/element.php";
+	var selectClass = $("#search_element_form_class").val();
+	if (selectClass != "NULL"){
+		url += "?class_name="+selectClass;
+	} else {
+		var selectCategorie = $("#search_element_form_category").val();
+		if (selectCategorie != "NULL"){
+			url += "?category_name="+selectCategorie;
+		}
+	}
+	datatableElements.fnClearTable();
+	$.getJSON( url, function(result) {
+		var selectName = $("#search_element_form_name").val().trim();
+		var html = "";
+		var elements = result.elements;
+		var data = new Array();
+		for (var i = 0; i < elements.length; i++){
+			var element = elements[i];
+			if (selectName != ""){
+				if (element.name != selectName){
+					continue;
+				}
+			}
+			var row = new Array();
+			row.push(element.id);
+			row.push(element.name);
+			row.push(element.class.name);
+			row.push(element.category.name);
+			var usableName = element.name.replace(new RegExp('[^a-zA-Z]','g'),'_');
+			row.push("<button onClick='event.preventDefault();addElementInTosca(\""+element.id+"\",\""+usableName+"\",\""+element.category.name+"\");'>Add</button>");
+			data.push(row);
+			//html += "<tr><td></td><td>"+element.name+"</td><td>"+element.class.name+"</td><td>"+element.category.name+"</td></tr>";
+		}
+		if (data.length > 0){
+			datatableElements.fnAddData(data);
+		}
+		//$("#search_element_form_result_body").html(html);
+	}).fail(function(jxqr,textStatus,error) {
+		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+	});
+}
+function openSearchElementForm(){
+	$.getJSON( "api/element_class.php", function(result) {
+		var categories = result.categories;
+		var htmlClasses = "<option value='NULL'>~~Sélectionner une classe~~</option>";
+		var html = "<option value='NULL'>~~Sélectionner une catégorie~~</option>";
+		for (var i = 0; i < categories.length; i++){
+			var category = categories[i];
+			html += "<option value='"+category.id+"'>"+category.name+"</option>";
+			for (var j = 0; j < category.classes.length; j++){
+				var classe = category.classes[j];
+				htmlClasses += "<option value='"+classe.id+"'>"+classe.name+"</option>";
+			}
+		}
+		$("#search_element_form_category").html(html);
+		$("#search_element_form_class").html(htmlClasses);
+	}).fail(function(jxqr,textStatus,error) {
+		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+	});
+	$("#search_element_form").dialog({"modal":true,"title":"Chercher un élément","minWidth":1100,"minHeight":800});
+}
 function sortByName(a, b){
 	return a.name.localeCompare(b.name);
 }

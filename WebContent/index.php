@@ -10,10 +10,12 @@ require("dao/dao.php");
  	<link rel="stylesheet" href="css/graf.css">
  	<link rel="stylesheet" href="lib/pure/pure-min.css">
 	<link rel="stylesheet" href="lib/jquery/ui/1.12.1/themes/base/jquery-ui.css">
+	<link rel="stylesheet" href="lib/datatable/jquery.dataTables.min.css">
 	<script type="text/javascript" src="lib/jquery/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="lib/jquery/ui/1.12.1/jquery-ui.js"></script>
 	<script type="text/javascript" src="lib/svgtool/svg-pan-zoom.js"></script>
 	<script type="text/javascript" src="lib/nodeca/js-yaml.min.js"></script>
+	<script type="text/javascript" src="lib/datatable/jquery.dataTables.min.js"></script>
 	<script type="text/javascript" src="script/util.js"></script>
 	<script type="text/javascript" src="script/strategic.js"></script>
 	<script type="text/javascript" src="script/business.js"></script>
@@ -21,7 +23,6 @@ require("dao/dao.php");
 	<script type="text/javascript" src="script/service.js"></script>
 	<script type="text/javascript" src="script/logic.js"></script>
 	<script type="text/javascript" src="script/actor.js"></script>
-	
 	<script type="text/javascript" src="script/view.js"></script>
 	<script>
 		function displayTechnic(){
@@ -67,7 +68,7 @@ require("dao/dao.php");
 		</div>
 		<div id="logic_toolbox" style="width:100%;display:none" class="controlgroup">
 			<button id="logic_search_solution_button" 	onclick='$("#search_solution_form").dialog({"modal":true,"title":"Chercher une solution","minWidth":500})'><img style="height:14px" src="images/65.png"/> chercher une solution</button>
-			<button id="logic_create_device_button" 	title="Importer un matériel" 			onclick="createComponent('device')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> matériel</button>
+			<button id="logic_create_device_button" 	title="Importer un élément" 			onclick="openSearchElementForm()" 	disabled="true"><img style="height:14px" src="images/1633.png"/> élément</button>
 			<button id="logic_create_data_button" 		title="Importer une donnée"				onclick="createComponent('data')" 		disabled="true"><img style="height:14px" src="images/1633.png"/> donnée</button>
 			<button id="logic_create_software_button" 	title="Importer un logiciel"			onclick="createComponent('software')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> logiciel</button>
 			<button id="logic_create_service_button" 	title="Importer un service"				onclick="createComponent('service')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> service</button>
@@ -388,6 +389,38 @@ require("dao/dao.php");
 	<button type="button" onclick='$("#edit_process_step_form").dialog("close");'>
 		<img style="height:14px" src="images/33.png"/> annuler
 	</button>
+</form>
+<form id="search_element_form" class="pure-form pure-form-aligned" style="display:none">
+	<fieldset>
+		<legend>Chercher des éléments</legend>
+		<div class="pure-control-group">
+			<label for="search_element_form_name">Nom</label>
+			<input type="text" 		id="search_element_form_name"/>
+		</div>
+		<div class="pure-control-group">
+			<label for="search_element_form_category">Catégorie</label>
+			<select id="search_element_form_category" onChange="onSearchElementFormCategoryChange()"></select>
+		</div>
+		<div class="pure-control-group">
+			<label for="search_element_form_class">Classe</label>
+			<select id="search_element_form_class"></select>
+		</div>
+		<button type="button" onClick="onSearchElementFormSearchClick()"><img style="height:14px" src="images/65.png"/> chercher</button>
+	</fieldset>
+	<hr/>
+	<table style="width: 100%" id="search_element_form_result">
+		<thead style="width:100%">
+			<tr>
+				<td></td>
+				<td>Element</td>
+				<td>Classe</td>
+				<td>Cat&eacute;gorie</td>
+				<td>Action</td>
+			</tr>
+		</thead>
+		<tbody id="search_element_form_result_body" style="width:100%">
+		</tbody>
+	</table>
 </form>
 <form id="search_domain_form" class="pure-form pure-form-aligned" style="display:none">
 	<div class="pure-control-group">
