@@ -48,6 +48,9 @@ function _computeSubAreasCoords($area){
     }
     // Egaliser la taille des sous zones en largeur ou hauteur selon l'alignement horizontal ou vertical
     foreach ($area->subareas as $subarea){
+        if (!$subarea->needed) {
+            continue;
+        }
         if ($area->display == "horizontal"){
             $subarea->height = $area->height;
         } else if ($area->display == "vertical"){
@@ -255,7 +258,7 @@ function _computeElementsCoords($area){
             $waitstack = array();
         }
         $area->width = $x - $area->x;
-        $area->height = $maxy;
+        $area->height = $maxy - $area->y;
     } else {
         // disposer les composants via une grille
         if ($area->display == "grid"){
@@ -321,9 +324,6 @@ function displayArea($level,$area){
 	}
 	echo "<rect class='".$class."' x='".($area->x)."' y='".($area->y)."' width='".$area->width."' height='".$area->height."' rx='10' ry='10'/>\n";
 	$label = $area->name;
-	if (($label == "") || ($label == null)){
-		$label = $area->code;
-	}
 	// ** Afficher le label de la zone **
 	$label = _truncateText($label,$area->width - 15,AREA_CHAR_WIDTH);
 	echo "<text x='".($area->x+15)."' y='".($area->y+25)."' class='".$class."_title'>".$label."</text>\n";
@@ -447,19 +447,19 @@ function _drawLink($from,$to,$label){
 	$y2 = 0;
 	$sens = "";
 	// est-ce que to est à droite de from ?
-	if ($from->x < $to->x){
+	if (($from->x + ($from->width / 2)) < $to->x){
 		$x1 = $from->x + $from->width + 2;
 		$x2 = $to->x - 2;
 		$sens = "droite";
-	// est-ce qu'ils sont au même niveau ?
-	} else if ($from->x == $to->x){
-		$x1 = $from->x + ceil($from->width / 2);
-		$x2 = $to->x + ceil($to->width / 2);
-	// to est à gauche de from
+	// est-ce que to est à gauche de from ?
+	} else if (($to->x + ($to->width / 2)) < $from->x){
+	    $x1 = $from->x - 2;
+	    $x2 = $to->x + $to->width + 2;
+	    $sens = "gauche";
+	// ils sont "à peu près" au même niveau
 	} else {
-		$x1 = $from->x - 2;
-		$x2 = $to->x + $to->width + 2;
-		$sens = "gauche";
+	    $x1 = $from->x + ceil($from->width / 2);
+	    $x2 = $to->x + ceil($to->width / 2);
 	}
 	// est-ce que to est en dessous de from ?
 	if ($from->y < $to->y){
