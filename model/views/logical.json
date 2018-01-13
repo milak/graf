@@ -22,7 +22,7 @@
 			"children"	: []
 		},{
 			"name"		: "si",
-			"label"		: "Système d'information'",
+			"label"		: "Système d'information",
 			"display"	: "horizontal",
 			"children"	: []
 		},{
