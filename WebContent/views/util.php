@@ -9,6 +9,7 @@ class Element {
     public $type;
     public $class;
     public $links = array();
+    public $allreadyComputed = false;
     public function addLink($link){
         $this->links[] = $link;
     }
