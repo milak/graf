@@ -22,7 +22,7 @@ if (isset($areas["default"])){
     $defaultarea  = null;
 }
 // Afficher la description de la solution
-$elements = parseTOSCA($dao->getItemStructure($itemId));
+$elements = parseTOSCA($dao->getItemDocument($itemId,"TOSCA"));
 foreach ($elements as $element){
     $element->class 	= "rect_100_100";
     if (isset($element->area)){

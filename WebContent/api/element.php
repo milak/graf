@@ -12,8 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $items = $dao->getItemsByDomainId($_GET["domain_id"]);
     } else if (isset($_GET["id"])){
         if (isset($_GET["structure"])){
-            $structure = $dao->getItemStructure($_GET["id"]);
-            echo $structure;
+            $document = $dao->getItemDocument($_GET["id"],"*");
+            echo $document;
             return;
         } else {    
             $items = array();

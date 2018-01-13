@@ -4,7 +4,7 @@ require("../dao/dao.php");
 $dao->connect();
 require("../dao/db/util.php");
 require("../svg/body.php");
-$areas = $dao->getViewByName("logique");
+$areas = $dao->getViewByName("service");
 // ****************************************************************
 // Chercher tous les noeuds correspondant aux critères de recherche
 // ****************************************************************
@@ -14,42 +14,6 @@ if (isset($_GET["id"])){
 	displayErrorAndDie('Missing id argument');
 }
 $items=$dao->getItemsByServiceId($service_id);
-
-$root = new stdClass();
-$root->name      = "Service";
-$root->code      = "Service";
-$root->display   = "vertical";
-$root->position	 = 0;
-$root->elements  = array();
-$root->subareas  = array();
-$root->needed    = true;
-$root->parent    = null;
-
-
-$area_instances = new stdClass();
-$area_instances->id        = 0;
-$area_instances->name      = "Instances";
-$area_instances->code      = "Instances";
-$area_instances->parent_id = 0;
-$area_instances->display   = "horizontal";
-$area_instances->position  = 0;
-$area_instances->elements  = array();
-$area_instances->subareas  = array();
-$area_instances->needed    = true;
-$area_instances->parent    = null;
-while($row = $result->fetch_assoc()){
-	$root->code      = "Service ".$row["name"];
-	if (isset($row["instance_id"])){
-		$instance 				= new stdClass();
-		$instance->id 			= $row["instance_id"];
-		$instance->type 		= "instance";
-		$instance->class 		= "service_instance";
-		$instance->name 		= $row["instance_name"];
-		$instance->links 		= array();
-		$area_instances->elements[] 		= $instance;
-	}
-}
-$result->free();
 
 
 function loadComponents($db,$sql,$areas){

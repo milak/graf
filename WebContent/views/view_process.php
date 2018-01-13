@@ -8,7 +8,7 @@ require("../dao/dao.php");
 require("util.php");
 $dao->connect();
 $process = $dao->getItemById($id);
-$steps = (new Process($dao->getItemStructure($id)))->elements;
+$steps = (new Process($dao->getItemDocument($id,"BPMN")))->elements;
 require("../svg/header.php");
 require("../svg/body.php");
 

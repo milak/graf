@@ -132,7 +132,7 @@ interface IDAO {
     public function getViewByName($name);
     
     public function getItemCategories();
-    public function getItemStructure($itemId);
+    public function getItemDocument($itemId,$documentType);
     public function getItemsByCategory($category);
     public function getItemsByClass($class);
     public function getItems();

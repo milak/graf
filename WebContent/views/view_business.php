@@ -36,7 +36,7 @@ foreach ($businessProcesses as $businessProcess){
         $obj->links 	= array();
         $processarea->addElement($obj);
     }
-    $steps = (new Process($dao->getItemStructure($businessProcess->id)))->elements;
+    $steps = (new Process($dao->getItemDocument($businessProcess->id,"BPMN")))->elements;
     foreach ($steps as $step){
         $type_name 	= $step->type_name;
         if (($type_name == "START") || ($type_name == "END")){

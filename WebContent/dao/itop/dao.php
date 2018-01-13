@@ -477,7 +477,7 @@ class ITopDao implements IDAO {
         }
         return $document_id;
     }
-    public function getItemStructure($itemId){
+    public function getItemDocument($itemId,$documentType){
         $document_id = $this->getItemDocumentId($itemId);
         $content = null;
         if ($document_id != null){
