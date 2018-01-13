@@ -72,7 +72,7 @@ function _computeSubAreasCoords($area){
     }
 }
 function _computeComposedElementSize($element){
-    $x = 0;
+    $x = 20;
     $y = AREA_GAP + CHAR_HEIGHT; // Passer le titre
     $maxWidth = $element->width;
     foreach($element->subElements as $subElement){
@@ -89,10 +89,10 @@ function _computeComposedElementSize($element){
         if ($newWidth > $maxWidth){
             $maxWidth = $newWidth;
         }
-        $y += $subElement->height;
+        $y += $subElement->height + 10;
     }
-    $element->height = $y;
-    $element->width = $maxWidth;
+    $element->height = $y+20;
+    $element->width = $maxWidth+40;
 }
 function _computeElementsCoords($area){
     $x = $area->x + AREA_GAP;
@@ -397,7 +397,7 @@ function _drawElement($element){
 function _drawElementAsRect($element){
 	echo "\t<rect x='".$element->x."' y='".$element->y."' width='".$element->width."' height='".$element->height."' rx='5' ry='5' class='rect_www_hhh' filter='url(#shadow)' onclick='window.parent.svgElementClicked(\"".$element->type."\",\"".$element->id."\")'/>\n";
 	$lines = _splitTextInLines($element->name,ELEMENT_CHAR_WIDTH,CHAR_HEIGHT,$element->width,$element->height);
-	$x = $element->x+2;
+	$x = $element->x;
 	if (isset($element->subElements) && count($element->subElements) > 0){
 	    $verticalgap = round(($element->height - (count($element->subElements) * CHAR_HEIGHT)) / (count($lines) + 1));
 	    $y = $element->y + (CHAR_HEIGHT * 2);
