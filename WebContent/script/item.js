@@ -165,14 +165,16 @@ function showToscaItemContext(toscaItemId){
 	}
 	$("#edit_item_form_properties").html(properties);
 	//html += "Description "+tosca.description;
-	$("#edit_item_form_class").val("");
-	$("#edit_item_form_category").val("");
+	$("#edit_item_form_class_field").hide();
+	$("#edit_item_form_category_field").hide();
 	$("#edit_item_form_target_id").val("");
 	$("#edit_item_form_display_target").hide();//prop('disabled', true);
 	if (id != null){
 		$.getJSON( "api/element.php?id="+id, function(result) {
 			if (result.elements.length != 0){
 				var element = result.elements[0];
+				$("#edit_item_form_class_field").show();
+				$("#edit_item_form_category_field").show();
 				$("#edit_item_form_class").val(element.class.name);
 				$("#edit_item_form_category").val(element.category.name);
 				$("#edit_item_form_target_id").val(id);
@@ -191,6 +193,8 @@ function showToscaTargetItem(itemId,itemCategory){
 		displaySolution(itemId);
 	} else if (itemCategory == "process"){
 		displayProcess(itemId);
+	} else {
+		alert("showToscaTargetItem() : J'ai oublié de traiter ce type de categorie "+itemCategory);
 	}
 }
 function deleteToscaItem(id){

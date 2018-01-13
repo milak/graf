@@ -396,11 +396,11 @@ require("dao/dao.php");
 			<label for="edit_item_form_type">Type</label>
 			<input type="text" id="edit_item_form_type"/>
 		</div>
-		<div class="pure-control-group">
+		<div class="pure-control-group" id="edit_item_form_class_field">
 			<label for="edit_item_form_class">Classe</label>
 			<input type="text" id="edit_item_form_class"/>
 		</div>
-		<div class="pure-control-group">
+		<div class="pure-control-group" id="edit_item_form_category_field">
 			<label for="edit_item_form_category">Catégorie</label>
 			<input type="text" id="edit_item_form_category"/>
 		</div>
