@@ -319,7 +319,7 @@ class ITopDao implements IDAO {
         if (strpos($id,"actor_") === 0){ // On recherche les items sous un acteur
             $id = substr($id,6);
             // Chercher tous les items liés à l'équipe
-            $response = $this->getObjects("Team","function,cis_list","WHERE key = $id");
+            $response = $this->getObjects("Team","function,cis_list","WHERE id = $id");
             $domains = "";
             foreach ($response->objects as $object){
                 $domains = $object->fields->function;
@@ -346,16 +346,23 @@ class ITopDao implements IDAO {
             }
             // Chercher tous les services
             // Chercher tous les domaines
-            $response = $this->getObjects("Group","*","WHERE name IN ($domains)");
+            $domainList = "";
+            foreach(explode(",",$domains) as $domain){
+                if (strlen($domainList) > 0){
+                    $domainList .= ",";
+                }
+                $domainList .= "'$domain'";
+            }
+            $response = $this->getObjects("Group","*","WHERE name IN ($domainList)");
             $rowcategory = $this->getItemCategoryByClass("Group");
             if (($category == "*") || ($rowcategory->name == $category)){
                 foreach ($response->objects as $object){
                     $row = new stdClass();
-                    $row->id = "item_".$object->key;
-                    $row->name = $object->name;
+                    $row->id = "domain_".$object->key;
+                    $row->name = $object->fields->name;
                     $row->domain_id = ""; // TODO voir comment faire
                     $row->domain_name = ""; // TODO voir comment faire
-                    $row->code = $object->name;
+                    $row->code = $object->fields->name;
                     $row->class = new stdClass();
                     $row->class->id = 1;
                     $row->class->name = "Group";
@@ -372,7 +379,7 @@ class ITopDao implements IDAO {
                 $domainName = $object->fields->name;
                 foreach($object->fields->ci_list as $ci){
                     $row = new stdClass();
-                    $row->id = $ci->ci_id;
+                    $row->id = "item_".$ci->ci_id;
                     $row->name = $ci->ci_name;
                     $row->domain_id = "domain_".$id;
                     $row->domain_name = $domainName;
@@ -655,7 +662,7 @@ class ITopDao implements IDAO {
             }
             $result = $document_id;
         } else {
-            $result = -1;
+            $result = null;
         }
         return $result;
     }
@@ -666,7 +673,7 @@ class ITopDao implements IDAO {
             $content = $this->getDocumentContent($document_id);
         }
         if ($content == null){
-            $content = "";
+            $content = null;
         } else {
             // Virer tous les caractères et tags qu'a ajouté ITOP...
             $content = $this->cleanContent($content);

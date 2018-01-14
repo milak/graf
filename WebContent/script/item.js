@@ -182,6 +182,8 @@ function showToscaItemContext(toscaItemId){
 					$("#edit_item_form_display_target").show();//prop('disabled', false);
 				} else if (element.category.name == "process"){
 					$("#edit_item_form_display_target").show();//prop('disabled', false);
+				} else if (element.category.name == "actor"){
+					$("#edit_item_form_display_target").show();//prop('disabled', false);
 				}
 			}
 		});
@@ -193,6 +195,8 @@ function showToscaTargetItem(itemId,itemCategory){
 		displaySolution(itemId);
 	} else if (itemCategory == "process"){
 		displayProcess(itemId);
+	} else if (itemCategory == "actor"){
+		displayBusiness(itemId);
 	} else {
 		alert("showToscaTargetItem() : J'ai oublié de traiter ce type de categorie "+itemCategory);
 	}

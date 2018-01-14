@@ -11,6 +11,10 @@
 			"label"		: "Services",
 			"display"	: "vertical"
 		},{
+			"name"		: "domain",
+			"label"		: "Domaines",
+			"display"	: "vertical"
+		},{
 			"name"		: "process",
 			"label"		: "Processus",
 			"display"	: "vertical"

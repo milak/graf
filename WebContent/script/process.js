@@ -212,8 +212,8 @@ function showProcessContext(id){
 		html +=  " <b>Nom</b> : " +     process.name + "<br/><br/>";
 		html +=  " <b>Domaine</b> : " + process.domain_name+"<br/><br/>";
 		html +=  " <hr/>";
-		html +=  " <button onclick='hidePopup();displayProcess("+process.id+")'><img src='images/63.png'/> ouvrir</button>";
-		html +=  " <button onclick='deleteProcess("+process.id+");hidePopup()'><img src='images/14.png'/> supprimer</button>";
+		html +=  " <button onclick='hidePopup();displayProcess(\""+process.id+"\")'><img src='images/63.png'/> ouvrir</button>";
+		html +=  " <button onclick='deleteProcess(\""+process.id+"\");hidePopup()'><img src='images/14.png'/> supprimer</button>";
 		html +=  " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
 		showPopup("Détail",html);
 		}).fail(function(jxqr,textStatus,error) {

@@ -10,4 +10,3 @@ function strategic_checkSeeProcess(){
 		changeImage("views/view_strategique.php");
 	}
 }
-		

@@ -19,14 +19,15 @@ $items = $dao->getSubItems($id);
 $actors = array();
 $process = array();
 $services = array();
-$rootarea = $areas["root"];
+$rootarea       = $areas["root"];
 $rootarea->name = $rootarea->name . " " . $item->name;
-$processarea = $areas["process"];
-$servicearea = $areas["service"];
-$actorarea = $areas["actor"];
-$resourcesarea = $areas["resource"];
-$dataarea = $areas["data"];
-$solutionarea = $areas["solution"];
+$processarea    = $areas["process"];
+$domainarea     = $areas["domain"];
+$servicearea    = $areas["service"];
+$actorarea      = $areas["actor"];
+$resourcesarea  = $areas["resource"];
+$dataarea       = $areas["data"];
+$solutionarea   = $areas["solution"];
 foreach ($items as $item) {
     $obj = new stdClass();
     $obj->id = $item->id;
@@ -60,40 +61,43 @@ foreach ($items as $item) {
             $obj->links = array();
             $processarea->addElement($obj);
         }
-        $steps = (new Process($dao->getItemDocument($item->id, "BPMN")))->elements;
-        foreach ($steps as $step) {
-            $type_name = $step->type_name;
-            if (($type_name == "START") || ($type_name == "END")) {
-                // SKIP
-            } else if ($type_name == "ACTOR") {
-                /*
-                 * $obj = new stdClass();
-                 * $obj->id = $row["step_id"];
-                 * $obj->type = "box";
-                 * $obj->class = "process_".strtolower($type_name);
-                 * $obj->name = $row["step_name"];
-                 * $obj->links = array();
-                 * $area_actor->elements[] = $obj;
-                 */
-            } else if ($type_name == "SERVICE") {
-                /*
-                 * $obj = new stdClass();
-                 * $obj->id = $row["service_id"];
-                 * $obj->type = "service";
-                 * $obj->class = "process_".strtolower($type_name);
-                 * $obj->name = $row["service_id"]."-".$row["step_name"];
-                 * $obj->links = array();
-                 * $area_service->elements[] = $obj;
-                 */
-            } else if ($type_name == "SUB-PROCESS") {
-                if ($processarea != null) {
-                    $obj = new stdClass();
-                    $obj->id = $step->id;
-                    $obj->type = "process";
-                    $obj->class = "process_" . strtolower($type_name);
-                    $obj->name = $step->name;
-                    $obj->links = array();
-                    $processarea->addElement($obj);
+        $document = $dao->getItemDocument($item->id, "BPMN");
+        if ($document != null) {
+            $steps = (new Process($document))->elements;
+            foreach ($steps as $step) {
+                $type_name = $step->type_name;
+                if (($type_name == "START") || ($type_name == "END")) {
+                    // SKIP
+                } else if ($type_name == "ACTOR") {
+                    /*
+                     * $obj = new stdClass();
+                     * $obj->id = $row["step_id"];
+                     * $obj->type = "box";
+                     * $obj->class = "process_".strtolower($type_name);
+                     * $obj->name = $row["step_name"];
+                     * $obj->links = array();
+                     * $area_actor->elements[] = $obj;
+                     */
+                } else if ($type_name == "SERVICE") {
+                    /*
+                     * $obj = new stdClass();
+                     * $obj->id = $row["service_id"];
+                     * $obj->type = "service";
+                     * $obj->class = "process_".strtolower($type_name);
+                     * $obj->name = $row["service_id"]."-".$row["step_name"];
+                     * $obj->links = array();
+                     * $area_service->elements[] = $obj;
+                     */
+                } else if ($type_name == "SUB-PROCESS") {
+                    if ($processarea != null) {
+                        $obj = new stdClass();
+                        $obj->id = $step->id;
+                        $obj->type = "process";
+                        $obj->class = "process_" . strtolower($type_name);
+                        $obj->name = $step->name;
+                        $obj->links = array();
+                        $processarea->addElement($obj);
+                    }
                 }
             }
         }
@@ -123,8 +127,14 @@ foreach ($items as $item) {
         if ($solutionarea != null) {
             $solutionarea->addElement($obj);
         }
+    } else if ($item->category->name == "domain") {
+        $obj->type = "domain";
+        $obj->class = "component_software";
+        if ($domainarea != null) {
+            $domainarea->addElement($obj);
+        }
     } else {
-        error_log("Category non prévue $item->category->name");
+        error_log("Category non prévue ".$item->category->name);
     }
 }
 // Afficher le résultat
