@@ -86,8 +86,8 @@ function showSolutionContext(id){
 		var html = "<p>Solution</p>";
 		html += "<b>Nom</b> : "+element.name+"<br/><br/>";
 		html += "<hr/>";
-		html += " <button onclick='hidePopup();displaySolution("+id+")'><img src='images/63.png'/> ouvrir</button>";
-		html += " <button onclick='hidePopup();deleteElement("+id+")'><img src='images/14.png'/> supprimer</button>";
+		html += " <button onclick='hidePopup();displaySolution(\""+id+"\")'><img src='images/63.png'/> ouvrir</button>";
+		html += " <button onclick='hidePopup();deleteElement(\""+id+"\")'><img src='images/14.png'/> supprimer</button>";
 		html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
 		showPopup("Détail",html);
 	}).fail(function(jxqr,textStatus,error) {

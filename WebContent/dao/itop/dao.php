@@ -422,7 +422,7 @@ class ITopDao implements IDAO {
                 //$domainName = $object->fields->description;
                 foreach($object->fields->functionalcis_list as $ci){
                     $row = new stdClass();
-                    $row->id = $ci->functionalci_id;
+                    $row->id = "item_".$ci->functionalci_id;
                     $row->name = $ci->functionalci_name;
                     //$row->domain_id = $domainId;
                     //$row->domain_name = $domainName;
@@ -640,31 +640,38 @@ class ITopDao implements IDAO {
         }
         return $result;
     }
-    private function getItemDocumentId($itemId){
-        $response = $this->getObjects('FunctionalCI','documents_list',"WHERE id = $itemId");
-        $document_id = null;
-        foreach ($response->objects as $object){
-            // TODO ne pas forcément prendre le premier document venu
-            foreach ($object->fields->documents_list as $document){
-                $document_id = $document->document_id;
+    private function getItemDocumentId($itemId,$documentType="*"){
+        if (strpos($itemId,"item_") === 0){
+            $itemId = substr($itemId,5);
+            $response = $this->getObjects('FunctionalCI','documents_list',"WHERE id = $itemId");
+            $document_id = null;
+            foreach ($response->objects as $object){
+                // TODO filtrer le documentType
+                foreach ($object->fields->documents_list as $document){
+                    $document_id = $document->document_id;
+                    break;
+                }
                 break;
             }
-            break;
+            $result = $document_id;
+        } else {
+            $result = -1;
         }
-        return $document_id;
+        return $result;
     }
     public function getItemDocument($itemId,$documentType){
-        $document_id = $this->getItemDocumentId($itemId);
+        $document_id = $this->getItemDocumentId($itemId,$documentType);
         $content = null;
         if ($document_id != null){
             $content = $this->getDocumentContent($document_id);
         }
         if ($content == null){
-            return null;
+            $content = "";
         } else {
             // Virer tous les caractères et tags qu'a ajouté ITOP...
-            return $this->cleanContent($content);
+            $content = $this->cleanContent($content);
         }
+        return $content;
     }
     public function updateItemDocument($itemId,$type,$newContent){
         // Vérifier si on a déjà un document pour cet item
@@ -766,10 +773,15 @@ class ITopDao implements IDAO {
         // Supprimer la solution
         $this->deleteObject('ApplicationSolution', $id);
     }
-    public function getSolutionItems($itemID){
-	   $response = $this->getObjects('ApplicationSolution','id, name, functionalcis_list',"WHERE id = $itemID");
-       $result = array();
-       foreach ($response->objects as $object){
+    public function getSolutionItems($itemId){
+        if (strpos("item_",$itemId) === 0){
+            $itemId = substr($id,5);
+        } else {
+            return null;
+        }
+        $response = $this->getObjects('ApplicationSolution','id, name, functionalcis_list',"WHERE id = $itemId");
+        $result = array();
+        foreach ($response->objects as $object){
            foreach ($object->fields->functionalcis_list as $subitem) {
                 $row = new stdClass();
                 $row->id    = $subitem->functionalci_id;
@@ -782,8 +794,8 @@ class ITopDao implements IDAO {
                 $row->category = $this->getItemCategoryByClass($subitem->functionalci_id_finalclass_recall);
                 $result[]   = $row;
            }
-       }
-	   return $result;
+        }
+        return $result;
     }
     public function getDB(){
         global $configuration;
