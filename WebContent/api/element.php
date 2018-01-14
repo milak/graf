@@ -39,7 +39,6 @@ foreach ($items as $item){
 	{
 		"id"    	: "<?php echo $item->id; ?>",
 		"name" 		: "<?php echo $item->name; ?>",
-		"domain_id" : "<?php echo $item->domain_id; ?>",
 		"class" 	: { "id" : "<?php echo $item->class->id; ?>", "name" : "<?php echo $item->class->name; ?>"},
 		"category" 	: { "id" : "<?php echo $item->category->id; ?>", "name" : "<?php echo $item->category->name; ?>"}
 	}<?php

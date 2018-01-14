@@ -1,11 +1,5 @@
 <?php
 const DEFAULT_PROCESS_CONTENT = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;bpmn:startEvent name="" id="1"/&gt;&lt;/bpmn:definitions&gt;';
-const DATA_CLASSES = "~DatabaseSchema~";
-const DEVICE_CLASSES = "~NetworkDevice~VirtualDevice~Rack~PhysicalDevice~TelephonyCI~Phone~IPPhone~MobilePhone~ConnectableCI~Printer~DatacenterDevice~TapeLibrary~NAS~SANSwitch~StorageSystem~PC~Enclosure~PowerConnection~PowerSource~PDU~Peripheral~Tablet~VirtualMachine~VirtualHost~Hypervisor~Farm~";
-const PROCESS_CLASSES = "~BusinessProcess~";
-const SERVER_CLASSES = "~Server~";
-const SOFTWARE_CLASSES = "~WebServer~DBServer~WebApplication~MiddlewareInstance~SoftwareInstance~OtherSoftware~PCSoftware~Middleware~";
-const SOLUTION_CLASSES = "~ApplicationSolution~";
 /**
  * Dao accédant aux données de itop
  */
@@ -110,7 +104,7 @@ class ITopDao implements IDAO {
         $result = array();
         foreach ($response->objects as $object){
             $row            = new stdClass();
-            $row->id        = $object->key;
+            $row->id        = "domain_".$object->key;
             $row->name      = $object->fields->name;
             $row->area_id   = $object->fields->description;
             $result[] = $row;
@@ -118,19 +112,7 @@ class ITopDao implements IDAO {
         return $result;
     }
     public function getDomainById($id){
-        $clause = 'WHERE type="businessDomain"';
-        $clause .= " AND id=$id";
-        $response = $this->getObjects('Group','id, name, friendlyname, status, description, type, parent_id, parent_name, ci_list, obsolescence_flag',$clause);
-        $result = null;
-        foreach ($response->objects as $object){
-            $row = new stdClass();
-            $row->id = $object->key;
-            $row->name = $object->fields->name;
-            $row->area_id = $object->fields->description;
-            $result = $row;
-            break;
-        }
-        return $result;
+        return $this->getItemById($id);
     }
     public function createDomain($name,$area_id){
         error_log("Création d'un domaine : ".$name);
@@ -295,6 +277,7 @@ class ITopDao implements IDAO {
         }
         return $result;
     }
+    // DEPRECATED Methode à supprimer
     public function getServicesByDomainId($id){
         $domain = $this->getDomainById($id);
         if ($domain == null){
@@ -331,9 +314,150 @@ class ITopDao implements IDAO {
         // Supprimer le service
         return $this->deleteObject('Service',$id);
     }
+    public function getSubItems($id,$category="*"){
+        $result = array();
+        if (strpos($id,"actor_") === 0){ // On recherche les items sous un acteur
+            $id = substr($id,6);
+            // Chercher tous les items liés à l'équipe
+            $response = $this->getObjects("Team","function,cis_list","WHERE key = $id");
+            $domains = "";
+            foreach ($response->objects as $object){
+                $domains = $object->fields->function;
+                foreach($object->fields->cis_list as $item){
+                    $rowclass = $item->functionalci_id_finalclass_recall;
+                    $rowcategory = $this->getItemCategoryByClass($rowclass);
+                    if ($category != "*"){
+                        if ($rowcategory->name != $category){
+                            continue;
+                        }
+                    }
+                    $row = new stdClass();
+                    $row->id    = "item_".$item->functionalci_id;
+                    $row->name  = $item->functionalci_name;
+                    $row->code  = $item->functionalci_name;
+                    $row->domain_id = ""; // TODO voir comment faire
+                    $row->domain_name = ""; // TODO voir comment faire
+                    $row->class = new stdClass();
+                    $row->class->id = 1;
+                    $row->class->name = $rowclass;
+                    $row->category = $rowcategory;
+                    $result[]   = $row;
+                }
+            }
+            // Chercher tous les services
+            // Chercher tous les domaines
+            $response = $this->getObjects("Group","*","WHERE name IN ($domains)");
+            $rowcategory = $this->getItemCategoryByClass("Group");
+            if (($category == "*") || ($rowcategory->name == $category)){
+                foreach ($response->objects as $object){
+                    $row = new stdClass();
+                    $row->id = "item_".$object->key;
+                    $row->name = $object->name;
+                    $row->domain_id = ""; // TODO voir comment faire
+                    $row->domain_name = ""; // TODO voir comment faire
+                    $row->code = $object->name;
+                    $row->class = new stdClass();
+                    $row->class->id = 1;
+                    $row->class->name = "Group";
+                    $row->category = $rowcategory;
+                    $result[]   = $row;
+                }
+            }
+        } else if (strpos($id,"domain_") === 0){ // On recherche les items sous un domaine
+            $id = substr($id,7);
+            $result = array();
+            // Chercher le items
+            $response = $this->getObjects('Group','id, name, ci_list',"WHERE id=$id");
+            foreach($response->objects as $object){
+                $domainName = $object->fields->name;
+                foreach($object->fields->ci_list as $ci){
+                    $row = new stdClass();
+                    $row->id = $ci->ci_id;
+                    $row->name = $ci->ci_name;
+                    $row->domain_id = "domain_".$id;
+                    $row->domain_name = $domainName;
+                    $row->class = new stdClass();
+                    $row->class->id = 1;
+                    $row->class->name = $ci->ci_id_finalclass_recall;
+                    $row->category = $this->getItemCategoryByClass($row->class->name);
+                    if ($category != "*"){
+                        if ($row->category->name != $category){
+                            continue;
+                        }
+                    }
+                    $result[] = $row;
+                }
+            }
+            // Chercher les services
+            if (($category == "*") || ("service" == $category)){
+                $key = "%$domainName%";
+                $response = $this->getObjects('Service','id, name',"WHERE description LIKE '$key'");
+                foreach ($response->objects as $object){
+                    $row = new stdClass();
+                    $row->id    = "service_".$object->key;
+                    $row->name  = $object->fields->name;
+                    $row->code  = $object->fields->name;
+                    $row->domain_id = "domain_".$id;
+                    $row->domain_name = $domainName;
+                    $row->class = new stdClass();
+                    $row->class->id = 1;
+                    $row->class->name = "Service";
+                    $row->category = $this->getItemCategoryByClass($row->class->name);
+                    $result[]   = $row;
+                }
+            }
+            // Chercher les acteurs
+            if (($category == "*") || ("actor" == $category)){
+                $actors = $this->getActorsByDomain($domainName);
+                foreach ($actors as $actor){
+                    $result[] = $actor;
+                }
+            }
+        } else if (strpos($id,"service_") === 0){
+            $id = substr($id,8);
+            $result = array();
+            // Récupérer la liste des itemsId
+            $response = $this->getObjects('Service','id, name, functionalcis_list, contacts_list',"WHERE id = $id");
+            foreach($response->objects as $object){
+                //$domainName = $object->fields->description;
+                foreach($object->fields->functionalcis_list as $ci){
+                    $row = new stdClass();
+                    $row->id = $ci->functionalci_id;
+                    $row->name = $ci->functionalci_name;
+                    //$row->domain_id = $domainId;
+                    //$row->domain_name = $domainName;
+                    $row->class = new stdClass();
+                    $row->class->id = 1;
+                    $row->class->name = $ci->functionalci_id_finalclass_recall;
+                    $row->category = $this->getItemCategoryByClass($row->class->name);
+                    if ($category != "*"){
+                        if ($row->category->name != $category){
+                            continue;
+                        }
+                    }
+                    $result[] = $row;
+                }
+                if (($category == "*") || ("actor" == $category)){
+                    foreach($object->fields->contacts_list as $ci){
+                        $row = new stdClass();
+                        $row->id = "actor_".$ci->contact_id;
+                        $row->name = $ci->contact_name;
+                        /*$row->domain_id = $domainId;
+                         $row->domain_name = $domainName;*/
+                        $row->class = new stdClass();
+                        $row->class->id = 1;
+                        $row->class->name = $ci->contact_id_finalclass_recall;
+                        $row->category = $this->getItemCategoryByClass($row->class->name);
+                        $result[] = $row;
+                    }
+                }
+            }
+        }
+        return $result;
+    }
     private function getItemCategoryByClass($className){
         if (!isset($this->ITOP_CLASSES[$className])){
-            return $this->_newItemCategory($result);
+            return $this->_newItemCategory("inconnu");
         }
         $class = $this->ITOP_CLASSES[$className];
         return $class->category;
@@ -344,26 +468,27 @@ class ITopDao implements IDAO {
     public function getItemClasses(){
         return $this->ITOP_CLASSES;
     }
+    // TODO refaire cette méthode pour prendre tous les types d'items possibles
     public function getItemsByClass($class){
         $result = array();
         $response = $this->getObjects($class,'id, name',"WHERE organization_name = '$this->organisation'");
         foreach ($response->objects as $object){
             $rowclass = $object->class;
-            $rowcategory = $this->getItemCategoryByClass($object->class);
             $row = new stdClass();
-            $row->id    = $object->key;
+            $row->id    = "item_".$object->key; // TODO ajouter item ne va pas marcher dans tous les cas, il faudrait déterminer la catégorie
             $row->name  = $object->fields->name;
             $row->code  = $object->fields->name;
-            $row->domain_id = 1; // TODO voir si necessaire
+            $row->domain_id = ""; // TODO voir comment faire
+            $row->domain_name = ""; // TODO voir comment faire
             $row->class = new stdClass();
             $row->class->id = 1;
             $row->class->name = $object->class;
-            $row->category = $rowcategory;
+            $row->category = $this->getItemCategoryByClass($object->class);
             $result[]   = $row;
         }
         return $result;
     }
-    public function getItemsByCategory($category){
+    public function getItemsByCategory($category,$class="*"){
         $result = array();
         if (($category == "actor") || ($category == "*")){
             $response = $this->getObjects('Team','id, name',"WHERE org_name = '$this->organisation'"); // NB : org_name n'est pas standard, d'habitude c'est organization_name)
@@ -373,7 +498,6 @@ class ITopDao implements IDAO {
                 $row->id    = "actor_".$object->key; // en ajoutant actor, cela me permet de savoir que c'est dans Team qu'il faut que j'aille chercher dans getItemById()
                 $row->name  = $object->fields->name;
                 $row->code  = $object->fields->name;
-                $row->domain_id = 1; // TODO voir si necessaire
                 $row->class = new stdClass();
                 $row->class->id = 1;
                 $row->class->name = "Team";
@@ -381,36 +505,50 @@ class ITopDao implements IDAO {
                 $result[]   = $row;
             }
         }
-        if ($category != "actor"){
-            $class = "";
-            // Les ~ permettent d'éviter que "Server" soit considéré comme software parce qu'il y a "DBServer" dans la liste
-            if ($category == "data") {
-                $class = DATA_CLASSES;
-            } else if ($category == "device") {
-                $class = DEVICE_CLASSES;
-            } else if ($category == "process") {
-                $class = PROCESS_CLASSES;
-            } else if ($category == "server") {
-                $class = SERVER_CLASSES;
-            } else if ($category == "software") {
-                $class = SOFTWARE_CLASSES;
-            } else if ($category == "solution") {
-                $class = SOLUTION_CLASSES;
-            } else {
-                $class = "UNDEFINED";
+        if (($category == "domain") || ($category == "*")){
+            $response = $this->getObjects("Group", 'id, name, friendlyname, description','WHERE type="businessDomain"');
+            $result = array();
+            foreach ($response->objects as $object){
+                $row            = new stdClass();
+                $row->id        = "domain_".$object->key;
+                $row->name      = $object->fields->name;
+                $row->code      = $object->fields->name;
+                $row->area_id   = $object->fields->description;
+                $row->class     = new stdClass();
+                $row->class->id = 1;
+                $row->class->name = "Group";
+                $row->category = $this->getItemCategoryByClass($row->class->name);
+                $result[] = $row;
             }
+        }
+        if (($category == "service") || ($category == "*")){
+            $response = $this->getObjects('Service','id, name, description',"WHERE organization_name = '$this->organisation'");
+            $result = array();
+            foreach ($response->objects as $object){
+                $row = new stdClass();
+                $row->id    = "service_".$object->key;
+                $row->name  = $object->fields->name;
+                $row->code  = $object->fields->name;
+                $row->area_id   = $object->fields->description;
+                $row->class = new stdClass();
+                $row->class->id = 1;
+                $row->class->name = $object->class;
+                $row->category = $this->getItemCategoryByClass($row->class->name);
+                $result[]   = $row;
+            }
+        }
+        if ($category != "actor"){
             $response = $this->getObjects('FunctionalCI','id, name',"WHERE organization_name = '$this->organisation'");
             foreach ($response->objects as $object){
                 $rowclass = $object->class;
-                if ($category == "*"){
-                    $rowcategory = $this->getItemCategoryByClass($object->class);
-                } else if (strpos($class,"~".$rowclass."~") === false){
-                    continue;
-                } else {
-                    $rowcategory = $this->_newItemCategory($category);
+                $rowcategory = $this->getItemCategoryByClass($rowclass);
+                if ($category != "*"){
+                    if ($rowcategory->name != $category){
+                        continue;
+                    }
                 }
                 $row = new stdClass();
-                $row->id    = $object->key;
+                $row->id    = "item_".$object->key;
                 $row->name  = $object->fields->name;
                 $row->code  = $object->fields->name;
                 $row->domain_id = 1; // TODO voir si necessaire
@@ -428,7 +566,60 @@ class ITopDao implements IDAO {
     }
     public function getItemById($id){
         $result = null;
-        if (strpos($id,"actor") === false){ // On ne recherche pas un actor
+        if (strpos($id,"actor_") === 0){ // On recherche un actor
+            $id = substr($id,6);
+            $response = $this->getObjects('Team','id, name',"WHERE id = '$id'");
+            $result = null;
+            foreach ($response->objects as $object){
+                $row = new stdClass();
+                $row->id    = "actor_".$object->key; // en ajoutant actor_, cela me permet de savoir que c'est dans Team qu'il faut que j'aille chercher dans getItemById()
+                $row->name  = $object->fields->name;
+                $row->code  = $object->fields->name;
+                $row->domain_id = 1; // TODO voir si necessaire
+                $row->class = new stdClass();
+                $row->class->id = 1;
+                $row->class->name = "Team";
+                $row->category = $this->getItemCategoryByClass($row->class->name);
+                $result = $row;
+                break;
+            }
+        } else if (strpos($id,"domain_") === 0){ // On recherche un domaine
+            $id = substr($id,7);
+            $response = $this->getObjects('Group','id, name, description',"WHERE id = '$id'");
+            $result = null;
+            foreach ($response->objects as $object){
+                $row = new stdClass();
+                $row->id    = "domain_".$object->key; // en ajoutant domain_, cela me permet de savoir que c'est dans Group qu'il faut que j'aille chercher dans getItemById()
+                $row->name  = $object->fields->name;
+                $row->code  = $object->fields->name;
+                $row->area_id = $object->fields->description;
+                $row->domain_id = 1; // TODO voir si necessaire
+                $row->class = new stdClass();
+                $row->class->id = 1;
+                $row->class->name = "Group";
+                $row->category = $this->getItemCategoryByClass($row->class->name);
+                $result = $row;
+                break;
+            }
+        } else if (strpos($id,"service_") === 0){ // On recherche un domaine
+            $id = substr($id,8);
+            $response = $this->getObjects('Service','id, name',"WHERE id = '$id'");
+            $result = null;
+            foreach ($response->objects as $object){
+                $row = new stdClass();
+                $row->id    = "service_".$object->key; // en ajoutant service_, cela me permet de savoir que c'est dans Group qu'il faut que j'aille chercher dans getItemById()
+                $row->name  = $object->fields->name;
+                $row->code  = $object->fields->name;
+                $row->domain_id = 1; // TODO voir si necessaire
+                $row->class = new stdClass();
+                $row->class->id = 1;
+                $row->class->name = "Service";
+                $row->category = $this->getItemCategoryByClass($row->class->name);
+                $result = $row;
+                break;
+            }
+        } else if (strpos($id,"item_") === 0){ // On recherche un item
+            $id = substr($id,5);
             $response = $this->getObjects('FunctionalCI','id, name',"WHERE id = '$id'");
             $result = null;
             foreach ($response->objects as $object){
@@ -444,23 +635,8 @@ class ITopDao implements IDAO {
                 $result   = $row;
                 break;
             }
-        } else { // On recherche un actor
-            $id = substr($id,6);
-            $response = $this->getObjects('Team','id, name',"WHERE id = '$id'");
-            $result = null;
-            foreach ($response->objects as $object){
-                $row = new stdClass();
-                $row->id    = "actor_".$object->key; // en ajoutant actor, cela me permet de savoir que c'est dans Team qu'il faut que j'aille chercher dans getItemById()
-                $row->name  = $object->fields->name;
-                $row->code  = $object->fields->name;
-                $row->domain_id = 1; // TODO voir si necessaire
-                $row->class = new stdClass();
-                $row->class->id = 1;
-                $row->class->name = "Team";
-                $row->category = $this->_newItemCategory("actor");
-                $result = $row;
-                break;
-            }
+        } else {
+            // Item inconnu
         }
         return $result;
     }
@@ -504,6 +680,7 @@ class ITopDao implements IDAO {
             ));
         }
     }
+    // Deprecated à supprimer
     public function getItemsByServiceId($serviceId){
         $result = array();
         // Récupérer la liste des itemsId
@@ -537,6 +714,7 @@ class ITopDao implements IDAO {
         }
         return $result;
     }
+    //TODO methode a supprimer
     public function getItemsByDomainId($domainId,$class="*"){
         if ($class = "*"){
             $class = "FunctionalCI";
@@ -548,14 +726,14 @@ class ITopDao implements IDAO {
             $domainName = $object->fields->name;
             foreach($object->fields->ci_list as $ci){
                 $row = new stdClass();
-                $row->id = $ci->ci_id;
+                $row->id = "item_".$ci->ci_id;
                 $row->name = $ci->ci_name;
                 $row->domain_id = $domainId;
                 $row->domain_name = $domainName;
                 $row->class = new stdClass();
                 $row->class->id = 1;
                 $row->class->name = $ci->ci_id_finalclass_recall;
-                $row->category = $this->getItemCategoryByClass($ci->ci_id_finalclass_recall);
+                $row->category = $this->getItemCategoryByClass($row->class->name);
                 $result[] = $row;
             }
         }
@@ -699,14 +877,18 @@ class ITopDao implements IDAO {
         $this->ITOP_CATEGORIES["actor"]    = $this->_newItemCategory("actor");
         $this->ITOP_CATEGORIES["data"]     = $this->_newItemCategory("data");
         $this->ITOP_CATEGORIES["device"]   = $this->_newItemCategory("device");
+        $this->ITOP_CATEGORIES["domain"]   = $this->_newItemCategory("domain");
         $this->ITOP_CATEGORIES["process"]  = $this->_newItemCategory("process");
         $this->ITOP_CATEGORIES["server"]   = $this->_newItemCategory("server");
+        $this->ITOP_CATEGORIES["service"]  = $this->_newItemCategory("service");
         $this->ITOP_CATEGORIES["software"] = $this->_newItemCategory("software");
         $this->ITOP_CATEGORIES["solution"] = $this->_newItemCategory("solution");
         $this->ITOP_CLASSES = array();
         $this->_addItemClass("Team",               $this->ITOP_CATEGORIES["actor"]);
         
         $this->_addItemClass("DatabaseSchema",     $this->ITOP_CATEGORIES["data"]);
+        
+        $this->_addItemClass("Group",              $this->ITOP_CATEGORIES["domain"]);
         
         $this->_addItemClass("ConnectableCI",      $this->ITOP_CATEGORIES["device"]);
         $this->_addItemClass("DatacenterDevice",   $this->ITOP_CATEGORIES["device"]);
@@ -738,6 +920,8 @@ class ITopDao implements IDAO {
         $this->_addItemClass("BusinessProcess",    $this->ITOP_CATEGORIES["process"]);
         
         $this->_addItemClass("Server",             $this->ITOP_CATEGORIES["server"]);
+        
+        $this->_addItemClass("Service",            $this->ITOP_CATEGORIES["service"]);
         
         $this->_addItemClass("DBServer",           $this->ITOP_CATEGORIES["software"]);
         $this->_addItemClass("Middleware",         $this->ITOP_CATEGORIES["software"]);

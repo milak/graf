@@ -10,12 +10,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             echo $xml;
             return;
         } else {
-            $processes = $dao->getBusinessProcessById($_GET["id"]);
+            $processes = array($dao->getItemById($_GET["id"]));
         }
     } else if (isset($_GET["domain_id"])){
-        $processes = $dao->getBusinessProcessByDomainId($_GET["domain_id"]);
+        $processes = $dao->getSubItems($_GET["domain_id"],"process");
     } else {
-        $processes = $dao->getBusinessProcesses();
+        $processes = $dao->getItemsByCategory("process");
     }
     header("Content-Type: application/json");?>
 { "process" : [

@@ -18,9 +18,9 @@ if (isset($_GET["id"])){
 } else {
     displayErrorAndDie('Missing id argument');
 }
-$service = $dao->getServiceById($service_id);
+$service = $dao->getItemById($service_id);
 $rootarea->name = $rootarea->name." ".$service->name;
-$items = $dao->getItemsByServiceId($service_id);
+$items = $dao->getSubItems($service_id);
 foreach ($items as $item){
     $obj = new stdClass();
     $obj->id 		= $item->id;

@@ -81,8 +81,8 @@ function deleteDomain(domainId){
 	});
 }
 function refreshDomainList(){
-	$.getJSON( "api/domain.php", function(result) {
-		var domains = result.domains;
+	$.getJSON( "api/element.php?category_name=domain", function(result) {
+		var domains = result.elements;
 		var options = "<option value='null' selected>--choisir un domaine--</option>";
 		for (var i = 0; i < domains.length; i++){
 			var domain = domains[i];
@@ -95,8 +95,8 @@ function refreshDomainList(){
 	});
 }
 function showDomainContext(id){
-	$.getJSON( "api/domain.php?id="+id, function(domain_result) {
-		var domain = domain_result.domains[0];
+	$.getJSON( "api/element.php?id="+id, function(domain_result) {
+		var domain = domain_result.elements[0];
 		var html = "<p>Domaine</p>";
 		html +=  "<b>Nom</b> : "+domain.name + "<br/><br/>";
 		$.getJSON( "api/process.php?domain_id="+id, function(result) {
@@ -108,7 +108,7 @@ function showDomainContext(id){
 				html += "<br/><ul>";
 				for (var i = 0; i < processes.length; i++){
 					var process = processes[i];
-					html += "<li><a href=\"#\" onclick='hidePopup();displayProcess("+process.id+")'>"+process.name+"</a></li>";
+					html += "<li><a href=\"#\" onclick='hidePopup();displayProcess(\""+process.id+"\")'>"+process.name+"</a></li>";
 				}
 				html += "</ul>";
 			}
@@ -121,13 +121,13 @@ function showDomainContext(id){
 					html += "<br/><ul>";
 					for (var i = 0; i < services.length; i++){
 						var service = services[i];
-						html += "<li><a href=\"#\" onclick='hidePopup();displayService("+service.id+")'>"+service.name+"</a></li>";
+						html += "<li><a href=\"#\" onclick='hidePopup();displayService(\""+service.id+"\")'>"+service.name+"</a></li>";
 					}
 					html += "</ul>";
 				}
 				html += "<hr/>";
-				html += " <button onclick='hidePopup();displayBusiness("+domain.id+")'><img src='images/63.png'/> ouvrir</button>";
-				html += " <button onclick='hidePopup();deleteDomain("+domain.id+")'><img src='images/14.png'/> supprimer</button>";
+				html += " <button onclick='hidePopup();displayBusiness(\""+domain.id+"\")'><img src='images/63.png'/> ouvrir</button>";
+				html += " <button onclick='hidePopup();deleteDomain(\""+domain.id+"\")'><img src='images/14.png'/> supprimer</button>";
 				html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
 				showPopup("Détail",html);
 			});
