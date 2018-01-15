@@ -95,7 +95,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     $dao->createDocument($viewName,"Template",file_get_contents($viewsRoot."/".$viewFileName));
                 }
             }
-            
+            // Vérifier que l'on a tous les types de documents
+            $types = $dao->getObjects("DocumentType","name");
+            $documentTypes = array("Template","BPMN","TOSCA");
+            foreach ($types->objects as $object){
+                $name = $object->fields->name;
+                if (isset($documentTypes[$name])){
+                    unset($documentTypes[$name]);
+                }
+            }
+            foreach($documentTypes as $missing){
+                $dao->createObject("DocumentType",array(
+                    "name" => $missing
+                ));
+            }
         }
         $message = 'Mise à jour effectuée <a href="../../index.php" target="top">retour à GRAF</a>';
     }
