@@ -110,7 +110,7 @@ function onSearchItemFormSearchClick(){
 			row.push(element.name);
 			row.push(element.class.name);
 			row.push(element.category.name);
-			var usableName = element.name.replace(new RegExp('[^a-zA-Z]','g'),'_');
+			var usableName = element.name.replace(new RegExp('[^a-zA-Z0-9]','g'),'_');
 			row.push("<button onClick='event.preventDefault();addItemInTosca(\""+element.id+"\",\""+usableName+"\",\""+element.category.name+"\");'>Ajouter</button>");
 			data.push(row);
 		}
@@ -154,13 +154,15 @@ function showToscaItemContext(toscaItemId){
 	var id = null;
 	var properties = "";
 	if (typeof node.properties != 'undefined'){
-		for (var i = 0; i < node.properties.length; i++){
-			$.each(node.properties[i], function(index, value) {
-				if (index == "id"){
-					id = value;
-				}
-				properties += "<tr><td>"+index+"</td><td>"+value +"</td></tr>";
-			});
+		if (node.properties != null){
+			for (var i = 0; i < node.properties.length; i++){
+				$.each(node.properties[i], function(index, value) {
+					if (index == "id"){
+						id = value;
+					}
+					properties += "<tr><td>"+index+"</td><td>"+value +"</td></tr>";
+				});
+			}
 		}
 	}
 	$("#edit_item_form_properties").html(properties);

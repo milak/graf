@@ -123,23 +123,15 @@ class Area {
 interface IDAO {
     public function connect();
     
-    public function getDomains();
-    public function getDomainById($id);
-    public function createDomain($name,$area_id);
-    public function deleteDomain($id);
-    
     public function getViews();
     public function getViewByName($name);
     
     public function getItemCategories();
-    public function getItemDocument($itemId,$documentType);
+    public function getItemDocuments($itemId,$documentType);
     public function getItemsByCategory($category);
     public function getItemsByClass($class);
     public function getItems();
     public function getItemById($id);
-    public function getItemsByServiceId($serviceId);
-    public function getItemsByDomainId($domainId,$class="*");
-    public function updateItemDocument($id,$type,$document);
     
     public function disconnect();
 }

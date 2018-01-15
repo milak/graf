@@ -61,9 +61,11 @@ foreach ($items as $item) {
             $obj->links = array();
             $processarea->addElement($obj);
         }
-        $document = $dao->getItemDocument($item->id, "BPMN");
-        if ($document != null) {
-            $steps = (new Process($document))->elements;
+        $documents = $dao->getItemDocuments($item->id, "BPMN");
+        if (count($documents) != 0) {
+            $document = $documents[0];
+            $content = $dao->getDocumentContent($document->id);
+            $steps = (new Process($content))->elements;
             foreach ($steps as $step) {
                 $type_name = $step->type_name;
                 if (($type_name == "START") || ($type_name == "END")) {

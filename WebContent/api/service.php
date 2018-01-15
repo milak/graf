@@ -96,7 +96,8 @@ if ($first != true) {?>
 	}
 	$name = $_POST["name"];
 error_log("Création d'un service : ".$name." domaine ".$domain_id);
-    $dao->createService($code,$name,$domain_id);
+    $serviceId = $dao->createItem("Service",$code,$name,$domain_id);
+    $dao->addSubItem($domain_id,$serviceId);
 /** METHOD DELETE **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 	if (!isset($_GET["id"])){

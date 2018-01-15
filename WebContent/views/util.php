@@ -239,6 +239,9 @@ function parseTOSCA($text){
     foreach($links as $link){
         $from = $elements[$link->from];
         $link->from = $from;
+        if (!isset($elements[$link->to])){
+            continue;
+        }
         $to = $elements[$link->to];
         $link->to = $to;
         if ($link->label == "host"){

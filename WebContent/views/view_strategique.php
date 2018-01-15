@@ -10,17 +10,23 @@ $roots[] = $areas["root"];
 // ****************************************************************
 // Chercher tous les noeuds correspondant aux critères de recherche
 // ****************************************************************
-$domains = $dao->getDomains();
+$domains = $dao->getItemsByCategory("domain");
 $showProcess = false;
 if (isset($_GET["showProcess"])){
 	$showProcess = true;
 }
+$domainsByName = array();
 // Charger tous les noeuds dans leur zone respective
 foreach($domains as $domain){
     $areaid = $domain->area_id;
-	$area = $areas[$areaid];
-	if ($area == null) {
+    $domainsByName[$domain->name] = $domain;
+	if (($domain->name == "client") || ($domain->name == "provider")) {
+	    continue;
+	}
+	if (!isset($areas[$areaid])){
 	    $area = $areas["default"];
+	} else {
+	    $area = $areas[$areaid];
 	}
 	if ($showProcess){
 		$domainAsArea			= new Area();
@@ -44,21 +50,27 @@ foreach($domains as $domain){
 // Chercher les clients
 $clientarea = $areas["client"];
 if ($clientarea != null){
-    $actors = $dao->getActorsByDomain("client");
-    foreach($actors as $actor){
-        $actor->type = "actor";
-        $actor->class = "actor";
-        $clientarea->addElement($actor);
+    if (isset($domainsByName["client"])){
+        $domain = $domainsByName["client"];
+        $actors = $dao->getSubItems($domain->id,"actor");
+        foreach($actors as $actor){
+            $actor->type = "actor";
+            $actor->class = "actor";
+            $clientarea->addElement($actor);
+        }
     }
 }
 // Chercher les fournisseurs
 $clientarea = $areas["provider"];
 if ($clientarea != null){
-    $actors = $dao->getActorsByDomain("provider");
-    foreach($actors as $actor){
-        $actor->type = "actor";
-        $actor->class = "actor";
-        $clientarea->addElement($actor);
+    if (isset($domainsByName["provider"])){
+        $domain = $domainsByName["provider"];
+        $actors = $dao->getSubItems($domain->id,"actor");;
+        foreach($actors as $actor){
+            $actor->type = "actor";
+            $actor->class = "actor";
+            $clientarea->addElement($actor);
+        }
     }
 }
 if ($showProcess){

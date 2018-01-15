@@ -27,9 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 	   }?>
 	{
 		"id"             : "<?php echo $process->id; ?>",
-		"name"           : "<?php echo $process->name; ?>",
-		"domain_id"      : "<?php echo $process->domain_id; ?>",
-		"domain_name"    : "<?php echo $process->domain_name; ?>"
+		"name"           : "<?php echo $process->name; ?>"
 	}<?php
 	$first = false;
 }
@@ -55,7 +53,10 @@ echo "]}";
 	}
 	$domain_id = intval($_POST["domain_id"]);
 	error_log("Création d'un processus : ".$name);
-	$dao->createBusinessProcess($name,$description,$domain_id);
+	$id = $dao->createBusinessProcess("Process",$name,$name,$description);
+	$dao->addSubItem($domain_id,$id);
+	$documentid = $dao->createDocument("BPMN document of process ".$name, "BPMN", DEFAULT_PROCESS_CONTENT);
+	$dao->addDocument($id,$documentid);
 /** METHOD DELETE **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 	if (!isset($_REQUEST["id"])){

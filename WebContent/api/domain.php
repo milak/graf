@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 		die("Missing name argument");
 	}
 	$name = $_POST["name"];
-    $dao->createDomain($name,$area_id);
+    $dao->createItem("Domain",$name,$name,$area_id);
 /** METHOD DELETE **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 	if (!isset($_REQUEST["id"])){

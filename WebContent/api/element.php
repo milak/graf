@@ -15,9 +15,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             if (!isset($_GET["type"])){
                 die("Missing type argument");
             }
-            $document = $dao->getItemDocument($_GET["id"],$_GET["type"]);
-            echo $document;
-            return;
+            $documents = $dao->getItemDocuments($_GET["id"],$_GET["type"]);
+            if (count($documents) != 0){
+                $document = $documents[0];
+                $content = $dao->getDocumentContent($document->id);
+                echo $content;
+                return;
+            } else {
+                http_response_code(404);
+                die();
+                return;
+            }
         } else {    
             $items = array();
             $item = $dao->getItemById($_GET["id"]);
@@ -54,8 +62,16 @@ foreach ($items as $item){
             if (!isset($_POST["type"])){
                 die("Missing type argument");
             }
-            // Document update only
-            $dao->updateItemDocument($id,$_POST["type"],$_POST["document"]);
+            // Retrouver l'id du document, l'ideal serait que l'on fournisse l'id du document
+            $documents = $dao->getItemDocuments($id,$_POST["type"]);
+            if (count($documents) != 0){
+                $document = $documents[0];
+                $dao->updateDocument($document->id,$_POST["document"]);
+                return;
+            } else { // creation du document
+                $document_id = $dao->createDocument("Document",$_POST["type"],$_POST["document"]);
+                $dao->addDocument($id,$document_id);
+            }
         } else {
             // Element update
             

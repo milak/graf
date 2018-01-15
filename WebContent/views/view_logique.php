@@ -22,7 +22,17 @@ if (isset($areas["default"])){
     $defaultarea  = null;
 }
 // Afficher la description de la solution
-$elements = parseTOSCA($dao->getItemDocument($itemId,"TOSCA"));
+$documents = $dao->getItemDocuments($itemId,"TOSCA");
+if (count($documents) != 0){
+    $document = $documents[0];
+    $content = $dao->getDocumentContent($document->id);
+} else {
+    http_response_code(404);
+    die();
+    return;
+}
+error_log($content);
+$elements = parseTOSCA($content);
 foreach ($elements as $element){
     $element->class 	= "rect_100_100";
     if (isset($element->area)){
@@ -41,7 +51,7 @@ foreach ($elements as $element){
 // Afficher les instances 
 $solution = $dao->getItemById($itemId);
 $rootarea->name = $rootarea->name." ".$solution->name;
-$items = $dao->getSolutionItems($itemId);
+$items = $dao->getSubItems($itemId);
 foreach($items as $item){
     $obj = new stdClass();
     $obj->id 		= $item->id;

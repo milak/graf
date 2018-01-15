@@ -8,7 +8,17 @@ require("../dao/dao.php");
 require("util.php");
 $dao->connect();
 $process = $dao->getItemById($id);
-$steps = (new Process($dao->getItemDocument($id,"BPMN")))->elements;
+$documents = $dao->getItemDocuments($id,"BPMN");
+if (count($documents) != 0){
+    $document = $documents[0];
+    $content = $dao->getDocumentContent($document->id);
+} else {
+    http_response_code(404);
+    die();
+    return;
+}
+
+$steps = (new Process($content))->elements;
 require("../svg/header.php");
 require("../svg/body.php");
 
