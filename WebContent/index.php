@@ -444,6 +444,7 @@ require("dao/dao.php");
         		<label for="search_item_form_area">Zone où sera ajouté l'élément</label>
         		<select id="search_item_form_area"></select>
         	</div>
+        	<button type="button" onClick="onSearchItemFormCreateClick()">Cr&eacute;er</button>
 		</td>
 		</tr>
 	</table>

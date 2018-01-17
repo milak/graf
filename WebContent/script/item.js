@@ -41,6 +41,36 @@ function onSearchItemFormCategoryChange(){
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
 }
+function onSearchItemFormCreateClick(){
+	var name 		= $("#search_item_form_name").val();
+	if (name == ""){
+		alert("Vous devez saisir un nom");
+		return;
+	}
+	var className 	= $("#search_item_form_class").val();
+	if (className == "null"){
+		alert("Vous devez choisir une classe");
+		return;
+	}
+	$.ajax({
+		type 	: "POST",
+		url 	: "api/element.php",
+		data	: {
+			"name"		: name,
+			"class_name": className/*,
+			"domain_id"	: currentDomainId*/
+		},
+		dataType: "text",
+		success	: function( data ) {
+			onSearchItemFormSearchClick();
+			//refreshActorLists();
+			//displayBusiness(currentDomainId);
+			//$("#create_actor_form").dialog("close");
+		}
+	}).fail(function(jxqr,textStatus,error){
+		alert(textStatus+" : "+error);
+	});
+}
 function addItemInTosca(id,name,category){
 	var area = $("#search_item_form_area").val();
 	if (area == "null"){
@@ -79,6 +109,20 @@ function addItemInTosca(id,name,category){
 	$("#solution_script_editor_form_text").val(text.trim());
 	saveSolutionScript(currentSolutionId);
 }
+function deleteItem(itemId){
+	if (confirm("Etes-vous sûr de vouloir supprimer l'élément de la base ?")){
+		$.ajax({
+			type 	: "DELETE",
+			url 	: "api/element.php?id="+itemId,
+			dataType: "text",
+			success	: function( data ) {
+				onSearchItemFormSearchClick();
+			}
+		}).fail(function(jxqr,textStatus,error){
+			alert(textStatus+" : "+error);
+		});
+	}
+}
 function onSearchItemFormSearchClick(){
 	if (datatableItems == null){
 		datatableItems = $("#search_item_form_result").dataTable();
@@ -111,7 +155,9 @@ function onSearchItemFormSearchClick(){
 			row.push(element.class.name);
 			row.push(element.category.name);
 			var usableName = element.name.replace(new RegExp('[^a-zA-Z0-9]','g'),'_');
-			row.push("<button onClick='event.preventDefault();addItemInTosca(\""+element.id+"\",\""+usableName+"\",\""+element.category.name+"\");'>Ajouter</button>");
+			var label = "<button onClick='event.preventDefault();addItemInTosca(\""+element.id+"\",\""+usableName+"\",\""+element.category.name+"\");'>Ajouter</button>";
+			label    += "<button onClick='event.preventDefault();deleteItem(\""+element.id+"\");'>Effacer</button>";
+			row.push(label);
 			data.push(row);
 		}
 		if (data.length > 0){

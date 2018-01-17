@@ -348,6 +348,18 @@ SQL;
             die('There was an error running the query [' . $this->db->error . ']');
         }
     }
+    public function createItem($className,$name,$code,$description){
+        $sql = <<<SQL
+            insert into element (name,element_class_id) values ('$name',$class_id)
+SQL;
+        $domain_id = intval($_POST["domain_id"]);
+        $sql = <<<SQL
+    insert into element (name,domain_id,element_class_id) values ('$name',$domain_id,$class_id)
+SQL;
+        if(!$result = $db->query($sql)){
+            die('There was an error running the query [' . $db->error . ']');
+        }
+    }
     public function getItemCategories(){
         $sql = <<<SQL
     SELECT element_class.*, element_category.id as category_id, element_category.name as category_name from element_class
@@ -477,8 +489,16 @@ SQL;
     public function getItemsByDomain($domainId){
 	return array();
     }
-    public function getSubItems($itemID){
+    public function getSubItems($itemId){
 	return array();
+    }
+    public function deleteItem($itemId){
+        $sql = <<<SQL
+    delete from element where id = $itemId
+SQL;
+        if(!$result = $db->query($sql)){
+            die('There was an error running the query [' . $db->error . ']');
+        }
     }
     public function query($sql) {
         return $this->db->query($sql);

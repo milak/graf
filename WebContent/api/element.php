@@ -81,40 +81,23 @@ foreach ($items as $item){
         if (!isset($_POST["name"])){
             die("Missing name argument");
         }
-        $name = $db->real_escape_string($_POST["name"]);
-        if (!isset($_POST["class_id"])){
-            die("Missing class_id argument");
+        $name = $_POST["name"];
+        if (!isset($_POST["class_name"])){
+            die("Missing class_name argument");
         }
-        $class_id = intval($_POST["class_id"]);
-        if (!isset($_POST["domain_id"])){
-            $sql = <<<SQL
-    insert into element (name,element_class_id) values ('$name',$class_id)
-SQL;
-        } else {
-            $domain_id = intval($_POST["domain_id"]);
-            $sql = <<<SQL
-    insert into element (name,domain_id,element_class_id) values ('$name',$domain_id,$class_id)
-SQL;
-        }
-        if(!$result = $db->query($sql)){
-            die('There was an error running the query [' . $db->error . ']');
+        $class_name = $_POST["class_name"];
+        $dao->createItem($class_name,$name,$name,"");
+        if (isset($_POST["domain_id"])){
+            // ??
         }
     }
-    
-	
 /** METHOD DELETE **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 	if (!isset($_GET["id"])){
 		die("Missing id argument");
 	}
-	$id = intval($_GET["id"]);
-	error_log("Removing element ".$id);
-$sql = <<<SQL
-    delete from element where id = $id
-SQL;
-	if(!$result = $db->query($sql)){
-    	die('There was an error running the query [' . $db->error . ']');
-	}
+	$id = $_GET["id"];
+    $dao->deleteItem($id);
 }
 $dao->disconnect();
 ?>

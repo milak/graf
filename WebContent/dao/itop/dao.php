@@ -89,14 +89,19 @@ class ITopDao implements IDAO {
                 'name'              => $name,
                 'servicefamily_id'  => "SELECT ServiceFamily WHERE name = 'IT Services'",
                 'status'            => 'production',
-                'description'       => 'description'
+                'description'       => $description
+            ));
+        } else if ($category->name == "actor"){
+            $result = "service_".$this->createObject("Team", array(
+                'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
+                'name'              => $name,
+                'function'          => 'description'
             ));
         } else {
             // Créer un item
             $result = "item_".$this->createObject($className, array(
                 'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
                 'name'              => $name,
-                'status'            => 'active',
                 'description'       => $description
             ));
         }
@@ -299,10 +304,18 @@ class ITopDao implements IDAO {
     public function getItemClasses(){
         return $this->ITOP_CLASSES;
     }
-    // TODO refaire cette méthode pour prendre tous les types d'items possibles
-    public function getItemsByClass($class){
+    public function getItemsByClass($className){
+        $category = $this->getItemCategoryByClass($className);
+        if ($category->name == "actor"){
+            return $this->getItemsByCategory("actor");
+        } else if ($category->name == "domain"){
+            return $this->getItemsByCategory("domain");
+        } else if ($category->name == "service"){
+            return $this->getItemsByCategory("service");
+        }
+        // pour le reste, la solution générique devrait fonctionner        
         $result = array();
-        $response = $this->getObjects($class,'id, name',"WHERE organization_name = '$this->organisation'");
+        $response = $this->getObjects($className,'id, name',"WHERE organization_name = '$this->organisation'");
         foreach ($response->objects as $object){
             $rowclass = $object->class;
             $row = new stdClass();
@@ -323,7 +336,6 @@ class ITopDao implements IDAO {
         $result = array();
         if (($category == "actor") || ($category == "*")){
             $response = $this->getObjects('Team','id, name',"WHERE org_name = '$this->organisation'"); // NB : org_name n'est pas standard, d'habitude c'est organization_name)
-            $result = array();
             foreach ($response->objects as $object){
                 $row = new stdClass();
                 $row->id    = "actor_".$object->key; // en ajoutant actor, cela me permet de savoir que c'est dans Team qu'il faut que j'aille chercher dans getItemById()
@@ -338,7 +350,6 @@ class ITopDao implements IDAO {
         }
         if (($category == "domain") || ($category == "*")){
             $response = $this->getObjects("Group", 'id, name, friendlyname, description','WHERE type="businessDomain"');
-            $result = array();
             foreach ($response->objects as $object){
                 $row            = new stdClass();
                 $row->id        = "domain_".$object->key;
@@ -354,7 +365,6 @@ class ITopDao implements IDAO {
         }
         if (($category == "service") || ($category == "*")){
             $response = $this->getObjects('Service','id, name, description',"WHERE organization_name = '$this->organisation'");
-            $result = array();
             foreach ($response->objects as $object){
                 $row = new stdClass();
                 $row->id    = "service_".$object->key;
@@ -368,7 +378,7 @@ class ITopDao implements IDAO {
                 $result[]   = $row;
             }
         }
-        if ($category != "actor"){
+        if (($category != "actor") && ($category != "domain") && ($category != "service")){
             $response = $this->getObjects('FunctionalCI','id, name',"WHERE organization_name = '$this->organisation'");
             foreach ($response->objects as $object){
                 $rowclass = $object->class;
@@ -533,6 +543,7 @@ class ITopDao implements IDAO {
         return $result;
     }
     public function deleteItem($itemId){
+        error_log("Removing item ".$id);
         // Supprimer les documents liés
         $documents = $this->getItemDocuments($itemId);
         foreach ($documents as $document){
@@ -542,17 +553,6 @@ class ITopDao implements IDAO {
         $item = $this->getItemById($itemId);
         $itemId = $this->_splitItemId($itemId);
         return $this->deleteObject($item->class->name,$itemId->id);
-    }
-    //@deprecated : à supprimer prochainement
-    public function createSolution($name){
-        // Créer le contenu
-        $documentid = $this->createDocument("BPMN document of service ".$name, "BPMN", DEFAULT_SOLUTION_CONTENT);
-        // Créer la solution
-        $this->createObject('ApplicationSolution', array(
-            'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
-            'name'              => $name,
-            'documents_list'    => array(array("document_id" => $documentid))
-        ));
     }
     //@deprecated : à supprimer prochainement
     public function getDB(){
