@@ -73,7 +73,7 @@ function doCreateProcess(){
 		dataType: "text",
 		success	: function( data ) {
 			$("#process_create_form").dialog("close");
-			displayBusiness(null);
+			displayBusiness(currentDomainId);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -88,8 +88,7 @@ function deleteProcess(processId){
 		url 	: "api/process.php?id="+processId,
 		dataType: "text",
 		success	: function( data ) {
-   			alert("Processus supprimé");
-			displayBusiness(null);
+   			displayBusiness(currentDomainId);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);

@@ -6,7 +6,7 @@ $dao->connect();
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $services = array();
     if (isset($_GET["id"])){
-        $result = $dao->getServiceById($_GET["id"]);
+        $result = $dao->getItemById($_GET["id"]);
         if ($result != null){
             $services[] = $result;
         }

@@ -70,7 +70,7 @@ foreach ($items as $item){
                 return;
             } else { // creation du document
                 $document_id = $dao->createDocument("Document",$_POST["type"],$_POST["document"]);
-                $dao->addDocument($id,$document_id);
+                $dao->addItemDocument($id,$document_id);
             }
         } else {
             // Element update

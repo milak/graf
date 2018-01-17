@@ -33,133 +33,7 @@ class ITopDao implements IDAO {
         }
         return $result;
     }
-    /**
-     * Helper to execute an HTTP POST request
-     * Source: http://netevil.org/blog/2006/nov/http-post-from-php-without-curl
-     *         originaly named after do_post_request
-     * $sOptionnalHeaders is a string containing additional HTTP headers that you would like to send in your request.
-     */
-    private function DoPostRequest($jsonData, $sOptionnalHeaders = null) {
-        $sUrl = $this->url."?version=".$this->version;
-        $aData = array();
-        $aData['auth_user'] = $this->login;
-        $aData['auth_pwd'] = $this->password;
-        $aData['json_data'] = $jsonData;
-        $sData = http_build_query($aData);
-        $aParams = array('http' => array(
-                'method' => 'POST',
-                'content' => $sData,
-                'header'=> "Content-type: application/x-www-form-urlencoded\r\nContent-Length: ".strlen($sData)."\r\n"
-        ));
-        if ($sOptionnalHeaders !== null) {
-            $aParams['http']['header'] .= $sOptionnalHeaders;
-        }
-        $ctx = stream_context_create($aParams);
-        $fp = @fopen($sUrl, 'rb', false, $ctx);
-        if (!$fp) {
-                global $php_errormsg;
-                if (isset($php_errormsg)) {
-                    throw new Exception("Problem with $sUrl, $php_errormsg");
-                } else {
-                    throw new Exception("Problem with $sUrl");
-                }
-         }
-         $response = @stream_get_contents($fp);
-         if ($response === false) {
-             throw new Exception("Problem reading data from $sUrl, $php_errormsg");
-         }
-         return $response;
-    }
-    private function call($jsonData){
-        $response = $this->DoPostRequest($jsonData);
-        $response = json_decode($response);
-        if ($response->code != 0) {
-            throw new Exception("Problem calling ITOP Method ".$response->message);
-        }
-        if (!isset($response->objects)){
-            $response->objects = array();
-        }
-        return $response;
-    }
-    public function deleteDomain($id){
-        return $this->deleteObject('Group',$id);
-    }
-    private function businessProcessPopulate($object){
-        $row = new stdClass();
-        $row->id = $object->key;
-        $row->name = $object->fields->name;
-        // TODO trouver comment identifier le group auquel appartient le process
-        $row->domain_id = "??";
-        $row->domain_name = "???";
-        return $row;
-    }
-    public function getBusinessProcesses(){
-        $response = $this->getObjects('BusinessProcess', 'id, name, friendlyname, description, business_criticity, status, applicationsolutions_list',"WHERE organization_name = '$this->organisation'");
-        $result = array();
-        foreach ($response->objects as $object){
-            $result[] = $this->businessProcessPopulate($object);
-        }
-        return $result;
-    }
-    public function getBusinessProcessById($id){
-        $response = $this->getObjects('BusinessProcess','id, name, friendlyname, description, business_criticity, status, applicationsolutions_list','WHERE id = "'.$id.'"');
-        $result = array();
-        foreach ($response->objects as $object){
-            $result[] = $this->businessProcessPopulate($object);
-        }
-        return $result;
-    }
-    public function getBusinessProcessByDomainId($id){
-        // Chercher le domaine
-        $processes = "";
-        // Récupérer la liste des businessId
-        $response = $this->getObjects('Group','id, name, ci_list',"WHERE id=$id");
-        foreach($response->objects as $object){
-            $domainName = $object->fields->name;
-            foreach($object->fields->ci_list as $ci){
-             if ($ci->ci_id_finalclass_recall == "BusinessProcess"){
-                 if (strlen($processes) != 0){
-                     $processes .= ",";
-                 }
-                 $processes .= $ci->ci_id;
-             }
-            }
-        }
-        // Chercher les processus
-        $result = array();
-        if (strlen($processes) != 0){
-            $response = $this->getObjects('BusinessProcess','id, name, friendlyname, description, business_criticity, status, applicationsolutions_list','WHERE id IN ('.$processes.')');
-            $result = array();
-            foreach ($response->objects as $object){
-                $row = new stdClass();
-                $row->id = $object->key;
-                $row->name = $object->fields->name;
-                $row->domain_id = $id;
-                $row->domain_name = $domainName;
-                $result[] = $row;
-            }
-        }
-        return $result;
-    }
-    public function deleteBusinessProcess($id){
-        // Obtenir le numéro du document
-        $response = $this->getObjects('BusinessProcess','id, documents_list',"WHERE id = $id");
-        $result = array();
-        $document_id = null;
-        foreach ($response->objects as $object){
-            foreach ($object->fields->documents_list as $document){
-                $document_id = $document->document_id;
-                break;
-            }
-        }
-        // Supprimer le document rattaché
-        if ($document_id != null){
-            // Supprimer le document
-            $this->deleteObject('DocumentNote',$document_id);
-        }
-        // Supprimer le process
-        return $this->deleteObject('BusinessProcess',$id);
-    }
+    
     public function getViews(){
         $response = $this->getObjects('DocumentNote','id, name','WHERE documenttype_name = "Template"');
         $result = array();
@@ -189,50 +63,76 @@ class ITopDao implements IDAO {
         $areas = parseViewToArray($view);
         return $areas;
     }
-    public function getServices(){
-        $response = $this->getObjects('Service','id, name',"WHERE organization_name = '$this->organisation'");
-        $result = array();
-        foreach ($response->objects as $object){
-            $row = new stdClass();
-            $row->id    = $object->key;
-            $row->name  = $object->fields->name;
-            $row->code  = $object->fields->name;
-            $result[]   = $row;
-        }
-        return $result;
-    }
-    public function getServiceById($id){
-        $response = $this->getObjects('Service','id, name',"WHERE id = '$id' AND organization_name = '$this->organisation'");
+    //
+    // Gestion des items
+    //
+    public function createItem($className,$name,$code,$description){
         $result = null;
-        foreach ($response->objects as $object){
-            $row = new stdClass();
-            $row->id    = $object->key;
-            $row->name  = $object->fields->name;
-            $row->code  = $object->fields->name;
-            $result   = $row;
-            break;
+        if ($className == "Domain"){
+            $className = "Group";
+        } else if ($className == "Process"){
+            $className = "BusinessProcess";
+        }
+        $category = $this->getItemCategoryByClass($className);
+        error_log("Création d'un $category->name de classe $className de nom $name");
+        if ($category->name == "domain"){
+            $result = "domain_".$this->createObject('Group', array(
+                'org_id'        => "SELECT Organization WHERE name = '$this->organisation'",
+                'name'          => $name,
+                'type'          => 'businessDomain',
+                'status'        => 'production',
+                'description'   => $description
+            ));
+        } else if ($category->name == "service"){
+            $result = "service_".$this->createObject("Service", array(
+                'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
+                'name'              => $name,
+                'servicefamily_id'  => "SELECT ServiceFamily WHERE name = 'IT Services'",
+                'status'            => 'production',
+                'description'       => 'description'
+            ));
+        } else {
+            // Créer un item
+            $result = "item_".$this->createObject($className, array(
+                'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
+                'name'              => $name,
+                'status'            => 'active',
+                'description'       => $description
+            ));
         }
         return $result;
     }
-    // DEPRECATED Methode à supprimer
-    public function getServicesByDomainId($id){
-        $domain = $this->getDomainById($id);
-        if ($domain == null){
-            return array();
+    public function addSubItem($parentItemId,$childItemId){
+        $parentItem   = $this->getItemById($parentItemId);
+        $childItem    = $this->getItemById($childItemId);
+        $parentItemId = $this->_splitItemId($parentItemId);
+        $childItemId  = $this->_splitItemId($childItemId);
+        switch ($parentItem->category->name){
+            case "domain" :
+                if ($childItem->category->name == "service"){
+                    // S'il n'y est pas déjà
+                    $description = $childItem->description;
+                    if (strpos($description,$parentItem->name) === false){
+                        if (strlen($description) == 0){
+                            $description = $parentItem->name;
+                        } else {
+                            $description = $description.",".$parentItem->name;
+                        }
+                        $this->updateObject("Service", $childItemId->id, array(
+                            "description" => $description
+                        ));
+                    } // sinon, c'est bon
+                } else if ($childItemId->prefix == "item"){
+                    // Le rajouter au domaine
+                    $this->createObject("lnkGroupToCI", array(
+                        'group_id'  => $parentItemId->id,
+                        'ci_id'     => $childItemId->id,
+                        'reason'    => 'Item of this domain'
+                    ));
+                }
+                break;
         }
-        $key = "%$domain->name%";
-        $response = $this->getObjects('Service','id, name',"WHERE description LIKE '$key'");
-        $result = array();
-        foreach ($response->objects as $object){
-            $row = new stdClass();
-            $row->id    = $object->key;
-            $row->name  = $object->fields->name;
-            $row->code  = $object->fields->name;
-            $result[]   = $row;
-        }
-        return $result;
     }
-    
     public function getSubItems($itemId,$category="*"){
         $result = array();
         $itemId = $this->_splitItemId($itemId);
@@ -386,73 +286,6 @@ class ITopDao implements IDAO {
         }
         return $result;
     }
-    public function createItem($className,$name,$code,$description){
-        $result = null;
-        if ($className == "Domain"){
-            $className = "Group";
-        } else if ($className == "Process"){
-            $className = "BusinessProcess";
-        }
-        $category = $this->getItemCategoryByClass($className);
-        error_log("Création d'un $category->name de classe $className de nom $name");
-        if ($category->name == "domain"){
-            $result = $this->createObject('Group', array(
-                'org_id'        => "SELECT Organization WHERE name = '$this->organisation'",
-                'name'          => $name,
-                'type'          => 'businessDomain',
-                'status'        => 'production',
-                'description'   => $description
-            ));
-        } else if ($category->name == "service"){
-            $result = $this->createObject("Service", array(
-                'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
-                'name'              => $name,
-                'servicefamily_id'  => "SELECT ServiceFamily WHERE name = 'IT Services'",
-                'status'            => 'production',
-                'description'       => 'description'
-            ));
-        } else {
-            
-            // Créer le BusinessProcess
-            $result = $this->createObject($className, array(
-                'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
-                'name'              => $name,
-                'status'            => 'active',
-                'description'       => $description
-            ));
-        }
-        return $result;
-    }
-    public function addSubItem($parentItemId,$childItemId){
-        $parentItemId = $this->_splitItemId($parentItem);
-        $childItemId  = $this->_splitItemId($childItemId);
-        $parentItem   = $this->getItemById($parentItemId);
-        $childItem    = $this->getItemById($childItemId);
-        switch ($parentItem->category->name){
-            case "domain" :
-                if ($childItem->category->name == "service"){
-                    // S'il n'y est pas déjà
-                    if (strpos($description,$domain->name) === false){
-                        if (strlen($description) == 0){
-                            $description = $domain->name;
-                        } else {
-                            $description = $description.",".$domain->name;
-                        }
-                        $this->updateObject("Service", $childItemId->id, array(
-                            "description" => $description
-                        ));
-                    } // sinon, c'est bon
-                } else if ($childItemId->prefix == "item"){
-                    // Le rajouter au domaine
-                    $this->createObject("lnkGroupToCI", array(
-                        'group_id'  => $parentItemId->id,
-                        'ci_id'     => $childItemId->id,
-                        'reason'    => 'Item of this domain'
-                    ));
-                }
-                break;
-        }
-    }
     private function getItemCategoryByClass($className){
         if (!isset($this->ITOP_CLASSES[$className])){
             return $this->_newItemCategory("inconnu");
@@ -573,6 +406,7 @@ class ITopDao implements IDAO {
                 $row->id    = "actor_".$object->key; // en ajoutant actor_, cela me permet de savoir que c'est dans Team qu'il faut que j'aille chercher dans getItemById()
                 $row->name  = $object->fields->name;
                 $row->code  = $object->fields->name;
+                $row->description  = "";
                 $row->domain_id = 1; // TODO voir si necessaire
                 $row->class = new stdClass();
                 $row->class->id = 1;
@@ -586,26 +420,28 @@ class ITopDao implements IDAO {
             $result = null;
             foreach ($response->objects as $object){
                 $row = new stdClass();
-                $row->id    = "domain_".$object->key; // en ajoutant domain_, cela me permet de savoir que c'est dans Group qu'il faut que j'aille chercher dans getItemById()
-                $row->name  = $object->fields->name;
-                $row->code  = $object->fields->name;
-                $row->area_id = $object->fields->description;
-                $row->domain_id = 1; // TODO voir si necessaire
-                $row->class = new stdClass();
-                $row->class->id = 1;
-                $row->class->name = "Group";
-                $row->category = $this->getItemCategoryByClass($row->class->name);
+                $row->id            = "domain_".$object->key; // en ajoutant domain_, cela me permet de savoir que c'est dans Group qu'il faut que j'aille chercher dans getItemById()
+                $row->name          = $object->fields->name;
+                $row->code          = $object->fields->name;
+                $row->description   = $object->fields->description;
+                $row->area_id       = $object->fields->description;
+                $row->domain_id     = 1; // TODO voir si necessaire
+                $row->class         = new stdClass();
+                $row->class->id     = 1;
+                $row->class->name   = "Group";
+                $row->category      = $this->getItemCategoryByClass($row->class->name);
                 $result = $row;
                 break;
             }
         } else if ($itemId->prefix == "service"){ // On recherche un domaine
-            $response = $this->getObjects('Service','id, name',"WHERE id = '$itemId->id'");
+            $response = $this->getObjects('Service','id, name, description',"WHERE id = '$itemId->id'");
             $result = null;
             foreach ($response->objects as $object){
                 $row = new stdClass();
                 $row->id    = "service_".$object->key; // en ajoutant service_, cela me permet de savoir que c'est dans Group qu'il faut que j'aille chercher dans getItemById()
                 $row->name  = $object->fields->name;
                 $row->code  = $object->fields->name;
+                $row->description = $object->fields->description;
                 $row->domain_id = 1; // TODO voir si necessaire
                 $row->class = new stdClass();
                 $row->class->id = 1;
@@ -634,6 +470,14 @@ class ITopDao implements IDAO {
             // Item inconnu
         }
         return $result;
+    }
+    public function addItemDocument($itemId,$documentId){
+        $item = $this->getItemById($itemId);
+        $itemId = $this->_splitItemId($itemId);
+        // TODO on n'ajoute pas on remplace, il faut gérer l'ajout en redemandant tous les documents
+        $this->updateObject($item->class->name, $itemId->id, array(
+            'documents_list'    => array(array("document_id" => $documentId))
+        ));
     }
     public function getItemDocuments($itemId,$documentType="*"){
         $itemId = $this->_splitItemId($itemId);
@@ -688,11 +532,6 @@ class ITopDao implements IDAO {
         }
         return $result;
     }
-    public function updateDocument($documentId,$newContent){
-        $this->updateObject("DocumentNote", $documentId, array(
-             'text'              => htmlspecialchars($newContent)
-        ));
-    }
     public function deleteItem($itemId){
         // Supprimer les documents liés
         $documents = $this->getItemDocuments($itemId);
@@ -700,10 +539,11 @@ class ITopDao implements IDAO {
             $this->deleteObject('DocumentNote', $document->id);
         }
         // Supprimer l'item lui même
+        $item = $this->getItemById($itemId);
         $itemId = $this->_splitItemId($itemId);
-        $item = $this->getItemById($itemId->id);
-        return $this->deleteObject($item->class->name,$item->id);
+        return $this->deleteObject($item->class->name,$itemId->id);
     }
+    //@deprecated : à supprimer prochainement
     public function createSolution($name){
         // Créer le contenu
         $documentid = $this->createDocument("BPMN document of service ".$name, "BPMN", DEFAULT_SOLUTION_CONTENT);
@@ -714,6 +554,7 @@ class ITopDao implements IDAO {
             'documents_list'    => array(array("document_id" => $documentid))
         ));
     }
+    //@deprecated : à supprimer prochainement
     public function getDB(){
         global $configuration;
         return new mysqli($configuration->db->host, $configuration->db->login, $configuration->db->password, $configuration->db->instance);
@@ -721,22 +562,18 @@ class ITopDao implements IDAO {
     public function disconnect(){
         // Rien à faire
     }
+    //
+    // Partie liée aux documents
+    //
+    /**
+     * 
+     * @param unknown $content
+     * @return unknown
+     */
     private function cleanContent($content){
         $result = str_replace(array("<br>","<p>","</p>"), "", $content);
         $result = htmlspecialchars_decode(htmlspecialchars_decode($result));
         $result = preg_replace('~\xc2\xa0~', '', $result);
-        return $result;
-    }
-    public function getDocumentContent($id){
-        $result = null;
-        $documentresponse = $this->getObjects('DocumentNote','text','WHERE id = "'.$id.'"');
-        foreach ($documentresponse->objects as $documentObject){
-            $result = $documentObject->fields->text;
-            break;
-        }
-        if ($result != null){
-            $result = $this->cleanContent($result);
-        }
         return $result;
     }
     public function createDocument($name,$type,$content){
@@ -750,14 +587,26 @@ class ITopDao implements IDAO {
         ));
         return $documentid;
     }
-    public function addDocument($itemId,$documentId){
-        $item = $this->getItemById($itemId);
-        $itemId = $this->_splitItemId($itemId);
-        // TODO on n'ajoute pas on remplace, il faut gérer l'ajout en redemandant tous les documents
-        $businessProcessId = $this->updateObject($item->class->name, $itemId->id, array(
-            'documents_list'    => array(array("document_id" => $documentid))
+    public function getDocumentContent($id){
+        $result = null;
+        $documentresponse = $this->getObjects('DocumentNote','text','WHERE id = "'.$id.'"');
+        foreach ($documentresponse->objects as $documentObject){
+            $result = $documentObject->fields->text;
+            break;
+        }
+        if ($result != null){
+            $result = $this->cleanContent($result);
+        }
+        return $result;
+    }
+    public function updateDocument($documentId,$newContent){
+        $this->updateObject("DocumentNote", $documentId, array(
+            'text'              => htmlspecialchars($newContent)
         ));
     }
+    //
+    // Méthodes permettant de simplifier les appels à l'API rest
+    //    
     public function createObject($object,$fields){
         $jsonData = json_encode(array(
             'operation'     => 'core/create', // operation code
@@ -812,6 +661,57 @@ class ITopDao implements IDAO {
         ));
         return $this->call($jsonData);
     }
+    /**
+     * Helper to execute an HTTP POST request
+     * Source: http://netevil.org/blog/2006/nov/http-post-from-php-without-curl
+     *         originaly named after do_post_request
+     * $sOptionnalHeaders is a string containing additional HTTP headers that you would like to send in your request.
+     */
+    private function DoPostRequest($jsonData, $sOptionnalHeaders = null) {
+        $sUrl = $this->url."?version=".$this->version;
+        $aData = array();
+        $aData['auth_user'] = $this->login;
+        $aData['auth_pwd'] = $this->password;
+        $aData['json_data'] = $jsonData;
+        $sData = http_build_query($aData);
+        $aParams = array('http' => array(
+            'method' => 'POST',
+            'content' => $sData,
+            'header'=> "Content-type: application/x-www-form-urlencoded\r\nContent-Length: ".strlen($sData)."\r\n"
+        ));
+        if ($sOptionnalHeaders !== null) {
+            $aParams['http']['header'] .= $sOptionnalHeaders;
+        }
+        $ctx = stream_context_create($aParams);
+        $fp = @fopen($sUrl, 'rb', false, $ctx);
+        if (!$fp) {
+            global $php_errormsg;
+            if (isset($php_errormsg)) {
+                throw new Exception("Problem with $sUrl, $php_errormsg");
+            } else {
+                throw new Exception("Problem with $sUrl");
+            }
+        }
+        $response = @stream_get_contents($fp);
+        if ($response === false) {
+            throw new Exception("Problem reading data from $sUrl, $php_errormsg");
+        }
+        return $response;
+    }
+    private function call($jsonData){
+        $response = $this->DoPostRequest($jsonData);
+        $response = json_decode($response);
+        if ($response->code != 0) {
+            throw new Exception("Problem calling ITOP Method ".$response->message);
+        }
+        if (!isset($response->objects)){
+            $response->objects = array();
+        }
+        return $response;
+    }
+    //
+    // Méthodes internes gérant les categories et classes
+    //
     public function _init(){
         $this->ITOP_CATEGORIES = array();
         $this->ITOP_CATEGORIES["actor"]    = $this->_newItemCategory("actor");
@@ -890,6 +790,7 @@ class ITopDao implements IDAO {
         return $category;
     }
     private function _splitItemId($itemId){
+  //      error_log("_splitItemId($itemId)");
         $pos = strpos($itemId,"_");
         if ($pos === false){
             throw new Exception("Malformed item id");

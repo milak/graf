@@ -51,18 +51,18 @@ echo "]}";
 	if (!isset($_POST["domain_id"])){
 		die("Missing domain_id argument");
 	}
-	$domain_id = intval($_POST["domain_id"]);
+	$domain_id = $_POST["domain_id"];
 	error_log("Création d'un processus : ".$name);
-	$id = $dao->createBusinessProcess("Process",$name,$name,$description);
+	$id = $dao->createItem("Process",$name,$name,$description);
 	$dao->addSubItem($domain_id,$id);
 	$documentid = $dao->createDocument("BPMN document of process ".$name, "BPMN", DEFAULT_PROCESS_CONTENT);
-	$dao->addDocument($id,$documentid);
+	$dao->addItemDocument($id,$documentid);
 /** METHOD DELETE **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 	if (!isset($_REQUEST["id"])){
 		die("Missing id argument");
 	}
-	$dao->deleteBusinessProcess($_REQUEST["id"]);
+	$dao->deleteItem($_REQUEST["id"]);
 }
 $dao->disconnect();
 ?>

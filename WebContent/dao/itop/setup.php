@@ -59,26 +59,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     "name" => "IT Services"
                 ));
             }
-            // On vérifie que l'on a le type Template
-            $templates = $dao->getObjects("DocumentType","id","WHERE name = 'Template'");
-            if (count($templates->objects) == 0){
-                error_log("Création du type de document Template");
-                $dao->createObject("DocumentType",array(
-                    "name" => "Template"
-                ));
+            // Vérifier que l'on a tous les types de documents
+            $types = $dao->getObjects("DocumentType","name");
+            $documentTypes = array("Template","BPMN","TOSCA");
+            foreach ($types->objects as $object){
+                $name = $object->fields->name;
+                if (isset($documentTypes[$name])){
+                    unset($documentTypes[$name]);
+                }
             }
-            $templates = $dao->getObjects("DocumentType","id","WHERE name = 'BPMN'");
-            if (count($templates->objects) == 0){
-                error_log("Création du type de document BPMN");
+            foreach($documentTypes as $missing){
                 $dao->createObject("DocumentType",array(
-                    "name" => "BPMN"
-                ));
-            }
-            $templates = $dao->getObjects("DocumentType","id","WHERE name = 'TOSCA'");
-            if (count($templates->objects) == 0){
-                error_log("Création du type de document TOSCA");
-                $dao->createObject("DocumentType",array(
-                    "name" => "TOSCA"
+                    "name" => $missing
                 ));
             }
 //            error_log("Vérification de la présence des vues");
@@ -95,20 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     $dao->createDocument($viewName,"Template",file_get_contents($viewsRoot."/".$viewFileName));
                 }
             }
-            // Vérifier que l'on a tous les types de documents
-            $types = $dao->getObjects("DocumentType","name");
-            $documentTypes = array("Template","BPMN","TOSCA");
-            foreach ($types->objects as $object){
-                $name = $object->fields->name;
-                if (isset($documentTypes[$name])){
-                    unset($documentTypes[$name]);
-                }
-            }
-            foreach($documentTypes as $missing){
-                $dao->createObject("DocumentType",array(
-                    "name" => $missing
-                ));
-            }
+            
         }
         $message = 'Mise à jour effectuée <a href="../../index.php" target="top">retour à GRAF</a>';
     }

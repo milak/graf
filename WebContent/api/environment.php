@@ -1,7 +1,17 @@
 <?php
 header("Content-Type: application/json");
 require("../dao/dao.php");
-$dao->connect();
+$dao->connect();?>
+{ "environments" : [
+    
+]}
+<?php
+
+
+return;
+
+
+
 $db = $dao->getDB();
 $sql = <<<SQL
     SELECT * from environment
