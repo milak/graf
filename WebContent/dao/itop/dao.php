@@ -24,7 +24,7 @@ class ITopDao implements IDAO {
         $this->login        = $configuration->itop->login;
         $this->password     = $configuration->itop->password;
         $this->version      = $configuration->itop->version;
-        try{
+        try {
             $this->getObjects("Team", "id");
             $result = true;
         } catch (Exception $e) {
@@ -138,9 +138,9 @@ class ITopDao implements IDAO {
                 break;
         }
     }
-    public function getSubItems($itemId,$category="*"){
+    public function getSubItems($aItemId,$category="*"){
         $result = array();
-        $itemId = $this->_splitItemId($itemId);
+        $itemId = $this->_splitItemId($aItemId);
         if ($itemId->prefix == "actor"){ // On recherche les items sous un acteur
             // Chercher tous les items liés à l'équipe
             $response = $this->getObjects("Team","function,cis_list","WHERE id = $itemId->id");
@@ -288,6 +288,21 @@ class ITopDao implements IDAO {
                     }
                 }
             }
+        } else {
+            $item = $this->getItemById($aItemId);
+            $response = $this->getRelated($item->class->name,$itemId->id);
+            foreach ($response->objects as $object){
+                $id = $object->fields->id;
+                $row = new stdClass();
+                $row->id    = "item_".$id;
+                $row->name  = $object->fields->friendlyname;
+                $row->code  = $object->fields->friendlyname;
+                $row->class = new stdClass();
+                $row->class->id = 1;
+                $row->class->name = $object->class;
+                $row->category = $this->getItemCategoryByClass($row->class->name);
+                $result[] = $row;
+            }
         }
         return $result;
     }
@@ -312,23 +327,38 @@ class ITopDao implements IDAO {
             return $this->getItemsByCategory("domain");
         } else if ($category->name == "service"){
             return $this->getItemsByCategory("service");
-        }
-        // pour le reste, la solution générique devrait fonctionner        
-        $result = array();
-        $response = $this->getObjects($className,'id, name',"WHERE organization_name = '$this->organisation'");
-        foreach ($response->objects as $object){
-            $rowclass = $object->class;
-            $row = new stdClass();
-            $row->id    = "item_".$object->key; // TODO ajouter item ne va pas marcher dans tous les cas, il faudrait déterminer la catégorie
-            $row->name  = $object->fields->name;
-            $row->code  = $object->fields->name;
-            $row->domain_id = ""; // TODO voir comment faire
-            $row->domain_name = ""; // TODO voir comment faire
-            $row->class = new stdClass();
-            $row->class->id = 1;
-            $row->class->name = $object->class;
-            $row->category = $this->getItemCategoryByClass($object->class);
-            $result[]   = $row;
+        } else if ($className == "Software"){
+            // pour le reste, la solution générique devrait fonctionner
+            $result = array();
+            $response = $this->getObjects($className,'id, name, version');
+            foreach ($response->objects as $object){
+                $rowclass = $object->class;
+                $row = new stdClass();
+                $row->id    = "software_".$object->key;
+                $row->name  = $object->fields->name." ".$object->fields->version;
+                $row->code  = $object->fields->name;
+                $row->class = new stdClass();
+                $row->class->id = 1;
+                $row->class->name = $object->class;
+                $row->category = $category;
+                $result[]   = $row;
+            }
+        } else {
+            // pour le reste, la solution générique devrait fonctionner        
+            $result = array();
+            $response = $this->getObjects($className,'id, name',"WHERE organization_name = '$this->organisation'");
+            foreach ($response->objects as $object){
+                $rowclass = $object->class;
+                $row = new stdClass();
+                $row->id    = "item_".$object->key;
+                $row->name  = $object->fields->name;
+                $row->code  = $object->fields->name;
+                $row->class = new stdClass();
+                $row->class->id = 1;
+                $row->class->name = $object->class;
+                $row->category = $category;
+                $result[]   = $row;
+            }
         }
         return $result;
     }
@@ -399,6 +429,10 @@ class ITopDao implements IDAO {
                 $row->category = $rowcategory;
                 $result[]   = $row;
             }
+            $items = $this->getItemsByClass("Software");
+            foreach($items as $item){
+                $result[]   = $item;
+            }
         }
         return $result;
     }
@@ -468,7 +502,21 @@ class ITopDao implements IDAO {
                 $row->id    = "item_".$object->key;
                 $row->name  = $object->fields->name;
                 $row->code  = $object->fields->name;
-                $row->domain_id = 1; // TODO voir si necessaire
+                $row->class = new stdClass();
+                $row->class->id = 1;
+                $row->class->name = $object->class;
+                $row->category = $this->getItemCategoryByClass($object->class);
+                $result   = $row;
+                break;
+            }
+        } else if ($itemId->prefix == "software"){ // On recherche un domaine
+            $response = $this->getObjects('Software','id, name',"WHERE id = '$itemId->id'");
+            $result = null;
+            foreach ($response->objects as $object){
+                $row = new stdClass();
+                $row->id    = "software_".$object->key;
+                $row->name  = $object->fields->name;
+                $row->code  = $object->fields->name;
                 $row->class = new stdClass();
                 $row->class->id = 1;
                 $row->class->name = $object->class;
@@ -486,13 +534,13 @@ class ITopDao implements IDAO {
         $itemId = $this->_splitItemId($itemId);
         // TODO on n'ajoute pas on remplace, il faut gérer l'ajout en redemandant tous les documents
         $this->updateObject($item->class->name, $itemId->id, array(
-            'documents_list'    => array(array("document_id" => $documentId))
+            'documents_list'    => array(array('document_id' => $documentId))
         ));
     }
-    public function getItemDocuments($itemId,$documentType="*"){
+    public function getItemDocuments($itemId,$documentType='*'){
         $itemId = $this->_splitItemId($itemId);
         $result = array();
-        if ($itemId->prefix == "item"){
+        if ($itemId->prefix == 'item'){
             $response = $this->getObjects('FunctionalCI','documents_list',"WHERE id = $itemId->id");
             $document_id = null;
             foreach ($response->objects as $object){
@@ -501,13 +549,13 @@ class ITopDao implements IDAO {
                     $doc = new stdClass();
                     $doc->id = $document_id;
                     $doc->name = $document->document_name;
-                    $subresponse = $this->getObjects("Document","documenttype_name","WHERE id = $doc->id");
-                    foreach ($subresponse->objects as $object){
-                        $doc->type = $object->fields->documenttype_name;
+                    $subresponse = $this->getObjects('Document','documenttype_name',"WHERE id = $doc->id");
+                    foreach ($subresponse->objects as $subobject){
+                        $doc->type = $subobject->fields->documenttype_name;
                         break;
                     }
                     // Filtrer sur le documentType
-                    if ($documentType != "*"){
+                    if ($documentType != '*'){
                         if ($doc->type != $documentType){
                             continue;
                         }
@@ -651,6 +699,30 @@ class ITopDao implements IDAO {
         ));
         return $this->call($jsonData);
     }
+    public function getRelated($object,$id,$direction = "down"){
+        $clause = "SELECT ".$object." WHERE id = ".$id;
+        $jsonData = json_encode(array(
+            'operation'     => 'core/get_related',
+            'class'         => $object,
+            'key'           => $clause,
+            'output_fields' => '*',
+            'relation'      => 'impacts',
+            'depth'         => 10,
+            'direction'     => $direction
+        ));
+        $result = $this->call($jsonData);
+        // Retirer le premier qui est l'item demandé
+        $newObjects = array();
+        $first = true;
+        foreach ($result->objects as $object){
+            if (!$first){
+                $newObjects[] = $object;
+            }
+            $first = false;
+        }
+        $result->objects = $newObjects;
+        return $result;
+    }
     private function deleteObject($object,$id){
         $jsonData = json_encode(array(
             'operation' => 'core/delete',
@@ -724,61 +796,63 @@ class ITopDao implements IDAO {
         $this->ITOP_CATEGORIES["software"] = $this->_newItemCategory("software");
         $this->ITOP_CATEGORIES["solution"] = $this->_newItemCategory("solution");
         $this->ITOP_CLASSES = array();
-        $this->_addItemClass("Team",               $this->ITOP_CATEGORIES["actor"]);
+        $this->_addItemClass("Team",               false,   $this->ITOP_CATEGORIES["actor"]);
         
-        $this->_addItemClass("DatabaseSchema",     $this->ITOP_CATEGORIES["data"]);
+        $this->_addItemClass("DatabaseSchema",     true,    $this->ITOP_CATEGORIES["data"]);    // Probleme 'dbserver_id'
         
-        $this->_addItemClass("Group",              $this->ITOP_CATEGORIES["domain"]);
+        $this->_addItemClass("Group",              false,   $this->ITOP_CATEGORIES["domain"]);
         
-        $this->_addItemClass("ConnectableCI",      $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("DatacenterDevice",   $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("Enclosure",          $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("Farm",               $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("Hypervisor",         $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("IPPhone",            $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("MobilePhone",        $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("NAS",                $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("NetworkDevice",      $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("PC",                 $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("PDU",                $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("Peripheral",         $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("Phone",              $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("PhysicalDevice",     $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("PowerConnection",    $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("PowerSource",        $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("Printer",            $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("Rack",               $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("SANSwitch",          $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("StorageSystem",      $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("Tablet",             $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("TapeLibrary",        $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("TelephonyCI",        $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("VirtualDevice",      $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("ConnectableCI",      true,    $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("DatacenterDevice",   true,    $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("Enclosure",          true,    $this->ITOP_CATEGORIES["device"]); // Problem 'rack_id'
+        $this->_addItemClass("Farm",               false,   $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("Hypervisor",         false,   $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("IPPhone",            false,   $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("MobilePhone",        false,   $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("NAS",                false,   $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("NetworkDevice",      true,    $this->ITOP_CATEGORIES["device"]); // Problem 'networkdevicetype_id'
+        $this->_addItemClass("PC",                 false,   $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("PDU",                true,    $this->ITOP_CATEGORIES["device"]);  // Problem 'rack_id'
+        $this->_addItemClass("Peripheral",         false,   $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("Phone",              false,   $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("PhysicalDevice",     true,    $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("PowerConnection",    true,    $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("PowerSource",        false,   $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("Printer",            false,   $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("Rack",               false,   $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("SANSwitch",          false,   $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("StorageSystem",      false,   $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("Tablet",             false,   $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("TapeLibrary",        false,   $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("TelephonyCI",        true,    $this->ITOP_CATEGORIES["device"]);
+        $this->_addItemClass("VirtualDevice",      true,    $this->ITOP_CATEGORIES["device"]);
         
-        $this->_addItemClass("BusinessProcess",    $this->ITOP_CATEGORIES["process"]);
+        $this->_addItemClass("BusinessProcess",    false,   $this->ITOP_CATEGORIES["process"]);
         
-        $this->_addItemClass("Server",             $this->ITOP_CATEGORIES["server"]);
-        $this->_addItemClass("VirtualHost",        $this->ITOP_CATEGORIES["server"]);
-        $this->_addItemClass("VirtualMachine",     $this->ITOP_CATEGORIES["server"]);
+        $this->_addItemClass("Server",             false,   $this->ITOP_CATEGORIES["server"]);
+        $this->_addItemClass("VirtualHost",        true,    $this->ITOP_CATEGORIES["server"]);
+        $this->_addItemClass("VirtualMachine",     true,    $this->ITOP_CATEGORIES["server"]); // Problem 'virtualhost_id'
         
-        $this->_addItemClass("Service",            $this->ITOP_CATEGORIES["service"]);
+        $this->_addItemClass("Service",            false,   $this->ITOP_CATEGORIES["service"]);
         
-        $this->_addItemClass("DBServer",           $this->ITOP_CATEGORIES["software"]);
-        $this->_addItemClass("Middleware",         $this->ITOP_CATEGORIES["software"]);
-        $this->_addItemClass("MiddlewareInstance", $this->ITOP_CATEGORIES["software"]);
-        $this->_addItemClass("OtherSoftware",      $this->ITOP_CATEGORIES["software"]);
-        $this->_addItemClass("PCSoftware",         $this->ITOP_CATEGORIES["software"]);
-        $this->_addItemClass("SoftwareInstance",   $this->ITOP_CATEGORIES["software"]);
-        $this->_addItemClass("WebApplication",     $this->ITOP_CATEGORIES["software"]);
-        $this->_addItemClass("WebServer",          $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("DBServer",           true,    $this->ITOP_CATEGORIES["software"]);// Problem 'system_id'
+        $this->_addItemClass("Middleware",         true,    $this->ITOP_CATEGORIES["software"]);// Problem 'system_id'
+        $this->_addItemClass("MiddlewareInstance", true,    $this->ITOP_CATEGORIES["software"]);// Problem 'middleware_id'
+        $this->_addItemClass("OtherSoftware",      true,    $this->ITOP_CATEGORIES["software"]);// Problem 'system_id'
+        $this->_addItemClass("PCSoftware",         true,    $this->ITOP_CATEGORIES["software"]);// Problem 'system_id'
+        $this->_addItemClass("Software",           false,   $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("SoftwareInstance",   true,    $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("WebApplication",     true,    $this->ITOP_CATEGORIES["software"]);// Problem 'webserver_id'
+        $this->_addItemClass("WebServer",          true,    $this->ITOP_CATEGORIES["software"]);// Problem 'system_id'
         
-        $this->_addItemClass("ApplicationSolution",$this->ITOP_CATEGORIES["solution"]);
+        $this->_addItemClass("ApplicationSolution",false,   $this->ITOP_CATEGORIES["solution"]);
     }
-    private function _addItemClass($className,$category){
+    private function _addItemClass($className,$abstract,$category){
         $class = new stdClass();
         $class->id          = $className;
         $class->name        = $className;
         $class->category    = $category;
+        $class->abstract    = $abstract;
         $category->classes[] = $class;
         $this->ITOP_CLASSES[$className] = $class;
     }

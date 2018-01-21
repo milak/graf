@@ -1,6 +1,8 @@
 var datatableItems = null;
+var itemClasses = null;
 function openSearchItemForm(){
 	$.getJSON( "api/element_class.php", function(result) {
+		itemClasses = new Array();
 		var categories = result.categories;
 		var htmlClasses = "<option value='NULL'>~~Sélectionner une classe~~</option>";
 		var html = "<option value='NULL'>~~Sélectionner une catégorie~~</option>";
@@ -10,6 +12,7 @@ function openSearchItemForm(){
 			for (var j = 0; j < category.classes.length; j++){
 				var classe = category.classes[j];
 				htmlClasses += "<option value='"+classe.id+"'>"+classe.name+"</option>";
+				itemClasses[classe.id] = classe;
 			}
 		}
 		$("#search_item_form_category").html(html);
@@ -19,8 +22,22 @@ function openSearchItemForm(){
 	});
 	$("#search_item_form").dialog({"modal":true,"title":"Chercher un élément","minWidth":1100,"minHeight":800});
 }
+function onSearchItemFormClassChange(){
+	var classId = $("#search_item_form_class").val();
+	var enable = true;
+	if (classId == "NULL"){
+		enable = false;
+	} else {
+		classe = itemClasses[classId];
+		if (classe.abstract == "true"){
+			enable = false;
+		}
+	}
+	$("#search_item_form_create_button").prop("disabled",!enable);
+}
 function onSearchItemFormCategoryChange(){
 	var categoryName = $("#search_item_form_category").val();
+	// TODO optimiser soit en gardant en cache soit en ne cherchant que les classes nécessaires
 	$.getJSON( "api/element_class.php", function(result) {
 		var categories = result.categories;
 		var htmlClasses = "<option value='NULL'>~~Sélectionner une classe~~</option>";
@@ -151,7 +168,7 @@ function onSearchItemFormSearchClick(){
 				}
 			}
 			var row = new Array();
-			row.push(element.name);
+			row.push("<p title='"+element.id+"'>"+element.name+"</p>");
 			row.push(element.class.name);
 			row.push(element.category.name);
 			var usableName = element.name.replace(new RegExp('[^a-zA-Z0-9]','g'),'_');

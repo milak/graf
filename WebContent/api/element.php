@@ -23,9 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 return;
             } else {
                 http_response_code(404);
-                die();
+                //die("introuvable");
                 return;
             }
+        } else if (isset($_GET["sub_items"])){
+            $items = $dao->getSubItems($_GET["id"]);
         } else {    
             $items = array();
             $item = $dao->getItemById($_GET["id"]);

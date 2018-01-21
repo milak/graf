@@ -434,7 +434,7 @@ require("dao/dao.php");
         		</div>
         		<div class="pure-control-group">
         			<label for="search_item_form_class">Classe</label>
-        			<select id="search_item_form_class"></select>
+        			<select id="search_item_form_class" onChange="onSearchItemFormClassChange()"></select>
         		</div>
         		<button type="button" onClick="onSearchItemFormSearchClick()"><img style="height:14px" src="images/65.png"/> chercher</button>
         	</fieldset>
@@ -444,7 +444,7 @@ require("dao/dao.php");
         		<label for="search_item_form_area">Zone où sera ajouté l'élément</label>
         		<select id="search_item_form_area"></select>
         	</div>
-        	<button type="button" onClick="onSearchItemFormCreateClick()">Cr&eacute;er</button>
+        	<button type="button" id="search_item_form_create_button" onClick="onSearchItemFormCreateClick()" disabled="true">Cr&eacute;er</button>
 		</td>
 		</tr>
 	</table>

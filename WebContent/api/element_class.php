@@ -24,7 +24,8 @@ foreach($categories as $category){
                 }?>
                 	{
                 		"id" : "<?php echo $class->id; ?>",
-						"name" : "<?php echo $class->name; ?>"
+						"name" : "<?php echo $class->name; ?>",
+						"abstract"	: "<?php echo ($class->abstract?"true":"false"); ?>"
                 	}
                 <?php
                 $firstclass = false;
