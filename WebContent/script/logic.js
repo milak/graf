@@ -53,6 +53,8 @@ function loadSolutionScript(solutionId){
 		success : function (data){
 			$("#solution_script_editor_form_text").val(data);
 		}
+	}).fail(function(jxqr,textStatus,error){
+		$("#solution_script_editor_form_text").val("tosca_definitions_version: tosca_simple_yaml_1_0\ndescription: template.\ntopology_template:\n  inputs:\n  node_templates:\n    SampleNode:\n      type: tosca.nodes.Compute\n");
 	});
 }
 function saveSolutionScript(itemId){

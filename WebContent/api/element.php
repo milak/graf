@@ -74,9 +74,11 @@ foreach ($items as $item){
                 $document_id = $dao->createDocument("Document",$_POST["type"],$_POST["document"]);
                 $dao->addItemDocument($id,$document_id);
             }
+        } else if (isset($_POST["child_id"])){
+            // Ajout d'un fils à id
+            $dao->addSubItem($id,$_POST["child_id"]);
         } else {
             // Element update
-            
         }
     } else {
         // Insert

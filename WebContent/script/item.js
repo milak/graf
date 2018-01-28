@@ -98,6 +98,10 @@ function addItemInTosca(id,name,category){
 	tosca = jsyaml.load(tosca);
 	var topology_template = tosca.topology_template;
 	var node_templates = topology_template.node_templates;
+	if (node_templates == null){
+		topology_template.node_templates = {};
+		node_templates = topology_template.node_templates;
+	}
 	var index = 1;
 	var nodeName = name;
 	// Rechercher si l'élément n'a pas déjà été ajouté
@@ -124,7 +128,23 @@ function addItemInTosca(id,name,category){
 	node_templates[nodeName] = node;
 	var text = jsyaml.safeDump(tosca);
 	$("#solution_script_editor_form_text").val(text.trim());
-	saveSolutionScript(currentSolutionId);
+	$.ajax({
+		type 	: "POST",
+		url 	: "api/element.php",
+		data	: {
+			"id"		: currentSolutionId,
+			"child_id"	: id
+		},
+		dataType: "text",
+		success	: function( data ) {
+			saveSolutionScript(currentSolutionId);
+			//refreshActorLists();
+			//displayBusiness(currentDomainId);
+			//$("#create_actor_form").dialog("close");
+		}
+	}).fail(function(jxqr,textStatus,error){
+		alert(textStatus+" : "+error);
+	});
 }
 function deleteItem(itemId){
 	if (confirm("Etes-vous sûr de vouloir supprimer l'élément de la base ?")){
