@@ -1,4 +1,3 @@
-var currentSolutionId = null;
 function refreshSolutionLists(){
 	$.getJSON("api/element.php?category_name=solution", function(result){
 		var elements = result.elements;
@@ -24,25 +23,18 @@ function displaySolution(solutionId){
 		hideToolBox();
 		$("#logic_toolbox").show();
 	}
+	currentItemId = solutionId;
 	if (solutionId == null){
 		clearFrame();
-		$("#logic_create_software_button").button("disable");
-		$("#logic_create_device_button").button("disable");
-		$("#logic_create_service_button").button("disable");
-		$("#logic_create_data_button").button("disable");
-		$("#logic_create_instance_button").button("disable");
-		$("#logic_edit_button").button("disable");
-		currentSolutionId = null;
+		$("#logic_import_item_button").		button("disable");
+		$("#logic_create_instance_button").	button("disable");
+		$("#logic_edit_button").			button("disable");
 	} else {
 		changeImage("views/view_logique.php?id="+solutionId);
-		$("#logic_create_software_button").button("enable");
-		$("#logic_create_device_button").button("enable");
-		$("#logic_create_service_button").button("enable");
-		$("#logic_create_data_button").button("enable");
-		$("#logic_create_instance_button").button("enable");
-		$("#logic_edit_button").button("enable");
-		currentSolutionId = solutionId;
-		loadSolutionScript(solutionId);
+		$("#logic_import_item_button").		button("enable");
+		$("#logic_create_instance_button").	button("enable");
+		$("#logic_edit_button").			button("enable");
+		loadSolutionScript(currentItemId);
 	}
 }
 function loadSolutionScript(solutionId){
@@ -101,4 +93,102 @@ function editSolutionScript(){
 	try{
 		$("#solution_script_editor_form").dialog("update");
 	}catch(exception){}
+}
+function importItemInSolution(){
+	openSearchItemForm(function (id){
+		$.getJSON("api/element.php?id="+id, function(result) {
+			var element = result.elements[0];
+			var name = element.name.replace(new RegExp('[^a-zA-Z0-9]','g'),'_');
+			var area = $("#search_item_form_area").val();
+			if (area == "null"){
+				alert("Vous devez fournir une zone");
+				return;
+			}
+			var tosca = $("#solution_script_editor_form_text").val();
+			tosca = jsyaml.load(tosca);
+			var topology_template = tosca.topology_template;
+			var node_templates = topology_template.node_templates;
+			if (node_templates == null){
+				topology_template.node_templates = {};
+				node_templates = topology_template.node_templates;
+			}
+			var index = 1;
+			var nodeName = name;
+			// Rechercher si l'élément n'a pas déjà été ajouté
+			while (true) {
+				var found = false;
+				for (var node in node_templates){
+					if (node == nodeName){
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					break;
+				}
+				// Si trouvé, ajouter un chiffre et chercher à nouveau
+				nodeName = name + "_" + index;
+				index++;
+			}
+			// Ajouter le node
+			var properties = new Array();
+			properties.push({"id" : id});
+			properties.push({"area" : area});
+			var node = { "type" : getToscaNodeTypeFromCategory(element.category.name), "name" : nodeName, properties : properties};
+			node_templates[nodeName] = node;
+			var text = jsyaml.safeDump(tosca);
+			$("#solution_script_editor_form_text").val(text.trim());
+			$.ajax({
+				type 	: "POST",
+				url 	: "api/element.php",
+				data	: {
+					"id"		: currentItemId,
+					"child_id"	: id
+				},
+				dataType: "text",
+				success	: function( data ) {
+					saveSolutionScript(currentItemId);
+				}
+			}).fail(function(jxqr,textStatus,error){
+				alert(textStatus+" : "+error);
+			});
+		}).fail(function(jxqr,textStatus,error) {
+			showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+		});
+	});
+}
+// Tosca functions
+function getToscaNodeTypeFromCategory(itemCategory){
+	switch (itemCategory) {
+		case "actor" :
+			return "tosca.nodes.Root";
+		case "data" :
+			return "tosca.nodes.Database";
+		case "device" :
+			return "tosca.nodes.Root";
+		case "process" :
+			return "tosca.nodes.Compute";
+		case "server" :
+			return "tosca.nodes.Compute";
+		case "service" :
+			return "tosca.nodes.Compute";
+		case "software" :	
+			return "tosca.nodes.SoftwareComponent";
+		case "solution" :	
+			return "tosca.nodes.Compute";
+		default : 
+			return "tosca.nodes.Root";
+	}
+}
+function deleteToscaItem(id){
+	if (confirm("Etes-vous sur de vouloir supprimer le noeud "+id+" ?")){
+		var tosca = $("#solution_script_editor_form_text").val();
+		tosca = jsyaml.load(tosca);
+		var topology_template = tosca.topology_template;
+		var node_templates = topology_template.node_templates;
+		delete node_templates[id];
+		var text = jsyaml.safeDump(tosca);
+		$("#solution_script_editor_form_text").val(text.trim());
+		saveSolutionScript(currentItemId);
+	}
 }

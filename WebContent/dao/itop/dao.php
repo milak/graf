@@ -79,7 +79,7 @@ class ITopDao implements IDAO {
             $result = "domain_".$this->createObject('Group', array(
                 'org_id'        => "SELECT Organization WHERE name = '$this->organisation'",
                 'name'          => $name,
-                'type'          => 'businessDomain',
+                'type'          => 'BusinessDomain',
                 'status'        => 'production',
                 'description'   => $description
             ));
@@ -138,6 +138,22 @@ class ITopDao implements IDAO {
                         'ci_id'     => $childItemId->id,
                         'reason'    => 'Item of this domain'
                     ));
+                } else if ($childItemId->prefix == "actor"){
+                    $response = $this->getObjects("Team", "function","WHERE id = ".$childItemId->id);
+                    foreach ($response->objects as $object){
+                        $function = $object->fields->function;
+                        if (strpos($function,$parentItem->name) === false){
+                            if (strlen($function) == 0){
+                                $function = $parentItem->name;
+                            } else {
+                                $function = $function.",".$parentItem->name;
+                            }
+                            $this->updateObject("Team", $childItemId->id, array(
+                                "function" => $function
+                            ));
+                            break;
+                        }
+                    }
                 } else {
                     throw new Exception("Unable to add ".$childItem->category->name." in ".$parentItem->category->name);
                 }
@@ -150,7 +166,6 @@ class ITopDao implements IDAO {
                         break;
                     }
                     error_log("Type : ".$type);
-                    // (,'Middleware','OtherSoftware','PCSoftware','WebServer'), Valeur par défaut: ""
                     if ($type == ''){
                         $type = 'OtherSoftware';
                     }
@@ -171,6 +186,47 @@ class ITopDao implements IDAO {
                 break;
             default:
                 throw new Exception("Unable to add ".$childItem->category->name." in ".$parentItem->category->name);
+                break;
+        }
+    }
+    public function removeSubItem($parentItemId,$childItemId){
+        error_log("removeSubItem($parentItemId,$childItemId)");
+        $parentItem   = $this->getItemById($parentItemId);
+        $childItem    = $this->getItemById($childItemId);
+        $parentItemId = $this->_splitItemId($parentItemId);
+        $childItemId  = $this->_splitItemId($childItemId);
+        switch ($parentItem->category->name){
+            case "domain" : // retirer un élément d'un domaine
+                if ($childItemId->prefix == "actor"){
+                    $response = $this->getObjects("Team", "function","WHERE id = ".$childItemId->id);
+                    foreach ($response->objects as $object){
+                        $function = $object->fields->function;
+                        $pos = strpos($function,$parentItem->name);
+                        if ($pos === false){
+                            // rien à faire
+                        } else {
+                            $function = substr($function, 0, $pos).substr($function,$pos+strlen($parentItem->name)+1);
+                            $function = trim($function, ','); // virer les éventuelles virgules qui restent après suppression
+                            $this->updateObject("Team", $childItemId->id, array(
+                                "function" => $function
+                            ));
+                            break;
+                        }
+                    }
+                } else if ($childItemId->prefix == "item"){
+                    // Le rajouter au domaine
+                    $response = $this->getObjects("lnkGroupToCI", "id", "WHERE group_id = $parentItemId->id AND ci_id = $childItemId->id");
+                    foreach ($response->objects as $object){
+                        $key = $object->key;
+                        $this->deleteObject("lnkGroupToCI", $key);
+                        break;
+                    }
+                } else {
+                    throw new Exception("Unable to remove ".$childItem->category->name." from ".$parentItem->category->name);
+                }
+                break;
+            default:
+                throw new Exception("Unable to remove ".$childItem->category->name." from ".$parentItem->category->name);
                 break;
         }
     }
@@ -273,10 +329,10 @@ class ITopDao implements IDAO {
             }
             // Chercher les acteurs
             if (($category == "*") || ("actor" == $category)){
-                $response = $this->getObjects("Team","id, name","WHERE function = '$domainName'");
+                $response = $this->getObjects("Team","id, name","WHERE function LIKE '%$domainName%'");
                 foreach ($response->objects as $object){
                     $row = new stdClass();
-                    $row->id    = "actor_".$object->key; // en ajoutant actor, cela me permet de savoir que c'est dans Team qu'il faut que j'aille chercher dans getItemById()
+                    $row->id    = "actor_".$object->key;
                     $row->name  = $object->fields->name;
                     $row->code  = $object->fields->name;
                     $row->domain_id = 1; // TODO voir si necessaire
@@ -415,7 +471,7 @@ class ITopDao implements IDAO {
             }
         }
         if (($category == "domain") || ($category == "*")){
-            $response = $this->getObjects("Group", 'id, name, friendlyname, description','WHERE type="businessDomain"');
+            $response = $this->getObjects("Group", 'id, name, friendlyname, description','WHERE type="BusinessDomain"');
             foreach ($response->objects as $object){
                 $row            = new stdClass();
                 $row->id        = "domain_".$object->key;
@@ -444,6 +500,12 @@ class ITopDao implements IDAO {
                 $result[]   = $row;
             }
         }
+        if (($category == "software") || ($category == "*")){
+            $items = $this->getItemsByClass("Software");
+            foreach($items as $item){
+                $result[]   = $item;
+            }
+        }
         if (($category != "actor") && ($category != "domain") && ($category != "service")){
             $response = $this->getObjects('FunctionalCI','id, name',"WHERE organization_name = '$this->organisation' AND finalclass NOT IN ('DBServer','Middleware','OtherSoftware','PCSoftware','WebServer','WebApplication')");
             foreach ($response->objects as $object){
@@ -458,16 +520,11 @@ class ITopDao implements IDAO {
                 $row->id    = "item_".$object->key;
                 $row->name  = $object->fields->name;
                 $row->code  = $object->fields->name;
-                $row->domain_id = 1; // TODO voir si necessaire
                 $row->class = new stdClass();
                 $row->class->id = 1;
                 $row->class->name = $object->class;
                 $row->category = $rowcategory;
                 $result[]   = $row;
-            }
-            $items = $this->getItemsByClass("Software");
-            foreach($items as $item){
-                $result[]   = $item;
             }
         }
         return $result;

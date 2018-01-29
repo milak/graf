@@ -1,4 +1,5 @@
 function displayStrategic(){
+	currentItemId = null;
 	hideToolBox();
 	$("#strategic_toolbox").show();
 	strategic_checkSeeProcess();

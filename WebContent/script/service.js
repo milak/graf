@@ -1,4 +1,3 @@
-var currentServiceId = null;
 var currentComponentId = null;
 function refreshServiceList(){
 	$.getJSON("api/service.php", function(result){
@@ -16,7 +15,7 @@ function refreshServiceList(){
 	});
 }
 function createService(){
-	$("#create_service_form_domain_id").val(currentDomainId);
+	$("#create_service_form_domain_id").val(currentItemId);
 	$("#create_service_form").dialog({"modal":true,"title":"Création d'un service"});
 }
 function doCreateService(){
@@ -33,7 +32,7 @@ function doCreateService(){
 		dataType: "text",
 		success	: function( data ) {
 			$("#create_service_form").dialog("close");
-			displayBusiness(currentDomainId);
+			displayBusiness(currentItemId);
 			refreshServiceList();
 		}
 	}).fail(function(jxqr,textStatus,error){
@@ -43,6 +42,7 @@ function doCreateService(){
 function displayService(serviceId){
 	hideToolBox();
 	$("#service_toolbox").show();
+	currentItemId = serviceId;
 	if (serviceId == null){
 		clearFrame();
 		$("#service_create_software_button").button("disable");
@@ -50,15 +50,13 @@ function displayService(serviceId){
 		$("#service_create_service_button").button("disable");
 		$("#service_create_data_button").button("disable");
 		$("#service_create_instance_button").button("disable");
-		currentServiceId = null;
 	} else {
-		changeImage("views/view_service.php?id="+serviceId);
+		changeImage("views/view_service.php?id="+currentItemId);
 		$("#service_create_software_button").button("enable");
 		$("#service_create_device_button").button("enable");
 		$("#service_create_service_button").button("enable");
 		$("#service_create_data_button").button("enable");
 		$("#service_create_instance_button").button("enable");
-		currentServiceId = serviceId;
 	}
 }
 function deleteService(id){
@@ -70,14 +68,14 @@ function deleteService(id){
 		url 	: "api/service.php?id="+id,
 		dataType: "text",
 		success	: function(data) {
-			displayBusiness(currentDomainId);
+			displayBusiness(currentItemId);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
 	});
 }
 function createServiceInstance(){
-	$("#create_instance_form_service_id").val(currentServiceId);
+	$("#create_instance_form_service_id").val(currentItemId);
 	$("#create_instance_form").dialog({"modal":true,"title":"Création d'une instance","minWidth":500});
 }
 function doCreateServiceInstance(){
@@ -98,7 +96,7 @@ function doCreateServiceInstance(){
 		dataType: "text",
 		success	: function( data ) {
 			$("#create_instance_form").dialog("close");
-			displayService(currentServiceId);
+			displayService(currentItemId);
 			refreshServiceList();
 		}
 	}).fail(function(jxqr,textStatus,error){
@@ -117,7 +115,7 @@ function deleteServiceInstance(id){
 		url 	: "api/service_instance.php?id="+id,
 		dataType: "text",
 		success	: function(data) {
-			displayService(currentServiceId);
+			displayService(currentItemId);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -192,7 +190,7 @@ function subCreateComponent(type,aServices,aSoftwares,aDevices,aDatas){
 	}
 }
 function createComponent(type){
-	$.getJSON( "api/component.php?service="+currentServiceId, function(result) {
+	$.getJSON( "api/component.php?service="+currentItemId, function(result) {
 		var components = result.components;
 		var services 	= new Array();
 		var softwares 	= new Array();
@@ -224,7 +222,7 @@ function doCreateComponent(){
 		data	: {
 			"type"			: type,
 			"area_id"		: area_id,
-			"service"		: currentServiceId,
+			"service"		: currentItemId,
 			"data_id"		: $("#create_component_form_data_list").val(),
 			"device_id"		: $("#create_component_form_device_list").val(),
 			"software_id"	: $("#create_component_form_software_list").val(),
@@ -233,7 +231,7 @@ function doCreateComponent(){
 		dataType: "text",
 		success	: function( data ) {
 			$("#create_component_form").dialog("close");
-			displayService(currentServiceId);
+			displayService(currentItemId);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -270,7 +268,7 @@ function updateComponent(){
 			area_id : area_id
 		},
 		success	: function(data) {
-			displayService(currentServiceId);
+			displayService(currentItemId);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -282,7 +280,7 @@ function unlinkComponent(componentId){
 		url 	: "api/component.php?id="+componentId,
 		dataType: "text",
 		success	: function(data) {
-			displayService(currentServiceId);
+			displayService(currentItemId);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -290,7 +288,7 @@ function unlinkComponent(componentId){
 }
 function refreshComponentContext(componentId){
 	$("#edit_component_form_valider").prop("disabled",true);
-	$("#edit_component_form_service_list").val(currentServiceId);
+	$("#edit_component_form_service_list").val(currentItemId);
 	$.getJSON( "api/component.php?id="+componentId, function(result) {
 		var component = result.components[0];
 		if (component.type == "service"){
@@ -305,7 +303,7 @@ function refreshComponentContext(componentId){
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
-	$.getJSON( "api/component.php?service="+currentServiceId, function(result) {
+	$.getJSON( "api/component.php?service="+currentItemId, function(result) {
 		var componentList = result.components;
 		componentList.sort(sortByName);
 		var componentsById = new Array();
@@ -385,7 +383,7 @@ function removeComponentLink(from_component_id,to_component_id){
 		dataType: "text",
 		success	: function( data ) {
 			refreshComponentContext(currentComponentId);
-			displayService(currentServiceId);
+			displayService(currentItemId);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -406,7 +404,7 @@ function addComponentLink(){
 		dataType: "text",
 		success	: function( data ) {
 			refreshComponentContext(currentComponentId);
-			displayService(currentServiceId);
+			displayService(currentItemId);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);

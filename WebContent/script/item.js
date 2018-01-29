@@ -1,6 +1,8 @@
 var datatableItems = null;
 var itemClasses = null;
-function openSearchItemForm(){
+var functionToCallWhenAddClicked = null;
+function openSearchItemForm(aFunctionToCallWhenAddClicked){
+	functionToCallWhenAddClicked = aFunctionToCallWhenAddClicked;
 	$.getJSON( "api/element_class.php", function(result) {
 		itemClasses = new Array();
 		var categories = result.categories;
@@ -74,79 +76,47 @@ function onSearchItemFormCreateClick(){
 		url 	: "api/element.php",
 		data	: {
 			"name"		: name,
-			"class_name": className/*,
-			"domain_id"	: currentDomainId*/
+			"class_name": className
 		},
 		dataType: "text",
 		success	: function( data ) {
 			onSearchItemFormSearchClick();
-			//refreshActorLists();
-			//displayBusiness(currentDomainId);
-			//$("#create_actor_form").dialog("close");
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
 	});
 }
-function addItemInTosca(id,name,category){
-	var area = $("#search_item_form_area").val();
-	if (area == "null"){
-		alert("Vous devez fournir une zone");
+function removeItem(parentId,childId){
+	if (!confirm("Etes-vous sûr de vouloir retirer cet élément ?")){
 		return;
 	}
-	var tosca = $("#solution_script_editor_form_text").val();
-	tosca = jsyaml.load(tosca);
-	var topology_template = tosca.topology_template;
-	var node_templates = topology_template.node_templates;
-	if (node_templates == null){
-		topology_template.node_templates = {};
-		node_templates = topology_template.node_templates;
-	}
-	var index = 1;
-	var nodeName = name;
-	// Rechercher si l'élément n'a pas déjà été ajouté
-	while (true) {
-		var found = false;
-		for (var node in node_templates){
-			if (node == nodeName){
-				found = true;
-				break;
-			}
-		}
-		if (!found) {
-			break;
-		}
-		// Si trouvé, ajouter un chiffre et chercher à nouveau
-		nodeName = name + "_" + index;
-		index++;
-	}
-	// Ajouter le node
-	var properties = new Array();
-	properties.push({"id" : id});
-	properties.push({"area" : area});
-	var node = { "type" : getToscaNodeTypeFromCategory(category), "name" : nodeName, properties : properties};
-	node_templates[nodeName] = node;
-	var text = jsyaml.safeDump(tosca);
-	$("#solution_script_editor_form_text").val(text.trim());
 	$.ajax({
-		type 	: "POST",
-		url 	: "api/element.php",
-		data	: {
-			"id"		: currentSolutionId,
-			"child_id"	: id
-		},
+		type 	: "DELETE",
+		url 	: "api/element.php?id="+parentId+"&child_id="+childId,
 		dataType: "text",
-		success	: function( data ) {
-			saveSolutionScript(currentSolutionId);
-			//refreshActorLists();
-			//displayBusiness(currentDomainId);
-			//$("#create_actor_form").dialog("close");
+		success	: function(data) {
+			displayBusiness(currentItemId);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
 	});
 }
 function deleteItem(itemId){
+	if (!confirm("Etes-vous sûr de vouloir supprimer cet élément ?")){
+		return;
+	}
+	$.ajax({
+		type 	: "DELETE",
+		url 	: "api/element.php?id="+itemId,
+		dataType: "text",
+		success	: function(data) {
+			displayBusiness(currentItemId);
+		}
+	}).fail(function(jxqr,textStatus,error){
+		alert(textStatus+" : "+error);
+	});
+}
+function onSearchItemFormDeleteClick(itemId){
 	if (confirm("Etes-vous sûr de vouloir supprimer l'élément de la base ?")){
 		$.ajax({
 			type 	: "DELETE",
@@ -191,9 +161,8 @@ function onSearchItemFormSearchClick(){
 			row.push("<p title='"+element.id+"'>"+element.name+"</p>");
 			row.push(element.class.name);
 			row.push(element.category.name);
-			var usableName = element.name.replace(new RegExp('[^a-zA-Z0-9]','g'),'_');
-			var label = "<button onClick='event.preventDefault();addItemInTosca(\""+element.id+"\",\""+usableName+"\",\""+element.category.name+"\");'>Ajouter</button>";
-			label    += "<button onClick='event.preventDefault();deleteItem(\""+element.id+"\");'>Effacer</button>";
+			var label = "<button onClick='event.preventDefault();onSearchItemFormAddClick(\""+element.id+"\");'>Ajouter</button>";
+			label    += "<button onClick='event.preventDefault();onSearchItemFormDeleteClick(\""+element.id+"\");'>Effacer</button>";
 			row.push(label);
 			data.push(row);
 		}
@@ -204,27 +173,8 @@ function onSearchItemFormSearchClick(){
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
 }
-function getToscaNodeTypeFromCategory(itemCategory){
-	switch (itemCategory) {
-		case "actor" :
-			return "tosca.nodes.Root";
-		case "data" :
-			return "tosca.nodes.Database";
-		case "device" :
-			return "tosca.nodes.Root";
-		case "process" :
-			return "tosca.nodes.Compute";
-		case "server" :
-			return "tosca.nodes.Compute";
-		case "service" :
-			return "tosca.nodes.Compute";
-		case "software" :	
-			return "tosca.nodes.SoftwareComponent";
-		case "solution" :	
-			return "tosca.nodes.Compute";
-		default : 
-			return "tosca.nodes.Root";
-	}
+function onSearchItemFormAddClick(id){
+	functionToCallWhenAddClicked(id);
 }
 function showToscaItemContext(toscaItemId){
 	var tosca = $("#solution_script_editor_form_text").val();
@@ -284,17 +234,5 @@ function showToscaTargetItem(itemId,itemCategory){
 		displayBusiness(itemId);
 	} else {
 		alert("showToscaTargetItem() : J'ai oublié de traiter ce type de categorie "+itemCategory);
-	}
-}
-function deleteToscaItem(id){
-	if (confirm("Etes-vous sur de vouloir supprimer le noeud "+id)){
-		var tosca = $("#solution_script_editor_form_text").val();
-		tosca = jsyaml.load(tosca);
-		var topology_template = tosca.topology_template;
-		var node_templates = topology_template.node_templates;
-		delete node_templates[id];
-		var text = jsyaml.safeDump(tosca);
-		$("#solution_script_editor_form_text").val(text.trim());
-		saveSolutionScript(currentSolutionId);
 	}
 }

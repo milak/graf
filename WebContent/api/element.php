@@ -101,7 +101,12 @@ foreach ($items as $item){
 		die("Missing id argument");
 	}
 	$id = $_GET["id"];
-    $dao->deleteItem($id);
+    if (isset($_GET["child_id"])){
+        // Ajout d'un fils à id
+        $dao->removeSubItem($id,$_GET["child_id"]);
+    } else {
+        $dao->deleteItem($id);
+    }
 }
 $dao->disconnect();
 ?>

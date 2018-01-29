@@ -1,4 +1,3 @@
-var currentDomainId = null;
 function displayBusiness(domainId){
 	hideToolBox();
 	$("#business_toolbox").show();
@@ -12,19 +11,44 @@ function displayBusiness(domainId){
 		$("#domainSelected").val(""+domainId);
 		$("#business_toolbox").controlgroup("refresh");
 	}
-	if (domainId == null) {
-		$("#business_create_process_button").button("disable");
-		$("#business_create_service_button").button("disable");
-		$("#business_create_actor_button").button("disable");
+	currentItemId = domainId;
+	if (currentItemId == null) {
+		$("#business_import_item_button").		button("disable");
+		$("#business_create_process_button").	button("disable");
+		$("#business_create_service_button").	button("disable");
+		$("#business_create_actor_button").		button("disable");
 		clearFrame();
-		currentDomainId = null;
 	} else {
-		currentDomainId = domainId;
-		$("#business_create_process_button").button("enable");
-		$("#business_create_service_button").button("enable");
-		$("#business_create_actor_button").button("enable");
-		changeImage("views/view_business.php?id="+domainId);
+		$("#business_import_item_button").		button("enable");
+		$("#business_create_process_button").	button("enable");
+		$("#business_create_service_button").	button("enable");
+		$("#business_create_actor_button").		button("enable");
+		changeImage("views/view_business.php?id="+currentItemId);
 	}
+}
+function importItemInDomain(){
+	openSearchItemForm(function (id){
+		$.getJSON("api/element.php?id="+id, function(result) {
+			var element = result.elements[0];
+			// Ajouter l'item
+			$.ajax({
+				type 	: "POST",
+				url 	: "api/element.php",
+				data	: {
+					"id"		: currentItemId,
+					"child_id"	: id
+				},
+				dataType: "text",
+				success	: function( data ) {
+					displayBusiness(currentItemId);
+				}
+			}).fail(function(jxqr,textStatus,error){
+				alert(textStatus+" : "+error);
+			});
+		}).fail(function(jxqr,textStatus,error) {
+			showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+		});
+	});
 }
 function refreshStrategicAreaList(){
 	$.getJSON( "api/view.php?view=strategic", function(result) {

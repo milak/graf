@@ -1,13 +1,12 @@
 /**
  * Script contenant toutes les fonctions liées aux processus
  */
-var currentProcessId;
 function displayProcess(processId){
 	if ($("#process_toolbox").is(":hidden")){
 		hideToolBox();
 		$("#process_toolbox").show();
 	}
-	currentProcessId = processId;
+	currentItemId = processId;
 	if (processId == null){
 		clearFrame();
 		$("#script_editor_form_text").val("");
@@ -73,7 +72,7 @@ function doCreateProcess(){
 		dataType: "text",
 		success	: function( data ) {
 			$("#process_create_form").dialog("close");
-			displayBusiness(currentDomainId);
+			displayBusiness(currentItemId);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -88,14 +87,14 @@ function deleteProcess(processId){
 		url 	: "api/process.php?id="+processId,
 		dataType: "text",
 		success	: function( data ) {
-   			displayBusiness(currentDomainId);
+   			displayBusiness(currentItemId);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
 	});
 }
 function createProcessStep(){
-	$("#process_step_create_form_process_id").val(currentProcessId);
+	$("#process_step_create_form_process_id").val(currentItemId);
 	$("#process_step_create_form_submit").prop("disabled",true);
 	$("#process_step_create_form_name").val("");
 	$("#process_step_create_form_type").val("null");
@@ -198,7 +197,7 @@ function deleteProcessStep(processStepId){
 		url 	: "api/process_step.php?id="+processStepId,
 		dataType: "text",
 		success	: function( data ) {
-			displayProcess(currentProcessId);
+			displayProcess(currentItemId);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -212,7 +211,10 @@ function showProcessContext(id){
 		html +=  " <b>Domaine</b> : " + process.domain_name+"<br/><br/>";
 		html +=  " <hr/>";
 		html +=  " <button onclick='hidePopup();displayProcess(\""+process.id+"\")'><img src='images/63.png'/> ouvrir</button>";
-		html +=  " <button onclick='deleteProcess(\""+process.id+"\");hidePopup()'><img src='images/14.png'/> supprimer</button>";
+		if (currentItemId != null){
+			html +=  " <button onclick='removeItem(\""+currentItemId+"\",\""+process.id+"\");hidePopup()'><img src='images/14.png'/> retirer</button>";
+		}
+		html +=  " <button onclick='deleteItem(\""+process.id+"\");hidePopup()'><img src='images/14.png'/> supprimer</button>";
 		html +=  " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
 		showPopup("Détail",html);
 		}).fail(function(jxqr,textStatus,error) {
@@ -251,7 +253,7 @@ function refreshProcessStepContext(id){
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
-	$.getJSON("api/process_step.php?process_id="+currentProcessId,function(result){
+	$.getJSON("api/process_step.php?process_id="+currentItemId,function(result){
 		var options = "<option value='null' selected>--choisir une étape--</option>";
 		var steps = result.steps;
 		for (var i = 0; i < steps.length; i++){
@@ -287,7 +289,7 @@ function deleteProcessStepLink(process_id,from_step_id,to_step_id){
 		dataType: "text",
 		success	: function( data ) {
 			refreshProcessStepContext(from_step_id);
-			displayProcess(currentProcessId);
+			displayProcess(currentItemId);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -303,14 +305,14 @@ function addProcessStepLink(){
 		type 	: "POST",
 		url 	: "api/process_step_link.php",
 		data	: {
-			"process_id"	: currentProcessId,
+			"process_id"	: currentItemId,
 			"label"			: label,
 			"data"			: data,
 			"from_step_id"	: from_process_step_id,
 			"to_step_id"	: to_process_step_id},
 		dataType: "text",
 		success	: function( data ) {
-			displayProcess(currentProcessId);
+			displayProcess(currentItemId);
 			refreshProcessStepContext(from_process_step_id);
 			//$("#edit_process_step_form").dialog("close");
 		}
