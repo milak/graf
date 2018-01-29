@@ -20,9 +20,19 @@ $domainsByName = array();
 foreach($domains as $domain){
     $areaid = $domain->area_id;
     $domainsByName[$domain->name] = $domain;
-	if (($domain->name == "client") || ($domain->name == "provider")) {
-	    continue;
-	}
+    // Si le nom du domaine correspond à une zone, on n'ajoute le domaine que s'il est vide
+    if (($areaid == $domain->name) && (isset($areas[$areaid]))){
+        $area = $areas[$domain->name];
+        $domain->items = $dao->getSubItems($domain->id,"actor");
+        if (count($domain->items) > 0){
+            foreach($domain->items as $item){
+                $item->type = "actor";
+                $item->class = "actor";
+                $area->addElement($item);
+            }
+            continue;
+        }
+    }
 	if (!isset($areas[$areaid])){
 	    $area = $areas["default"];
 	} else {
@@ -46,32 +56,6 @@ foreach($domains as $domain){
 		$domainAsElement->name		= $domain->name;
 		$area->addElement($domainAsElement);
 	}
-}
-// Chercher les clients
-$clientarea = $areas["client"];
-if ($clientarea != null){
-    if (isset($domainsByName["client"])){
-        $domain = $domainsByName["client"];
-        $actors = $dao->getSubItems($domain->id,"actor");
-        foreach($actors as $actor){
-            $actor->type = "actor";
-            $actor->class = "actor";
-            $clientarea->addElement($actor);
-        }
-    }
-}
-// Chercher les fournisseurs
-$clientarea = $areas["provider"];
-if ($clientarea != null){
-    if (isset($domainsByName["provider"])){
-        $domain = $domainsByName["provider"];
-        $actors = $dao->getSubItems($domain->id,"actor");;
-        foreach($actors as $actor){
-            $actor->type = "actor";
-            $actor->class = "actor";
-            $clientarea->addElement($actor);
-        }
-    }
 }
 if ($showProcess){
 $sql = <<<SQL
