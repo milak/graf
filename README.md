@@ -7,7 +7,7 @@ Graphic Rendering Architecture Framework
 Graf aims to provide an architecte's tool to render all TOGAF architecte's diagrams. The main important feature given by this tool is that it can be based on a standalone database or a CMDB (only ITop for the moment). The advantages :
   * all components used in the diagrams are real life components described in the CMDB (Server, Database, Software application, etc.)
   * all the components stored in the CMDB can be linked to Business Domains and Strategic designs
-  * Graf uses standards for the description of the diagrams : BPMN, [TOSCA] (http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/TOSCA-Simple-Profile-YAML-v1.0.html "link to TOSCA"), SVG, etc.
+  * Graf uses standards for the description of the diagrams : BPMN, TOSCA, SVG, etc.
   * Graf provides permalink Diagrams to be inserted in Architect documents.
 
 ## What is the status of this program ?
@@ -93,3 +93,12 @@ For ITOP based usage
 docker pull milak/graf
 sudo docker run -e "DAO=itop" -e "ITOP_LOGIN=admin" -e "ITOP_PASSWORD=admin" -e "ITOP_VERSION=1.3" -e "ITOP_ORGANISATION=Demo" -e "ITOP_URL=http://localhost/itop/webservices/rest.php" milak/graf
 ```
+
+## References :
+
+  * TOSCA : <http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/TOSCA-Simple-Profile-YAML-v1.0.html>
+  * TOGAF : <http://www.opengroup.org/subjectareas/enterprise/togaf>
+  * SVG : <https://www.w3.org/TR/SVG2>
+  * BPMN : <http://www.omg.org/spec/BPMN>
+  * Itop : <https://www.combodo.com/itop>
+  * CMDB : <https://en.wikipedia.org/wiki/Configuration_management_database>
