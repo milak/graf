@@ -5,14 +5,10 @@ Graphic Rendering Architecture Framework
 ## What is it ?
 
 Graf aims to provide an architecte's tool to render all TOGAF architecte's diagrams. The main important feature given by this tool is that it can be based on a standalone database or a CMDB (only ITop for the moment). The advantages :
-
-  - all components used in the diagrams are real life components described in the CMDB (Server, Database, Software application, etc.)
-  
-  - all the components stored in the CMDB can be linked to Business Domains and Strategic designs
-  
-  - Graf uses standards for the description of the diagrams : BPMN, TOSCA, SVG, etc.
-  
-  - Graf provides permalink Diagrams to be inserted in Architect documents.
+  * all components used in the diagrams are real life components described in the CMDB (Server, Database, Software application, etc.)
+  * all the components stored in the CMDB can be linked to Business Domains and Strategic designs
+  * Graf uses standards for the description of the diagrams : BPMN, [TOSCA] (http://docs.oasis-open.org/tosca/TOSCA-Simple-Profile-YAML/v1.0/TOSCA-Simple-Profile-YAML-v1.0.html "link to TOSCA"), SVG, etc.
+  * Graf provides permalink Diagrams to be inserted in Architect documents.
 
 ## What is the status of this program ?
 
@@ -22,45 +18,27 @@ Graf is under active development. It cannot be used for production at now.
 
 Here is the list of allready available features :
 
-  - Use of plugable DAO (Data Access Object) to define a link to Itop or Standalone Database. New DAO could be developped for other CMDB.
-  
-  - First DAO implementation : ITop (standalone Database must be rebuilt)
-  
-  - Items :
-  
-  	- Business Domains : can contain any item
-  	
-  	- Actors : represents user roles
-  	
-  	- Services : main services offered by the Information System
-  	
-  	- Business Processes : based on BPMN (not yet stable) can reuse any item
-  	
-  	- Software Solution : based on TOSCA Yaml format to describe logic and technical structure of a solution and all environments (developement, production, test, etc.)
-  	
-  	- Data : (under construction) based on a standard format (to find) will describe all the main Business Data Models and the use maid in the Software Solution
-  	
-  	- Server, Softwares, PC, etc. : all real life components can be used int the diagrams to describe the solutions
-  	
-  - Views :
-  
-  	- all the views are based on templates described in JSON and can be customized
-  
-  	- Strategic View : describes all the domains
-  	
-  	- Business View : describes all the Actors, Process, Service and Data linked to a Business Domain or an Actor
-  	
-  	- Process View : the view of BPMN process
-  	
-  	- Logic View : the view of any Software Solution based on TOSCA format
-  	
-  	- Technical View (not yet implemented) : the technical view of Software Solution : Sites, Machines, etc.
-  	
-  - Generated documents (not yet started) :
-  
-  	- Will generate architect documents containing all necessary diagrams and all the description
+  * Use of plugable DAO (Data Access Object) to define a link to Itop or Standalone Database. New DAO could be developped for other CMDB.
+  * First DAO implementation : ITop (standalone Database must be rebuilt)
+  * Items :
+    * **Business Domains** : can contain any item
+    * **Actors** : represents user roles
+    * **Services** : main services offered by the Information System
+    * **Business Processes** : based on BPMN (not yet stable) can reuse any item
+    * **Software Solution** : based on TOSCA Yaml format to describe logic and technical structure of a solution and all environments (developement, production, test, etc.)
+    * **Data** : (under construction) based on a standard format (to find) will describe all the main Business Data Models and the use maid in the Software Solution
+    * **Server, Softwares, PC, etc.** : all real life components can be used int the diagrams to describe the solutions
+  * Views :
+    * all the views are based on templates described in JSON and can be customized
+    * **Strategic View** : describes all the domains
+    * **Business View** : describes all the Actors, Process, Service and Data linked to a Business Domain or an Actor
+    * **Process View** : the view of BPMN process
+    * **Logic View** : the view of any Software Solution based on TOSCA format
+    * **Technical View** (not yet implemented) : the technical view of Software Solution : Sites, Machines, etc.
+  * Generated documents (not yet started) :
+    * Will generate architect documents containing all necessary diagrams and all the description
 
-## How to install
+## How to install ?
 
 You can install GRAF as a web application in your webserver or as docker image. But, in each case, you have to install mysql database.
 
