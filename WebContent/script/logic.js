@@ -23,18 +23,19 @@ function displaySolution(solutionId){
 		hideToolBox();
 		$("#logic_toolbox").show();
 	}
-	currentItemId = solutionId;
 	if (solutionId == null){
+		currentItem = null;
 		clearFrame();
 		$("#logic_import_item_button").		button("disable");
 		$("#logic_create_instance_button").	button("disable");
 		$("#logic_edit_button").			button("disable");
 	} else {
+		currentItem = { 'id' : solutionId};
 		changeImage("views/view_logique.php?id="+solutionId);
 		$("#logic_import_item_button").		button("enable");
 		$("#logic_create_instance_button").	button("enable");
 		$("#logic_edit_button").			button("enable");
-		loadSolutionScript(currentItemId);
+		loadSolutionScript(currentItem.id);
 	}
 }
 function loadSolutionScript(solutionId){
@@ -142,12 +143,12 @@ function importItemInSolution(){
 				type 	: "POST",
 				url 	: "api/element.php",
 				data	: {
-					"id"		: currentItemId,
+					"id"		: currentItem.id,
 					"child_id"	: id
 				},
 				dataType: "text",
 				success	: function( data ) {
-					saveSolutionScript(currentItemId);
+					saveSolutionScript(currentItem.id);
 				}
 			}).fail(function(jxqr,textStatus,error){
 				alert(textStatus+" : "+error);
@@ -189,6 +190,6 @@ function deleteToscaItem(id){
 		delete node_templates[id];
 		var text = jsyaml.safeDump(tosca);
 		$("#solution_script_editor_form_text").val(text.trim());
-		saveSolutionScript(currentItemId);
+		saveSolutionScript(currentItem.id);
 	}
 }

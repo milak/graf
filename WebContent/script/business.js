@@ -11,19 +11,20 @@ function displayBusiness(domainId){
 		$("#domainSelected").val(""+domainId);
 		$("#business_toolbox").controlgroup("refresh");
 	}
-	currentItemId = domainId;
-	if (currentItemId == null) {
+	if (domainId == null) {
+		currentItem = null;
 		$("#business_import_item_button").		button("disable");
 		$("#business_create_process_button").	button("disable");
 		$("#business_create_service_button").	button("disable");
 		$("#business_create_actor_button").		button("disable");
 		clearFrame();
 	} else {
+		currentItem = {'id' : domainId};
 		$("#business_import_item_button").		button("enable");
 		$("#business_create_process_button").	button("enable");
 		$("#business_create_service_button").	button("enable");
 		$("#business_create_actor_button").		button("enable");
-		changeImage("views/view_business.php?id="+currentItemId);
+		changeImage("views/view_business.php?id="+currentItem.id);
 	}
 }
 function importItemInDomain(){
@@ -35,12 +36,12 @@ function importItemInDomain(){
 				type 	: "POST",
 				url 	: "api/element.php",
 				data	: {
-					"id"		: currentItemId,
+					"id"		: currentItem.id,
 					"child_id"	: id
 				},
 				dataType: "text",
 				success	: function( data ) {
-					displayBusiness(currentItemId);
+					displayBusiness(currentItem.id);
 				}
 			}).fail(function(jxqr,textStatus,error){
 				alert(textStatus+" : "+error);

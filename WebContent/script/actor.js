@@ -21,11 +21,11 @@ function doCreateActor(){
 		data	: {
 			"name"		: name,
 			"class_id"	: class_id,
-			"domain_id"	: currentItemId},
+			"domain_id"	: currentItem.id},
 		dataType: "text",
 		success	: function( data ) {
 			refreshActorLists();
-			displayBusiness(currentItemId);
+			displayBusiness(currentItem.id);
 			$("#create_actor_form").dialog("close");
 		}
 	}).fail(function(jxqr,textStatus,error){

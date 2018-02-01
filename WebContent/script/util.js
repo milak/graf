@@ -1,4 +1,4 @@
-var currentItemId;
+var currentItem = null;
 var panZoomInstance = null;
 function changeImage(url){
 	if (panZoomInstance != null){
@@ -84,9 +84,10 @@ function svgElementClicked(what,id){
 			html += "<b>Classe</b> : "+element.class.name+"<br/><br/>";
 			html += "<hr/>";
 			html += " <button onclick='hidePopup();displayBusiness(\""+id+"\")'><img src='images/14.png'/> ouvrir</button>";
-			if (currentItemId != null){
-				html += " <button onclick='hidePopup();removeItem(\""+currentItemId+"\",\""+id+"\")'><img src='images/14.png'/> supprimer</button>";
+			if (currentItem != null){
+				html += " <button onclick='hidePopup();removeItem(\""+currentItem.id+"\",\""+id+"\")'><img src='images/14.png'/> retirer</button>";
 			}
+			html += " <button onclick='hidePopup();deleteItem(\""+id+"\")'><img src='images/14.png'/> supprimer</button>";
 			html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
 			showPopup("Détail",html);
 		}).fail(function(jxqr,textStatus,error) {
@@ -99,7 +100,7 @@ function svgElementClicked(what,id){
 			html += "<b>Nom</b> : "+element.name+"<br/><br/>";
 			html += "<b>Classe</b> : "+element.class.name+"<br/><br/>";
 			html += "<hr/>";
-			html += " <button onclick='hidePopup();deleteElement(\""+id+"\")'><img src='images/14.png'/> supprimer</button>";
+			html += " <button onclick='hidePopup();deleteItem(\""+id+"\")'><img src='images/14.png'/> supprimer</button>";
 			html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
 			showPopup("Détail",html);
 		}).fail(function(jxqr,textStatus,error) {

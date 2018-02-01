@@ -95,7 +95,7 @@ function removeItem(parentId,childId){
 		url 	: "api/element.php?id="+parentId+"&child_id="+childId,
 		dataType: "text",
 		success	: function(data) {
-			displayBusiness(currentItemId);
+			displayBusiness(currentItem.id);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -110,7 +110,7 @@ function deleteItem(itemId){
 		url 	: "api/element.php?id="+itemId,
 		dataType: "text",
 		success	: function(data) {
-			displayBusiness(currentItemId);
+			displayBusiness(currentItem.id);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);

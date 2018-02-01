@@ -6,17 +6,18 @@ function displayProcess(processId){
 		hideToolBox();
 		$("#process_toolbox").show();
 	}
-	currentItemId = processId;
 	if (processId == null){
+		currentItem = null;
 		clearFrame();
 		$("#script_editor_form_text").val("");
 		$("#process_create_step_button").button("disable");
 		$("#process_edit_button").button("disable");
 	} else {
+		currentItem = {'id' : processId};
 		changeImage("views/view_process.php?id="+processId);
 		$("#process_create_step_button").button("enable");
 		$("#process_edit_button").button("enable");
-		loadProcessScript(processId);
+		loadProcessScript(currentItem.id);
 	}
 }
 function loadProcessScript(processId){
@@ -72,7 +73,7 @@ function doCreateProcess(){
 		dataType: "text",
 		success	: function( data ) {
 			$("#process_create_form").dialog("close");
-			displayBusiness(currentItemId);
+			displayBusiness(currentItem.id);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -87,14 +88,14 @@ function deleteProcess(processId){
 		url 	: "api/process.php?id="+processId,
 		dataType: "text",
 		success	: function( data ) {
-   			displayBusiness(currentItemId);
+   			displayBusiness(currentItem.id);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
 	});
 }
 function createProcessStep(){
-	$("#process_step_create_form_process_id").val(currentItemId);
+	$("#process_step_create_form_process_id").val(currentItem.id);
 	$("#process_step_create_form_submit").prop("disabled",true);
 	$("#process_step_create_form_name").val("");
 	$("#process_step_create_form_type").val("null");
@@ -197,7 +198,7 @@ function deleteProcessStep(processStepId){
 		url 	: "api/process_step.php?id="+processStepId,
 		dataType: "text",
 		success	: function( data ) {
-			displayProcess(currentItemId);
+			displayProcess(currentItem.id);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -211,8 +212,8 @@ function showProcessContext(id){
 		html +=  " <b>Domaine</b> : " + process.domain_name+"<br/><br/>";
 		html +=  " <hr/>";
 		html +=  " <button onclick='hidePopup();displayProcess(\""+process.id+"\")'><img src='images/63.png'/> ouvrir</button>";
-		if (currentItemId != null){
-			html +=  " <button onclick='removeItem(\""+currentItemId+"\",\""+process.id+"\");hidePopup()'><img src='images/14.png'/> retirer</button>";
+		if (currentItem != null){
+			html +=  " <button onclick='removeItem(\""+currentItem.id+"\",\""+process.id+"\");hidePopup()'><img src='images/14.png'/> retirer</button>";
 		}
 		html +=  " <button onclick='deleteItem(\""+process.id+"\");hidePopup()'><img src='images/14.png'/> supprimer</button>";
 		html +=  " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
@@ -253,7 +254,7 @@ function refreshProcessStepContext(id){
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
-	$.getJSON("api/process_step.php?process_id="+currentItemId,function(result){
+	$.getJSON("api/process_step.php?process_id="+currentItem.id,function(result){
 		var options = "<option value='null' selected>--choisir une étape--</option>";
 		var steps = result.steps;
 		for (var i = 0; i < steps.length; i++){
@@ -289,7 +290,7 @@ function deleteProcessStepLink(process_id,from_step_id,to_step_id){
 		dataType: "text",
 		success	: function( data ) {
 			refreshProcessStepContext(from_step_id);
-			displayProcess(currentItemId);
+			displayProcess(currentItem.id);
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -305,14 +306,14 @@ function addProcessStepLink(){
 		type 	: "POST",
 		url 	: "api/process_step_link.php",
 		data	: {
-			"process_id"	: currentItemId,
+			"process_id"	: currentItem.id,
 			"label"			: label,
 			"data"			: data,
 			"from_step_id"	: from_process_step_id,
 			"to_step_id"	: to_process_step_id},
 		dataType: "text",
 		success	: function( data ) {
-			displayProcess(currentItemId);
+			displayProcess(currentItem.id);
 			refreshProcessStepContext(from_process_step_id);
 			//$("#edit_process_step_form").dialog("close");
 		}
