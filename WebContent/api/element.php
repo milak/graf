@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 return;
             }
         } else if (isset($_GET["sub_items"])){
-            $items = $dao->getSubItems($_GET["id"]);
+            $items = $dao->getRelatedItems($_GET["id"]);
         } else {    
             $items = array();
             $item = $dao->getItemById($_GET["id"]);

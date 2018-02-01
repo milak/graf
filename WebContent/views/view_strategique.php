@@ -23,7 +23,7 @@ foreach($domains as $domain){
     // Si le nom du domaine correspond à une zone, on n'ajoute le domaine que s'il est vide
     if (($areaid == $domain->name) && (isset($areas[$areaid]))){
         $area = $areas[$domain->name];
-        $domain->items = $dao->getSubItems($domain->id,"actor");
+        $domain->items = $dao->getRelatedItems($domain->id,"actor","down");
         if (count($domain->items) > 0){
             foreach($domain->items as $item){
                 $item->type = "actor";

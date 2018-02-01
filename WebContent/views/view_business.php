@@ -13,7 +13,7 @@ if (isset($_GET["id"])) {
     displayErrorAndDie('Need "id" argument');
 }
 $item = $dao->getItemById($id);
-$items = $dao->getSubItems($id);
+$items = $dao->getRelatedItems($id,"*","down");
 
 // Chargement des processus
 $actors = array();
@@ -47,6 +47,11 @@ foreach ($items as $item) {
             $dataarea->addElement($obj);
         }
     } else if ($item->category->name == "device") {
+        $obj->class = "component_device";
+        if ($resourcesarea != null) {
+            $resourcesarea->addElement($obj);
+        }
+    } else if ($item->category->name == "data") {
         $obj->class = "component_device";
         if ($resourcesarea != null) {
             $resourcesarea->addElement($obj);

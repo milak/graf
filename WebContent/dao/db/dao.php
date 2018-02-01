@@ -489,7 +489,7 @@ SQL;
     public function getItemsByDomain($domainId){
 	return array();
     }
-    public function getSubItems($itemId){
+    public function getRelatedItems($itemId){
 	return array();
     }
     public function deleteItem($itemId){

@@ -81,7 +81,7 @@ require("dao/dao.php");
 		<div id="business_toolbox" style="width:100%;display:none" class="controlgroup">
 			<button id="business_search_domain_button" 	title="Chercher un domaine"		onclick='$("#search_domain_form").dialog({"modal":true,"title":"Chercher un domain","minWidth":500})'><img style="height:14px" src="images/65.png"/> chercher un domaine</button>
 			<button id="business_import_item_button" 	title="Importer un élément" 	onclick="importItemInDomain()" 	disabled="true"><img style="height:14px" src="images/1633.png"/> élément</button>
-			<button id="business_create_process_button" onclick="createProcess(currentItemId)" disabled="true"><img style="height:14px" src="images/78.png"/> processus</button>
+			<button id="business_create_process_button" onclick="createProcess(currentItem.id)" disabled="true"><img style="height:14px" src="images/78.png"/> processus</button>
 			<button id="business_create_service_button" onclick="createService()" disabled="true"><img style="height:14px" src="images/78.png"/> service</button>
 			<button id="business_create_actor_button" 	onclick="createActor()" disabled="true"><img style="height:14px" src="images/78.png"/> acteur</button>
 		</div>
@@ -121,8 +121,8 @@ require("dao/dao.php");
 		<textarea id="process_script_editor_form_text" style="border:4px groove black;width:100%;height:100%;resize: none;"></textarea>
 	</div>
 	<div style="position: absolute; bottom: 0px;      left: 0;      right: 0;">
-		<button onclick="saveProcessScript(currentItemId)"><img style="height:14px" src="images/78.png"/> enregistrer</button>
-		<button onclick="loadProcessScript(currentItemId)"><img style="height:14px" src="images/33.png"/> annuler les changements</button>
+		<button onclick="saveProcessScript(currentItem.id)"><img style="height:14px" src="images/78.png"/> enregistrer</button>
+		<button onclick="loadProcessScript(currentItem.id)"><img style="height:14px" src="images/33.png"/> annuler les changements</button>
 	</div>
 </div>
 <div id="solution_script_editor_form" style="display:none;width: 100%;height: 100%">
@@ -130,8 +130,8 @@ require("dao/dao.php");
 		<textarea id="solution_script_editor_form_text" style="border:4px groove black;width:100%;height:100%;resize: none;"></textarea>
 	</div>
 	<div style="position: absolute; bottom: 0px;      left: 0;      right: 0;">
-		<button onclick="saveSolutionScript(currentItemId)"><img style="height:14px" src="images/78.png"/> enregistrer</button>
-		<button onclick="loadSolutionScript(currentItemId)"><img style="height:14px" src="images/33.png"/> annuler les changements</button>
+		<button onclick="saveSolutionScript(currentItem.id)"><img style="height:14px" src="images/78.png"/> enregistrer</button>
+		<button onclick="loadSolutionScript(currentItem.id)"><img style="height:14px" src="images/33.png"/> annuler les changements</button>
 	</div>
 </div>
 <div id="popup" style="display:none">
@@ -558,7 +558,7 @@ require("dao/dao.php");
 		$("#edit_component_form_service_list").on("change", function(){
 			var serviceId = $("#edit_component_form_service_list").val();
 			if (serviceId == "null"){
-				serviceId = currentItemId;
+				serviceId = currentItem.id;
 			}
 			filterComponentList(serviceId);
 		});

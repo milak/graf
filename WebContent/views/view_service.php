@@ -20,7 +20,7 @@ if (isset($_GET["id"])){
 }
 $service = $dao->getItemById($service_id);
 $rootarea->name = $rootarea->name." ".$service->name;
-$items = $dao->getSubItems($service_id);
+$items = $dao->getRelatedItems($service_id,"*","down");
 foreach ($items as $item){
     $obj = new stdClass();
     $obj->id 		= $item->id;

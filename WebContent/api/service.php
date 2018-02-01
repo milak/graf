@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $services[] = $result;
         }
     } else if (isset($_GET["domain_id"])){
-        $services = $dao->getSubItems($_GET["domain_id"],"service");
+        $services = $dao->getRelatedItems($_GET["domain_id"],"service","down");
     } else {
         $services = $dao->getItemsByCategory("service");
     }?>
@@ -24,8 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $first = false;
         ?>
         {	"id"        : "<?php echo $service->id; ?>",
-			"name"      : "<?php echo $service->name; ?>",
-			"code"      : "<?php echo $service->code; ?>"
+			"name"      : "<?php echo $service->name; ?>"
 		}<?php
     }?>
 ]}

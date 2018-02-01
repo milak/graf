@@ -51,7 +51,7 @@ foreach ($elements as $element){
 // Afficher les instances 
 $solution = $dao->getItemById($itemId);
 $rootarea->name = $rootarea->name." ".$solution->name;
-$items = $dao->getSubItems($itemId);
+$items = $dao->getRelatedItems($itemId,"*","down");
 foreach($items as $item){
     $obj = new stdClass();
     $obj->id 		= $item->id;

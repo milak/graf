@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $processes = array($dao->getItemById($_GET["id"]));
         }
     } else if (isset($_GET["domain_id"])){
-        $processes = $dao->getSubItems($_GET["domain_id"],"process");
+        $processes = $dao->getRelatedItems($_GET["domain_id"],"process","down");
     } else {
         $processes = $dao->getItemsByCategory("process");
     }
