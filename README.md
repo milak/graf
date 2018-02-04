@@ -38,7 +38,7 @@ Here is the list of allready available features :
   * Generated documents (not yet started) :
     * Will generate architect documents containing all necessary diagrams and all the description
 
-See <TODO.md>
+See [TODO List](TODO.md)
 ## How to install ?
 
 You can install GRAF as a web application in your webserver or as docker image. But, in each case, you have to install mysql database.
