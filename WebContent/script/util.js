@@ -121,7 +121,9 @@ function svgElementClicked(what,id){
 			showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 		});
 	} else if (what == "solution"){
-		showSolutionContext(id);
+		showItemContext(id);
+	} else if ((what == "device") || (what == "server") || (what == "software")){
+		showItemContext(id);
 	} else if (what == "component"){
 		showComponentContext(id);
 	} else {

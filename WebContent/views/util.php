@@ -81,10 +81,11 @@ abstract class Parseable {
  *
  */
 //const DEFAULT_PROCESS_CONTENT = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;bpmn:startEvent name="" id="1"/&gt;&lt;/bpmn:definitions&gt;';
-const DEFAULT_PROCESS_CONTENT = '<bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"><bpmn:startEvent name="" id="1"/></bpmn:definitions>';
+//const DEFAULT_PROCESS_CONTENT = '<bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"><bpmn:startEvent name="" id="1"/></bpmn:definitions>';
 class Process extends Parseable {
     protected function defaultContent(){
-        return DEFAULT_PROCESS_CONTENT;
+        //return DEFAULT_PROCESS_CONTENT;
+        return "";
     }
     protected function parse(){
         $xml = new SimpleXMLElement($this->xml);

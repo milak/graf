@@ -39,7 +39,6 @@ function onSearchItemFormClassChange(){
 }
 function onSearchItemFormCategoryChange(){
 	var categoryName = $("#search_item_form_category").val();
-	// TODO optimiser soit en gardant en cache soit en ne cherchant que les classes nécessaires
 	$.getJSON( "api/element_class.php", function(result) {
 		var categories = result.categories;
 		var htmlClasses = "<option value='NULL'>~~Sélectionner une classe~~</option>";
@@ -52,6 +51,9 @@ function onSearchItemFormCategoryChange(){
 			}
 			for (var j = 0; j < category.classes.length; j++){
 				var classe = category.classes[j];
+				if (classe.abstract == "true"){
+					continue;
+				}
 				htmlClasses += "<option value='"+classe.id+"'>"+classe.name+"</option>";
 			}
 		}
@@ -95,7 +97,7 @@ function removeItem(parentId,childId){
 		url 	: "api/element.php?id="+parentId+"&child_id="+childId,
 		dataType: "text",
 		success	: function(data) {
-			displayBusiness(currentItem.id);
+			currentItem.refresh();
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -110,7 +112,7 @@ function deleteItem(itemId){
 		url 	: "api/element.php?id="+itemId,
 		dataType: "text",
 		success	: function(data) {
-			displayBusiness(currentItem.id);
+			currentItem.refresh();
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -174,7 +176,29 @@ function onSearchItemFormSearchClick(){
 	});
 }
 function onSearchItemFormAddClick(id){
-	functionToCallWhenAddClicked(id);
+	if (functionToCallWhenAddClicked == null){
+		currentItem.addItem(id);
+	} else {
+		functionToCallWhenAddClicked(id);
+	}
+}
+function showItemContext(id){
+	$.getJSON( "api/element.php?id="+id, function(result) {
+		var element = result.elements[0];
+		var html = "<p>"+element.category.name+"</p>";
+		html += "<b>Nom</b> : "+element.name+"<br/><br/>";
+		html += "<b>Classe</b> : "+element.class.name+"<br/><br/>";
+		html += "<hr/>";
+		html += " <button onclick='hidePopup();displayBusiness(\""+id+"\")'><img src='images/14.png'/> ouvrir</button>";
+		if (currentItem != null){
+			html += " <button onclick='hidePopup();removeItem(\""+currentItem.id+"\",\""+id+"\")'><img src='images/14.png'/> retirer</button>";
+		}
+		html += " <button onclick='hidePopup();deleteItem(\""+id+"\")'><img src='images/14.png'/> supprimer</button>";
+		html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
+		showPopup("Détail",html);
+	}).fail(function(jxqr,textStatus,error) {
+		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+	});
 }
 function showToscaItemContext(toscaItemId){
 	var tosca = $("#solution_script_editor_form_text").val();

@@ -13,11 +13,16 @@ function displayProcess(processId){
 		$("#process_create_step_button").button("disable");
 		$("#process_edit_button").button("disable");
 	} else {
-		currentItem = {'id' : processId};
-		changeImage("views/view_process.php?id="+processId);
-		$("#process_create_step_button").button("enable");
-		$("#process_edit_button").button("enable");
-		loadProcessScript(currentItem.id);
+		currentItem = {
+				'id' : processId,
+				refresh : function(){
+					changeImage("views/view_process.php?id="+this.id);
+					$("#process_create_step_button").button("enable");
+					$("#process_edit_button").button("enable");
+					loadProcessScript(currentItem.id);
+					return this;
+				}
+		}.refresh();
 	}
 }
 function loadProcessScript(processId){

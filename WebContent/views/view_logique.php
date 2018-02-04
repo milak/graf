@@ -31,7 +31,6 @@ if (count($documents) != 0){
     die();
     return;
 }
-error_log($content);
 $elements = parseTOSCA($content);
 foreach ($elements as $element){
     $element->class 	= "rect_100_100";
@@ -61,7 +60,7 @@ foreach($items as $item){
     if ($item->category->name=="solution"){
         $obj->type 		= "instance";
         if ($instancearea != null){
-            $instancearea->addElement($obj);
+            //$instancearea->addElement($obj);
         }
     } else {
         continue;

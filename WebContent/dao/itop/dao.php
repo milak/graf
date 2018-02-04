@@ -162,19 +162,19 @@ class ITopDao implements IDAO {
                     // Creation d'un DatabaseSchema
                     $id = $this->createItem("DatabaseSchema", $childItem->name, "", $childItemId->id);
                     $id = $this->_splitItemId($id)->id;
-                    // Le rajouter au domaine
+                    // Le rajouter au DataModel
                     $this->createObject("lnkGroupToCI", array(
                         'group_id'      => $childItemId->id,
                         'ci_id'         => $id,
                         'reason'        => 'Data instance'
                     ));
-                    // Le rajouter au domaine
+                    // Le rajouter au Domaine
                     $this->createObject("lnkGroupToCI", array(
                         'group_id'      => $parentItemId->id,
                         'ci_id'         => $id,
                         'reason'        => 'Data of this domain'
                     ));
-                } else if (($childItemId->prefix == "device") || ($childItemId->prefix == "process") || ($childItemId->prefix == "service") || ($childItemId->prefix == "solution")){
+                } else if ($this->isFunctionalCI($itemId->prefix)){
                     // Le rajouter au domaine
                     $this->createObject("lnkGroupToCI", array(
                         'group_id'  => $parentItemId->id,
@@ -192,7 +192,6 @@ class ITopDao implements IDAO {
                         $type = $object->fields->type;
                         break;
                     }
-                    error_log("Type : ".$type);
                     if ($type == ''){
                         $type = 'OtherSoftware';
                     }
@@ -206,6 +205,77 @@ class ITopDao implements IDAO {
                     $this->createObject("lnkApplicationSolutionToFunctionalCI", array(
                         'applicationsolution_id'  => $parentItemId->id,
                         'functionalci_id'         => $id
+                    ));
+                } else if ($childItem->category->name == "data"){
+                    // Creation d'un DatabaseSchema
+                    $id = $this->createItem("DatabaseSchema", $childItem->name, "", $childItemId->id);
+                    $id = $this->_splitItemId($id)->id;
+                    // Le rajouter au DataModel
+                    $this->createObject("lnkGroupToCI", array(
+                        'group_id'      => $childItemId->id,
+                        'ci_id'         => $id,
+                        'reason'        => 'Data instance'
+                    ));
+                    // Le rajouter à la solution
+                    $this->createObject("lnkApplicationSolutionToFunctionalCI", array(
+                        'applicationsolution_id'  => $parentItemId->id,
+                        'functionalci_id'         => $id
+                    ));
+                } else {
+                    throw new Exception("Unable to add ".$childItem->category->name." in ".$parentItem->category->name);
+                }
+                break;
+            case "service" : // ajouter un élément dans un service
+                if ($this->isFunctionalCI($childItem->category->name)) { // ajouter un FunctionalCI
+                    $response = $this->getObjects('lnkFunctionalCIToService', 'id', 'WHERE service_id = '.$parentItemId->id.' AND functionalci_id = '.$childItemId->id);
+                    if (count($response->objects) == 0){
+                        $this->createObject('lnkFunctionalCIToService', array(
+                            'service_id'        => $parentItemId->id,
+                            'functionalci_id'   => $childItemId->id
+                        ));
+                    }
+                } else if ($childItem->category->name == "actor"){
+                    $response = $this->getObjects('lnkContactToService', 'id', 'WHERE service_id = '.$parentItemId->id.' AND contact_id = '.$childItemId->id);
+                    if (count($response->objects) == 0){
+                        $this->createObject('lnkContactToService', array(
+                            'service_id'    => $parentItemId->id,
+                            'contact_id'    => $childItemId->id
+                        ));
+                    }
+                } else if ($childItem->category->name == "software"){
+                    $response = $this->getObjects("Software", "type","WHERE id = ".$childItemId->id);
+                    foreach ($response->objects as $object){
+                        $type = $object->fields->type;
+                        break;
+                    }
+                    if ($type == ''){
+                        $type = 'OtherSoftware';
+                    }
+                    $id = $this->createObject($type, array(
+                        'org_id'        => "SELECT Organization WHERE name = '$this->organisation'",
+                        'name'          => $childItem->name,
+                        'system_id'     => $this->getGenericServerId(),
+                        'software_id'   => $childItemId->id,
+                        'description'   => 'SoftwareInstance of '.$childItem->name.' for solution '.$parentItem->name
+                    ));
+                    $this->createObject("lnkFunctionalCIToService", array(
+                        'service_id'        => $parentItemId->id,
+                        'functionalci_id'   => $id
+                    ));
+                } else if ($childItem->category->name == "data"){
+                    // Creation d'un DatabaseSchema
+                    $id = $this->createItem("DatabaseSchema", $childItem->name, "", $childItemId->id);
+                    $id = $this->_splitItemId($id)->id;
+                    // Le rajouter au DataModel
+                    $this->createObject("lnkGroupToCI", array(
+                        'group_id'      => $childItemId->id,
+                        'ci_id'         => $id,
+                        'reason'        => 'Data instance'
+                    ));
+                    // Le rajouter à la solution
+                    $this->createObject("lnkFunctionalCIToService", array(
+                        'service_id'        => $parentItemId->id,
+                        'functionalci_id'   => $id
                     ));
                 } else {
                     throw new Exception("Unable to add ".$childItem->category->name." in ".$parentItem->category->name);
@@ -240,14 +310,17 @@ class ITopDao implements IDAO {
                             break;
                         }
                     }
-                } else if (($childItemId->prefix == "device") || ($childItemId->prefix == "process") || ($childItemId->prefix == "service") || ($childItemId->prefix == "solution")){
-                    // Le rajouter au domaine
-                    $response = $this->getObjects("lnkGroupToCI", "id", "WHERE group_id = $parentItemId->id AND ci_id = $childItemId->id");
-                    foreach ($response->objects as $object){
-                        $key = $object->key;
-                        $this->deleteObject("lnkGroupToCI", $key);
-                        break;
-                    }
+                } else if ($this->isFunctionalCI($childItemId->prefix)){
+                    $response = $this->deleteObjects("lnkGroupToCI", array('group_id' => $parentItemId->id, 'ci_id' => $childItemId->id));
+                } else {
+                    throw new Exception("Unable to remove ".$childItem->category->name." from ".$parentItem->category->name);
+                }
+                break;
+            case "service" : // retirer un élément d'un service
+                if ($childItemId->prefix == "actor"){
+                    $this->deleteObject('lnkContactToService', array('service_id' => $parentItemId->id, 'contact_id' => $childItemId->id));
+                } else if ($this->isFunctionalCI($childItemId->prefix) || ($childItemId->prefix == "software")) {
+                    $this->deleteObject('lnkFunctionalCIToService', array('service_id' => $parentItemId->id, 'functionalci_id' => $childItemId->id));
                 } else {
                     throw new Exception("Unable to remove ".$childItem->category->name." from ".$parentItem->category->name);
                 }
@@ -257,7 +330,47 @@ class ITopDao implements IDAO {
                 break;
         }
     }
-    public function getRelatedItems($aItemId,$category="*",$direction="down"){
+    public function getRelatedItems($aItemId,$category='*',$direction='down'){
+        if ($direction == 'down'){
+            return $this->getSubItems($aItemId,$category);
+        } else if ($direction == 'up'){
+            return $this->getOverItems($aItemId,$category);
+        } else {
+            throw new Exception('Unsupported '.$direction);
+        }
+    }
+    private function getOverItems($aItemId,$category='*'){
+        $result = array();
+        $itemId = $this->_splitItemId($aItemId);
+        if ($itemId->prefix == 'actor'){ // On recherche les domaines auquel appartient un acteur
+            /*$response = $this->getObjects('Team', 'function', 'WHERE id = '.$itemId->id);
+            foreach ($response->objects as $object){
+                $function = $object->fields->function;
+                ICI
+                break;
+            }*/
+        } else if ($this->isFunctionalCI($itemId->prefix)){
+            // Trouver les groupes liés
+            if (($category == '*') || ($category == 'domain')){
+                // Le rajouter au domaine
+                $response = $this->getObjects("lnkGroupToCI", '*', 'WHERE ci_id = '.$itemId->id);
+                foreach ($response->objects as $object){
+                    $result[] = $this->_newItem($object->fields->group_id, $object->fields->group_name, "Group");
+                }
+            }
+            if (($category == '*') || ($category == 'solution') || ($category == 'process') || ($category == 'device') || ($category == 'software')){
+                // Trouver tous les items 
+                $item = $this->getItemById($aItemId);
+                $response = $this->getRelated($item->class->name,$itemId->id,'down');
+                foreach ($response->objects as $object){
+                    $result[] = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
+                }
+            }
+        } else {
+        }
+        return $result;
+    }
+    private function getSubItems($aItemId,$category='*'){
         $result = array();
         $itemId = $this->_splitItemId($aItemId);
         if ($itemId->prefix == "actor"){ // On recherche les items sous un acteur
@@ -278,6 +391,7 @@ class ITopDao implements IDAO {
                 }
             }
             // Chercher tous les services
+            
             // Chercher tous les domaines
             $domainList = "";
             foreach(explode(",",$domains) as $domain){
@@ -428,7 +542,7 @@ class ITopDao implements IDAO {
                 $result[]   = $item;
             }
         }
-        if (($category != "actor") && ($category != "domain") && ($category != "service")){
+        if (($category != "actor") && ($category != "data") && ($category != "domain") && ($category != "service") && ($category != "software")){
             $response = $this->getObjects('FunctionalCI','id, name, description',"WHERE organization_name = '$this->organisation' AND finalclass NOT IN ('DBServer','Middleware','OtherSoftware','PCSoftware','WebServer','WebApplication')");
             foreach ($response->objects as $object){
                 $item = $this->_newItem($object->fields->id, $object->fields->name, $object->class, $object->fields->description);
@@ -476,9 +590,17 @@ class ITopDao implements IDAO {
             }
         } else if ($itemId->prefix == "software"){ // On recherche un Software
             $response = $this->getObjects('Software','id, name',"WHERE id = '$itemId->id'");
-            foreach ($response->objects as $object){
-                $result = $this->_newItem($object->fields->id, $object->fields->name, $object->class);
-                break;
+            if (count($response->objects) != 0){
+                foreach ($response->objects as $object){
+                    $result = $this->_newItem($object->fields->id, $object->fields->name, $object->class);
+                    break;
+                }
+            } else {
+                $response = $this->getObjects('FunctionalCI','id, name',"WHERE id = '$itemId->id'");
+                foreach ($response->objects as $object){
+                    $result = $this->_newItem($object->fields->id, $object->fields->name, $object->class);
+                    break;
+                }
             }
         } else { // tout autre item
             $response = $this->getObjects('FunctionalCI','id, name, description',"WHERE id = '$itemId->id'");
@@ -497,10 +619,17 @@ class ITopDao implements IDAO {
             'documents_list'    => array(array('document_id' => $documentId))
         ));
     }
+    private function isFunctionalCI($prefix){
+        if (($prefix == 'solution') || ($prefix == 'device') || ($prefix == 'process') || ($prefix == 'server')){
+            return true;
+        } else {
+            return false;
+        }
+    }
     public function getItemDocuments($itemId,$documentType='*'){
         $itemId = $this->_splitItemId($itemId);
         $result = array();
-        if ($itemId->prefix == 'item'){
+        if ($this->isFunctionalCI($itemId->prefix)){
             $response = $this->getObjects('FunctionalCI','documents_list',"WHERE id = $itemId->id");
             $document_id = null;
             foreach ($response->objects as $object){
@@ -809,8 +938,6 @@ class ITopDao implements IDAO {
         $this->_addItemClass("ConnectableCI",      true,    $this->ITOP_CATEGORIES["device"]);
         $this->_addItemClass("DatacenterDevice",   true,    $this->ITOP_CATEGORIES["device"]);
         $this->_addItemClass("Enclosure",          true,    $this->ITOP_CATEGORIES["device"]); // Problem 'rack_id'
-        $this->_addItemClass("Farm",               false,   $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("Hypervisor",         false,   $this->ITOP_CATEGORIES["device"]);
         $this->_addItemClass("IPPhone",            false,   $this->ITOP_CATEGORIES["device"]);
         $this->_addItemClass("MobilePhone",        false,   $this->ITOP_CATEGORIES["device"]);
         $this->_addItemClass("NAS",                false,   $this->ITOP_CATEGORIES["device"]);
@@ -829,25 +956,29 @@ class ITopDao implements IDAO {
         $this->_addItemClass("Tablet",             false,   $this->ITOP_CATEGORIES["device"]);
         $this->_addItemClass("TapeLibrary",        false,   $this->ITOP_CATEGORIES["device"]);
         $this->_addItemClass("TelephonyCI",        true,    $this->ITOP_CATEGORIES["device"]);
-        $this->_addItemClass("VirtualDevice",      true,    $this->ITOP_CATEGORIES["device"]);
         
         $this->_addItemClass("BusinessProcess",    false,   $this->ITOP_CATEGORIES["process"]);
         
         $this->_addItemClass("Server",             false,   $this->ITOP_CATEGORIES["server"]);
         $this->_addItemClass("VirtualHost",        true,    $this->ITOP_CATEGORIES["server"]);
         $this->_addItemClass("VirtualMachine",     true,    $this->ITOP_CATEGORIES["server"]); // Problem 'virtualhost_id'
+        $this->_addItemClass("Hypervisor",         false,   $this->ITOP_CATEGORIES["server"]);
+        $this->_addItemClass("Farm",               false,   $this->ITOP_CATEGORIES["server"]);
+        $this->_addItemClass("VirtualDevice",      true,    $this->ITOP_CATEGORIES["server"]);
         
         $this->_addItemClass("Service",            false,   $this->ITOP_CATEGORIES["service"]);
         
-        //$this->_addItemClass("DBServer",           false,   $this->ITOP_CATEGORIES["software"]);
-        //$this->_addItemClass("Middleware",         false,   $this->ITOP_CATEGORIES["software"]);
-        //$this->_addItemClass("MiddlewareInstance", true,    $this->ITOP_CATEGORIES["software"]);// Problem 'middleware_id'
-        //$this->_addItemClass("OtherSoftware",      false,   $this->ITOP_CATEGORIES["software"]);
-        //$this->_addItemClass("PCSoftware",         false,   $this->ITOP_CATEGORIES["software"]);
+        
         $this->_addItemClass("Software",           false,   $this->ITOP_CATEGORIES["software"]);
-        //$this->_addItemClass("SoftwareInstance",   true,    $this->ITOP_CATEGORIES["software"]);
-        //$this->_addItemClass("WebApplication",     true,    $this->ITOP_CATEGORIES["software"]);// Problem 'webserver_id'
-        //$this->_addItemClass("WebServer",          false,   $this->ITOP_CATEGORIES["software"]);
+        
+        $this->_addItemClass("DBServer",           true,   $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("Middleware",         true,   $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("MiddlewareInstance", true,   $this->ITOP_CATEGORIES["software"]);// Problem 'middleware_id'
+        $this->_addItemClass("OtherSoftware",      true,   $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("PCSoftware",         true,   $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("SoftwareInstance",   true,   $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("WebApplication",     true,   $this->ITOP_CATEGORIES["software"]);// Problem 'webserver_id'
+        $this->_addItemClass("WebServer",          true,   $this->ITOP_CATEGORIES["software"]);
         
         $this->_addItemClass("ApplicationSolution",false,   $this->ITOP_CATEGORIES["solution"]);
     }
@@ -880,7 +1011,14 @@ class ITopDao implements IDAO {
                     break;
                 }
             }
-        }
+        }/* else if (($className == 'DBServer') || ($className == 'Middleware') || ($className == 'OtherSoftware') || ($className == 'PCSoftware') || ($className == 'WebServer')) {
+            $className = 'Software';
+            $response = $this->getObjects('FunctionalCI','software_id','WHERE id = '.$id);
+            foreach ($response->objects as $object){
+                $id = $object->fields->description;
+                break;
+            }
+        }*/
         $category = $this->getItemCategoryByClass($className);
         $result->id    = $category->name."_".$id;
         $result->name  = $name;

@@ -61,11 +61,7 @@ require("dao/dao.php");
 		</div>
 		<div id="service_toolbox" style="width:100%;display:none" class="controlgroup">
 			<button id="service_search_service_button" onclick='$("#search_service_form").dialog({"modal":true,"title":"Chercher un service","minWidth":500})'><img style="height:14px" src="images/65.png"/> chercher un service</button>
-			<button id="service_create_device_button" 	title="Importer un matériel" 			onclick="createComponent('device')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> matériel</button>
-			<button id="service_create_data_button" 	title="Importer une donnée"				onclick="createComponent('data')" 		disabled="true"><img style="height:14px" src="images/1633.png"/> donnée</button>
-			<button id="service_create_software_button" title="Importer un logiciel"			onclick="createComponent('software')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> logiciel</button>
-			<button id="service_create_service_button" 	title="Importer un service"				onclick="createComponent('service')" 	disabled="true"><img style="height:14px" src="images/1633.png"/> service</button>
-			<button id="service_create_instance_button" title="Créer une instance de ce service" onclick="createServiceInstance()" 		disabled="true"><img style="height:14px" src="images/78.png"/> instance</button>
+			<button id="service_import_item_button" 	title="Importer un élément" 			onclick="addItemToService()" 		disabled="true"><img style="height:14px" src="images/1633.png"/> élément</button>
 		</div>
 		<div id="logic_toolbox" style="width:100%;display:none" class="controlgroup">
 			<button id="logic_search_solution_button" 	onclick='$("#search_solution_form").dialog({"modal":true,"title":"Chercher une solution","minWidth":500})'><img style="height:14px" src="images/65.png"/> chercher une solution</button>
@@ -152,19 +148,6 @@ require("dao/dao.php");
 	<button type="button" onclick='doUpdateView()'><img style="height:14px" src="images/78.png"/> valider</button>
 	<button type="button" onclick='$("#update_view_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </form>
-<form id="create_actor_form" style="display:none" class="pure-form pure-form-aligned">
-	<div class="pure-control-group">
-		<label for="create_actor_form_name">Nom</label>
-		<input type="text" 	id="create_actor_form_name" 		name="name"/>
-	</div>
-	<div class="pure-control-group">
-		<label for="create_actor_form_class">Classe</label>
-		<select id="create_actor_form_class"></select>
-	</div>
-	<hr/>
-	<button type="button" onclick='doCreateActor()'><img style="height:14px" src="images/78.png"/> créer</button>
-	<button type="button" onclick='$("#create_actor_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
-</form>
 <form id="create_domain_form" style="display:none" class="pure-form pure-form-aligned">
 	<div class="pure-control-group">
 		<label for="create_domain_form_name">Nom</label>
@@ -177,101 +160,6 @@ require("dao/dao.php");
 	<hr/>
 	<button type="button" onclick='doCreateDomain()'><img style="height:14px" src="images/78.png"/> cr&eacute;er</button>
 	<button type="button" onclick='$("#create_domain_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
-</form>
-<form id="create_component_form" style="display:none" class="pure-form pure-form-aligned">
-	<input type="hidden" id="create_component_form_type"/>
-	<div id="create_component_form_service" class="pure-control-group">
-		<label for="create_component_form_service_list">Service</label>
-		<select id="create_component_form_service_list"></select>
-	</div>
-	<div id="create_component_form_software" class="pure-control-group">
-		<label for="create_component_form_software_list">Logiciel</label>
-		<select id="create_component_form_software_list"></select>
-		<span class="pure-form-message-inline">
-			<button title="Créer un logiciel" onclick="createSoftware()"><img style="height:14px" src="images/78.png"/></button>
-		</span>
-	</div>
-	<div id="create_component_form_data" class="pure-control-group">
-		<label for="create_component_form_data_list">Donnée</label>
-		<select id="create_component_form_data_list"></select>
-		<span class="pure-form-message-inline">
-			<button title="Créer une donnée"  onclick="createData()"><img style="height:14px" src="images/78.png"/></button>
-		</span>
-	</div>
-	<div id="create_component_form_device" class="pure-control-group">
-		<label for="create_component_form_device_list">Matériel</label>
-		<select id="create_component_form_device_list"></select>
-		<span class="pure-form-message-inline">
-			<button title="Créer un matériel" onclick="createDevice()"><img style="height:14px" src="images/78.png"/></button>
-		</span>
-	</div>
-	<div class="pure-control-group">
-		<label for="create_component_form_area">Zone</label>
-		<select id="create_component_form_area"></select>
-	</div>
-	<hr/>
-	<button type="button" onclick='doCreateComponent()'><img style="height:14px" src="images/78.png"/> ajouter</button>
-	<button type="button" onclick='$("#create_component_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
-</form>
-<form id="edit_component_form" style="display:none" class="pure-form pure-form-aligned">
-	<fieldset>
-	<legend>Composant</legend>
-		<div class="pure-control-group">
-			<label for="edit_component_form_name">Nom</label>
-			<input type="text" id="edit_component_form_name" readonly="true"/>
-		</div>
-		<div class="pure-control-group">
-			<label for="edit_component_form_area">Zone</label>
-			<select id="edit_component_form_area" onchange="onEditComponentFormAreaChanged()"></select>
-		</div>
-	</fieldset>
-	<input type="hidden" id="edit_component_form_area_orig_value"/>
-	<input type="hidden" id="edit_component_form_component_id"/>
-	<hr/>
-	<fieldset>
-		<legend>Liens</legend>
-		<table style="width:100%" class="pure-table">
-			<thead>
-				<tr>
-					<th>Composant</th><th>Protocole</th><th>Port</th><th></th>
-				</tr>
-			</thead>
-			<tbody id="edit_component_form_links"></tbody>
-		</table>
-	</fieldset>
-	<div id="edit_component_form_toggle1" style="width: 100%;text-align: right;">
-		<a href="#" onclick="$('#edit_component_form_toggle1').hide();$('#edit_component_form_toggle2').show();">Ajouter un lien</a>
-	</div>
-	<div id="edit_component_form_toggle2" style="display:none">
-		<fieldset>
-			<legend>Nouveau lien</legend>
-		<div class="pure-control-group">
-			<label  for="edit_component_form_service_list">Service</label>
-			<select id ="edit_component_form_service_list"></select>
-		</div>
-		<div class="pure-control-group">
-			<label  for="edit_component_form_component_list">Composant</label>
-			<select id ="edit_component_form_component_list"></select>
-		</div>
-		<div class="pure-control-group">
-			<label for="edit_component_form_protocole">Protocole</label>
-			<input id ="edit_component_form_protocole" type='text'/>
-		</div>
-		<div class="pure-control-group">
-			<label for="edit_component_form_port">Port</label>
-			<input id ="edit_component_form_port" type='text'/>
-		</div>
-		<div id="edit_component_form_toggle1" style="width: 100%;text-align: right;">
-			<a href="#" onclick="addComponentLink()">Valider</a>
-			<a href="#" onclick="hideAddComponentLinkForm()">Annuler</a>
-		</div>
-		</fieldset>
-	</div>
-	<hr/>
-	<button type="button" onclick='$("#edit_component_form").dialog("close");displayComponent(currentComponentId)' id="edit_component_form_ouvrir"><img src='images/63.png'/> ouvrir</button>
-	<button type="button" onclick='$("#edit_component_form").dialog("close");unlinkComponent(currentComponentId)'><img src='images/14.png'/> retirer</button>
-	<button type="button" onclick='$("#edit_component_form").dialog("close");updateComponent()' id="edit_component_form_valider" disabled="true"><img src='images/93.png'/> valider</button>
-	<button type="button" onclick='$("#edit_component_form").dialog("close");'><img src='images/33.png'/> fermer</button>
 </form>
 <form id="process_create_form" class="pure-form pure-form-aligned" style="display:none">
 	<fieldset>

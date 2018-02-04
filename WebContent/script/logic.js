@@ -30,12 +30,78 @@ function displaySolution(solutionId){
 		$("#logic_create_instance_button").	button("disable");
 		$("#logic_edit_button").			button("disable");
 	} else {
-		currentItem = { 'id' : solutionId};
-		changeImage("views/view_logique.php?id="+solutionId);
-		$("#logic_import_item_button").		button("enable");
-		$("#logic_create_instance_button").	button("enable");
-		$("#logic_edit_button").			button("enable");
-		loadSolutionScript(currentItem.id);
+		currentItem = {
+			'id' 	: solutionId,
+			refresh : function(){
+				changeImage("views/view_logique.php?id="+this.id);
+				$("#logic_import_item_button").		button("enable");
+				$("#logic_create_instance_button").	button("enable");
+				$("#logic_edit_button").			button("enable");
+				loadSolutionScript(this.id);
+				return this;
+			},
+			addItem : function(itemId){
+				$.getJSON("api/element.php?id="+id, function(result) {
+					var element = result.elements[0];
+					var name = element.name.replace(new RegExp('[^a-zA-Z0-9]','g'),'_');
+					var area = $("#search_item_form_area").val();
+					if (area == "null"){
+						alert("Vous devez fournir une zone");
+						return;
+					}
+					var tosca = $("#solution_script_editor_form_text").val();
+					tosca = jsyaml.load(tosca);
+					var topology_template = tosca.topology_template;
+					var node_templates = topology_template.node_templates;
+					if (node_templates == null){
+						topology_template.node_templates = {};
+						node_templates = topology_template.node_templates;
+					}
+					var index = 1;
+					var nodeName = name;
+					// Rechercher si l'élément n'a pas déjà été ajouté
+					while (true) {
+						var found = false;
+						for (var node in node_templates){
+							if (node == nodeName){
+								found = true;
+								break;
+							}
+						}
+						if (!found) {
+							break;
+						}
+						// Si trouvé, ajouter un chiffre et chercher à nouveau
+						nodeName = name + "_" + index;
+						index++;
+					}
+					// Ajouter le node
+					var properties = new Array();
+					properties.push({"id" : id});
+					properties.push({"area" : area});
+					var node = { "type" : getToscaNodeTypeFromCategory(element.category.name), "name" : nodeName, properties : properties};
+					node_templates[nodeName] = node;
+					var text = jsyaml.safeDump(tosca);
+					$("#solution_script_editor_form_text").val(text.trim());
+					$.ajax({
+						type 	: "POST",
+						url 	: "api/element.php",
+						data	: {
+							"id"		: currentItem.id,
+							"child_id"	: id
+						},
+						dataType: "text",
+						success	: function(data) {
+							saveSolutionScript(currentItem.id);
+						}
+					}).fail(function(jxqr,textStatus,error){
+						alert(textStatus+" : "+error);
+					});
+				}).fail(function(jxqr,textStatus,error) {
+					showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+				});
+			}
+		}.refresh();
 	}
 }
 function loadSolutionScript(solutionId){
@@ -96,67 +162,7 @@ function editSolutionScript(){
 	}catch(exception){}
 }
 function importItemInSolution(){
-	openSearchItemForm(function (id){
-		$.getJSON("api/element.php?id="+id, function(result) {
-			var element = result.elements[0];
-			var name = element.name.replace(new RegExp('[^a-zA-Z0-9]','g'),'_');
-			var area = $("#search_item_form_area").val();
-			if (area == "null"){
-				alert("Vous devez fournir une zone");
-				return;
-			}
-			var tosca = $("#solution_script_editor_form_text").val();
-			tosca = jsyaml.load(tosca);
-			var topology_template = tosca.topology_template;
-			var node_templates = topology_template.node_templates;
-			if (node_templates == null){
-				topology_template.node_templates = {};
-				node_templates = topology_template.node_templates;
-			}
-			var index = 1;
-			var nodeName = name;
-			// Rechercher si l'élément n'a pas déjà été ajouté
-			while (true) {
-				var found = false;
-				for (var node in node_templates){
-					if (node == nodeName){
-						found = true;
-						break;
-					}
-				}
-				if (!found) {
-					break;
-				}
-				// Si trouvé, ajouter un chiffre et chercher à nouveau
-				nodeName = name + "_" + index;
-				index++;
-			}
-			// Ajouter le node
-			var properties = new Array();
-			properties.push({"id" : id});
-			properties.push({"area" : area});
-			var node = { "type" : getToscaNodeTypeFromCategory(element.category.name), "name" : nodeName, properties : properties};
-			node_templates[nodeName] = node;
-			var text = jsyaml.safeDump(tosca);
-			$("#solution_script_editor_form_text").val(text.trim());
-			$.ajax({
-				type 	: "POST",
-				url 	: "api/element.php",
-				data	: {
-					"id"		: currentItem.id,
-					"child_id"	: id
-				},
-				dataType: "text",
-				success	: function( data ) {
-					saveSolutionScript(currentItem.id);
-				}
-			}).fail(function(jxqr,textStatus,error){
-				alert(textStatus+" : "+error);
-			});
-		}).fail(function(jxqr,textStatus,error) {
-			showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-		});
-	});
+	openSearchItemForm(currentItem.addItem);
 }
 // Tosca functions
 function getToscaNodeTypeFromCategory(itemCategory){
