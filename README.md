@@ -21,13 +21,13 @@ Here is the list of allready available features :
   * Use of plugable DAO (Data Access Object) to define a link to Itop or Standalone Database. New DAO could be developped for other CMDB.
   * First DAO implementation : ITop (standalone Database must be rebuilt)
   * Items :
-    * **Business Domains** : can contain any item
-    * **Actors** : represents user roles
-    * **Services** : main services offered by the Information System
-    * **Business Processes** : based on BPMN (not yet stable) can reuse any item
-    * **Software Solution** : based on TOSCA Yaml format to describe logic and technical structure of a solution and all environments (developement, production, test, etc.)
+    * **Domain** : represent a Business Domain, it can contain any item linked to the Business
+    * **Actor** : represents user roles, it can contain any item used by the actor
+    * **Service** : main services offered by the Information System, it can contain any item
+    * **Business Process** : describes a Business Process. Based on BPMN (not yet stable) can be linked to any technical item or actor
+    * **Solution** : describes macro or micro software solution. Based on TOSCA Yaml format to describe logic and technical structure of the solution and all environments (developement, production, test, etc.). It can be linked to any technical item
     * **Data** : (under construction) based on a standard format (to find) will describe all the main Business Data Models and the use maid in the Software Solution
-    * **Server, Softwares, PC, etc.** : all real life components can be used int the diagrams to describe the solutions
+    * **Server, Software, Device, etc.** : all real life components can be used in the diagrams to describe the solutions or processes
   * Views :
     * all the views are based on templates described in JSON and can be customized
     * **Strategic View** : describes all the domains
@@ -38,6 +38,7 @@ Here is the list of allready available features :
   * Generated documents (not yet started) :
     * Will generate architect documents containing all necessary diagrams and all the description
 
+See <TODO.md>
 ## How to install ?
 
 You can install GRAF as a web application in your webserver or as docker image. But, in each case, you have to install mysql database.
