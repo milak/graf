@@ -118,20 +118,6 @@ function deleteItem(itemId){
 		alert(textStatus+" : "+error);
 	});
 }
-function onSearchItemFormDeleteClick(itemId){
-	if (confirm("Etes-vous sûr de vouloir supprimer l'élément de la base ?")){
-		$.ajax({
-			type 	: "DELETE",
-			url 	: "api/element.php?id="+itemId,
-			dataType: "text",
-			success	: function( data ) {
-				onSearchItemFormSearchClick();
-			}
-		}).fail(function(jxqr,textStatus,error){
-			alert(textStatus+" : "+error);
-		});
-	}
-}
 function onSearchItemFormSearchClick(){
 	if (datatableItems == null){
 		datatableItems = $("#search_item_form_result").dataTable();
@@ -164,7 +150,7 @@ function onSearchItemFormSearchClick(){
 			row.push(element.class.name);
 			row.push(element.category.name);
 			var label = "<button onClick='event.preventDefault();onSearchItemFormAddClick(\""+element.id+"\");'>Ajouter</button>";
-			label    += "<button onClick='event.preventDefault();onSearchItemFormDeleteClick(\""+element.id+"\");'>Effacer</button>";
+			label    += "<button onClick='event.preventDefault();deleteItem(\""+element.id+"\");'>Effacer</button>";
 			row.push(label);
 			data.push(row);
 		}
@@ -189,7 +175,7 @@ function showItemContext(id){
 		html += "<b>Nom</b> : "+element.name+"<br/><br/>";
 		html += "<b>Classe</b> : "+element.class.name+"<br/><br/>";
 		html += "<hr/>";
-		html += " <button onclick='hidePopup();displayBusiness(\""+id+"\")'><img src='images/14.png'/> ouvrir</button>";
+		html += " <button onclick='hidePopup();displaySolution(\""+id+"\")'><img src='images/63.png'/> ouvrir</button>";
 		if (currentItem != null){
 			html += " <button onclick='hidePopup();removeItem(\""+currentItem.id+"\",\""+id+"\")'><img src='images/14.png'/> retirer</button>";
 		}

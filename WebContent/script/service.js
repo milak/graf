@@ -1,7 +1,7 @@
 var currentComponentId = null;
 function refreshServiceList(){
-	$.getJSON("api/service.php", function(result){
-		var services = result.services;
+	$.getJSON("api/element.php?category_name=service", function(result){
+		var services = result.elements;
 		var options = "<option value='null' selected>--choisir un service--</option>";
 		for (var i = 0; i < services.length; i++){
 			var service = services[i];
@@ -12,31 +12,6 @@ function refreshServiceList(){
 		$('#process_step_create_form_service_list').html(options);
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Impossible de charger les services</h1>"+textStatus+ " : " + error);
-	});
-}
-function createService(){
-	$("#create_service_form_domain_id").val(currentItem.id);
-	$("#create_service_form").dialog({"modal":true,"title":"Création d'un service"});
-}
-function doCreateService(){
-	var name 		= $("#create_service_form_name").val();
-	var code 		= $("#create_service_form_code").val();
-	var domain_id 	= $("#create_service_form_domain_id").val();
-	$.ajax({
-		type 	: "POST",
-		url 	: "api/service.php",
-		data	: {
-			"code"		: code,
-			"name"		: name,
-			"domain_id"	: domain_id},
-		dataType: "text",
-		success	: function( data ) {
-			$("#create_service_form").dialog("close");
-			displayBusiness(currentItem.id);
-			refreshServiceList();
-		}
-	}).fail(function(jxqr,textStatus,error){
-		alert(textStatus+" : "+error);
 	});
 }
 function displayService(serviceId){
@@ -72,21 +47,6 @@ function displayService(serviceId){
 			}
 		}.refresh();
 	}
-}
-function deleteService(id){
-	if (!confirm("Etes-vous sûr de vouloir supprimer le service ?")){
-		return;
-	}
-	$.ajax({
-		type 	: "DELETE",
-		url 	: "api/service.php?id="+id,
-		dataType: "text",
-		success	: function(data) {
-			displayBusiness(currentItem.id);
-		}
-	}).fail(function(jxqr,textStatus,error){
-		alert(textStatus+" : "+error);
-	});
 }
 function addItemToService(){
 	openSearchItemForm(null);

@@ -1,8 +1,12 @@
 function displayStrategic(){
-	currentItem = null;
-	hideToolBox();
-	$("#strategic_toolbox").show();
-	strategic_checkSeeProcess();
+	currentItem = {
+			refresh : function() {
+				hideToolBox();
+				$("#strategic_toolbox").show();
+				strategic_checkSeeProcess();
+				return this;
+			}
+	}.refresh();
 }
 function strategic_checkSeeProcess(){
 	if( $('input[name=strategic_viewprocess]').is(':checked') ){

@@ -14,42 +14,42 @@ function displayBusiness(domainId){
 	if (domainId == null) {
 		currentItem = null;
 		$("#business_import_item_button").		button("disable");
-		$("#business_create_process_button").	button("disable");
-		$("#business_create_service_button").	button("disable");
-		$("#business_create_actor_button").		button("disable");
 		clearFrame();
 	} else {
-		currentItem = {'id' : domainId};
-		$("#business_import_item_button").		button("enable");
-		$("#business_create_process_button").	button("enable");
-		$("#business_create_service_button").	button("enable");
-		$("#business_create_actor_button").		button("enable");
-		changeImage("views/view_business.php?id="+currentItem.id);
+		currentItem = {
+				'id' : domainId,
+				refresh : function(){
+					$("#business_import_item_button").		button("enable");
+					changeImage("views/view_business.php?id="+this.id);
+					return this;
+				},
+				addItem : function(id){
+					$.getJSON("api/element.php?id="+id, function(result) {
+						var element = result.elements[0];
+						// Ajouter l'item
+						$.ajax({
+							type 	: "POST",
+							url 	: "api/element.php",
+							data	: {
+								"id"		: currentItem.id,
+								"child_id"	: id
+							},
+							dataType: "text",
+							success	: function( data ) {
+								displayBusiness(currentItem.id);
+							}
+						}).fail(function(jxqr,textStatus,error){
+							alert(textStatus+" : "+error);
+						});
+					}).fail(function(jxqr,textStatus,error) {
+						showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+					});
+				}
+		}.refresh();
 	}
 }
 function importItemInDomain(){
-	openSearchItemForm(function (id){
-		$.getJSON("api/element.php?id="+id, function(result) {
-			var element = result.elements[0];
-			// Ajouter l'item
-			$.ajax({
-				type 	: "POST",
-				url 	: "api/element.php",
-				data	: {
-					"id"		: currentItem.id,
-					"child_id"	: id
-				},
-				dataType: "text",
-				success	: function( data ) {
-					displayBusiness(currentItem.id);
-				}
-			}).fail(function(jxqr,textStatus,error){
-				alert(textStatus+" : "+error);
-			});
-		}).fail(function(jxqr,textStatus,error) {
-			showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-		});
-	});
+	openSearchItemForm(null);
 }
 function refreshStrategicAreaList(){
 	$.getJSON( "api/view.php?view=strategic", function(result) {
@@ -88,22 +88,6 @@ function searchDomain(){
 	} else {
 		displayBusiness(null);
 	}
-}
-function deleteDomain(domainId){
-	if (!confirm("Etes-vous sûr de vouloir supprimer le domaine ?")){
-		return;
-	}
-	$.ajax({
-		type 	: "DELETE",
-		url 	: "api/domain.php?id="+domainId,
-		dataType: "text",
-		success	: function(data) {
-			displayStrategic();
-			refreshDomainList();
-		}
-	}).fail(function(jxqr,textStatus,error){
-		alert(textStatus+" : "+error);
-	});
 }
 function refreshDomainList(){
 	$.getJSON( "api/element.php?category_name=domain", function(result) {
@@ -152,7 +136,10 @@ function showDomainContext(id){
 				}
 				html += "<hr/>";
 				html += " <button onclick='hidePopup();displayBusiness(\""+domain.id+"\")'><img src='images/63.png'/> ouvrir</button>";
-				html += " <button onclick='hidePopup();deleteDomain(\""+domain.id+"\")'><img src='images/14.png'/> supprimer</button>";
+				html += " <button onclick='hidePopup();deleteItem(\""+domain.id+"\")'><img src='images/14.png'/> supprimer</button>";
+				if (currentItem != null){
+					html += " <button onclick='hidePopup();removeItem(\""+currentItem.id+"\",\""+domain.id+"\")'><img src='images/14.png'/> retirer</button>";
+				}
 				html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
 				showPopup("Détail",html);
 			});

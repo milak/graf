@@ -31,17 +31,15 @@ $solutionarea   = $areas["solution"];
 foreach ($items as $item) {
     $obj = new stdClass();
     $obj->id = $item->id;
-    $obj->type = "item";
+    $obj->type = $item->category->name;
     $obj->name = $item->name;
     $obj->links = array();
     if ($item->category->name == "actor") {
-        $obj->type = "actor";
         $obj->class = "actor";
         if ($actorarea != null) {
             $actorarea->addElement($obj);
         }
     } else if ($item->category->name == "data") {
-        $obj->type = "data";
         $obj->class = "component_data";
         if ($dataarea != null) {
             $dataarea->addElement($obj);
@@ -129,13 +127,11 @@ foreach ($items as $item) {
             $resourcesarea->addElement($obj);
         }
     } else if ($item->category->name == "solution") {
-        $obj->type = "solution";
         $obj->class = "component_software";
         if ($solutionarea != null) {
             $solutionarea->addElement($obj);
         }
     } else if ($item->category->name == "domain") {
-        $obj->type = "domain";
         $obj->class = "component_software";
         if ($domainarea != null) {
             $domainarea->addElement($obj);

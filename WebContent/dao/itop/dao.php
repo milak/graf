@@ -83,7 +83,7 @@ class ITopDao implements IDAO {
                 'status'        => 'production',
                 'description'   => $description
             ));
-        } else if ($category->name == "data"){
+        } else if ($className == "Data"){
             $result = "domain_".$this->createObject('Group', array(
                 'org_id'        => "SELECT Organization WHERE name = '$this->organisation'",
                 'name'          => $name,
@@ -103,7 +103,7 @@ class ITopDao implements IDAO {
             $result = "service_".$this->createObject("Team", array(
                 'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
                 'name'              => $name,
-                'function'          => 'description'
+                'function'          => $description
             ));
         } else {
             $fields = array(
@@ -121,29 +121,29 @@ class ITopDao implements IDAO {
         }
         return $result;
     }
-    public function addSubItem($parentItemId,$childItemId){
-        error_log("addSubItem($parentItemId,$childItemId)");
-        $parentItem   = $this->getItemById($parentItemId);
-        $childItem    = $this->getItemById($childItemId);
-        $parentItemId = $this->_splitItemId($parentItemId);
-        $childItemId  = $this->_splitItemId($childItemId);
+    public function addSubItem($aParentItemId,$aChildItemId){
+        error_log("addSubItem($aParentItemId,$aChildItemId)");
+        $parentItem   = $this->getItemById($aParentItemId);
+        $childItem    = $this->getItemById($aChildItemId);
+        $parentItemId = $this->_splitItemId($aParentItemId);
+        $childItemId  = $this->_splitItemId($aChildItemId);
         switch ($parentItem->category->name){
-            case "domain" : // ajouter un élément dans un domaine
-                if ($childItem->category->name == "service"){
+            case 'domain' : // ajouter un élément dans un domaine
+                if ($childItem->category->name == 'service'){
                     // S'il n'y est pas déjà
                     $description = $childItem->description;
                     if (strpos($description,$parentItem->name) === false){
                         if (strlen($description) == 0){
                             $description = $parentItem->name;
                         } else {
-                            $description = $description.",".$parentItem->name;
+                            $description = $description.','.$parentItem->name;
                         }
-                        $this->updateObject("Service", $childItemId->id, array(
-                            "description" => $description
+                        $this->updateObject('Service', $childItemId->id, array(
+                            'description' => $description
                         ));
                     } // sinon, c'est bon
-                } else if ($childItemId->prefix == "actor"){
-                    $response = $this->getObjects("Team", "function","WHERE id = ".$childItemId->id);
+                } else if ($childItemId->prefix == 'actor'){
+                    $response = $this->getObjects('Team', 'function','WHERE id = '.$childItemId->id);
                     foreach ($response->objects as $object){
                         $function = $object->fields->function;
                         if (strpos($function,$parentItem->name) === false){
@@ -152,8 +152,8 @@ class ITopDao implements IDAO {
                             } else {
                                 $function = $function.",".$parentItem->name;
                             }
-                            $this->updateObject("Team", $childItemId->id, array(
-                                "function" => $function
+                            $this->updateObject('Team', $childItemId->id, array(
+                                'function' => $function
                             ));
                             break;
                         }
@@ -174,7 +174,7 @@ class ITopDao implements IDAO {
                         'ci_id'         => $id,
                         'reason'        => 'Data of this domain'
                     ));
-                } else if ($this->isFunctionalCI($itemId->prefix)){
+                } else if ($this->isFunctionalCI($childItemId->prefix)){
                     // Le rajouter au domaine
                     $this->createObject("lnkGroupToCI", array(
                         'group_id'  => $parentItemId->id,
@@ -182,6 +182,7 @@ class ITopDao implements IDAO {
                         'reason'    => 'Item of this domain'
                     ));
                 } else {
+                    // TODO supporter l'ajout de 'software'
                     throw new Exception("Unable to add ".$childItem->category->name." in ".$parentItem->category->name);
                 }
                 break;
@@ -281,17 +282,32 @@ class ITopDao implements IDAO {
                     throw new Exception("Unable to add ".$childItem->category->name." in ".$parentItem->category->name);
                 }
                 break;
+            case "actor" : // ajouter un élément à un actor
+                if ($this->isFunctionalCI($childItemId->prefix)){
+                    $response = $this->getObjects("lnkContactToFunctionalCI", 'id', 'WHERE contact_id = '.$parentItemId->id.' AND functionalci_id = '.$childItemId->id);
+                    if (count($response->objects) == 0){
+                        $this->createObject("lnkContactToFunctionalCI", array('contact_id' => $parentItemId->id, 'functionalci_id' => $childItemId->id));
+                    }
+                } else if ($childItem->category->name == "domain"){
+                    $this->addSubItem($aChildItemId,$aParentItemId); // on inverse
+                } else if ($childItem->category->name == "service"){
+                    $this->addSubItem($aChildItemId,$aParentItemId); // on inverse
+                } else {
+                    // TODO supporter l'ajout de software
+                    throw new Exception("Unable to add ".$childItem->category->name." from ".$parentItem->category->name);
+                }
+                break;
             default:
                 throw new Exception("Unable to add ".$childItem->category->name." in ".$parentItem->category->name);
                 break;
         }
     }
-    public function removeSubItem($parentItemId,$childItemId){
-        error_log("removeSubItem($parentItemId,$childItemId)");
-        $parentItem   = $this->getItemById($parentItemId);
-        $childItem    = $this->getItemById($childItemId);
-        $parentItemId = $this->_splitItemId($parentItemId);
-        $childItemId  = $this->_splitItemId($childItemId);
+    public function removeSubItem($aParentItemId,$aChildItemId){
+        error_log("removeSubItem($aParentItemId,$aChildItemId)");
+        $parentItem   = $this->getItemById($aParentItemId);
+        $childItem    = $this->getItemById($aChildItemId);
+        $parentItemId = $this->_splitItemId($aParentItemId);
+        $childItemId  = $this->_splitItemId($aChildItemId);
         switch ($parentItem->category->name){
             case "domain" : // retirer un élément d'un domaine
                 if ($childItemId->prefix == "actor"){
@@ -311,7 +327,22 @@ class ITopDao implements IDAO {
                         }
                     }
                 } else if ($this->isFunctionalCI($childItemId->prefix)){
-                    $response = $this->deleteObjects("lnkGroupToCI", array('group_id' => $parentItemId->id, 'ci_id' => $childItemId->id));
+                    $response = $this->deleteObject("lnkGroupToCI", array('group_id' => $parentItemId->id, 'ci_id' => $childItemId->id));
+                } else if ($childItemId->prefix == "data") {
+                    $this->deleteObject('DatabaseSchema', $childItemId->id);
+                } else if ($childItemId->prefix == "service") {
+                    // S'il n'y est pas déjà
+                    $description = $childItem->description;
+                    $pos = strpos($description,$parentItem->name);
+                    if ($pos === false){
+                        // c'est bon
+                    } else {
+                        $description = substr($description, 0, $pos).substr($description,$pos+strlen($parentItem->name)+1);
+                        $description = trim($description, ','); // virer les éventuelles virgules qui restent après suppression
+                        $this->updateObject("Service", $childItemId->id, array(
+                            "description" => $description
+                        ));
+                    }
                 } else {
                     throw new Exception("Unable to remove ".$childItem->category->name." from ".$parentItem->category->name);
                 }
@@ -321,6 +352,19 @@ class ITopDao implements IDAO {
                     $this->deleteObject('lnkContactToService', array('service_id' => $parentItemId->id, 'contact_id' => $childItemId->id));
                 } else if ($this->isFunctionalCI($childItemId->prefix) || ($childItemId->prefix == "software")) {
                     $this->deleteObject('lnkFunctionalCIToService', array('service_id' => $parentItemId->id, 'functionalci_id' => $childItemId->id));
+                } else if ($childItemId->prefix == "data") {
+                    $this->deleteObject('DatabaseSchema', $childItemId->id);
+                } else {
+                    throw new Exception("Unable to remove ".$childItem->category->name." from ".$parentItem->category->name);
+                }
+                break;
+            case "actor" : // retirer un élément d'un actor
+                if ($this->isFunctionalCI($childItemId->prefix)){
+                    $response = $this->deleteObject("lnkContactToFunctionalCI", array('contact_id' => $parentItemId->id, 'functionalci_id' => $childItemId->id));
+                } else if ($childItemId->prefix == "domain"){
+                    $this->removeSubItem($aChildItemId,$aParentItemId);// on inverse
+                } else if ($childItem->category->name == "service"){
+                    $this->removeSubItem($aChildItemId,$aParentItemId);// on inverse
                 } else {
                     throw new Exception("Unable to remove ".$childItem->category->name." from ".$parentItem->category->name);
                 }
@@ -391,7 +435,10 @@ class ITopDao implements IDAO {
                 }
             }
             // Chercher tous les services
-            
+            $response = $this->getObjects('lnkContactToService', 'service_id, service_name, contact_id_finalclass_recall', 'WHERE contact_id = '.$itemId->id);
+            foreach ($response->objects as $object){
+                $result[]   = $this->_newItem($object->fields->service_id, $object->fields->service_name, 'Service');
+            }
             // Chercher tous les domaines
             $domainList = "";
             foreach(explode(",",$domains) as $domain){
@@ -458,6 +505,9 @@ class ITopDao implements IDAO {
             }
         } else {
             $item = $this->getItemById($aItemId);
+            if ($item->class->name == 'Data'){
+                $item->class->name = 'Group';
+            }
             $response = $this->getRelated($item->class->name,$itemId->id,'up');
             foreach ($response->objects as $object){
                 $result[] = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
@@ -546,6 +596,9 @@ class ITopDao implements IDAO {
             $response = $this->getObjects('FunctionalCI','id, name, description',"WHERE organization_name = '$this->organisation' AND finalclass NOT IN ('DBServer','Middleware','OtherSoftware','PCSoftware','WebServer','WebApplication')");
             foreach ($response->objects as $object){
                 $item = $this->_newItem($object->fields->id, $object->fields->name, $object->class, $object->fields->description);
+                if ($item->class->name == "DatabaseSchema"){
+                    continue;
+                }
                 if ($category != "*"){
                     if ($item->category->name != $category){
                         continue;
@@ -570,22 +623,31 @@ class ITopDao implements IDAO {
             }
         } else if (($itemId->prefix == "domain") || ($itemId->prefix == "data")){ // On recherche un domaine ou une donnée
             $response = $this->getObjects('Group','id, name, type, description',"WHERE id = '$itemId->id'");
-            foreach ($response->objects as $object){
-                if ($itemId->prefix == "domain"){
-                    $result = $this->_newItem($object->fields->id, $object->fields->name, "Group");
-                } else if ($itemId->prefix == "data"){
-                    $result = $this->_newItem($object->fields->id, $object->fields->name, "Data");
-                } else {
-                    continue;
+            if (count($response->objects) != 0){
+                foreach ($response->objects as $object){
+                    if ($itemId->prefix == "domain"){
+                        $result = $this->_newItem($object->fields->id, $object->fields->name, "Group");
+                    } else if ($itemId->prefix == "data"){
+                        $result = $this->_newItem($object->fields->id, $object->fields->name, "Data");
+                    } else {
+                        continue;
+                    }
+                    $result->area_id       = $object->fields->description;
+                    break;
                 }
-                $result->area_id       = $object->fields->description;
-                break;
+            } else if ($itemId->prefix == "data") {
+                $response = $this->getObjects('FunctionalCI','id, name',"WHERE id = '$itemId->id'");
+                foreach ($response->objects as $object){
+                    $result = $this->_newItem($object->fields->id, $object->fields->name, $object->class);
+                    break;
+                }
             }
         } else if ($itemId->prefix == "service"){ // On recherche un domaine
             $response = $this->getObjects('Service','id, name, description',"WHERE id = '$itemId->id'");
             foreach ($response->objects as $object){
                 $result = $this->_newItem($object->fields->id, $object->fields->name, "Service");
                 $result->area_id = $object->fields->description;
+                $result->description = $object->fields->description;
                 break;
             }
         } else if ($itemId->prefix == "software"){ // On recherche un Software
@@ -680,7 +742,6 @@ class ITopDao implements IDAO {
         return $result;
     }
     public function deleteItem($itemId){
-        error_log("Removing item ".$id);
         // Supprimer les documents liés
         $documents = $this->getItemDocuments($itemId);
         foreach ($documents as $document){
@@ -690,10 +751,11 @@ class ITopDao implements IDAO {
         $item = $this->getItemById($itemId);
         if ($item->class->name == "Data"){
             // Supprimer toutes les SchemaInstance du Group Data
-            $items = $this->getRelatedItems($item,"*","down");
+            $items = $this->getRelatedItems($itemId,"*","down");
             foreach ($items as $subitem) {
                 $this->deleteItem($subitem->id);
             }
+            $item->class->name = 'Group';
         }
         $itemId = $this->_splitItemId($itemId);
         return $this->deleteObject($item->class->name,$itemId->id);
@@ -929,8 +991,7 @@ class ITopDao implements IDAO {
         $this->ITOP_CLASSES = array();
         $this->_addItemClass("Team",               false,   $this->ITOP_CATEGORIES["actor"]);
         
-        //$this->_addItemClass("DatabaseSchema",     true,    $this->ITOP_CATEGORIES["data"]);    // Probleme 'dbserver_id'
-        
+        $this->_addItemClass("DatabaseSchema",     true,    $this->ITOP_CATEGORIES["data"]);    // Probleme 'dbserver_id'
         $this->_addItemClass("Data",               false,   $this->ITOP_CATEGORIES["data"]);
         
         $this->_addItemClass("Group",              false,   $this->ITOP_CATEGORIES["domain"]);
@@ -1000,7 +1061,7 @@ class ITopDao implements IDAO {
     }
     private function _newItem($id,$name,$className,$description = ''){
         $result = new stdClass();
-        if ($className == 'DatabaseSchema') {
+        /*if ($className == 'DatabaseSchema') {
             $className = 'Data';
             if (strlen($description) > 0){
                 $id = $description;

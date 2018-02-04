@@ -77,7 +77,6 @@ require("dao/dao.php");
 		<div id="business_toolbox" style="width:100%;display:none" class="controlgroup">
 			<button id="business_search_domain_button" 	title="Chercher un domaine"		onclick='$("#search_domain_form").dialog({"modal":true,"title":"Chercher un domain","minWidth":500})'><img style="height:14px" src="images/65.png"/> chercher un domaine</button>
 			<button id="business_import_item_button" 	title="Importer un élément" 	onclick="importItemInDomain()" 	disabled="true"><img style="height:14px" src="images/1633.png"/> élément</button>
-			<button id="business_create_process_button" onclick="createProcess(currentItem.id)" disabled="true"><img style="height:14px" src="images/78.png"/> processus</button>
 			<button id="business_create_service_button" onclick="createService()" disabled="true"><img style="height:14px" src="images/78.png"/> service</button>
 			<button id="business_create_actor_button" 	onclick="createActor()" disabled="true"><img style="height:14px" src="images/78.png"/> acteur</button>
 		</div>
@@ -160,22 +159,6 @@ require("dao/dao.php");
 	<hr/>
 	<button type="button" onclick='doCreateDomain()'><img style="height:14px" src="images/78.png"/> cr&eacute;er</button>
 	<button type="button" onclick='$("#create_domain_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
-</form>
-<form id="process_create_form" class="pure-form pure-form-aligned" style="display:none">
-	<fieldset>
-		<div class="pure-control-group">
-			<label for="process_create_form_name">Nom</label>
-			<input type="text" 	id="process_create_form_name" 			name="name"/>
-		</div>
-		<div class="pure-control-group">
-			<label for="process_create_form_description">Description</label>
-			<textarea 		id="process_create_form_description" 	name="description"></textarea>
-		</div>
-		<input type="hidden" 	id="process_create_form_domain_id" 		name='domain_id' value=""/>
-	</fieldset>
-	<hr/>
-	<button type="button" onclick='doCreateProcess()'><img style="height:14px" src="images/78.png"/> créer</button>
-	<button type="button" onclick='$("#process_create_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </form>
 <form id="process_step_create_form" class="pure-form pure-form-aligned" style="display:none">
 	<input type="hidden" 	id="process_step_create_form_process_id"/>
@@ -391,14 +374,6 @@ require("dao/dao.php");
 	<button type="button" onclick='$("#search_solution_form").dialog("close");searchSolution();'><img style="height:14px" src="images/93.png"/> valider</button>
 	<button type="button" onclick='$("#search_solution_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
 </form>
-<div id="create_service_form" style="display:none">
-	Nom : 	<input type="text"		id="create_service_form_name" 		name="name"/><br/>
-	Code :	<input type="text"		id="create_service_form_code" 		name="code"/><br/>
-			<input type="hidden" 	id="create_service_form_domain_id" 	name='domain_id'/>
-	<hr/>
-	<button type="button" onclick='doCreateService()'><img style="height:14px" src="images/78.png"/> cr&eacute;er</button>
-	<button type="button" onclick='$("#create_service_form").dialog("close");'><img style="height:14px" src="images/33.png"/> annuler</button>
-</div>
 <form id="create_instance_form" style="display:none" class="pure-form pure-form-aligned">
 	<input type="hidden" 	id="create_instance_form_service_id" 	name='service_id'/>
 	<fieldset>
