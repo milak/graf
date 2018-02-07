@@ -2,8 +2,6 @@
 header("Content-Type: application/json");
 require("../dao/dao.php");
 $dao->connect();
-$db = $dao->getDB();
-require("../dao/db/util.php");
 function recursiveDisplayArea($level,$area){
 	$tab = "";
 	for ($i = 0; $i < $level; $i++){
