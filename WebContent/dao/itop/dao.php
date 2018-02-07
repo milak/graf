@@ -105,6 +105,11 @@ class ITopDao implements IDAO {
                 'name'              => $name,
                 'function'          => $description
             ));
+        } else if ($category->name == "software"){
+            $result = "item_".$this->createObject('Software', array(
+                'name'              => $name,
+                'type'              => $className
+            ));
         } else {
             $fields = array(
                 'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
@@ -222,6 +227,14 @@ class ITopDao implements IDAO {
                         'applicationsolution_id'  => $parentItemId->id,
                         'functionalci_id'         => $id
                     ));
+                } else if ($this->isFunctionalCI($childItem->category->name)){
+                    $response = $this->getObjects('lnkApplicationSolutionToFunctionalCI', 'id', 'WHERE applicationsolution_id = '.$parentItemId->id.' AND functionalci_id = '.$childItemId->id);
+                    if (count($response->objects) == 0){
+                        $this->createObject("lnkApplicationSolutionToFunctionalCI", array(
+                            'applicationsolution_id' => $parentItemId->id,
+                            'functionalci_id'        => $childItemId->id
+                        ));
+                    }
                 } else {
                     throw new Exception("Unable to add ".$childItem->category->name." in ".$parentItem->category->name);
                 }
@@ -327,7 +340,7 @@ class ITopDao implements IDAO {
                         }
                     }
                 } else if ($this->isFunctionalCI($childItemId->prefix)){
-                    $response = $this->deleteObject("lnkGroupToCI", array('group_id' => $parentItemId->id, 'ci_id' => $childItemId->id));
+                    $this->deleteObject("lnkGroupToCI", array('group_id' => $parentItemId->id, 'ci_id' => $childItemId->id));
                 } else if ($childItemId->prefix == "data") {
                     $this->deleteObject('DatabaseSchema', $childItemId->id);
                 } else if ($childItemId->prefix == "service") {
@@ -360,11 +373,18 @@ class ITopDao implements IDAO {
                 break;
             case "actor" : // retirer un élément d'un actor
                 if ($this->isFunctionalCI($childItemId->prefix)){
-                    $response = $this->deleteObject("lnkContactToFunctionalCI", array('contact_id' => $parentItemId->id, 'functionalci_id' => $childItemId->id));
+                    $this->deleteObject("lnkContactToFunctionalCI", array('contact_id' => $parentItemId->id, 'functionalci_id' => $childItemId->id));
                 } else if ($childItemId->prefix == "domain"){
                     $this->removeSubItem($aChildItemId,$aParentItemId);// on inverse
                 } else if ($childItem->category->name == "service"){
                     $this->removeSubItem($aChildItemId,$aParentItemId);// on inverse
+                } else {
+                    throw new Exception("Unable to remove ".$childItem->category->name." from ".$parentItem->category->name);
+                }
+                break;
+            case "solution" : // retirer un élément d'une solution
+                if ($this->isFunctionalCI($childItemId->prefix) || ($childItemId->prefix == 'software')){
+                    $this->deleteObject("lnkApplicationSolutionToFunctionalCI", array('applicationsolution_id' => $parentItemId->id, 'functionalci_id' => $childItemId->id));
                 } else {
                     throw new Exception("Unable to remove ".$childItem->category->name." from ".$parentItem->category->name);
                 }
@@ -795,11 +815,6 @@ class ITopDao implements IDAO {
         }
         return null;
     }
-    //@deprecated : à supprimer prochainement
-    public function getDB(){
-        global $configuration;
-        return new mysqli($configuration->db->host, $configuration->db->login, $configuration->db->password, $configuration->db->instance);
-    }
     public function disconnect(){
         // Rien à faire
     }
@@ -1030,16 +1045,16 @@ class ITopDao implements IDAO {
         $this->_addItemClass("Service",            false,   $this->ITOP_CATEGORIES["service"]);
         
         
-        $this->_addItemClass("Software",           false,   $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("Software",           true,   $this->ITOP_CATEGORIES["software"]);
         
-        $this->_addItemClass("DBServer",           true,   $this->ITOP_CATEGORIES["software"]);
-        $this->_addItemClass("Middleware",         true,   $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("DBServer",           false,   $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("Middleware",         false,   $this->ITOP_CATEGORIES["software"]);
         $this->_addItemClass("MiddlewareInstance", true,   $this->ITOP_CATEGORIES["software"]);// Problem 'middleware_id'
-        $this->_addItemClass("OtherSoftware",      true,   $this->ITOP_CATEGORIES["software"]);
-        $this->_addItemClass("PCSoftware",         true,   $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("OtherSoftware",      false,   $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("PCSoftware",         false,   $this->ITOP_CATEGORIES["software"]);
         $this->_addItemClass("SoftwareInstance",   true,   $this->ITOP_CATEGORIES["software"]);
         $this->_addItemClass("WebApplication",     true,   $this->ITOP_CATEGORIES["software"]);// Problem 'webserver_id'
-        $this->_addItemClass("WebServer",          true,   $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("WebServer",          false,   $this->ITOP_CATEGORIES["software"]);
         
         $this->_addItemClass("ApplicationSolution",false,   $this->ITOP_CATEGORIES["solution"]);
     }

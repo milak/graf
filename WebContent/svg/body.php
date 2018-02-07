@@ -102,10 +102,10 @@ function _computeElementsCoords($area){
     $y = $area->y + AREA_GAP + 10;
     // Positionner la taille de chaque element (par défaut ELEMENT_WIDTH et ELEMENT_HEIGHT)
     foreach ($area->elements as $element){
-        if (!isset($element->class)){
+        if (!isset($element->display->class)){
             $class = "rect_100_100";
         } else {
-            $class = $element->class;
+            $class = $element->display->class;
         }
         // Si aucune taille n'est précisée
         if (!isset($element->width)){
@@ -338,7 +338,7 @@ function displayArea($level,$area){
 	}
 	// ** Affichage des éléments **
 	foreach ($area->elements as $element){
-		$class = $element->class;
+	    $class = $element->display->class;
 		if (substr($class, 0, 5) === "rect_"){
 			_drawElementAsRect($element);
 		} else {
@@ -383,8 +383,21 @@ function _drawSubLinks($element){
  * Afficher un élément
  */
 function _drawElement($element){
-	$style = "";
-	echo "\t<use id='element_".$element->id."' href='#".$element->class."' x='".($element->x)."' y='".($element->y)."' ondbclick='window.parent.svgElementDblClicked(\"".$element->type."\",\"".$element->id."\")' onclick='window.parent.svgElementClicked(\"".$element->type."\",\"".$element->id."\")' style='".$style."'><title>".$element->name."</title></use>\n";
+    $class = $element->display->class;
+    $style     = "";
+    if (isset($element->display->dashed)){
+        $style     = "style='stroke-dasharray:5,5'";
+    }
+    echo <<<SVG
+    <use id     = 'element_$element->id'
+        href      = '#$class'
+        x         = '$element->x' y='$element->y'
+        onclick   = 'window.parent.svgElementClicked("$element->type","$element->id")'
+        ondbclick = 'window.parent.svgElementDblClicked("$element->type","$element->id")'
+        $style>
+            <title>$element->name</title>
+    </use>\n
+SVG;
 	$textwidth = _textWidth($element->name,ELEMENT_CHAR_WIDTH);
 	$x = $element->x;
 	$maxsize = $element->width + 30;
@@ -410,7 +423,18 @@ function _drawElement($element){
  * Afficher un élément sous forme d'un rectangle
  */
 function _drawElementAsRect($element){
-	echo "\t<rect x='".$element->x."' y='".$element->y."' width='".$element->width."' height='".$element->height."' rx='5' ry='5' class='rect_www_hhh' filter='url(#shadow)' onclick='window.parent.svgElementClicked(\"".$element->type."\",\"".$element->id."\")'/>\n";
+    $style = '';
+    $filter = '';
+    if (isset($element->display->dashed)){
+        $style     = "style='stroke-dasharray:5,5'";
+    } else if (isset($element->display->blured)){
+        $style     = "style='stroke-dasharray:1,2'";
+    }
+	echo <<<SVG
+	<rect  x='$element->x' y='$element->y' width='$element->width' height='$element->height' 
+           rx='5' ry='5' class='rect_www_hhh' filter='url(#shadow)' 
+           onclick='window.parent.svgElementClicked("$element->type","$element->id")' $style/>\n
+SVG;
 	$lines = _splitTextInLines($element->name,ELEMENT_CHAR_WIDTH,CHAR_HEIGHT,$element->width,$element->height);
 	$x = $element->x;
 	if (isset($element->subElements) && count($element->subElements) > 0){

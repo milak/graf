@@ -27,12 +27,13 @@ function addElementsToAreas($areas,$nbelements){
 		}
 		if (count($area->subareas) == 0) {
 			for ($i = 0; $i < $nbelements; $i++){
-				$element = new stdClass();
-				$element->class = "box";
-				$element->type = "box";
-				$element->id = "";
-				$element->name = "";
-				$area->elements[] = $element;
+				$element            = new stdClass();
+				$element->display   = stdClass();
+				$element->display->class = "box";
+				$element->type      = "box";
+				$element->id        = "";
+				$element->name      = "";
+				$area->elements[]   = $element;
 			}
 		}
 	}

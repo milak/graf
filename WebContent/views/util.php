@@ -156,11 +156,10 @@ class Process extends Parseable {
  *
  */
 function parseTOSCA($text){
-    $parsed = yaml_parse($text,-1);
-    $document = $parsed[0];
-    $links = array();
-    $elements = array();
-    //echo $document["description"]."<br/>";
+    $parsed     = yaml_parse($text,-1);
+    $document   = $parsed[0];
+    $links      = array();
+    $elements   = array();
     foreach($document["topology_template"]["node_templates"] as $name => $template){
         $element = new Element();
         $element->id = $name;
@@ -203,14 +202,14 @@ function parseTOSCA($text){
                 if (is_array($propertyValue)){
                     foreach ($propertyValue as $key => $prop){
                         if ($key == "id"){
-                            //TODO voir comment on traite cela ???
+                            $element->itemId = $prop;
                         } else if ($key == "area") {
                             $element->area = $prop;
                         }
                     }
                 } else {
                     if ($propertyName == "id"){
-                        //TODO voir comment on traite cela ???
+                        $element->itemId = $propertyValue;
                     } else if ($propertyName = "area") {
                         $element->area = $propertyValue;
                     }
@@ -252,15 +251,19 @@ function parseTOSCA($text){
             $link->from->links[] = $link;
         }
     }
+    $resultById = array();
     $result = array();
     // Retirer tous les sous éléments de la liste
     foreach ($elements as $element){
+        if (isset($element->itemId)){
+            $resultById[$element->itemId] = $element;
+        }
         if (isset($element->remove)){
             continue;
         }
         $result[] = $element;
     }
-    return $result;
+    return array($result,$resultById);
 }
 
 //const DEFAULT_SCHEMA_CONTENT = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;/bpmn:definitions&gt;';

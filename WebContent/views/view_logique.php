@@ -31,9 +31,10 @@ if (count($documents) != 0){
     die();
     return;
 }
-$elements = parseTOSCA($content);
+$result = parseTOSCA($content);
+$elements = $result[0];
+$allElementsById = $result[1];
 foreach ($elements as $element){
-    $element->class 	= "rect_100_100";
     if (isset($element->area)){
         if (isset($areas[$element->area])){
             $area = $areas[$element->area];
@@ -47,28 +48,43 @@ foreach ($elements as $element){
         $area->addElement($element);
     }
 }
-// Afficher les instances 
+// Afficher les éléments rattachés à l'item 
 $solution = $dao->getItemById($itemId);
 $rootarea->name = $rootarea->name." ".$solution->name;
 $items = $dao->getRelatedItems($itemId,"*","down");
+$relatedItemsById = array();
 foreach($items as $item){
+    $relatedItemsById[$item->id] = $item;
     $obj = new stdClass();
-    $obj->id 		= $item->id;
-    $obj->name 		= $item->name;
-    $obj->class 	= "rect_100_100";
-    $obj->links 	= array();
+    $obj->id 		       = $item->id;
+    $obj->name 		       = $item->name;
+    $obj->display          = new stdClass();
+    $obj->display->class   = "rect_100_100";
+    $obj->links 	       = array();
+    // C'est une instance de la solution, on la passer
     if ($item->category->name=="solution"){
-        $obj->type 		= "instance";
-        if ($instancearea != null){
-            //$instancearea->addElement($obj);
+        if (strpos($item->name,$solution->name) == 0){
+            continue;
         }
+    }
+    // On l'a déjà
+    if (isset($allElementsById[$obj->id])){
+        // TODO Il faut fusionner avec ce que l'on a dans le schéma
     } else {
-        continue;
-        // TODO que fait-on des autres objets ?
-        //$obj->type 		= "item";
-        //if ($defaultarea != null){
-        //    $defaultarea->addElement($obj);
-        //}
+        $obj->type = "tosca_item";
+        if ($defaultarea != null){
+            $obj->display->dashed = true;
+            $defaultarea->addElement($obj);
+        }
+    }
+}
+foreach ($allElementsById as $element){
+    $element->display           = new stdClass();
+    $element->display->class 	= "rect_100_100";
+    if (!isset($element->itemId)){
+        $element->display->blured = true;
+    } else if (!isset($relatedItemsById[$element->itemId])){
+        $element->display->dashed = true;
     }
 }
 // ****************************************************************

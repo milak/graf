@@ -49,7 +49,7 @@ function displayBusiness(domainId){
 	}
 }
 function importItemInDomain(){
-	openSearchItemForm(null);
+	openImportItemForm(null);
 }
 function refreshStrategicAreaList(){
 	$.getJSON( "api/view.php?view=strategic", function(result) {

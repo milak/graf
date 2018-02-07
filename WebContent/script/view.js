@@ -43,7 +43,7 @@ function updateView() {
 	});
 }
 function refreshAreaList(){
-	$.getJSON( "api/area.php?view=logique", function(result) {
+	$.getJSON( "api/area.php?view=logical", function(result) {
 		var areas = result.areas;
 		var options = "";//<option value='null' selected>--choisir une zone--</option>";
 		for (var i = 0; i < areas.length; i++){

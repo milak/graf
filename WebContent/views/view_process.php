@@ -40,8 +40,9 @@ $areas[] = $area;
 
 // Charger toutes les étapes
 foreach($steps as $step){
-	$step->type 		= "step";
-	$step->class 		= "process_".strtolower($step->type_name);
+	$step->type 		    = "step";
+	$step->display          = new stdClass();
+	$step->display->class   = "process_".strtolower($step->type_name);
 	$step->allreadyComputed = false;// flag qui sera positionné lorsqu'on aura calculé sa position, cela évite de boucler
 	$area->elements[] = $step;
 }

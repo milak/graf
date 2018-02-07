@@ -26,8 +26,9 @@ foreach($domains as $domain){
         $domain->items = $dao->getRelatedItems($domain->id,"actor","down");
         if (count($domain->items) > 0){
             foreach($domain->items as $item){
-                $item->type = "actor";
-                $item->class = "actor";
+                $item->type           = "actor";
+                $item->display        = new stdClass();
+                $item->display->class = "actor";
                 $area->addElement($item);
             }
             continue;
@@ -49,11 +50,12 @@ foreach($domains as $domain){
 		$area->setNeeded();
 		$domains[$domainAsArea->id] = $domainAsArea;
 	} else {
-		$domainAsElement 			= new Area();
-		$domainAsElement->id 		= $domain->id;
-		$domainAsElement->class		= "rect_180_80";
-		$domainAsElement->type		= "domain";
-		$domainAsElement->name		= $domain->name;
+		$domainAsElement 			     = new Area();
+		$domainAsElement->id 		     = $domain->id;
+		$domainAsElement->display        = new stdClass();
+		$domainAsElement->display->class = "rect_180_80";
+		$domainAsElement->type		     = "domain";
+		$domainAsElement->name		     = $domain->name;
 		$area->addElement($domainAsElement);
 	}
 }
@@ -66,13 +68,14 @@ SQL;
  	   displayErrorAndDie('There was an error running the query [' . $db->error . ']');
 	}
 	while($row = $result->fetch_assoc()){
-		$process 			= new stdClass();
-		$process->id		= $row["id"];
-		$process->class		= "rect_180_80";
-		$process->type		= "process";
-		$process->name		= $row["name"];
-		$domain_id			= $row["domain_id"];
-		$domain				= $domains[$domain_id];
+		$process 			     = new stdClass();
+		$process->id		     = $row["id"];
+		$process->display        = new stdClass();
+		$process->display->class = "rect_180_80";
+		$process->type		     = "process";
+		$process->name		     = $row["name"];
+		$domain_id			     = $row["domain_id"];
+		$domain				     = $domains[$domain_id];
 		if ($domain == null){
 			continue;
 		}

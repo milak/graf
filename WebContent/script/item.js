@@ -1,47 +1,54 @@
 var datatableItems = null;
 var itemClasses = null;
 var functionToCallWhenAddClicked = null;
-function openSearchItemForm(aFunctionToCallWhenAddClicked){
+function openImportItemForm(aFunctionToCallWhenAddClicked){
 	functionToCallWhenAddClicked = aFunctionToCallWhenAddClicked;
-	$.getJSON( "api/element_class.php", function(result) {
-		itemClasses = new Array();
-		var categories = result.categories;
-		var htmlClasses = "<option value='NULL'>~~Sélectionner une classe~~</option>";
-		var html = "<option value='NULL'>~~Sélectionner une catégorie~~</option>";
-		for (var i = 0; i < categories.length; i++){
-			var category = categories[i];
-			html += "<option value='"+category.id+"'>"+category.name+"</option>";
-			for (var j = 0; j < category.classes.length; j++){
-				var classe = category.classes[j];
-				htmlClasses += "<option value='"+classe.id+"'>"+classe.name+"</option>";
-				itemClasses[classe.id] = classe;
-			}
-		}
-		$("#search_item_form_category").html(html);
-		$("#search_item_form_class").html(htmlClasses);
+	$.getJSON( "api/view.php?view=logical", function(result) {
+		var areaList = buildAreaList(result.view);
+		$('#import_item_form_area').html(areaList);
+		$('#import_item_form_create_area').html(areaList);
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
-	$("#search_item_form").dialog({"modal":true,"title":"Chercher un élément","minWidth":1100,"minHeight":800});
-}
-function onSearchItemFormClassChange(){
-	var classId = $("#search_item_form_class").val();
-	var enable = true;
-	if (classId == "NULL"){
-		enable = false;
-	} else {
-		classe = itemClasses[classId];
-		if (classe.abstract == "true"){
-			enable = false;
+	$.getJSON( "api/element_class.php", function(result) {
+		itemClasses = new Array();
+		var categories = result.categories;
+		var htmlClassesCreate = "";
+		var htmlCategoryCreate = "";
+		var htmlClassesSearch = "<option value='NULL'>~~Toutes les classes~~</option>";
+		var htmlCategorySearch = "<option value='NULL'>~~Toutes les catégories~~</option>";
+		for (var i = 0; i < categories.length; i++){
+			var category = categories[i];
+			htmlCategorySearch += "<option value='"+category.id+"'>"+category.name+"</option>";
+			htmlCategoryCreate += "<option value='"+category.id+"'>"+category.name+"</option>";
+			for (var j = 0; j < category.classes.length; j++){
+				var classe = category.classes[j];
+				if (classe.abstract == "false"){
+					htmlClassesCreate += "<option value='"+classe.id+"'>"+classe.name+"</option>";
+				}
+				htmlClassesSearch += "<option value='"+classe.id+"'>"+classe.name+"</option>";
+				itemClasses[classe.id] = classe;
+			}
 		}
-	}
-	$("#search_item_form_create_button").prop("disabled",!enable);
+		$("#import_item_form_category").html(htmlCategorySearch);
+		$("#import_item_form_class").html(htmlClassesSearch);
+		$("#import_item_form_create_category").html(htmlCategoryCreate);
+		$("#import_item_form_create_class").html(htmlClassesCreate);
+	}).fail(function(jxqr,textStatus,error) {
+		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+	});
+	$("#import_item_form").dialog({"modal":true,"title":"Chercher un élément","minWidth":1100,"minHeight":800});
 }
-function onSearchItemFormCategoryChange(){
-	var categoryName = $("#search_item_form_category").val();
+function applyCategory(categoryList,classList,create){
+	var categoryName = $("#"+categoryList).val();
 	$.getJSON( "api/element_class.php", function(result) {
 		var categories = result.categories;
-		var htmlClasses = "<option value='NULL'>~~Sélectionner une classe~~</option>";
+		var first = null;
+		var count = 0;
+		var htmlClasses = "";
+		if (!create){
+			htmlClasses = "<option value='NULL'>~~Toutes les classes~~</option>"
+		}
 		for (var i = 0; i < categories.length; i++){
 			var category = categories[i];
 			if (categoryName != "NULL"){
@@ -51,24 +58,29 @@ function onSearchItemFormCategoryChange(){
 			}
 			for (var j = 0; j < category.classes.length; j++){
 				var classe = category.classes[j];
-				if (classe.abstract == "true"){
+				if (create && (classe.abstract == "true")){
 					continue;
 				}
+				first = classe.id;
+				count++;
 				htmlClasses += "<option value='"+classe.id+"'>"+classe.name+"</option>";
 			}
 		}
-		$("#search_item_form_class").html(htmlClasses);
+		$("#"+classList).html(htmlClasses);
+		if (count == 1){
+			$("#"+classList).val(first);
+		}
 	}).fail(function(jxqr,textStatus,error) {
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
 }
-function onSearchItemFormCreateClick(){
-	var name 		= $("#search_item_form_name").val();
+function onImportItemFormCreateClick(){
+	var name 		= $("#import_item_form_create_name").val();
 	if (name == ""){
 		alert("Vous devez saisir un nom");
 		return;
 	}
-	var className 	= $("#search_item_form_class").val();
+	var className 	= $("#import_item_form_create_class").val();
 	if (className == "null"){
 		alert("Vous devez choisir une classe");
 		return;
@@ -82,7 +94,7 @@ function onSearchItemFormCreateClick(){
 		},
 		dataType: "text",
 		success	: function( data ) {
-			onSearchItemFormSearchClick();
+			onImportItemFormSearchClick();
 		}
 	}).fail(function(jxqr,textStatus,error){
 		alert(textStatus+" : "+error);
@@ -118,23 +130,23 @@ function deleteItem(itemId){
 		alert(textStatus+" : "+error);
 	});
 }
-function onSearchItemFormSearchClick(){
+function onImportItemFormSearchClick(){
 	if (datatableItems == null){
-		datatableItems = $("#search_item_form_result").dataTable();
+		datatableItems = $("#import_item_form_result").dataTable();
 	}
 	var url = "api/element.php";
-	var selectClass = $("#search_item_form_class").val();
+	var selectClass = $("#import_item_form_class").val();
 	if (selectClass != "NULL"){
 		url += "?class_name="+selectClass;
 	} else {
-		var selectCategorie = $("#search_item_form_category").val();
+		var selectCategorie = $("#import_item_form_category").val();
 		if (selectCategorie != "NULL"){
 			url += "?category_name="+selectCategorie;
 		}
 	}
 	datatableItems.fnClearTable();
 	$.getJSON( url, function(result) {
-		var selectName = $("#search_item_form_name").val().trim();
+		var selectName = $("#import_item_form_name").val().trim();
 		var html = "";
 		var elements = result.elements;
 		var data = new Array();
@@ -149,7 +161,7 @@ function onSearchItemFormSearchClick(){
 			row.push("<p title='"+element.id+"'>"+element.name+"</p>");
 			row.push(element.class.name);
 			row.push(element.category.name);
-			var label = "<button onClick='event.preventDefault();onSearchItemFormAddClick(\""+element.id+"\");'>Ajouter</button>";
+			var label = "<button onClick='event.preventDefault();onImportItemFormAddClick(\""+element.id+"\");'>Ajouter</button>";
 			label    += "<button onClick='event.preventDefault();deleteItem(\""+element.id+"\");'>Effacer</button>";
 			row.push(label);
 			data.push(row);
@@ -161,7 +173,7 @@ function onSearchItemFormSearchClick(){
 		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
 }
-function onSearchItemFormAddClick(id){
+function onImportItemFormAddClick(id){
 	if (functionToCallWhenAddClicked == null){
 		currentItem.addItem(id);
 	} else {
@@ -193,27 +205,46 @@ function showToscaItemContext(toscaItemId){
 	var node_templates = topology_template.node_templates;
 	var node = node_templates[toscaItemId];
 	$("#edit_item_form_name").val(toscaItemId);
-	$("#edit_item_form_type").val(node.type);
-	var id = null;
 	var properties = "";
-	if (typeof node.properties != 'undefined'){
-		if (node.properties != null){
-			for (var i = 0; i < node.properties.length; i++){
-				$.each(node.properties[i], function(index, value) {
-					if (index == "id"){
-						id = value;
-					}
-					properties += "<tr><td>"+index+"</td><td>"+value +"</td></tr>";
-				});
+	var id = null;
+	if (node != null){ // L'item se trouve dans TOSCA
+		$("#edit_item_form_type").val(node.type);
+		if (typeof node.properties != 'undefined'){
+			if (node.properties != null){
+				for (var i = 0; i < node.properties.length; i++){
+					$.each(node.properties[i], function(index, value) {
+						if (index == "id"){
+							id = value;
+						}
+						properties += "<tr><td>"+index+"</td><td>"+value +"</td></tr>";
+					});
+				}
 			}
 		}
+		$("#edit_item_form_remove_item").hide();
+		$("#edit_item_form_delete_tosca_item").show();
+		$("#edit_item_form_add_item").hide();
+		if (id == null){
+			$("#edit_item_form_title").text("Item se trouvant dans Tosca mais ne se trouvant pas dans la base");
+		} else {
+			$("#edit_item_form_title").text("Item se trouvant dans Tosca");
+		}
+	} else {
+		id = toscaItemId;
+		properties += "<tr><td>id</td><td>"+id +"</td></tr>";
+		$("#edit_item_form_remove_item").show();
+		$("#edit_item_form_delete_tosca_item").hide();
+		$("#edit_item_form_add_item").show();
+		$("#edit_item_form_type").val("N/A");
+		$("#edit_item_form_title").text("Item ne se trouvant pas dans Tosca mais rattaché à la solution");
 	}
 	$("#edit_item_form_properties").html(properties);
 	//html += "Description "+tosca.description;
 	$("#edit_item_form_class_field").hide();
 	$("#edit_item_form_category_field").hide();
 	$("#edit_item_form_target_id").val("");
-	$("#edit_item_form_display_target").hide();//prop('disabled', true);
+	$("#edit_item_form_display_target").hide();
+	
 	if (id != null){
 		$.getJSON( "api/element.php?id="+id, function(result) {
 			if (result.elements.length != 0){
@@ -233,7 +264,7 @@ function showToscaItemContext(toscaItemId){
 			}
 		});
 	}
-	$("#edit_item_form").dialog({"modal":true,"title":"Edition d'un élément","minWidth":500});
+	$("#edit_item_form").dialog({"modal":true,"title":"Edition d'un élément","minWidth":600});
 }
 function showToscaTargetItem(itemId,itemCategory){
 	if (itemCategory == "solution"){

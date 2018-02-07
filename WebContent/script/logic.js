@@ -1,23 +1,3 @@
-function refreshSolutionLists(){
-	$.getJSON("api/element.php?category_name=solution", function(result){
-		var elements = result.elements;
-		var options = "<option value='null' selected>--choisir une solution--</option>";
-		for (var i = 0; i < elements.length; i++){
-			var element = elements[i];
-			options += '<option value="'+element.id+'">'+element.name+'</option>';
-		}
-		$('#search_solution_form_list').html(options);
-	}).fail(function(jxqr,textStatus,error) {
-		showPopup("Echec","<h1>Impossible de charger les solutions</h1>"+textStatus+ " : " + error);
-	});
-}
-function refreshLogicalAreaList(){
-	$.getJSON( "api/view.php?view=logical", function(result) {
-		$('#search_item_form_area').html(buildAreaList(result.view));
-	}).fail(function(jxqr,textStatus,error) {
-		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-	});
-}
 function displaySolution(solutionId){
 	if ($("#logic_toolbox").is(":hidden")){
 		hideToolBox();
@@ -41,7 +21,7 @@ function displaySolution(solutionId){
 				return this;
 			},
 			addItem : function(itemId){
-				$.getJSON("api/element.php?id="+id, function(result) {
+				$.getJSON("api/element.php?id="+itemId, function(result) {
 					var element = result.elements[0];
 					var name = element.name.replace(new RegExp('[^a-zA-Z0-9]','g'),'_');
 					var area = $("#search_item_form_area").val();
@@ -77,7 +57,7 @@ function displaySolution(solutionId){
 					}
 					// Ajouter le node
 					var properties = new Array();
-					properties.push({"id" : id});
+					properties.push({"id" : itemId});
 					properties.push({"area" : area});
 					var node = { "type" : getToscaNodeTypeFromCategory(element.category.name), "name" : nodeName, properties : properties};
 					node_templates[nodeName] = node;
@@ -88,7 +68,7 @@ function displaySolution(solutionId){
 						url 	: "api/element.php",
 						data	: {
 							"id"		: currentItem.id,
-							"child_id"	: id
+							"child_id"	: itemId
 						},
 						dataType: "text",
 						success	: function(data) {
@@ -135,6 +115,20 @@ function saveSolutionScript(itemId){
 	});
 }
 function searchSolution(){
+	$.getJSON("api/element.php?category_name=solution", function(result){
+		var elements = result.elements;
+		var options = "<option value='null' selected>--choisir une solution--</option>";
+		for (var i = 0; i < elements.length; i++){
+			var element = elements[i];
+			options += '<option value="'+element.id+'">'+element.name+'</option>';
+		}
+		$('#search_solution_form_list').html(options);
+	}).fail(function(jxqr,textStatus,error) {
+		showPopup("Echec","<h1>Impossible de charger les solutions</h1>"+textStatus+ " : " + error);
+	});
+	$("#search_solution_form").dialog({"modal":true,"title":"Chercher une solution","minWidth":500})
+}
+function solutionSelected(){
 	var selectedSolution = $("#search_solution_form_list").val();
 	if (selectedSolution == "null"){
 		return;
@@ -162,7 +156,7 @@ function editSolutionScript(){
 	}catch(exception){}
 }
 function importItemInSolution(){
-	openSearchItemForm(currentItem.addItem);
+	openImportItemForm(currentItem.addItem);
 }
 // Tosca functions
 function getToscaNodeTypeFromCategory(itemCategory){

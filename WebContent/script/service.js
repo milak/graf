@@ -49,7 +49,7 @@ function displayService(serviceId){
 	}
 }
 function addItemToService(){
-	openSearchItemForm(null);
+	openImportItemForm(null);
 }
 
 
