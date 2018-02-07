@@ -47,49 +47,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (!$dao->connect()){
         $message = "Echec : ".$dao->error;
     } else {
-        writeConfiguration($configuration);
-        // Tester si le serveur ITOP possède les vues nécessaires
-        // On vérifie que l'on a les vues disponibles
-        $viewsRoot = "/home/graf/views";
-        if (file_exists($viewsRoot)){
-            $serviceFamily = $dao->getObjects("ServiceFamily","id","WHERE name = 'IT Services'");
-            if (count($serviceFamily->objects) == 0){
-                error_log("Création de la famille de services IT Services");
-                $dao->createObject("ServiceFamily",array(
-                    "name" => "IT Services"
-                ));
-            }
-            // Vérifier que l'on a tous les types de documents
-            $types = $dao->getObjects("DocumentType","name");
-            $documentTypes = array("Template","BPMN","TOSCA");
-            foreach ($types->objects as $object){
-                $name = $object->fields->name;
-                if (isset($documentTypes[$name])){
-                    unset($documentTypes[$name]);
+        $response = $dao->getObjects('Organization','id','WHERE name = \''.$organisation.'\'');
+        if (count($response->objects) == 0){
+            $message = 'L\'organisation \''.$organisation.'\' n\'existe pas. ';
+            $response = $dao->getObjects('Organization','name');
+            if (count($response->objects) == 0){
+                $message.= 'Aucune organisation n\'est enregistrée';
+            } else {
+                $message.= 'Les organisations suivantes existent : ';
+                $first = true;
+                foreach ($response->objects as $object){
+                    if (!$first){
+                        $message.= ', ';
+                    }
+                    $message.= '\''.$object->fields->name.'\'';
+                    $first = false;
                 }
             }
-            foreach($documentTypes as $missing){
-                $dao->createObject("DocumentType",array(
-                    "name" => $missing
-                ));
-            }
-//            error_log("Vérification de la présence des vues");
-            $views = scandir($viewsRoot);
-            foreach ($views as $viewFileName){
-                if ($viewFileName{0} == '.'){
-                    continue;
+        } else {
+            writeConfiguration($configuration);
+            // Tester si le serveur ITOP possède les vues nécessaires
+            // On vérifie que l'on a les vues disponibles
+            $viewsRoot = "/home/graf/views";
+            if (file_exists($viewsRoot)){
+                $serviceFamily = $dao->getObjects("ServiceFamily","id","WHERE name = 'IT Services'");
+                if (count($serviceFamily->objects) == 0){
+                    error_log("Création de la famille de services IT Services");
+                    $dao->createObject("ServiceFamily",array(
+                        "name" => "IT Services"
+                    ));
                 }
-                $viewName = preg_replace('/\\.[^.\\s]{3,4}$/', '', $viewFileName);
-                error_log('Vue '.$viewName);
-                $view = $dao->getViewByName($viewName);
-                if ($view == null) {
-                    error_log("Création de la vue $viewName manquante");
-                    $dao->createDocument($viewName,"Template",file_get_contents($viewsRoot."/".$viewFileName));
+                // Vérifier que l'on a tous les types de documents
+                $documentTypes = array("Template","BPMN","TOSCA");
+                foreach ($documentTypes as $type){
+                    $response = $dao->getObjects("DocumentType","name",'WHERE name = \''.$type.'\'');
+                    if (count($response->objects) == 0){
+                        $dao->createObject("DocumentType",array(
+                            "name" => $type
+                        ));
+                    }
                 }
+                // Vérification de la présence des vues
+                $views = scandir($viewsRoot);
+                foreach ($views as $viewFileName){
+                    if ($viewFileName{0} == '.'){
+                        continue;
+                    }
+                    $viewName = preg_replace('/\\.[^.\\s]{3,4}$/', '', $viewFileName);
+                    error_log('Vue '.$viewName);
+                    $view = $dao->getViewByName($viewName);
+                    if ($view == null) {
+                        error_log("Création de la vue $viewName manquante");
+                        $dao->createDocument($viewName,"Template",file_get_contents($viewsRoot."/".$viewFileName));
+                    }
+                }
+                
             }
-            
+            $message = 'Mise à jour effectuée <a href="../../index.php" target="top">retour à GRAF</a>';
         }
-        $message = 'Mise à jour effectuée <a href="../../index.php" target="top">retour à GRAF</a>';
     }
 }
 ?>
