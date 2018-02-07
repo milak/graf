@@ -8,23 +8,23 @@ require ("dao/dao.php");
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GRAF - Graphic Rendering Architecture Framework</title>
 <link rel="stylesheet" href="css/graf.css">
-<link rel="stylesheet" href="lib/pure/pure-min.css">
-<link rel="stylesheet" href="lib/jquery/ui/1.12.1/themes/base/jquery-ui.css">
-<link rel="stylesheet" href="lib/datatable/jquery.dataTables.min.css">
-<script type="text/javascript" src="lib/jquery/jquery-3.2.1.min.js"></script>
-<script type="text/javascript" src="lib/jquery/ui/1.12.1/jquery-ui.js"></script>
-<script type="text/javascript" src="lib/svgtool/svg-pan-zoom.js"></script>
-<script type="text/javascript" src="lib/nodeca/js-yaml.min.js"></script>
-<script type="text/javascript" src="lib/datatable/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="script/util.js"></script>
-<script type="text/javascript" src="script/strategic.js"></script>
-<script type="text/javascript" src="script/business.js"></script>
-<script type="text/javascript" src="script/process.js"></script>
-<script type="text/javascript" src="script/service.js"></script>
-<script type="text/javascript" src="script/logic.js"></script>
-<script type="text/javascript" src="script/actor.js"></script>
-<script type="text/javascript" src="script/view.js"></script>
-<script type="text/javascript" src="script/item.js"></script>
+<link rel="stylesheet" href="vendor/pure/pure-min.css">
+<link rel="stylesheet" href="vendor/jquery/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="vendor/datatable/jquery.dataTables.min.css">
+<script type="text/javascript" src="vendor/jquery/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="vendor/jquery/ui/1.12.1/jquery-ui.js"></script>
+<script type="text/javascript" src="vendor/svgtool/svg-pan-zoom.js"></script>
+<script type="text/javascript" src="vendor/nodeca/js-yaml.min.js"></script>
+<script type="text/javascript" src="vendor/datatable/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="vendor/graf/util.js"></script>
+<script type="text/javascript" src="vendor/graf/strategic.js"></script>
+<script type="text/javascript" src="vendor/graf/business.js"></script>
+<script type="text/javascript" src="vendor/graf/process.js"></script>
+<script type="text/javascript" src="vendor/graf/service.js"></script>
+<script type="text/javascript" src="vendor/graf/logic.js"></script>
+<script type="text/javascript" src="vendor/graf/actor.js"></script>
+<script type="text/javascript" src="vendor/graf/view.js"></script>
+<script type="text/javascript" src="vendor/graf/item.js"></script>
 <script>
 		function displayTechnic(){
 			hideToolBox();
