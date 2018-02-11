@@ -150,10 +150,11 @@ function showSolutionContext(id){
 	});
 }
 function editSolutionScript(){
-	$("#solution_script_editor_form").dialog({"modal":false,"title":"Edition de la solution","minWidth":500,"minHeight":500});
+	/*$("#solution_script_editor_form").dialog({"modal":false,"title":"Edition de la solution","minWidth":500,"minHeight":500});
 	try{
 		$("#solution_script_editor_form").dialog("update");
-	}catch(exception){}
+	}catch(exception){}*/
+	$("#solution_script_editor_form").panel({title:'Script'});
 }
 function importItemInSolution(){
 	openImportItemForm(currentItem.addItem);

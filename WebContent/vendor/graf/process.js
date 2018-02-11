@@ -313,6 +313,7 @@ function refreshProcessLists(){
 	});
 }
 function searchProcess(){
+	refreshDomainList();
 	onSearchProcessFormDomainListChange();
 	$("#search_process_form").dialog({"modal":true,"title":"Chercher un processus","minWidth":500});
 }
@@ -325,7 +326,7 @@ function doSearchProcess(){
 function onSearchProcessFormDomainListChange(){
 	var domain = $("#search_process_form_domain_list").val();
 	var url = "api/process.php";
-	if (domain != "null"){
+	if ((domain != "null") && (domain != null)){
 		url += "?domain_id="+domain;
 	}
 	$.getJSON(url, function(result){
