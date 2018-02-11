@@ -1,3 +1,6 @@
+/**
+ * Panel
+ */
 .panel {
 	display:flex;
 	flex-direction:column;
@@ -12,6 +15,9 @@
 	-webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
 	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
 }
+/**
+ * Heading
+ */
 .panel .panel-heading {
 	border-bottom: 0;
 	font-size: 14px;
@@ -26,7 +32,9 @@
 	padding: 15px;
 	flex:1;
 }
-// Available colors
+/**
+ * Available colors for the heading
+ */
 .panel-default {
 	border-color: #cfdbe2;
 }
@@ -64,10 +72,19 @@
 	border-bottom-color: rgb(207, 219, 226);
 }
 .panel-dark {
-  border-color: #cfdbe2;
+  	border-color: #cfdbe2;
 }
 .panel-dark > .panel-heading {
-  color: #fff;
-  background-color: #3a3f51;
-  border-color: #3a3f51;
+  	color: #fff;
+  	background-color: #3a3f51;
+  	border-color: #3a3f51;
+}
+/**
+ * Footer
+ */
+.panel-footer {
+	flex : 1;
+	height : 14px;
+	background-color: #3a3f51;
+	padding: 10px 15px;
 }

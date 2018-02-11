@@ -1,10 +1,11 @@
 /**
+ * Author : Milak
  * Usage :
  *
  * Create a panel
  * $.panel({
- *	"class" : 'panel-primary',
- *	"beforeClose" : function (){
+ *	"class" : 'panel-green',
+ *	"close" : function (){
  *		if (confirm("Are your sure ?")){
  * 			return true;
  * 		} else {
@@ -16,7 +17,7 @@
  * Create a panel
  * $.panel({
  *	"title" : 'Panel's title',
- * 	"class" : 'panel-success',
+ * 	"class" : 'panel-blue',
  *	"url"	: 'stat.html',
  *	"close" : function (){
  *		alert("Panel closed");
@@ -25,26 +26,57 @@
  * 
  * Use an existing div
  * $("#myPanel").panel({
- *		"title" : 'Panel's title',
- *		"class" : 'panel-success'
+ *		"title" : 'Panel's title'
  * }).close(function(){alert('Goodbye')});
  * 
  */
 $(function () {
+	/**
+	 * Add simple function to $ environment
+	 * Arguments : see $.fn.panel
+	 * Exemple : $.panel(options);
+	 */
 	$.panel = function(options){
 		if ($._panelFrame === undefined){
-			$("#body").panelFrame();
+			$("body").panelFrame();
 		}
 		return $._panelFrame.createPanel($('<div></div>'),options);
 	};
+	/**
+	 * Add panel function to selector
+	 * Arguments : 
+	 * {
+	 * 		title   : '', // the title of the panel
+	 * 		close   : function(){}, // function called when close has been asked, if the function returns false, the panel will not be closed, if it returns true or nothing, the function will be closed
+	 * 		url	    : '', // the url of the content that will be loaded, when loaded, done function will be called
+	 * 		done    : function(){}, // function called when url is loaded
+	 * 		update  : function(){}, // function called when the panel has been redrawn by the panelFrame
+	 * 		buttons : ['reload','maximize','normal','close'], // buttons that will be added in the panel's title
+	 * 		footer	: the footer to display in the bottom of the panel
+	 * }
+	 * Returns : a panel with functions :
+	 * 		title("title")     			: change the title of the panel
+	 * 		html("content")    			: change the body of the panel
+	 * 		footer("content")  			: change the footer of the panel
+	 * 		reload(["newurl"]) 			: reload the url of the panel. if new url is given, the url is changed - done will be loaded
+	 * 		state(["normal|maximized"])	: change the state of the panel. If no new state is given, simply returns its state
+	 * 		close([function(){}])		: close the panel or set the function to call when the panel is closed
+	 * 		update(function(){})		: set the function to call when the panel is updated
+	 * Example : $("#mydiv").panel(options); 
+	 */
 	$.fn.panel = function(options){
 		if ($._panelFrame === undefined){
-			$("#body").panelFrame();
+			$("body").panelFrame();
 		}
 		var result = $._panelFrame.createPanel(this,options);
 		result._restore = this;
 		return result;
 	};
+	/**
+	 * Add panelFrame function to selector
+	 * Arguments : N/A
+	 * Example : $("#mydiv").panelFrame(); 
+	 */
 	$.fn.panelFrame = function(){
 		this.rows = new Array();
 		for (var i = 0; i < 5; i++){
@@ -119,6 +151,10 @@ $(function () {
 				}
 			}
 		};
+		/**
+		 * Private function used for title's buttons
+		 * TODO see how to set them private
+		 */
 		this.getPanel = function (panelId){
 			var result = null;
 			this._panels.forEach(function(panel){
@@ -128,22 +164,24 @@ $(function () {
 			});
 			return result;
 		};
+		/**
+		 * Private function used for remove of panel
+		 * TODO see how to set them private
+		 */
 		this.removePanel = function (panelId){
 			var index = 0;
 			var panelFound = null;
 			var found = -1;
 			this._panels.forEach(function(panel){
 				if (panel.panelId == panelId){
-					if (typeof panel._onClose !== "undefined") {
-	    				try{
-	    					var result = panel._onClose();
-	    					if ((result !== "undefined") && (result === false)){
-	    						return;
-	    					}
-	    				} catch(exception){
-	    					console.log("jquery-panel - exception");
-	    					console.log(exception);
-	    				}
+    				try{
+    					var result = panel._onClose();
+    					if ((result !== "undefined") && (result === false)){
+    						return;
+    					}
+    				} catch(exception){
+    					console.log("jquery-panel - exception");
+    					console.log(exception);
 					}
 					panelFound = panel;
 					found = index;
@@ -161,6 +199,10 @@ $(function () {
 				this.update();
 			}
 		};
+		/**
+		 * Private function used for creation of panel
+		 * TODO see how to set them private
+		 */
 		this.createPanel = function(target,aOption){
 			// Allready initialised ?
 			if (typeof target.attr("panelId") != 'undefined'){
@@ -170,7 +212,7 @@ $(function () {
 			}
 			var option = {
 	            class		: 'panel-default',
-	            buttons		: ['close','reload','maximize'] 
+	            buttons		: ['reload','maximize','normal','close'] 
 	        };
 			if (typeof aOption !== 'undefined'){
 				option = $.extend(option, aOption);
@@ -194,30 +236,46 @@ $(function () {
 					var titlePane = $('<span>'+option.title+'</span>');
 					heading.append(titlePane);
 					var buttons = $('<span style="float:right"></span>');
-						/*if (typeof target.url !== "undefined"){
-							buttons.append($('<a href="#" style="margin-right:5px;color:black" 	onClick="$._panelFrame.getPanel('+target.panelId+').reload()">R</a>'));
-				    	}*/
-						target._maximize = $('<a href="#" style="margin-right:5px;color:black" 	onClick="$._panelFrame.getPanel('+target.panelId+').maximize()"><img src="images/64.png"></img></a>');
-						buttons.append(target._maximize);
-						target._normalize = $('<a href="#" style="margin-right:5px;color:black" 	onClick="$._panelFrame.getPanel('+target.panelId+').normal()"><img src="images/14.png"></img></a>');
-						target._normalize.hide();
-						buttons.append(target._normalize);
-						buttons.append($('<a href="#" style="margin-right:5px;color:black"	onClick="$._panelFrame.getPanel('+target.panelId+').close()"><img src="images/33.png"></img></a>'));
+					for (var i = 0; i < option.buttons.length; i++){
+						var buttonName = option.buttons[i];
+						if (buttonName == "reload") {
+							if (typeof option.url !== "undefined"){
+								buttons.append($('<a href="#" style="margin-right:5px;color:black" 	onClick="$._panelFrame.getPanel('+target.panelId+').reload()"><img src="images/42a.png"></img></a>'));
+							}
+						} else if (buttonName == "maximize") {
+							target._maximize = $('<a href="#" style="margin-right:5px;color:black" 	onClick="$._panelFrame.getPanel('+target.panelId+').state(\'maximized\')"><img src="images/64.png"></img></a>');
+							buttons.append(target._maximize);
+						} else if (buttonName == "normal") {
+							target._normalize = $('<a href="#" style="margin-right:5px;color:black" onClick="$._panelFrame.getPanel('+target.panelId+').state(\'normal\')"><img src="images/14.png"></img></a>');
+							target._normalize.hide();
+							buttons.append(target._normalize);
+						} else if (buttonName == "close") {
+							buttons.append($('<a href="#" style="margin-right:5px;color:black"	onClick="$._panelFrame.getPanel('+target.panelId+').close()"><img src="images/33.png"></img></a>'));
+						} else {
+							buttons.append($('<a href="#" style="margin-right:5px;color:black"	onClick="">Unsupported button name : '+buttonName+'</a>'));
+						}
+					}
 					heading.append(buttons);
 			target._wrapper.append(heading);
 				var body = $('<div class="panel-body"></div>');
 					body.append(target);
 			target._wrapper.append(body);
+			// If a footer is set
+			if (typeof option.footer != 'undefined') {
+				var footer = $('<div class="panel-footer"></div>');
+				body.append(footer);
+			}
 		    this._panels.push(target);
 		    // Ajout des gestion d'evènements
-		    if (typeof option.beforeClose !== undefined){
-				target._onBeforeClose = option.beforeClose;
-			}
 			if (typeof option.done !== undefined){
 				target._onDone = option.done;
+			} else {
+				target._onDone = function(){};
 			}
 			if (typeof option.close !== undefined){
 				target._onClose = option.close;
+			} else {
+				target._onClose = function(){return true;};
 			}
 			if (typeof option.update !== undefined){
 				target._onUpdate = option.update;
@@ -229,59 +287,66 @@ $(function () {
 		    	titlePane.text(text);
 		    	return this;
 		    };
+		    target.update = function(func){
+		    	if (typeof func !== "undefined"){
+		    		this._onUpdate = func;
+		    	} else {
+		    		throw new Exception("Missing argument function");
+		    	}
+		    	return this;
+		    };
 		    target.close = function(func){
 		    	if (typeof func === "undefined"){
 		    		$._panelFrame.removePanel(this.panelId);
 		    	} else {
 		    		this._onClose = func;
 		    	}
+		    	return this;
 		    };
 		    target._state = "normal";
-		    target.toggleMaxNormal = function(url){
-		    	if (this._state == "normal"){
-		    		this.maximize();
-		    	} else {
-		    		this.normal();
+		    target.state = function(state){
+		    	if (typeof state !== "undefined"){
+		    		if (state == "maximized"){
+			    		if (this._state == "normal"){
+				    		$._panelFrame._maximized = this;
+				    		$._panelFrame.update();
+				    		target._state = "maximized";
+				    		target._normalize.show();
+				    		target._maximize.hide();
+				    	}
+			    	} else if (this._state == "maximized"){
+			    		$._panelFrame._maximized = null;
+			    		target._state = "normal";
+			    		$._panelFrame.update();
+			    		target._normalize.hide();
+			    		target._maximize.show();
+			    	} else {
+			    		throw new Exception("Unsupported state " + state);
+			    	}
 		    	}
-		    };
-		    target.maximize = function(url){
-		    	if (this._state == "normal"){
-		    		$._panelFrame._maximized = this;
-		    		$._panelFrame.update();
-		    		target._state = "maximized";
-		    		target._normalize.show();
-		    		target._maximize.hide();
-		    	}
-		    };
-		    target.normal = function(url){
-		    	if (this._state == "maximized"){
-		    		$._panelFrame._maximized = null;
-		    		target._state = "normal";
-		    		$._panelFrame.update();
-		    		target._normalize.hide();
-		    		target._maximize.show();
-		    	}
+		    	return this._state;
 		    };
 		    target.reload = function(url){
 		    	if (typeof url !== "undefined"){
-		    		target.url = url;
+		    		this.url = url;
 		    	}
-		    	if (typeof target.url === "undefined"){
+		    	if (typeof this.url === "undefined"){
 		    		return;
 		    	}
-		    	target.html("");
+		    	this.html("");
+		    	if (this.url == null){
+		    		return;
+		    	}
 		    	$.ajax({
-		    		url: target.url
+		    		url : this.url
 	    		}).done(function(data) {
 	    			target.html(data);
-	    			if (typeof target._onDone !== "undefined") {
-	    				try{
-	    					target._onDone();
-	    				} catch(exception){
-	    					console.log("jquery-panel - exception");
-	    					console.log(exception);
-	    				}
-					}
+    				try{
+    					target._onDone();
+    				} catch(exception){
+    					console.log("jquery-panel - exception");
+    					console.log(exception);
+    				}
 	    		});
 		    };
 		    if (typeof option.url !== "undefined"){
