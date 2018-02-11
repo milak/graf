@@ -11,11 +11,14 @@ require ("dao/dao.php");
 <link rel="stylesheet" href="vendor/pure/pure-min.css">
 <link rel="stylesheet" href="vendor/jquery/ui/1.12.1/themes/base/jquery-ui.css">
 <link rel="stylesheet" href="vendor/datatable/jquery.dataTables.min.css">
+<link rel="stylesheet" href="vendor/font-awsome/css/font-awesome.min.css" />
+<link rel="stylesheet" href="vendor/jquery-panel/css/jquery-panel.css" />
 <script type="text/javascript" src="vendor/jquery/jquery-3.2.1.min.js"></script>
 <script type="text/javascript" src="vendor/jquery/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript" src="vendor/svgtool/svg-pan-zoom.js"></script>
 <script type="text/javascript" src="vendor/nodeca/js-yaml.min.js"></script>
 <script type="text/javascript" src="vendor/datatable/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="vendor/jquery-panel/js/jquery-panel.js"></script>
 <script type="text/javascript" src="vendor/graf/util.js"></script>
 <script type="text/javascript" src="vendor/graf/strategic.js"></script>
 <script type="text/javascript" src="vendor/graf/business.js"></script>
@@ -33,7 +36,7 @@ require ("dao/dao.php");
 		}
 	</script>
 </head>
-<body>
+<body oncontextmenu="event.preventDefault()">
 	<div style="width: 10%; height: 100%; background-color: #5588EE; float: left;">
 		<div
 			style="width: 100%; height: 100px; text-align: center; color: white; vertical-align: middle; padding-top: 10px">
@@ -145,11 +148,12 @@ require ("dao/dao.php");
 					</td>
 				</tr>
 				<tr style="height: 100%">
-					<td><svg id="frame" style="width: 100%; height: 100%"></svg></td>
+					<td><div id="portlet" style="width: 100%; height: 100%"></div></td>
 				</tr>
 			</tbody>
 		</table>
 	</div>
+	<svg id="frame" style="width: 100%; height: 100%;display:none"></svg>
 	<div id="process_script_editor_form" style="display: none">
 		<div style="position: absolute; top: 5px; bottom: 45px; left: 0; right: 0;">
 			<textarea id="process_script_editor_form_text"
@@ -625,6 +629,10 @@ require ("dao/dao.php");
 			}
 			filterComponentList(serviceId);
 		});*/
+	 	$("#portlet").panelFrame();
+	 	$("#frame").panel({
+			"title":"Vue"
+		});
 	 });
 </script>
 </body>
