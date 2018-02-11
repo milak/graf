@@ -389,11 +389,10 @@ function _drawElement($element){
         $style     = "style='stroke-dasharray:5,5'";
     }
     echo <<<SVG
-    <use id     = 'element_$element->id'
-        href      = '#$class'
-        x         = '$element->x' y='$element->y'
-        onclick   = 'window.parent.svgElementClicked("$element->type","$element->id")'
-        ondbclick = 'window.parent.svgElementDblClicked("$element->type","$element->id")'
+    <use id     		= 'element_$element->id'
+        href      		= '#$class'
+        x        		= '$element->x' y='$element->y'
+		onmousedown		= 'evt.stopImmediatePropagation();evt.preventDefault();evt.stopPropagation();window.parent.svgElementClicked("$element->type","$element->id",evt.button)'
         $style>
             <title>$element->name</title>
     </use>\n
@@ -432,8 +431,9 @@ function _drawElementAsRect($element){
     }
 	echo <<<SVG
 	<rect  x='$element->x' y='$element->y' width='$element->width' height='$element->height' 
-           rx='5' ry='5' class='rect_www_hhh' filter='url(#shadow)' 
-           onclick='window.parent.svgElementClicked("$element->type","$element->id")' $style/>\n
+           rx='5' ry='5' class='rect_www_hhh' filter='url(#shadow)'
+		   onmouseup 			= 'evt.preventDefault();window.parent.svgElementClicked("$element->type","$element->id",evt.button);'
+		   $style/>\n
 SVG;
 	$lines = _splitTextInLines($element->name,ELEMENT_CHAR_WIDTH,CHAR_HEIGHT,$element->width,$element->height);
 	$x = $element->x;
