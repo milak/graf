@@ -259,11 +259,14 @@ ShadowViewport.prototype.processCTM = function() {
     } else {
       newScale = Math.max(this.options.width/this.viewBox.width, this.options.height/this.viewBox.height);
     }
-
-    newCTM.a = newScale; //x-scale
-    newCTM.d = newScale; //y-scale
-    newCTM.e = -this.viewBox.x * newScale; //x-transform
-    newCTM.f = -this.viewBox.y * newScale; //y-transform
+    try{// Milak bug fix
+    	newCTM.a = newScale; //x-scale
+    	newCTM.d = newScale; //y-scale
+        newCTM.e = -this.viewBox.x * newScale; //x-transform
+        newCTM.f = -this.viewBox.y * newScale; //y-transform
+    } catch(exception){
+    	console.log(exception);
+    }
   }
 
   if (this.options.center) {
