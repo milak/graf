@@ -392,7 +392,7 @@ function _drawElement($element){
     <use id     		= 'element_$element->id'
         href      		= '#$class'
         x        		= '$element->x' y='$element->y'
-		onmousedown		= 'evt.stopImmediatePropagation();evt.preventDefault();evt.stopPropagation();window.parent.svgElementClicked("$element->type","$element->id",evt.button)'
+		onmouseup 			= 'evt.preventDefault();window.parent.svgElementClicked("$element->type","$element->id",evt.button);'
         $style>
             <title>$element->name</title>
     </use>\n
