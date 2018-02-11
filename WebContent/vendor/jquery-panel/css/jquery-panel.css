@@ -1,5 +1,7 @@
 .panel {
-	margin-bottom: 21px;
+	display:flex;
+	flex-direction:column;
+	margin : auto auto;
 	background-color: #fff;
 	border: 1px solid transparent;
 	border-top-color: transparent;
@@ -22,6 +24,7 @@
 }
 .panel-body {
 	padding: 15px;
+	flex:1;
 }
 // Available colors
 .panel-default {
@@ -38,7 +41,16 @@
 }
 .panel-green > .panel-heading {
 	color: #fff;
-	background-color: #27c24c;
+	background-color: #28a745;
+	border-color: #cfdbe2;
+	border-bottom-color: rgb(207, 219, 226);
+}
+.panel-purple {
+	border-color: #cfdbe2;
+}
+.panel-purple > .panel-heading {
+	color: #fff;
+	background-color: #6f42c1;
 	border-color: #cfdbe2;
 	border-bottom-color: rgb(207, 219, 226);
 }
@@ -58,11 +70,4 @@
   color: #fff;
   background-color: #3a3f51;
   border-color: #3a3f51;
-}
-.panel-footer {
-	padding: 10px 15px;
-	background-color: #fafafa;
-	border-top: 1px solid #eee;
-	border-bottom-right-radius: 3px;
-	border-bottom-left-radius: 3px;
 }

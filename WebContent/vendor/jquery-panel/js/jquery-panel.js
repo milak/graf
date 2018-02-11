@@ -46,23 +46,28 @@ $(function () {
 		return result;
 	};
 	$.fn.panelFrame = function(){
+		this.rows = new Array();
+		for (var i = 0; i < 5; i++){
+			var div = $('<div style="display:inline-flex;width:100%;height:0px"></div>');
+			div.hide();
+			this.rows.push(div);
+			this.append(div);
+		}
 		$._panelFrame 	= this;
 		this._panelId 	= 0;
+		this._maximized = null;
 		this._panels 	= new Array();
+		this.addPanel 	= function (panel){
+			
+		},
 		this.update 	= function (){
-			var frame = this;
-			frame.html("");
+			for (var i = 0; i < this.rows.length; i++){
+				var div = this.rows[i];
+				div.hide();
+			}
 			var count = this._panels.length;
 			if (count == 0){
 				// rien
-			} else if (count == 1){
-				var panel = this._panels[0];
-				panel._wrapper.width("98%");
-				panel._wrapper.height("98%");
-				frame.append(panel._wrapper);
-				if (typeof panel._onUpdate !== "undefined") {
-					panel._onUpdate();
-				}
 			} else {
 				var nbRow = 1;
 		        var nbCol = count;
@@ -70,39 +75,43 @@ $(function () {
 		            nbRow++;
 		            nbCol = Math.ceil(count / nbRow);
 		        }
-		        //alert(nbCol+ " " + nbRow);
-				var row = 1;
+				var row = 0;
 				var col = 1;
-				var rowHeight = (Math.round(100/nbRow)-3)
-				var divRow = $('<div style="display:inline-flex;width:100%;height:'+rowHeight+'%"></div>');
-				frame.append(divRow);
-				var index = 0;
-				this._panels.forEach(function (panel){
-					// dernier
-					if (index == (count-1)){
-						// Remplissage nécessaire
-						if (col < nbCol){
-							panel._wrapper.width(""+(Math.round(100/nbCol)+Math.round(100/nbCol)-4)+"%");
-						} else {
-							panel._wrapper.width(""+(Math.round(100/nbCol)-3)+"%");
-						}
-					} else {
-						panel._wrapper.width(""+(Math.round(100/nbCol)-3)+"%");
-					}
-					panel._wrapper.height("98%");
-					divRow.append(panel._wrapper);
-					if (typeof panel._onUpdate !== "undefined") {
-						panel._onUpdate();
-					}
-					col++;
+				var rowHeight = Math.ceil(100/nbRow);
+				var colWidth = Math.ceil(100/nbCol);
+				var divRow = this.rows[row];
+				divRow.height(rowHeight+"%");
+				divRow.show();
+				for (var p = 0; p < this._panels.length; p++){
+					var panel = this._panels[p];
 					if (col > nbCol){
-						divRow = $('<div style="display:inline-flex;width:100%;height:'+rowHeight+'%"></div>');
-						frame.append(divRow);
 						row++;
+						divRow = this.rows[row];
+						divRow.height(rowHeight+"%");
+						divRow.show();
 						col = 1;
 					}
-					index++;
-				});
+					// dernier
+					if (p == (count-1)){
+						// Remplissage nécessaire ?
+						if (col < nbCol){
+							var colCount = nbCol-col +1;
+							panel._wrapper.width(""+(colCount * colWidth) +"%");
+						} else {
+							panel._wrapper.width(""+colWidth+"%");
+						}
+					} else {
+						panel._wrapper.width(""+colWidth+"%");
+					}
+					panel._wrapper.height("100%");
+					divRow.append(panel._wrapper);
+					if (typeof panel._onUpdate !== "undefined") {
+						try{
+							panel._onUpdate();
+						}catch(exception){}
+					}
+					col++;
+				}
 			}
 		};
 		this.getPanel = function (panelId){
@@ -135,28 +144,35 @@ $(function () {
 			});
 			if (found != -1){
 				if (typeof panelFound._restore !== "undefined"){
-					panelFound._restore.hide();
+					panelFound.hide();
+					panelFound._wrapper.remove();
+					this.append(panelFound);
 					panelFound._restore.removeAttr("panelId");
-					$("body").append(panelFound._restore);
+					//$("body").append(panelFound._restore);
 				}
 				this._panels.splice(found,1);
 				this.update();
 			}
 		};
 		this.createPanel = function(target,aOption){
-			// Allready initialised
+			// Allready initialised ?
 			if (typeof target.attr("panelId") != 'undefined'){
-				return this.getPanel(target.attr("panelId"));
+				var panel = this.getPanel(target.attr("panelId"));
+				//panel._wrapper.show();
+				return panel;
 			}
-	        var option = $.extend({ // These are the defaults.
+			var option = {
 	            class			: 'panel-default'
-	        }, aOption);
+	        };
+			if (typeof aOption !== 'undefined'){
+				option = $.extend(option, aOption);
+			}
 			this._panelId++;
 			target._wrapper = $('<div></div>');
 			target.panelId 	= this._panelId;
 			target.attr("panelId",target.panelId);
 			// If no title asked, try to get the title allready set in the element 
-			if (typeof aOption.title == 'undefined') {
+			if (typeof option.title == 'undefined') {
 				if (typeof target.attr("title") != 'undefined'){
 					option.title 	= target.attr("title");
 				} else {
@@ -182,15 +198,19 @@ $(function () {
 			target.heading = $('<div class="panel-heading"></div>');
 					var titlePane = $('<span>'+target.title+'</span>');
 					target.heading.append(titlePane);
-					var close = $('<a href="#" onClick="$._panelFrame.removePanel('+target.panelId+')" class="pull-right"></a>');
-					close.html('<em class="fa fa-times"></em>');
-					target.heading.append(close);
-					var reload = $('<a href="#" onClick="$._panelFrame.getPanel('+target.panelId+').reload()" class="pull-right"></a>');
-					reload.html('<em class="fa fa-reload"></em>');
-					target.heading.append(reload);
+					var buttons = $('<span class="pull-right"></span>');
+						var close = $('<a href="#" onClick="$._panelFrame.removePanel('+target.panelId+')" class="pull-right"></a>');
+						close.html('<em class="fa fa-times"></em>');
+						buttons.append(close);
+						var reload = $('<a href="#" onClick="$._panelFrame.getPanel('+target.panelId+').reload()" class="pull-right"></a>');
+						reload.html('<em class="fa fa-reload"></em>');
+						buttons.append(reload);
+					target.heading.append(buttons);
 			target._wrapper.append(target.heading);
 					var body = $('<div class="panel-body"></div>');
 					body.append(target);
+					//target.height("80%");
+					//target.width("100%");
 			target._wrapper.append(body);
 		    this._panels.push(target);
 		    /*target.html = function(html){
@@ -219,7 +239,7 @@ $(function () {
 					}
 	    		});
 		    };
-		    if (option.url !== undefined){
+		    if (typeof option.url !== "undefined"){
 		    	target.url = option.url;
 		    	target.reload();
 		    }
