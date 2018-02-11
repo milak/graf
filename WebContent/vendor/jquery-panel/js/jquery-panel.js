@@ -66,7 +66,14 @@ $(function () {
 				div.hide();
 			}
 			var count = this._panels.length;
-			if (count == 0){
+			if (this._maximized != null) {
+				this._maximized._wrapper.css("width","100%");
+				this._maximized._wrapper.css("height","100%");
+				this.append(this._maximized._wrapper);
+				try{
+					this._maximized._onUpdate();
+				}catch(exception){}
+			} else if (count == 0){
 				// rien
 			} else {
 				var nbRow = 1;
@@ -96,20 +103,18 @@ $(function () {
 						// Remplissage nécessaire ?
 						if (col < nbCol){
 							var colCount = nbCol-col +1;
-							panel._wrapper.width(""+(colCount * colWidth) +"%");
+							panel._wrapper.css("width",""+(colCount * colWidth)+"%");
 						} else {
-							panel._wrapper.width(""+colWidth+"%");
+							panel._wrapper.css("width",""+colWidth+"%");
 						}
 					} else {
-						panel._wrapper.width(""+colWidth+"%");
+						panel._wrapper.css("width",""+colWidth+"%");
 					}
-					panel._wrapper.height("100%");
+					panel._wrapper.css("height","100%");
 					divRow.append(panel._wrapper);
-					if (typeof panel._onUpdate !== "undefined") {
-						try{
-							panel._onUpdate();
-						}catch(exception){}
-					}
+					try{
+						panel._onUpdate();
+					}catch(exception){}
 					col++;
 				}
 			}
@@ -129,13 +134,16 @@ $(function () {
 			var found = -1;
 			this._panels.forEach(function(panel){
 				if (panel.panelId == panelId){
-					if (typeof panel._onBeforeClose !== "undefined") {
-						if (!panel._onBeforeClose()){
-							return;					
-						}
-					}
 					if (typeof panel._onClose !== "undefined") {
-						panel._onClose();
+	    				try{
+	    					var result = panel._onClose();
+	    					if ((result !== "undefined") && (result === false)){
+	    						return;
+	    					}
+	    				} catch(exception){
+	    					console.log("jquery-panel - exception");
+	    					console.log(exception);
+	    				}
 					}
 					panelFound = panel;
 					found = index;
@@ -145,11 +153,10 @@ $(function () {
 			if (found != -1){
 				if (typeof panelFound._restore !== "undefined"){
 					panelFound.hide();
-					panelFound._wrapper.remove();
 					this.append(panelFound);
 					panelFound._restore.removeAttr("panelId");
-					//$("body").append(panelFound._restore);
 				}
+				panelFound._wrapper.remove();
 				this._panels.splice(found,1);
 				this.update();
 			}
@@ -162,13 +169,13 @@ $(function () {
 				return panel;
 			}
 			var option = {
-	            class			: 'panel-default'
+	            class		: 'panel-default',
+	            buttons		: ['close','reload','maximize'] 
 	        };
 			if (typeof aOption !== 'undefined'){
 				option = $.extend(option, aOption);
 			}
 			this._panelId++;
-			target._wrapper = $('<div></div>');
 			target.panelId 	= this._panelId;
 			target.attr("panelId",target.panelId);
 			// If no title asked, try to get the title allready set in the element 
@@ -179,10 +186,31 @@ $(function () {
 					option.title 	= "";
 				}
 			}
-			target.title 	= option.title;
-			target.class 	= option.class;
 			target.show();
-			if (typeof option.beforeClose !== undefined){
+			// Création 
+			target._wrapper = $('<div></div>');
+			target._wrapper.attr('class', "panel "+option.class);
+				var heading = $('<div class="panel-heading"></div>');
+					var titlePane = $('<span>'+option.title+'</span>');
+					heading.append(titlePane);
+					var buttons = $('<span style="float:right"></span>');
+						/*if (typeof target.url !== "undefined"){
+							buttons.append($('<a href="#" style="margin-right:5px;color:black" 	onClick="$._panelFrame.getPanel('+target.panelId+').reload()">R</a>'));
+				    	}*/
+						target._maximize = $('<a href="#" style="margin-right:5px;color:black" 	onClick="$._panelFrame.getPanel('+target.panelId+').maximize()"><img src="images/64.png"></img></a>');
+						buttons.append(target._maximize);
+						target._normalize = $('<a href="#" style="margin-right:5px;color:black" 	onClick="$._panelFrame.getPanel('+target.panelId+').normal()"><img src="images/14.png"></img></a>');
+						target._normalize.hide();
+						buttons.append(target._normalize);
+						buttons.append($('<a href="#" style="margin-right:5px;color:black"	onClick="$._panelFrame.getPanel('+target.panelId+').close()"><img src="images/33.png"></img></a>'));
+					heading.append(buttons);
+			target._wrapper.append(heading);
+				var body = $('<div class="panel-body"></div>');
+					body.append(target);
+			target._wrapper.append(body);
+		    this._panels.push(target);
+		    // Ajout des gestion d'evènements
+		    if (typeof option.beforeClose !== undefined){
 				target._onBeforeClose = option.beforeClose;
 			}
 			if (typeof option.done !== undefined){
@@ -193,49 +221,66 @@ $(function () {
 			}
 			if (typeof option.update !== undefined){
 				target._onUpdate = option.update;
+			} else {
+				target._onUpdate = function(){};
 			}
-			target._wrapper.attr('class', "panel "+target.class);
-			target.heading = $('<div class="panel-heading"></div>');
-					var titlePane = $('<span>'+target.title+'</span>');
-					target.heading.append(titlePane);
-					var buttons = $('<span class="pull-right"></span>');
-						var close = $('<a href="#" onClick="$._panelFrame.removePanel('+target.panelId+')" class="pull-right"></a>');
-						close.html('<em class="fa fa-times"></em>');
-						buttons.append(close);
-						var reload = $('<a href="#" onClick="$._panelFrame.getPanel('+target.panelId+').reload()" class="pull-right"></a>');
-						reload.html('<em class="fa fa-reload"></em>');
-						buttons.append(reload);
-					target.heading.append(buttons);
-			target._wrapper.append(target.heading);
-					var body = $('<div class="panel-body"></div>');
-					body.append(target);
-					//target.height("80%");
-					//target.width("100%");
-			target._wrapper.append(body);
-		    this._panels.push(target);
-		    /*target.html = function(html){
-		    	this.html(html);
-		    	return this;
-		    };*/
+		    // Ajout de fonctions standard
 		    target.title = function(text){
 		    	titlePane.text(text);
 		    	return this;
 		    };
 		    target.close = function(func){
-		    	if (func === undefined){
+		    	if (typeof func === "undefined"){
 		    		$._panelFrame.removePanel(this.panelId);
 		    	} else {
 		    		this._onClose = func;
 		    	}
 		    };
-		    target.reload = function(func){
+		    target._state = "normal";
+		    target.toggleMaxNormal = function(url){
+		    	if (this._state == "normal"){
+		    		this.maximize();
+		    	} else {
+		    		this.normal();
+		    	}
+		    };
+		    target.maximize = function(url){
+		    	if (this._state == "normal"){
+		    		$._panelFrame._maximized = this;
+		    		$._panelFrame.update();
+		    		target._state = "maximized";
+		    		target._normalize.show();
+		    		target._maximize.hide();
+		    	}
+		    };
+		    target.normal = function(url){
+		    	if (this._state == "maximized"){
+		    		$._panelFrame._maximized = null;
+		    		target._state = "normal";
+		    		$._panelFrame.update();
+		    		target._normalize.hide();
+		    		target._maximize.show();
+		    	}
+		    };
+		    target.reload = function(url){
+		    	if (typeof url !== "undefined"){
+		    		target.url = url;
+		    	}
+		    	if (typeof target.url === "undefined"){
+		    		return;
+		    	}
 		    	target.html("");
 		    	$.ajax({
 		    		url: target.url
 	    		}).done(function(data) {
 	    			target.html(data);
 	    			if (typeof target._onDone !== "undefined") {
-	    				target._onDone();
+	    				try{
+	    					target._onDone();
+	    				} catch(exception){
+	    					console.log("jquery-panel - exception");
+	    					console.log(exception);
+	    				}
 					}
 	    		});
 		    };
