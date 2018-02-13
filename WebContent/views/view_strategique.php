@@ -42,6 +42,11 @@ foreach($domains as $domain){
                 $item->display        = new stdClass();
                 $item->display->class = "actor";
                 $area->addElement($item);
+                if ($id != null){ // si c'est l'item sélectionné
+                	if ($item->id == $id){
+                		$item->display->selected = true;
+                	}
+                }
             }
             continue;
         }
