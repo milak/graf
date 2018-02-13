@@ -386,13 +386,13 @@ function _drawElement($element){
     $class = $element->display->class;
     $style     = "";
     if (isset($element->display->dashed)){
-        $style     = "style='stroke-dasharray:5,5'";
+        $style     .= "style='stroke-dasharray:5,5'";
     }
     if (isset($element->display->blured)){
-    	$style     = "style='stroke-dasharray:1,2'";
+    	$style     .= "style='stroke-dasharray:1,2'";
     }
     if (isset($element->display->selected)){
-    	$style     = "style='stroke:blue;stroke-width:10'";
+    	$style     .= "style='stroke:blue;stroke-width:8'";
     }
     echo <<<SVG
     <use id     		= 'element_$element->id'
@@ -431,13 +431,13 @@ function _drawElementAsRect($element){
     $style = '';
     $filter = '';
     if (isset($element->display->dashed)){
-        $style     = "style='stroke-dasharray:5,5'";
+        $style     .= "style='stroke-dasharray:5,5'";
     }
     if (isset($element->display->blured)){
-        $style     = "style='stroke-dasharray:1,2'";
+        $style     .= "style='stroke-dasharray:1,2'";
     }
     if (isset($element->display->selected)){
-    	$style     = "style='stroke:blue;stroke-width:10'";
+    	$style     .= "style='stroke:blue;stroke-width:8'";
     }
 	echo <<<SVG
 	<rect  x='$element->x' y='$element->y' width='$element->width' height='$element->height' 
