@@ -6,14 +6,11 @@ $dao->connect();
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $services = array();
     if (isset($_GET["id"])){
-        $result = $dao->getItemById($_GET["id"]);
-        if ($result != null){
-            $services[] = $result;
-        }
+    	$services = $dao->getItems((object)['id'=>$_GET["id"]]);
     } else if (isset($_GET["domain_id"])){
-        $services = $dao->getRelatedItems($_GET["domain_id"],"service","down");
+        $services = $dao->getRelatedItems($_GET["domain_id"],'service','down');
     } else {
-        $services = $dao->getItemsByCategory("service");
+    	$services = $dao->getItems((object)['category'=>'service']);
     }?>
 { "services" : [<?php
     $first = true;

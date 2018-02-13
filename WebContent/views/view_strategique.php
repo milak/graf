@@ -1,20 +1,32 @@
 <?php
 require("../svg/header.php");
 require("../dao/dao.php");
+require("../svg/body.php");
 $dao->connect();
 $areas = $dao->getViewByName("strategic");
-require("../svg/body.php");
-// Conserver uniquement les zones racines nécessaires et forcer toutes les zones à visibles
 $roots = array();
 $roots[] = $areas["root"];
-// ****************************************************************
-// Chercher tous les noeuds correspondant aux critères de recherche
-// ****************************************************************
-$domains = $dao->getItemsByCategory("domain");
-$showProcess = false;
-if (isset($_GET["showProcess"])){
-	$showProcess = true;
+$id = null;
+if (isset($_GET["id"])){
+	$id = $_GET["id"];
+	$item = $dao->getItems((object)['id'=>$id])[0];
+	// Si ce n'est pas un domaine, on va rechercher un domaine en remontant
+	if ($item->category->name != "domain"){
+		$up = $dao->getRelatedItems($id,"up");
+		foreach ($up as $overitem){
+			error_log($overitem->name);
+			if ($overitem->category->name == "domain"){
+				$id = $overitem->id;
+				break;
+			}
+		}
+		// TODO
+	}
 }
+// **************************
+// Chercher tous les domaines
+// **************************
+$domains = $dao->getItems((object)['category'=>'domain']);
 $domainsByName = array();
 // Charger tous les noeuds dans leur zone respective
 foreach($domains as $domain){
@@ -34,54 +46,30 @@ foreach($domains as $domain){
             continue;
         }
     }
+    // Si la zone n'est pas trouvée, prendre la zone par défaut
 	if (!isset($areas[$areaid])){
 	    $area = $areas["default"];
 	} else {
 	    $area = $areas[$areaid];
 	}
-	if ($showProcess){
-		$domainAsArea			= new Area();
-		$domainAsArea->id		= $domain->id;
-		$domainAsArea->code		= $domain->name;
-		$domainAsArea->name		= $domain->name;
-		$domainAsArea->setNeeded();
-		$domainAsArea->display	= "vertical";
-		$area->subareas[]		= $domainAsArea;
+	/*if ($showProcess){
+		$domain->code			= $domain->name;
+		$domain->setNeeded();
+		$domain->display		= "vertical";
+		$area->subareas[]		= $domain;
 		$area->setNeeded();
-		$domains[$domainAsArea->id] = $domainAsArea;
-	} else {
-		$domainAsElement 			     = new Area();
-		$domainAsElement->id 		     = $domain->id;
-		$domainAsElement->display        = new stdClass();
-		$domainAsElement->display->class = "rect_180_80";
-		$domainAsElement->type		     = "domain";
-		$domainAsElement->name		     = $domain->name;
-		$area->addElement($domainAsElement);
-	}
-}
-if ($showProcess){
-$sql = <<<SQL
-    SELECT *
-    FROM process
-SQL;
-	if(!$result = $db->query($sql)){
- 	   displayErrorAndDie('There was an error running the query [' . $db->error . ']');
-	}
-	while($row = $result->fetch_assoc()){
-		$process 			     = new stdClass();
-		$process->id		     = $row["id"];
-		$process->display        = new stdClass();
-		$process->display->class = "rect_180_80";
-		$process->type		     = "process";
-		$process->name		     = $row["name"];
-		$domain_id			     = $row["domain_id"];
-		$domain				     = $domains[$domain_id];
-		if ($domain == null){
-			continue;
+		$domains[$domain->id] 	= $domain;
+	} else {*/
+		$domain->display        = new stdClass();
+		$domain->display->class = "rect_180_80";
+		$domain->type		    = "domain";
+		$area->addElement($domain);
+	//}
+	if ($id != null){ // si c'est le domaine sélectionné
+		if ($domain->id == $id){
+			$domain->display->selected = true;
 		}
-		$domain->addElement($process);
 	}
-	$result->free();
 }
 // Afficher le résultat
 display($roots);

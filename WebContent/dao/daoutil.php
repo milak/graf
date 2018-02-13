@@ -128,10 +128,7 @@ interface IDAO {
     
     public function getItemCategories();
     public function getItemDocuments($itemId,$documentType);
-    public function getItemsByCategory($category);
-    public function getItemsByClass($class);
-    public function getItems();
-    public function getItemById($id);
+    public function getItems($query);
     
     public function disconnect();
 }

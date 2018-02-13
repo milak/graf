@@ -5,9 +5,9 @@ $dao->connect();
 /** METHOD GET **/
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($_GET["id"])){
-        $domains = array($dao->getItemById($_GET["id"]));
+    	$domains = $dao->getItems((object)['id' => $_GET["id"]]);
     } else {
-        $domains = $dao->getItemsByCategory("domain");
+    	$domains = $dao->getItems((object)array('category' => 'domain'));
     }?>
 { "domains" : [
 <?php

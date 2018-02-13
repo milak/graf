@@ -7,7 +7,7 @@ if (isset($_GET["id"])){
 require("../dao/dao.php");
 require("util.php");
 $dao->connect();
-$process = $dao->getItemById($id);
+$process = $dao->getItems((object)['id'=>$id])[0];
 $documents = $dao->getItemDocuments($id,"BPMN");
 if (count($documents) != 0){
     $document = $documents[0];

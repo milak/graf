@@ -128,8 +128,8 @@ class ITopDao implements IDAO {
     }
     public function addSubItem($aParentItemId,$aChildItemId){
         error_log("addSubItem($aParentItemId,$aChildItemId)");
-        $parentItem   = $this->getItemById($aParentItemId);
-        $childItem    = $this->getItemById($aChildItemId);
+        $parentItem   = $this->getItems((object)['id'=>$aParentItemId])[0];
+        $childItem    = $this->getItems((object)['id'=>$aChildItemId])[0];
         $parentItemId = $this->_splitItemId($aParentItemId);
         $childItemId  = $this->_splitItemId($aChildItemId);
         switch ($parentItem->category->name){
@@ -317,8 +317,8 @@ class ITopDao implements IDAO {
     }
     public function removeSubItem($aParentItemId,$aChildItemId){
         error_log("removeSubItem($aParentItemId,$aChildItemId)");
-        $parentItem   = $this->getItemById($aParentItemId);
-        $childItem    = $this->getItemById($aChildItemId);
+        $parentItem   = $this->getItems((object)['id'=>$aParentItemId])[0];
+        $childItem    = $this->getItems((object)['id'=>$aChildItemId])[0];
         $parentItemId = $this->_splitItemId($aParentItemId);
         $childItemId  = $this->_splitItemId($aChildItemId);
         switch ($parentItem->category->name){
@@ -424,7 +424,7 @@ class ITopDao implements IDAO {
             }
             if (($category == '*') || ($category == 'solution') || ($category == 'process') || ($category == 'device') || ($category == 'software')){
                 // Trouver tous les items 
-                $item = $this->getItemById($aItemId);
+            	$item = $this->getItems((object)['id'=>$aItemId])[0];
                 $response = $this->getRelated($item->class->name,$itemId->id,'down');
                 foreach ($response->objects as $object){
                     $result[] = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
@@ -524,7 +524,7 @@ class ITopDao implements IDAO {
                 }
             }
         } else {
-            $item = $this->getItemById($aItemId);
+        	$item = $this->getItems((object)['id'=>$aItemId])[0];
             if ($item->class->name == 'Data'){
                 $item->class->name = 'Group';
             }
@@ -548,72 +548,100 @@ class ITopDao implements IDAO {
     public function getItemClasses(){
         return $this->ITOP_CLASSES;
     }
-    public function getItemsByClass($className){
-        $category = $this->getItemCategoryByClass($className);
-        if ($category->name == "actor"){
-            return $this->getItemsByCategory("actor");
-        } else if ($category->name == "domain"){
-            return $this->getItemsByCategory("domain");
-        } else if ($category->name == "data"){
-            return $this->getItemsByCategory("data");
-        } else if ($category->name == "service"){
-            return $this->getItemsByCategory("service");
-        } else if ($className == "Software"){
-            $result = array();
-            $response = $this->getObjects($className,'id, name, version');
-            foreach ($response->objects as $object){
-                $result[]   = $this->_newItem($object->key, $object->fields->name." ".$object->fields->version, $object->class);
-            }
-        } else {
-            // pour le reste, la solution générique devrait fonctionner        
-            $result = array();
-            $response = $this->getObjects($className,'id, name',"WHERE organization_name = '$this->organisation'");
-            foreach ($response->objects as $object){
-                $result[]   = $this->_newItem($object->key, $object->fields->name, $object->class);
-            }
-        }
-        return $result;
-    }
-    public function getItemsByCategory($category, $class="*"){
-        $result = array();
-        if (($category == "actor") || ($category == "*")){
-            $response = $this->getObjects('Team','id, name',"WHERE org_name = '$this->organisation'"); // NB : org_name n'est pas standard, d'habitude c'est organization_name)
+    public function getItems($query){
+    	if (!isset($query)){
+    		$query = (object)array();
+    	}
+    	if (isset($query->category)){
+    		$category=$query->category;
+    	} else {
+    		$category='*';
+    	}
+    	if (isset($query->class)){
+    		$class=$query->class;
+    	} else {
+    		$class='*';
+    	}
+    	if (isset($query->name)){
+    		$name=$query->name;
+    	} else {
+    		$name='*';
+    	}
+    	if (isset($query->id)){
+    		$id=$query->id;
+    	} else {
+    		$id='*';
+    	}
+    	$result = array();
+    	$andFilter = '';
+    	$whereFilter = '';
+    	if ($id != '*'){
+    		$itemId = $this->_splitItemId($id);
+    		$andFilter = " AND id = '".$itemId->id."'";
+    		$whereFilter = " WHERE id = '".$itemId->id."'";
+    		$category = $itemId->prefix;
+    	} else if ($name != '*'){
+    		$andFilter = " AND name LIKE '%".$name."%'";
+    		$whereFilter = " WHERE name LIKE '%".$name."%'";
+    	}
+    	if ($class != "*") {
+    		$classCategory = $this->getItemCategoryByClass($className);
+	    	if ($category == "*"){ // et pas de catégorie, on la récupère
+	    		$category = $classCategory;
+    		} else {
+    			// pas la peine de chercher les résultats 
+    			if ($category != $classCategory) {
+    				return $result;
+    			}
+    		}
+    	}
+        if (($category == 'actor') || ($category == '*')){
+        	$response = $this->getObjects('Team','id, name',"WHERE org_name = '$this->organisation'".$andFilter); // NB : org_name n'est pas standard, d'habitude c'est organization_name)
             foreach ($response->objects as $object){
                 $result[]   = $this->_newItem($object->fields->id, $object->fields->name, "Team");
             }
         }
-        if (($category == "domain") || ($category == "*")){
-            $response = $this->getObjects("Group", 'id, name, friendlyname, description','WHERE type="BusinessDomain"');
+        if (($category == 'domain') || ($category == '*')){
+        	$response = $this->getObjects("Group", 'id, name, friendlyname, description','WHERE type="BusinessDomain"'.$andFilter);
             foreach ($response->objects as $object){
                 $item = $this->_newItem($object->fields->id, $object->fields->name, "Group");
                 $item->area_id   = $object->fields->description;
                 $result[] = $item;
             }
         }
-        if (($category == "data") || ($category == "*")){
-            $response = $this->getObjects("Group", 'id, name, friendlyname, description','WHERE type="DataModel"');
+        if (($category == 'data') || ($category == '*')){
+        	$response = $this->getObjects("Group", 'id, name, friendlyname, description','WHERE type="DataModel"'.$andFilter);
             foreach ($response->objects as $object){
                 $item = $this->_newItem($object->fields->id, $object->fields->name, "Data");
                 $item->area_id   = $object->fields->description;
                 $result[] = $item;
             }
         }
-        if (($category == "service") || ($category == "*")){
-            $response = $this->getObjects('Service','id, name, description',"WHERE organization_name = '$this->organisation'");
+        if (($category == 'service') || ($category == '*')){
+        	$response = $this->getObjects('Service','id, name, description',"WHERE organization_name = '$this->organisation'".$andFilter);
             foreach ($response->objects as $object){
                 $item = $this->_newItem($object->fields->id, $object->fields->name, $object->class);
                 $item->area_id   = $object->fields->description;
                 $result[]   = $item;
             }
         }
-        if (($category == "software") || ($category == "*")){
-            $items = $this->getItemsByClass("Software");
-            foreach($items as $item){
-                $result[]   = $item;
-            }
+        if (($category == 'software') || ($category == '*')){
+        	if ($class != '*'){
+        		$response = $this->getObjects($class,'id, name, version',$whereFilter);
+        	} else {
+        		$response = $this->getObjects('Software','id, name, version',$whereFilter);
+        	}
+        	foreach ($response->objects as $object){
+        		$result[]   = $this->_newItem($object->key, $object->fields->name.' '.$object->fields->version, $object->class);
+        	}
         }
-        if (($category != "actor") && ($category != "data") && ($category != "domain") && ($category != "service") && ($category != "software")){
-            $response = $this->getObjects('FunctionalCI','id, name, description',"WHERE organization_name = '$this->organisation' AND finalclass NOT IN ('DBServer','Middleware','OtherSoftware','PCSoftware','WebServer','WebApplication')");
+        if (($category != 'actor') && ($category != 'data') && ($category != 'domain') && ($category != 'service') && ($category != 'software')){
+        	if ($class != '*'){
+        		$response = $this->getObjects($class,'id, name, description',"WHERE organization_name = '$this->organisation'".$andFilter);
+        	} else {
+        		$response = $this->getObjects('FunctionalCI','id, name, description',"WHERE organization_name = '$this->organisation' AND finalclass NOT IN ('DBServer','Middleware','OtherSoftware','PCSoftware','WebServer','WebApplication')".$andFilter);
+        	}
+            
             foreach ($response->objects as $object){
                 $item = $this->_newItem($object->fields->id, $object->fields->name, $object->class, $object->fields->description);
                 if ($item->class->name == "DatabaseSchema"){
@@ -629,72 +657,8 @@ class ITopDao implements IDAO {
         }
         return $result;
     }
-    public function getItems(){
-        return $this->getItemsByCategory("*");
-    }
-    public function getItemById($itemId){
-        $itemId = $this->_splitItemId($itemId);
-        $result = null;
-        if ($itemId->prefix == "actor"){ // On recherche un actor
-            $response = $this->getObjects('Team','id, name',"WHERE id = '$itemId->id'");
-            foreach ($response->objects as $object){
-                $result = $this->_newItem($object->fields->id, $object->fields->name, "Team");
-                break;
-            }
-        } else if (($itemId->prefix == "domain") || ($itemId->prefix == "data")){ // On recherche un domaine ou une donnée
-            $response = $this->getObjects('Group','id, name, type, description',"WHERE id = '$itemId->id'");
-            if (count($response->objects) != 0){
-                foreach ($response->objects as $object){
-                    if ($itemId->prefix == "domain"){
-                        $result = $this->_newItem($object->fields->id, $object->fields->name, "Group");
-                    } else if ($itemId->prefix == "data"){
-                        $result = $this->_newItem($object->fields->id, $object->fields->name, "Data");
-                    } else {
-                        continue;
-                    }
-                    $result->area_id       = $object->fields->description;
-                    break;
-                }
-            } else if ($itemId->prefix == "data") {
-                $response = $this->getObjects('FunctionalCI','id, name',"WHERE id = '$itemId->id'");
-                foreach ($response->objects as $object){
-                    $result = $this->_newItem($object->fields->id, $object->fields->name, $object->class);
-                    break;
-                }
-            }
-        } else if ($itemId->prefix == "service"){ // On recherche un domaine
-            $response = $this->getObjects('Service','id, name, description',"WHERE id = '$itemId->id'");
-            foreach ($response->objects as $object){
-                $result = $this->_newItem($object->fields->id, $object->fields->name, "Service");
-                $result->area_id = $object->fields->description;
-                $result->description = $object->fields->description;
-                break;
-            }
-        } else if ($itemId->prefix == "software"){ // On recherche un Software
-            $response = $this->getObjects('Software','id, name',"WHERE id = '$itemId->id'");
-            if (count($response->objects) != 0){
-                foreach ($response->objects as $object){
-                    $result = $this->_newItem($object->fields->id, $object->fields->name, $object->class);
-                    break;
-                }
-            } else {
-                $response = $this->getObjects('FunctionalCI','id, name',"WHERE id = '$itemId->id'");
-                foreach ($response->objects as $object){
-                    $result = $this->_newItem($object->fields->id, $object->fields->name, $object->class);
-                    break;
-                }
-            }
-        } else { // tout autre item
-            $response = $this->getObjects('FunctionalCI','id, name, description',"WHERE id = '$itemId->id'");
-            foreach ($response->objects as $object){
-                $result = $this->_newItem($object->fields->id, $object->fields->name, $object->class, $object->fields->description);
-                break;
-            }
-        }
-        return $result;
-    }
     public function addItemDocument($itemId,$documentId){
-        $item = $this->getItemById($itemId);
+    	$item = $this->getItems((object)['id'=>$itemId])[0];
         $itemId = $this->_splitItemId($itemId);
         // TODO on n'ajoute pas on remplace, il faut gérer l'ajout en redemandant tous les documents
         $this->updateObject($item->class->name, $itemId->id, array(
@@ -768,7 +732,7 @@ class ITopDao implements IDAO {
             $this->deleteObject('DocumentNote', $document->id);
         }
         // Supprimer l'item lui même
-        $item = $this->getItemById($itemId);
+        $item = $this->getItems((object)['id'=>$itemId])[0];
         if ($item->class->name == "Data"){
             // Supprimer toutes les SchemaInstance du Group Data
             $items = $this->getRelatedItems($itemId,"*","down");

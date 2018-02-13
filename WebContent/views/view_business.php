@@ -12,7 +12,7 @@ if (isset($_GET["id"])) {
 } else {
     displayErrorAndDie('Need "id" argument');
 }
-$item = $dao->getItemById($id);
+$item = $dao->getItems((object)['id'=>$id])[0];
 $items = $dao->getRelatedItems($id,"*","down");
 
 // Chargement des processus

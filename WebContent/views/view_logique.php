@@ -49,7 +49,7 @@ foreach ($elements as $element){
     }
 }
 // Afficher les éléments rattachés à l'item 
-$solution = $dao->getItemById($itemId);
+$solution = $dao->getItems((object)['id'=>$itemId])[0];
 $rootarea->name = $rootarea->name." ".$solution->name;
 $items = $dao->getRelatedItems($itemId,"*","down");
 $relatedItemsById = array();
