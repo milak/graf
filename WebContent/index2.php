@@ -94,6 +94,7 @@ html {
 	<svg id="process" style="width: 100%; height: 100%; display: none"></svg>
 	<svg id="technical" style="width: 100%; height: 100%; display: none"></svg>
 	<div id="viewItem" style="width: 100%; height: 100%; display: none"></div>
+	<div id="searchItem" style="display: none"></div>
 	<div id="popup" style="display: none"></div>
 	<!-- ========================================================== -->
 	<!-- Placed at the end of the document so the pages load faster -->
@@ -306,12 +307,12 @@ html {
 			});
     	}
     	function searchItem(){
-        	$("#popup").panel({
-            	url : 'forms/searchItem.html?14',
+        	$("#searchItem").panel({
+            	url : 'forms/searchItem.html',
             	class : 'panel-green',
             	title : "Search an item",
-            	buttons : ["close"]
-            }).state("maximized");
+            	//buttons : ["reload","close"]
+            });//.state("maximized");
     	}
     	function openItem(item){
     		if (currentItem != null){
