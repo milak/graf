@@ -196,6 +196,9 @@ $(function () {
 				}
 				panelFound._wrapper.remove();
 				this._panels.splice(found,1);
+				if (this._maximized == panelFound){
+					this._maximized = null;
+				}
 				this.update();
 			}
 		};
@@ -333,8 +336,9 @@ $(function () {
 		    	if (typeof this.url === "undefined"){
 		    		return;
 		    	}
-		    	this.html("");
+		    	
 		    	if (this.url == null){
+		    		this.html("");
 		    		return;
 		    	}
 		    	$.ajax({
