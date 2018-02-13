@@ -1,53 +1,53 @@
 <html>
 <head>
-<link rel="stylesheet" href="vendor/pure/pure-min.css">
 <link rel="stylesheet" href="vendor/datatable/jquery.dataTables.min.css">
 <script type="text/javascript" src="vendor/datatable/jquery.dataTables.min.js"></script>
 </head>
-<form class="pure-form pure-form-aligned">
-	<fieldset>
-		<legend>Search item in data base</legend>
-		<table style="width: 100%">
-			<tr>
-				<td>
-					<div class="pure-control-group">
-						<label for="import_item_form_category">Category</label> <select
-							id="import_item_form_category"
-							onChange="applyCategory('import_item_form_category','import_item_form_class',false)"></select>
-					</div>
-					<div class="pure-control-group">
-						<label for="import_item_form_class">Class</label> <select
-							id="import_item_form_class"></select>
-					</div>
-				</td>
-				<td>
-					<div class="pure-control-group">
-						<label for="import_item_form_name">Name</label> <input type="text"
-							id="import_item_form_name" />
-					</div>
-					<div class="pure-control-group">
-						<button type="button" onClick="onImportItemFormSearchClick()">
-							<img style="height: 14px" src="images/65.png" /> search
-						</button>
-					</div>
-				</td>
-			</tr>
+<body>
+	<form>
+		<fieldset class="form-group border-bottom">
+			<div class="form-group row">
+				<label class="col-sm-2 col-form-label col-form-label-sm"
+					for="import_item_form_category">Category</label>
+				<div class="col-10">
+					<select class="form-control form-control-sm" id="import_item_form_category"
+						onChange="applyCategory('import_item_form_category','import_item_form_class',false)"></select>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label class="col-sm-2 col-form-label col-form-label-sm" for="import_item_form_class">Class</label>
+				<div class="col-10">
+					<select class="form-control form-control-sm" id="import_item_form_class"></select>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label class="col-sm-2 col-form-label col-form-label-sm" for="import_item_form_name">Name</label>
+				<div class="col-10">
+					<input type="text" class="form-control form-control-sm" id="import_item_form_name" />
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-10">
+					<button type="button" class="btn btn-primary btn-sm" onClick="onImportItemFormSearchClick()">
+						<img style="height: 14px" src="images/65.png" /> search
+					</button>
+				</div>
+			</div>
+		</fieldset>
+		<table style="width: 100%" class="display compact" id="import_item_form_result">
+			<thead style="width: 100%">
+				<tr>
+					<td>&Eacute;l&eacute;ment</td>
+					<td>Classe</td>
+					<td>Cat&eacute;gorie</td>
+					<td>Action</td>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
 		</table>
-	</fieldset>
-	<table style="width: 100%" id="import_item_form_result">
-		<thead style="width: 100%">
-			<tr>
-				<td>&Eacute;l&eacute;ment</td>
-				<td>Classe</td>
-				<td>Cat&eacute;gorie</td>
-				<td>Action</td>
-			</tr>
-		</thead>
-		<tbody>
-		</tbody>
-	</table>
-</form>
-<script>
+	</form>
+	<script>
 var datatableItems = null;
 function applyCategory(categoryList,classList,create){
 	var categoryName = $("#"+categoryList).val();
@@ -86,7 +86,10 @@ function applyCategory(categoryList,classList,create){
 }
 function onImportItemFormSearchClick(){
 	if (datatableItems == null){
-		datatableItems = $("#import_item_form_result").dataTable();
+		datatableItems = $("#import_item_form_result").dataTable({
+			  "searching": false,
+			  "lengthChange": false
+		});
 	}
 	var url = "api/element.php";
 	var selectClass = $("#import_item_form_class").val();
@@ -112,12 +115,10 @@ function onImportItemFormSearchClick(){
 				}
 			}
 			var row = new Array();
-			row.push(element.name);
+			row.push("<a href='#' onClick='event.preventDefault();openItem({id:\""+element.id+"\", name : \""+element.name+"\"});$(\"#popup\").panel().close()'>"+element.name+"</a>");
 			row.push(element.class.name);
 			row.push(element.category.name);
-			var label = "<button onClick='event.preventDefault();onImportItemFormAddClick(\""+element.id+"\");'>Add</button>";
-			label 	 += "<button onClick='event.preventDefault();openItem({id:\""+element.id+"\", name : \""+element.name+"\"});$(\"#popup\").panel().close()'>Open</button>";
-			label    += "<button onClick='event.preventDefault();deleteItem(\""+element.id+"\");'>Delete</button>";
+			var label = "<button class='btn btn-primary btn-sm' onClick='event.preventDefault();onImportItemFormAddClick(\""+element.id+"\");'>Add</button>";
 			row.push(label);
 			data.push(row);
 		}
