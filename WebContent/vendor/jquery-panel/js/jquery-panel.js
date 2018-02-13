@@ -243,17 +243,17 @@ $(function () {
 						var buttonName = option.buttons[i];
 						if (buttonName == "reload") {
 							if (typeof option.url !== "undefined"){
-								buttons.append($('<a href="#" style="margin-right:5px;color:black" 	onClick="$._panelFrame.getPanel('+target.panelId+').reload()"><img src="images/42a.png"></img></a>'));
+								buttons.append($('<a href="#" style="margin-right:5px;color:black" 	title="Reload content" onClick="$._panelFrame.getPanel('+target.panelId+').reload()"><img src="images/42a.png"></img></a>'));
 							}
 						} else if (buttonName == "maximize") {
-							target._maximize = $('<a href="#" style="margin-right:5px;color:black" 	onClick="$._panelFrame.getPanel('+target.panelId+').state(\'maximized\')"><img src="images/64.png"></img></a>');
+							target._maximize = $('<a href="#" style="margin-right:5px;color:black" 	title="Maximize panel" onClick="$._panelFrame.getPanel('+target.panelId+').state(\'maximized\')"><img src="images/64.png"></img></a>');
 							buttons.append(target._maximize);
 						} else if (buttonName == "normal") {
-							target._normalize = $('<a href="#" style="margin-right:5px;color:black" onClick="$._panelFrame.getPanel('+target.panelId+').state(\'normal\')"><img src="images/14.png"></img></a>');
+							target._normalize = $('<a href="#" style="margin-right:5px;color:black"	title="Set normal state" onClick="$._panelFrame.getPanel('+target.panelId+').state(\'normal\')"><img src="images/14.png"></img></a>');
 							target._normalize.hide();
 							buttons.append(target._normalize);
 						} else if (buttonName == "close") {
-							buttons.append($('<a href="#" style="margin-right:5px;color:black"	onClick="$._panelFrame.getPanel('+target.panelId+').close()"><img src="images/33.png"></img></a>'));
+							buttons.append($('<a href="#" style="margin-right:5px;color:black"	title="Close panel" onClick="$._panelFrame.getPanel('+target.panelId+').close()"><img src="images/33.png"></img></a>'));
 						} else {
 							buttons.append($('<a href="#" style="margin-right:5px;color:black"	onClick="">Unsupported button name : '+buttonName+'</a>'));
 						}
