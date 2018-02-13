@@ -1,0 +1,45 @@
+<html>
+<body>
+<form>
+<fieldset class="form-group">
+    <legend>Item fields</legend>
+	<div class="form-group row">
+		<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemName">Name</label>
+		<div class="col-10">
+			<input class="form-control form-control-sm" type="text" id="viewItemName"/>
+		</div>
+	</div>
+	<div class="form-group row">
+		<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemCategory">Category</label>
+		<div class="col-10">
+			<input class="form-control form-control-sm" type="text" id="viewItemCategory"/>
+		</div>
+	</div>
+	<div class="form-group row">
+		<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemClass">Class</label>
+		<div class="col-10">
+			<input class="form-control form-control-sm" type="text" id="viewItemClass"/>
+		</div>
+	</div>
+</fieldset>
+<hr/>
+<button class="btn btn-primary" type="button" nnnonclick='deleteItem(currentItem.id);' id="viewItemDeleteButton"><img src='images/92.png'/> update</button>
+<button class="btn btn-danger" type="button" onclick='deleteItem(currentItem.id);' id="viewItemDeleteButton"><img src='images/14.png'/> delete</button>
+</form>
+<script>
+	$(function(){
+		if (currentItem == null){
+			$("#viewItemName").val();
+			$("#viewItemCategory").val();
+			$("#viewItemClass").val();
+			$("#viewItemDeleteButton").prop("disabled",true);
+		} else {
+			$("#viewItemName").val(currentItem.name);
+			$("#viewItemCategory").val(currentItem.category.name);
+			$("#viewItemClass").val(currentItem.class.name);
+			$("#viewItemDeleteButton").prop("disabled",false);
+		}
+	});
+</script>
+</body>
+</html>
