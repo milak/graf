@@ -17,13 +17,40 @@ html {
 	height: 100%;
 	overflow: hidden;
 }
+/** Styles liés à typeAHead */
+.tt-menu {
+  //width: 80px;
+  margin: 5px 0;
+  padding: 8px 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  -webkit-border-radius: 4px;
+     -moz-border-radius: 4px;
+          border-radius: 4px;
+  -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+     -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+          box-shadow: 0 5px 10px rgba(0,0,0,.2);
+}
+.tt-suggestion {
+  padding: 3px 20px;
+}
+.tt-suggestion:hover {
+  cursor: pointer;
+  color: #fff;
+  background-color: #0097cf;
+}
+.tt-suggestion.tt-cursor {
+  color: #fff;
+  background-color: #0097cf;
+}
 </style>
 </head>
-<body oncontextmenu="event.preventDefault()">
+<body oncontextmenu="event.preventDefault()" onresize="applyItem(currentItem)">
 	<header>
 		<!-- Fixed navbar -->
 		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-			<a class="navbar-brand" href="#" onClick="applyItemId(null,null)"
+			<a class="navbar-brand" href="#" onClick="home()"
 				title="Graphic Rendering Architecture Framework">GRAF</a>
 			<button class="navbar-toggler" type="button" data-toggle="collapse"
 				data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false"
@@ -34,7 +61,7 @@ html {
 				<ul class="navbar-nav mr-auto">
 					<li class="nav-item active"><a class="nav-link" href="#" onClick="back()">Back <span
 							class="sr-only">(current)</span></a></li>
-					<li class="nav-item"><a class="nav-link" href="#" onClick="addView('searchItem')">Search
+					<li class="nav-item"><a class="nav-link" href="#" onClick="searchItem()">Search
 							an item</a></li>
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle"
 						href="http://example.com" id="menuCurrentItem" data-toggle="dropdown"
@@ -43,22 +70,17 @@ html {
 							<a class="dropdown-item disabled" href="#" id="menuDeleteItem" onClick="deleteItem()" disabled="true">Delete</a>
 						</div></li>
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle"
-						href="http://example.com" id="dropdown01" data-toggle="dropdown"
+						href="http://example.com" id="menuView" data-toggle="dropdown"
 						aria-haspopup="true" aria-expanded="false">Views</a>
-						<div class="dropdown-menu" aria-labelledby="dropdown01">
-							<a class="dropdown-item" href="#" onClick="addView('strategic')">Strategic</a> <a
-								class="dropdown-item" href="#" onClick="addView('business')">Business</a> <a
-								class="dropdown-item" href="#" onClick="addView('logical')">Logical</a> <a
-								class="dropdown-item" href="#" onClick="addView('technical')">Technical</a> <a
-								class="dropdown-item" href="#" onClick="addView('service')">Service</a> <a
-								class="dropdown-item" href="#" onClick="addView('process')">Process</a>
-						</div></li>
-
+						<div class="dropdown-menu" id="menuViewDropDown" aria-labelledby="menuView">
+						</div>
+					</li>
 				</ul>
 				<form class="form-inline mt-2 mt-md-0">
-					<input class="form-control mr-sm-2" type="text" placeholder="Search"
-						aria-label="Search">
-					<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+				<div>
+					<input class="typeahead form-control mr-sm-2" type="text" id="menuSearchInput" placeholder="Search" aria-label="Search">
+						</div>
+					<!--button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button-->
 				</form>
 			</div>
 		</nav>
@@ -71,7 +93,7 @@ html {
 	<svg id="service" style="width: 100%; height: 100%; display: none"></svg>
 	<svg id="process" style="width: 100%; height: 100%; display: none"></svg>
 	<svg id="technical" style="width: 100%; height: 100%; display: none"></svg>
-	<div id="searchItem" style="width: 100%; height: 100%; display: none"></div>
+	<div id="viewItem" style="width: 100%; height: 100%; display: none"></div>
 	<div id="popup" style="display: none"></div>
 	<!-- ========================================================== -->
 	<!-- Placed at the end of the document so the pages load faster -->
@@ -79,33 +101,103 @@ html {
 	<script type="text/javascript" src="vendor/jquery/ui/1.12.1/jquery-ui.js"></script>
 	<script type="text/javascript" src="vendor/svgtool/svg-pan-zoom.js"></script>
 	<script type="text/javascript" src="vendor/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="vendor/jquery/typeahead/typeahead.jquery.min.js"></script>
+	<script type="text/javascript" src="vendor/jquery/typeahead/handlebars.js"></script>
 	<script type="text/javascript" src="vendor/jquery-panel/js/jquery-panel.js"></script>
 	<script type="text/javascript" src="vendor/graf/util.js"></script>
 	<script type="text/javascript">
+		$('input.typeahead').typeahead({
+				minLength: 3,
+			  	highlight: true
+			},{
+			source : function (query, syncResults, asyncResults){
+				return $.get('api/element.php', { name: query }, function (data) {
+		        	var elements = data.elements;
+		        	var result = new Array();
+		        	for(var i = 0; i < elements.length; i++){
+		        		result.push({category : elements[i].category.name, id : elements[i].id, name : elements[i].name});
+		        	}
+		        	asyncResults(result);
+		        });
+			},
+			display : Handlebars.compile(''),
+			templates: {
+				//header : "Items found",
+			    /*empty: [
+			      '<div class="empty-message">',
+			        'unable to find any item that match the current query',
+			      '</div>'
+			    ].join('\n'),*/
+			    suggestion: Handlebars.compile('<div><strong>{{category}}</strong> – {{name}}</div>')
+			}
+		}).bind('typeahead:select', function(ev, suggestion) {
+			  openItem(suggestion);
+		});
+		function menuSearchTyping(){
+        	var menuSearchInput = $("#menuSearchInput").val();
+        	if (menuSearchInput.length > 3){
+            	// TODO chercher pour de vrai sur le nom et non sur l'id
+        		$.getJSON( "api/element.php?name="+menuSearchInput, function(result) {
+            		if (result.elements.length > 0){
+            			var elements = "";
+            			var html = "";
+            			for (var i = 0; i < result.elements; i++){
+                			var element = result.elements[i];
+            				html += "<a class='dropdown-item' href='#' onClick='openItem({id:\""+element.id+"\"})'>"+element.name+"</a>";
+            			}
+            			
+            		}
+        			
+        		});
+        	}
+    	}
     	var viewDescription = new Array();
-    	viewDescription['strategic'] 	= { url : 'views/view_strategique.php', class : 'panel-purple', static : true, 	title : "Vue stratégique"};
-    	viewDescription['business'] 	= { url : 'views/view_business.php', 	class : 'panel-purple', static : false, title : "Vue métier"};
-    	viewDescription['logical'] 		= { url : 'views/view_logique.php', 	class : 'panel-purple', static : false, title : "Vue logique"};
-    	viewDescription['service'] 		= { url : 'views/view_process.php', 	class : 'panel-purple', static : false, title : "Vue service"};
-    	viewDescription['process'] 		= { url : 'views/view_process.php', 	class : 'panel-purple', static : false, title : "Vue processus"};
-    	viewDescription['technical']	= { url : 'views/view_technique.php', 	class : 'panel-purple', static : false, title : "Vue technique"};
-    	viewDescription['searchItem'] 	= { url : 'forms/searchItem.html', 		class : 'panel-green', 	static : true,	title : "Chercher un élément"};
+    	viewDescription['strategic'] 	= { url : 'views/view_strategique.php', class : 'panel-purple', static : true,	svg : true, 	title : "Strategical view"};
+    	viewDescription['business'] 	= { url : 'views/view_business.php', 	class : 'panel-purple', static : false, svg : true, 	title : "Business view"};
+    	viewDescription['logical'] 		= { url : 'views/view_logique.php', 	class : 'panel-purple', static : false, svg : true, 	title : "Logical view"};
+    	viewDescription['service'] 		= { url : 'views/view_service.php', 	class : 'panel-purple', static : false, svg : true, 	title : "Service view"};
+    	viewDescription['process'] 		= { url : 'views/view_process.php', 	class : 'panel-purple', static : false, svg : true, 	title : "Process view"};
+    	viewDescription['technical']	= { url : 'views/view_technique.php', 	class : 'panel-purple', static : false, svg : true, 	title : "Technical view"};
+    	viewDescription['viewItem']		= { url : 'forms/viewItem.html', 		class : 'panel-purple', static : false, svg : false, 	title : "Detail"};
+    	
     	var views = new Array();
     	function addView(viewName){
         	var viewPanel;
         	var description = viewDescription[viewName];
            	if (description != null){
 				var panel = {
-					title : description.title,
+					title 	: description.title,
             		class 	: description.class,
         			done	: function(){
-        				try{
-            				this.svgPanZoom.destroy();
-            			}catch(exception){}
-            			try{
-        					this.svgPanZoom.destroy();
-            			}catch(exception){}
-            			try{
+        				if (this.viewDescription.svg) {
+	        				try{
+	            				this.svgPanZoom.destroy();
+	            			}catch(exception){}
+	            			try{
+	        					this.svgPanZoom.destroy();
+	            			}catch(exception){}
+	            			try{
+		        				this.svgPanZoom = svgPanZoom("#"+viewName, {
+		        				    zoomEnabled				: true,
+		        				    dblClickZoomEnabled		: false,
+		        				    controlIconsEnabled		: true,
+		        				    fit						: true,
+		        				    center					: false,
+		        				    minZoom					: 0.1,
+		        				    zoomScaleSensitivity 	: 0.3
+		        				});
+	            			}catch(exception){}
+        				}
+        			},
+        			update	: function(){
+            			if (this.viewDescription.svg) {
+	            			try{
+	            				this.svgPanZoom.destroy();
+	            			}catch(exception){}
+	            			try{
+	        					this.svgPanZoom.destroy();
+	            			}catch(exception){}
+	            			try{
 	        				this.svgPanZoom = svgPanZoom("#"+viewName, {
 	        				    zoomEnabled				: true,
 	        				    dblClickZoomEnabled		: false,
@@ -115,31 +207,13 @@ html {
 	        				    minZoom					: 0.1,
 	        				    zoomScaleSensitivity 	: 0.3
 	        				});
-            			}catch(exception){}
-        			},
-        			update	: function(){
-            			try{
-            				this.svgPanZoom.destroy();
-            			}catch(exception){}
-            			try{
-        					this.svgPanZoom.destroy();
-            			}catch(exception){}
-            			try{
-        				this.svgPanZoom = svgPanZoom("#"+viewName, {
-        				    zoomEnabled				: true,
-        				    dblClickZoomEnabled		: false,
-        				    controlIconsEnabled		: true,
-        				    fit						: true,
-        				    center					: false,
-        				    minZoom					: 0.1,
-        				    zoomScaleSensitivity 	: 0.3
-        				});
-            			}catch(exception){
-                			//console.log(exception);
-                		}
+	            			}catch(exception){
+	                			//console.log(exception);
+	                		}
+            			}
         			},
         			close  : function(){
-            			// retirer la vue
+        				// retirer la vue
             			var index = -1;
             			for(var i = 0; i < views.length; i++){
                         	var view = views[i];
@@ -170,45 +244,52 @@ html {
             	alert("Vue non supportée " + view);
         	}
     	}
+    	
     	var itemsList = new Array();
     	var currentItem = null;
+    	function home(){
+    		currentItem = null;
+    		itemsList = new Array();
+    		applyItem(null);
+    	}
     	function back(){
         	if (itemsList.length > 0){
         		currentItem = itemsList.pop();
-        		applyItemId(currentItem);
+        		applyItem(currentItem);
         	} else {
         		currentItem = null;
-        		applyItemId(null);
+        		applyItem(null);
         	}
     	}
-    	function deleteItem(){
-        	if (currentItem != null){
-        		alert("Ah ah tu y as cru ?");
-        	}
-    	}
-    	function applyItemId(item){
+    	function applyItem(item){
         	if (item != null){
         		$.getJSON( "api/element.php?id="+item.id, function(result) {
         			var element = result.elements[0];
+        			currentItem = element;
         			$("#menuCurrentItem").html(element.category.name+" - "+element.name);
         			//$("#menuDeleteItem").prop( "disabled", false);
         			$("#menuDeleteItem").attr('class', "dropdown-item");
+
+        			for (var i = 0; i < views.length; i++){
+                    	var view = views[i];
+                    	//if (!view.viewDescription.static){
+                   			view.reload(view.viewDescription.url+"?id="+item.id);
+                    	//}
+                	}
+        			
         		});
         	} else {
         		$("#menuCurrentItem").html("Choose an item");
         		//$("#menuDeleteItem").prop( "disabled", true );
         		$("#menuDeleteItem").attr('class', "dropdown-item disabled");
-        	}
-    		for (var i = 0; i < views.length; i++){
-            	var view = views[i];
-            	if (!view.viewDescription.static){
-                	if (item != null){
-            			view.reload(view.viewDescription.url+"?id="+item.id);
-                	} else {
-                		view.reload(null);
+        		for (var i = 0; i < views.length; i++){
+                	var view = views[i];
+                	if (!view.viewDescription.static){
+                   		view.reload(null);
                 	}
             	}
         	}
+    		
     	}
     	function showContextMenu(what,id){
 	    	$.getJSON( "api/element.php?id="+id, function(result) {
@@ -224,18 +305,33 @@ html {
 				showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
 			});
     	}
+    	function searchItem(){
+        	$("#popup").panel({
+            	url : 'forms/searchItem.html?14',
+            	class : 'panel-green',
+            	title : "Search an item",
+            	buttons : ["close"]
+            }).state("maximized");
+    	}
+    	function openItem(item){
+    		if (currentItem != null){
+    			itemsList.push(currentItem);
+        	}
+    		currentItem = item;
+    		applyItem(item);
+    	}
     	function svgElementClicked(what,id,button){
         	if (button == 0){ // Left button
-            	if (currentItem != null){
-        			itemsList.push(currentItem);
-            	}
-        		currentItem = {id : id, category : what};
-        		applyItemId(currentItem);
+        		openItem({id : id, category : what});
         	} else { // Right button
         		showContextMenu(what,id);
         	}
     	}
     	$(function() {
+    		var menuViewDropDown = $("#menuViewDropDown");
+    		Object.keys(viewDescription).forEach(function (index) {
+        		menuViewDropDown.append($("<a class='dropdown-item' href='#' onClick='addView(\""+index+"\")'>"+viewDescription[index].title+"</a>"));
+        	});
         	$("#main").panelFrame();
     	});
     </script>
