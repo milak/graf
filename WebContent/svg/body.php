@@ -388,6 +388,12 @@ function _drawElement($element){
     if (isset($element->display->dashed)){
         $style     = "style='stroke-dasharray:5,5'";
     }
+    if (isset($element->display->blured)){
+    	$style     = "style='stroke-dasharray:1,2'";
+    }
+    if (isset($element->display->selected)){
+    	$style     = "style='stroke:blue;stroke-width:10'";
+    }
     echo <<<SVG
     <use id     		= 'element_$element->id'
         href      		= '#$class'
@@ -426,8 +432,12 @@ function _drawElementAsRect($element){
     $filter = '';
     if (isset($element->display->dashed)){
         $style     = "style='stroke-dasharray:5,5'";
-    } else if (isset($element->display->blured)){
+    }
+    if (isset($element->display->blured)){
         $style     = "style='stroke-dasharray:1,2'";
+    }
+    if (isset($element->display->selected)){
+    	$style     = "style='stroke:blue;stroke-width:10'";
     }
 	echo <<<SVG
 	<rect  x='$element->x' y='$element->y' width='$element->width' height='$element->height' 
