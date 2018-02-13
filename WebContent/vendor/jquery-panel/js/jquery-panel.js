@@ -314,15 +314,23 @@ $(function () {
 				    		$._panelFrame._maximized = this;
 				    		$._panelFrame.update();
 				    		target._state = "maximized";
-				    		target._normalize.show();
-				    		target._maximize.hide();
+				    		if (typeof target._normalize !== "undefined"){
+				    			target._normalize.show();
+				    		}
+				    		if (typeof target._maximize !== "undefined"){
+				    			target._maximize.hide();
+				    		}
 				    	}
 			    	} else if (this._state == "maximized"){
 			    		$._panelFrame._maximized = null;
 			    		target._state = "normal";
 			    		$._panelFrame.update();
-			    		target._normalize.hide();
-			    		target._maximize.show();
+			    		if (typeof target._normalize !== "undefined"){
+			    			target._normalize.hide();
+			    		}
+			    		if (typeof target._maximize !== "undefined"){
+			    			target._maximize.show();
+			    		}
 			    	} else {
 			    		throw new Exception("Unsupported state " + state);
 			    	}
@@ -336,7 +344,6 @@ $(function () {
 		    	if (typeof this.url === "undefined"){
 		    		return;
 		    	}
-		    	
 		    	if (this.url == null){
 		    		this.html("");
 		    		return;
