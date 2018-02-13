@@ -46,11 +46,11 @@ require ("dao/dao.php");
 			</div>
 		</div>
 		<div class="menu" onclick="displayStrategic(null)">Vue strat&eacute;gique</div>
-		<div class="menu" onclick="displayBusiness(null)">Vue métier</div>
-		<div class="menu" onclick="displaySolution(null)">Vue logique</div>
-		<div class="menu" onclick="displayService(null)">Vue service</div>
-		<div class="menu" onclick="displayProcess(null)">Vue processus</div>
-		<div class="menu" onclick="displayTechnic(null)">Vue technique</div>
+		<div class="menu" onclick="displayBusiness(null)">Business view</div>
+		<div class="menu" onclick="displaySolution(null)">Logical view</div>
+		<div class="menu" onclick="displayService(null)">Service view</div>
+		<div class="menu" onclick="displayProcess(null)">Process view</div>
+		<div class="menu" onclick="displayTechnic(null)">Technical view</div>
 		<div class="menu" onclick="displayViews(null)">Gestion des vues</div>
 	</div>
 	<div style="width: 90%; height: 100%; float: right">
