@@ -585,9 +585,9 @@ class ITopDao implements IDAO {
     		$whereFilter = " WHERE name LIKE '%".$name."%'";
     	}
     	if ($class != "*") {
-    		$classCategory = $this->getItemCategoryByClass($className);
+    		$classCategory = $this->getItemCategoryByClass($class);
 	    	if ($category == "*"){ // et pas de catégorie, on la récupère
-	    		$category = $classCategory;
+	    		$category = $classCategory->name;
     		} else {
     			// pas la peine de chercher les résultats 
     			if ($category != $classCategory) {
@@ -595,6 +595,7 @@ class ITopDao implements IDAO {
     			}
     		}
     	}
+    	error_log("query $category $class $name $id");
         if (($category == 'actor') || ($category == '*')){
         	$response = $this->getObjects('Team','id, name',"WHERE org_name = '$this->organisation'".$andFilter); // NB : org_name n'est pas standard, d'habitude c'est organization_name)
             foreach ($response->objects as $object){
@@ -627,7 +628,7 @@ class ITopDao implements IDAO {
         }
         if (($category == 'software') || ($category == '*')){
         	if ($class != '*'){
-        		$response = $this->getObjects($class,'id, name, version',$whereFilter);
+        		$response = $this->getObjects($class,'id, name',$whereFilter);
         	} else {
         		$response = $this->getObjects('Software','id, name, version',$whereFilter);
         	}
