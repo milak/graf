@@ -46,7 +46,17 @@ foreach ($items as $item){
 		"id"    	: "<?php echo $item->id; ?>",
 		"name" 		: "<?php echo $item->name; ?>",
 		"class" 	: { "id" : "<?php echo $item->class->id; ?>", "name" : "<?php echo $item->class->name; ?>"},
-		"category" 	: { "id" : "<?php echo $item->category->id; ?>", "name" : "<?php echo $item->category->name; ?>"}
+		"category" 	: { "id" : "<?php echo $item->category->id; ?>", "name" : "<?php echo $item->category->name; ?>"},
+		"properties": [<?php
+			$firstProperty = true;
+			foreach ($item->properties as $key => $property){
+				if ($firstProperty != true) {
+					echo ",\n";
+				}
+				echo '{"key": "'.$key.'", "value" : "'.$property.'"}';
+				$firstProperty = false;
+			}
+		?>]
 	}<?php
 	$first = false;
 }?>

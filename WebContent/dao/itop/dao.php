@@ -595,17 +595,16 @@ class ITopDao implements IDAO {
     			}
     		}
     	}
-    	error_log("query $category $class $name $id");
-        if (($category == 'actor') || ($category == '*')){
+    	if (($category == 'actor') || ($category == '*')){
         	$response = $this->getObjects('Team','id, name',"WHERE org_name = '$this->organisation'".$andFilter); // NB : org_name n'est pas standard, d'habitude c'est organization_name)
             foreach ($response->objects as $object){
-                $result[]   = $this->_newItem($object->fields->id, $object->fields->name, "Team");
+                $result[]   = $this->_newItem($object->fields->id, $object->fields->name, 'Team');
             }
         }
         if (($category == 'domain') || ($category == '*')){
         	$response = $this->getObjects("Group", 'id, name, friendlyname, description','WHERE type="BusinessDomain"'.$andFilter);
             foreach ($response->objects as $object){
-                $item = $this->_newItem($object->fields->id, $object->fields->name, "Group");
+            	$item = $this->_newItem($object->fields->id, $object->fields->name, 'Group', ['area_id'=>$object->fields->description]);
                 $item->area_id   = $object->fields->description;
                 $result[] = $item;
             }
@@ -633,10 +632,16 @@ class ITopDao implements IDAO {
         		$response = $this->getObjects('Software','id, name, version',$whereFilter);
         	}
         	foreach ($response->objects as $object){
-        		$result[]   = $this->_newItem($object->key, $object->fields->name.' '.$object->fields->version, $object->class);
+        		$result[]   = $this->_newItem($object->key, $object->fields->name, $object->class,['version' => $object->fields->version]);
         	}
         }
-        if (($category != 'actor') && ($category != 'data') && ($category != 'domain') && ($category != 'service') && ($category != 'software')){
+        if (($category == 'location') || ($category == '*')){
+        	$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation'".$andFilter);
+        	foreach ($response->objects as $object){
+        		$result[]   = $this->_newItem($object->fields->id, $object->fields->name, $object->class,['city' => $object->fields->city,'country' => $object->fields->country]);
+        	}
+        }
+        if (($category != 'actor') && ($category != 'data') && ($category != 'domain') && ($category != 'service') && ($category != 'software') && ($category != 'location')){
         	if ($class != '*'){
         		$response = $this->getObjects($class,'id, name, description',"WHERE organization_name = '$this->organisation'".$andFilter);
         	} else {
@@ -644,7 +649,7 @@ class ITopDao implements IDAO {
         	}
             
             foreach ($response->objects as $object){
-                $item = $this->_newItem($object->fields->id, $object->fields->name, $object->class, $object->fields->description);
+                $item = $this->_newItem($object->fields->id, $object->fields->name, $object->class, ['description' => $object->fields->description]);
                 if ($item->class->name == "DatabaseSchema"){
                     continue;
                 }
@@ -963,6 +968,7 @@ class ITopDao implements IDAO {
         $this->ITOP_CATEGORIES["data"]     = $this->_newItemCategory("data");
         $this->ITOP_CATEGORIES["device"]   = $this->_newItemCategory("device");
         $this->ITOP_CATEGORIES["domain"]   = $this->_newItemCategory("domain");
+        $this->ITOP_CATEGORIES["location"] = $this->_newItemCategory("location");
         $this->ITOP_CATEGORIES["process"]  = $this->_newItemCategory("process");
         $this->ITOP_CATEGORIES["server"]   = $this->_newItemCategory("server");
         $this->ITOP_CATEGORIES["service"]  = $this->_newItemCategory("service");
@@ -974,7 +980,7 @@ class ITopDao implements IDAO {
         $this->_addItemClass("DatabaseSchema",     true,    $this->ITOP_CATEGORIES["data"]);    // Probleme 'dbserver_id'
         $this->_addItemClass("Data",               false,   $this->ITOP_CATEGORIES["data"]);
         
-        $this->_addItemClass("Group",              false,   $this->ITOP_CATEGORIES["domain"]);
+        $this->_addItemClass("Group",              false,   $this->ITOP_CATEGORIES["domain"],[(object)['name'=>'area_id','type'=>'string','mandatory'=>true]]);
         
         $this->_addItemClass("ConnectableCI",      true,    $this->ITOP_CATEGORIES["device"]);
         $this->_addItemClass("DatacenterDevice",   true,    $this->ITOP_CATEGORIES["device"]);
@@ -997,6 +1003,8 @@ class ITopDao implements IDAO {
         $this->_addItemClass("Tablet",             false,   $this->ITOP_CATEGORIES["device"]);
         $this->_addItemClass("TapeLibrary",        false,   $this->ITOP_CATEGORIES["device"]);
         $this->_addItemClass("TelephonyCI",        true,    $this->ITOP_CATEGORIES["device"]);
+        
+        $this->_addItemClass("Location",    	   false,   $this->ITOP_CATEGORIES["location"]);
         
         $this->_addItemClass("BusinessProcess",    false,   $this->ITOP_CATEGORIES["process"]);
         
@@ -1023,12 +1031,13 @@ class ITopDao implements IDAO {
         
         $this->_addItemClass("ApplicationSolution",false,   $this->ITOP_CATEGORIES["solution"]);
     }
-    private function _addItemClass($className,$abstract,$category){
+    private function _addItemClass($className,$abstract,$category,$properties=[]){
         $class = new stdClass();
         $class->id          = $className;
         $class->name        = $className;
         $class->category    = $category;
         $class->abstract    = $abstract;
+        $class->properties	= $properties;
         $category->classes[] = $class;
         $this->ITOP_CLASSES[$className] = $class;
     }
@@ -1039,7 +1048,7 @@ class ITopDao implements IDAO {
         $category->classes = array();
         return $category;
     }
-    private function _newItem($id,$name,$className,$description = ''){
+    private function _newItem($id,$name,$className,$properties){
         $result = new stdClass();
         /*if ($className == 'DatabaseSchema') {
             $className = 'Data';
@@ -1060,13 +1069,18 @@ class ITopDao implements IDAO {
                 break;
             }
         }*/
-        $category = $this->getItemCategoryByClass($className);
-        $result->id    = $category->name."_".$id;
-        $result->name  = $name;
-        $result->class = new stdClass();
-        $result->class->id = 1;
-        $result->class->name = $className;
-        $result->category = $category;
+        $category 				= $this->getItemCategoryByClass($className);
+        $result->id    			= $category->name."_".$id;
+        $result->name  			= $name;
+        $result->class 			= new stdClass();
+        $result->class->id 		= 1;
+        $result->class->name 	= $className;
+        $result->category 		= $category;
+        if (isset($properties)){
+        	$result->properties 	= $properties;
+        } else {
+        	$result->properties 	= array();
+        }
         return $result;
     }
     private function _splitItemId($itemId){

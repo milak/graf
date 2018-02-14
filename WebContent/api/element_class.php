@@ -25,9 +25,22 @@ foreach($categories as $category){
                 	{
                 		"id" : "<?php echo $class->id; ?>",
 						"name" : "<?php echo $class->name; ?>",
-						"abstract"	: "<?php echo ($class->abstract?"true":"false"); ?>"
-                	}
-                <?php
+						"abstract"	: "<?php echo ($class->abstract?"true":"false"); ?>",
+						"properties" : [<?php
+							$firstProperty = true;
+							foreach ($class->properties as $property){
+								if (!$firstProperty){
+									echo ",\n";
+								}
+								echo '{';
+								echo '	"name" : "'.$property->name.'",';
+								echo '	"type" : "'.$property->type.'",';
+								echo '	"mandatory" : "'.$property->mandatory.'"';
+								echo '}';
+								$firstProperty = false;
+							}
+						?>]
+                	}<?php
                 $firstclass = false;
 			}
 		?>]

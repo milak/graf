@@ -30,7 +30,7 @@ $domains = $dao->getItems((object)['category'=>'domain']);
 $domainsByName = array();
 // Charger tous les noeuds dans leur zone respective
 foreach($domains as $domain){
-    $areaid = $domain->area_id;
+	$areaid = $domain->properties['area_id'];
     $domainsByName[$domain->name] = $domain;
     // Si le nom du domaine correspond à une zone, on n'ajoute le domaine que s'il est vide
     if (($areaid == $domain->name) && (isset($areas[$areaid]))){

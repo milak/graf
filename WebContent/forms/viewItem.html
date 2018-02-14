@@ -1,43 +1,103 @@
 <html>
 <body>
-<form>
-<fieldset class="form-group">
-    <legend>Item fields</legend>
-	<div class="form-group row">
-		<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemName">Name</label>
-		<div class="col-10">
-			<input class="form-control form-control-sm" type="text" id="viewItemName"/>
+	<form>
+		<ul class="nav nav-pills mb-3" id="myTab" role="tablist">
+			<li class="nav-item">
+				<a class="nav-link active" 	id="detail-tab" 		data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true">Detail</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" 		id="description-tab" 	data-toggle="tab" href="#description" role="tab" aria-controls="description" aria-selected="false">Description</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" 		id="contact-tab" 		data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
+			</li>
+		</ul>
+		<div class="tab-content" id="myTabContent">
+			<div class="tab-pane fade show active" id="detail" role="tabpanel"
+				aria-labelledby="detail-tab">
+				<fieldset class="form-group">
+					<legend>Item fields</legend>
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemId">Name</label>
+						<div class="col-10">
+							<input class="form-control form-control-sm" type="text" id="viewItemId" />
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemName">Name</label>
+						<div class="col-10">
+							<input class="form-control form-control-sm" type="text" id="viewItemName" />
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemCategory">Category</label>
+						<div class="col-10">
+							<input class="form-control form-control-sm" type="text" id="viewItemCategory" />
+						</div>
+					</div>
+					<div class="form-group row">
+						<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemClass">Class</label>
+						<div class="col-10">
+							<input class="form-control form-control-sm" type="text" id="viewItemClass" />
+						</div>
+					</div>
+					<div class="table-responsive">
+						<table class="table table-bordered table-hover table-sm">
+							<thead>
+								<tr>
+									<th>Key</th>
+									<th>Value</th>
+								</tr>
+							</thead>
+							<tbody id="viewItemProperties"></tbody>
+						</table>
+					</div>
+				</fieldset>
+			</div>
+			<div class="tab-pane fade" id="description" role="tabpanel" aria-labelledby="description-tab">
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemDescription">Description</label>
+					<textarea id="viewItemDescription" class="form-control form-control-sm" rows="" cols="">
+					</textarea>
+				</div>
+			</div>
+			<div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+			</div>
 		</div>
-	</div>
-	<div class="form-group row">
-		<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemCategory">Category</label>
-		<div class="col-10">
-			<input class="form-control form-control-sm" type="text" id="viewItemCategory"/>
-		</div>
-	</div>
-	<div class="form-group row">
-		<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemClass">Class</label>
-		<div class="col-10">
-			<input class="form-control form-control-sm" type="text" id="viewItemClass"/>
-		</div>
-	</div>
-</fieldset>
-<hr/>
-<button class="btn btn-primary btn-sm" type="button" nnnonclick='deleteItem(currentItem.id);' id="viewItemDeleteButton"><img src='images/92.png'/> update</button>
-<button class="btn btn-danger btn-sm" type="button" onclick='deleteItem(currentItem.id);' id="viewItemDeleteButton"><img src='images/14.png'/> delete</button>
-</form>
-<script>
+
+
+		<hr />
+		<button class="btn btn-primary btn-sm" type="button"
+			nnnonclick='deleteItem(currentItem.id);' id="viewItemDeleteButton">
+			<img src='images/92.png' /> update
+		</button>
+		<button class="btn btn-danger btn-sm" type="button"
+			onclick='deleteItem(currentItem.id);' id="viewItemDeleteButton">
+			<img src='images/14.png' /> delete
+		</button>
+	</form>
+	<script>
 	$(function(){
 		if (currentItem == null){
-			$("#viewItemName").val();
-			$("#viewItemCategory").val();
-			$("#viewItemClass").val();
+			$("#viewItemId").val("");
+			$("#viewItemName").val("");
+			$("#viewItemCategory").val("");
+			$("#viewItemClass").val("");
 			$("#viewItemDeleteButton").prop("disabled",true);
+			$("#viewItemProperties").html("");
 		} else {
+			$("#viewItemId").val(currentItem.id);
 			$("#viewItemName").val(currentItem.name);
 			$("#viewItemCategory").val(currentItem.category.name);
 			$("#viewItemClass").val(currentItem.class.name);
 			$("#viewItemDeleteButton").prop("disabled",false);
+			var property;
+			var html = "";
+			for(var i = 0; i < currentItem.properties.length; i++){
+				property = currentItem.properties[i];
+				html += "<tr><td>"+property.key+"</td><td>"+property.value+"</td></tr>";
+			}
+			$("#viewItemProperties").html(html);
 		}
 	});
 </script>
