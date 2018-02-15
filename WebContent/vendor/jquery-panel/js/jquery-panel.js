@@ -270,17 +270,17 @@ $(function () {
 			}
 		    this._panels.push(target);
 		    // Ajout des gestion d'evènements
-			if (typeof option.done !== undefined){
+			if (typeof option.done !== "undefined"){
 				target._onDone = option.done;
 			} else {
 				target._onDone = function(){};
 			}
-			if (typeof option.close !== undefined){
+			if (typeof option.close !== "undefined"){
 				target._onClose = option.close;
 			} else {
 				target._onClose = function(){return true;};
 			}
-			if (typeof option.update !== undefined){
+			if (typeof option.update !== "undefined"){
 				target._onUpdate = option.update;
 			} else {
 				target._onUpdate = function(){};
