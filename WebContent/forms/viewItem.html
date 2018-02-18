@@ -1,15 +1,16 @@
 <html>
 <body>
 	<form>
+		<span style="display: none" data-provider="currentItem"
+			onchange="viewItemUpdate(currentItem)" />
 		<ul class="nav nav-pills mb-3" id="myTab" role="tablist">
-			<li class="nav-item">
-				<a class="nav-link active" 	id="detail-tab" 		data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true">Detail</a>
+			<li class="nav-item"><a class="nav-link active" id="detail-tab" data-toggle="tab"
+				href="#detail" role="tab" aria-controls="detail" aria-selected="true">Detail</a></li>
+			<li class="nav-item"><a class="nav-link" id="description-tab" data-toggle="tab"
+				href="#description" role="tab" aria-controls="description" aria-selected="false">Description</a>
 			</li>
-			<li class="nav-item">
-				<a class="nav-link" 		id="description-tab" 	data-toggle="tab" href="#description" role="tab" aria-controls="description" aria-selected="false">Description</a>
-			</li>
-			<li class="nav-item">
-				<a class="nav-link" 		id="contact-tab" 		data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
+			<li class="nav-item"><a class="nav-link" id="relateds-tab" data-toggle="tab"
+				href="#relateds" role="tab" aria-controls="relateds" aria-selected="false">Relateds</a>
 			</li>
 		</ul>
 		<div class="tab-content" id="myTabContent">
@@ -53,44 +54,67 @@
 						</table>
 					</div>
 				</fieldset>
+				<hr />
+				<button class="btn btn-primary btn-sm" type="button" onclick='updateItem();'
+					id="viewItemUpdateButton">
+					<img src='images/92.png' /> update
+				</button>
+				<button class="btn btn-danger btn-sm" type="button"
+					onclick='deleteItem(currentItem.id);' id="viewItemDeleteButton">
+					<img src='images/14.png' /> delete
+				</button>
 			</div>
-			<div class="tab-pane fade" id="description" role="tabpanel" aria-labelledby="description-tab">
+			<div class="tab-pane fade" id="description" role="tabpanel"
+				aria-labelledby="description-tab">
 				<div class="form-group row">
 					<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemDescription">Description</label>
-					<textarea id="viewItemDescription" class="form-control form-control-sm" rows="" cols="">
+					<textarea id="viewItemDescription" class="form-control form-control-sm"
+						style="margin: 15px" rows="" cols="">
 					</textarea>
 				</div>
 			</div>
-			<div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+			<div class="tab-pane fade" id="relateds" role="tabpanel" aria-labelledby="relateds-tab">
+				<table class="table table-bordered table-hover table-sm">
+					<thead>
+						<tr>
+							<th>Category</th>
+							<th>Name</th>
+						</tr>
+					</thead>
+					<tbody id="viewItemRelatedItemsUp"></tbody>
+				</table>
+				<table class="table table-bordered table-hover table-sm">
+					<thead>
+						<tr>
+							<th>Category</th>
+							<th>Name</th>
+						</tr>
+					</thead>
+					<tbody id="viewItemRelatedItemsDown"></tbody>
+				</table>
 			</div>
 		</div>
-
-
-		<hr />
-		<button class="btn btn-primary btn-sm" type="button"
-			nnnonclick='deleteItem(currentItem.id);' id="viewItemDeleteButton">
-			<img src='images/92.png' /> update
-		</button>
-		<button class="btn btn-danger btn-sm" type="button"
-			onclick='deleteItem(currentItem.id);' id="viewItemDeleteButton">
-			<img src='images/14.png' /> delete
-		</button>
 	</form>
 	<script>
-	$(function(){
+	function updateItem(){
+		
+	}
+	function viewItemUpdate(currentItem){
 		if (currentItem == null){
-			$("#viewItemId").val("");
-			$("#viewItemName").val("");
-			$("#viewItemCategory").val("");
-			$("#viewItemClass").val("");
-			$("#viewItemDeleteButton").prop("disabled",true);
-			$("#viewItemProperties").html("");
+			$("#viewItemId").			val("");
+			$("#viewItemName").			val("");
+			$("#viewItemCategory").		val("");
+			$("#viewItemClass").		val("");
+			$("#viewItemDeleteButton").	prop("disabled",true);
+			$("#viewItemProperties").	html("");
+			$("#viewItemRelatedItemsUp").html("");
+			$("#viewItemRelatedItemsDown").html("");
 		} else {
-			$("#viewItemId").val(currentItem.id);
-			$("#viewItemName").val(currentItem.name);
-			$("#viewItemCategory").val(currentItem.category.name);
-			$("#viewItemClass").val(currentItem.class.name);
-			$("#viewItemDeleteButton").prop("disabled",false);
+			$("#viewItemId").			val(currentItem.id);
+			$("#viewItemName").			val(currentItem.name);
+			$("#viewItemCategory").		val(currentItem.category.name);
+			$("#viewItemClass").		val(currentItem.class.name);
+			$("#viewItemDeleteButton").	prop("disabled",false);
 			var property;
 			var html = "";
 			for(var i = 0; i < currentItem.properties.length; i++){
@@ -98,7 +122,32 @@
 				html += "<tr><td>"+property.key+"</td><td>"+property.value+"</td></tr>";
 			}
 			$("#viewItemProperties").html(html);
+			$.getJSON( "api/element.php?id="+currentItem.id+"&direction=up&related_items", function(result) {
+    			var html = "";
+    			var element;
+    			for (var e = 0; e < result.elements.length; e++){
+	    			element = result.elements[e];
+	    			html += "<tr><td>"+element.category.name+"</td><td><a href='#' onclick='openItem({id:\""+element.id+"\"})'>"+element.name+"</a></td></tr>";
+    			}
+    			$("#viewItemRelatedItemsUp").html(html);
+    		}).fail(function(jxqr,textStatus,error){
+				sendMessage("error","Unable to get related items : "+error);
+			});
+			$.getJSON( "api/element.php?id="+currentItem.id+"&direction=down&related_items", function(result) {
+				var html = "";
+				var element;
+    			for (var e = 0; e < result.elements.length; e++){
+	    			element = result.elements[e];
+	    			html += "<tr><td>"+element.category.name+"</td><td><a href='#' onclick='openItem({id:\""+element.id+"\"})'>"+element.name+"</a></td></tr>";
+    			}
+    			$("#viewItemRelatedItemsDown").html(html);
+    		}).fail(function(jxqr,textStatus,error){
+				sendMessage("error","Unable to get related items : "+error);
+			});
 		}
+	}
+	$(function(){
+		viewItemUpdate(currentItem);
 	});
 </script>
 </body>

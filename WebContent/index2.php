@@ -59,22 +59,23 @@ html {
 			</button>
 			<div class="collapse navbar-collapse" id="navbarCollapse">
 				<ul class="navbar-nav mr-auto">
-					<li class="nav-item active"><a class="nav-link" href="#" onClick="back()">Back <span
+					<li class="nav-item active"><a class="nav-link" href="#" onClick="previousItem()">Back <span
 							class="sr-only">(current)</span></a></li>
-					<li class="nav-item"><a class="nav-link" href="#" onClick="searchItem()">Search
-							an item</a></li>
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle"
-						href="http://example.com" id="menuCurrentItem" data-toggle="dropdown"
-						aria-haspopup="true" aria-expanded="false">Choose an item</a>
-						<div class="dropdown-menu" aria-labelledby="menuCurrentItem">
-							<a class="dropdown-item disabled" href="#" id="menuDeleteItem" onClick="deleteItem()" disabled="true">Delete</a>
-						</div></li>
+						href="http://example.com" id="menuItem" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Item</a>
+						<div class="dropdown-menu" aria-labelledby="menuItem">
+							<a class="dropdown-item" href="#" onClick="searchItem()" disabled="true"><img src="images/65.png"/> Search</a>
+							<a class="dropdown-item" href="#" onClick="createItem()" disabled="true"><img src="images/78.png"/> Create</a>
+							<a class="dropdown-item disabled" href="#" id="menuDeleteItem" onClick="deleteItem()" disabled="true"><img src="images/33.png"/> Delete</a>
+						</div>
+					</li>
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle"
 						href="http://example.com" id="menuView" data-toggle="dropdown"
 						aria-haspopup="true" aria-expanded="false">Views</a>
 						<div class="dropdown-menu" id="menuViewDropDown" aria-labelledby="menuView">
 						</div>
 					</li>
+					<li class="nav-item disabled"><a class="nav-link" href="#" id="menuCurrentItem">No item selected</a></li>
 				</ul>
 				<form class="form-inline mt-2 mt-md-0">
 				<div>
@@ -86,7 +87,11 @@ html {
 		</nav>
 	</header>
 	<!-- Begin page content -->
-	<main id="main" style="position:absolute;top:60px;width:100%; bottom:0px;"> </main>
+	<main id="main" style="position:absolute;top:60px;width:100%; bottom:0px;">
+	</main>
+	<div id="alert" class="alert alert-warning" style="position:absolute;display:none;bottom:10px;left:10px;right:10px;vertical-align:center" role="alert">
+  		<span id="alertBadge" class="badge">&nbsp;<img id="alertIcon" alt="" src=""/> <strong id="alertLevel"></strong></span> <span id="alertMessage"></span>
+	</div>
 	<svg id="strategic" style="width: 100%; height: 100%; display: none"></svg>
 	<svg id="business" style="width: 100%; height: 100%; display: none"></svg>
 	<svg id="logical" style="width: 100%; height: 100%; display: none"></svg>
@@ -95,7 +100,9 @@ html {
 	<svg id="technical" style="width: 100%; height: 100%; display: none"></svg>
 	<div id="viewItem" style="width: 100%; height: 100%; display: none"></div>
 	<div id="searchItem" style="display: none"></div>
+	<div id="createItem" style="display: none"></div>
 	<div id="popup" style="display: none"></div>
+	
 	<!-- ========================================================== -->
 	<!-- Placed at the end of the document so the pages load faster -->
 	<script type="text/javascript" src="vendor/jquery/jquery-3.2.1.min.js"></script>
@@ -107,6 +114,7 @@ html {
 	<script type="text/javascript" src="vendor/jquery-panel/js/jquery-panel.js"></script>
 	<script type="text/javascript" src="vendor/graf/util.js"></script>
 	<script type="text/javascript">
+		// Auto completion lors de la recherche
 		$('input.typeahead').typeahead({
 				minLength: 3,
 			  	highlight: true
@@ -116,7 +124,8 @@ html {
 		        	var elements = data.elements;
 		        	var result = new Array();
 		        	for(var i = 0; i < elements.length; i++){
-		        		result.push({category : elements[i].category.name, id : elements[i].id, name : elements[i].name});
+		        		elements[i].categoryName = elements[i].category.name;
+		        		result.push(elements[i]);
 		        	}
 		        	asyncResults(result);
 		        });
@@ -129,38 +138,40 @@ html {
 			        'unable to find any item that match the current query',
 			      '</div>'
 			    ].join('\n'),*/
-			    suggestion: Handlebars.compile('<div><strong>{{category}}</strong> – {{name}}</div>')
+			    suggestion: Handlebars.compile('<div><strong>{{categoryName}}</strong> – {{name}}</div>')
 			}
 		}).bind('typeahead:select', function(ev, suggestion) {
 			  openItem(suggestion);
 		});
-		function menuSearchTyping(){
-        	var menuSearchInput = $("#menuSearchInput").val();
-        	if (menuSearchInput.length > 3){
-            	// TODO chercher pour de vrai sur le nom et non sur l'id
-        		$.getJSON( "api/element.php?name="+menuSearchInput, function(result) {
-            		if (result.elements.length > 0){
-            			var elements = "";
-            			var html = "";
-            			for (var i = 0; i < result.elements; i++){
-                			var element = result.elements[i];
-            				html += "<a class='dropdown-item' href='#' onClick='openItem({id:\""+element.id+"\"})'>"+element.name+"</a>";
-            			}
-            			
-            		}
-        			
-        		});
-        	}
-    	}
+		/**
+		 * Delete currentItem
+		 */
+		function deleteItem(){
+			if (currentItem == null){
+				return;
+			}
+			if (confirm("Do you really want to delete " + currentItem.category.name + " called '" + currentItem.name + "' ?")){
+				$.ajax({
+					type 	: "DELETE",
+					url 	: "api/element.php?id="+currentItem.id,
+					dataType: "text",
+					success	: function(data) {
+						previousItem();
+						sendMessage("success","Item successfully deleted");
+					}
+				}).fail(function(jxqr,textStatus,error){
+					sendMessage("error","Unable to delete current item : "+error);
+				});
+			}
+		}
     	var viewDescription = new Array();
-    	viewDescription['strategic'] 	= { url : 'views/view_strategique.php', class : 'panel-purple', static : true,	svg : true, 	title : "Strategical view"};
-    	viewDescription['business'] 	= { url : 'views/view_business.php', 	class : 'panel-purple', static : false, svg : true, 	title : "Business view"};
-    	viewDescription['logical'] 		= { url : 'views/view_logique.php', 	class : 'panel-purple', static : false, svg : true, 	title : "Logical view"};
-    	viewDescription['service'] 		= { url : 'views/view_service.php', 	class : 'panel-purple', static : false, svg : true, 	title : "Service view"};
-    	viewDescription['process'] 		= { url : 'views/view_process.php', 	class : 'panel-purple', static : false, svg : true, 	title : "Process view"};
-    	viewDescription['technical']	= { url : 'views/view_technique.php', 	class : 'panel-purple', static : false, svg : true, 	title : "Technical view"};
-    	viewDescription['viewItem']		= { url : 'forms/viewItem.html', 		class : 'panel-purple', static : false, svg : false, 	title : "Detail"};
-    	
+    	viewDescription['strategic'] 	= { url : 'views/view_strategique.php', class : 'panel-purple', noItemSupported : true, static : false,	svg : true, 	title : "Strategical view"};
+    	viewDescription['business'] 	= { url : 'views/view_business.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Business view"};
+    	viewDescription['logical'] 		= { url : 'views/view_logique.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Logical view"};
+    	viewDescription['service'] 		= { url : 'views/view_service.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Service view"};
+    	viewDescription['process'] 		= { url : 'views/view_process.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Process view"};
+    	viewDescription['technical']	= { url : 'views/view_technique.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Technical view"};
+    	viewDescription['viewItem']		= { url : 'forms/viewItem.html', 		class : 'panel-purple', noItemSupported : false, static : true,  svg : false, 	title : "Detail"};
     	var views = new Array();
     	function addView(viewName){
         	var viewPanel;
@@ -232,6 +243,8 @@ html {
                	if (!description.static) {
                		if (currentItem != null){
                 	   	panel.url = url + "?id="+currentItem.id;
+               		} else if (description.noItemSupported){
+               			panel.url = url;
                		} else {
                			panel.url = null;
                		}
@@ -245,15 +258,60 @@ html {
             	alert("Vue non supportée " + view);
         	}
     	}
-    	
     	var itemsList = new Array();
     	var currentItem = null;
+    	function sendMessage(level,message){
+        	var wait = 1000;
+        	if (level == "warning"){
+        		$("#alert").attr('class', "alert alert-warning");
+        		$("#alertBadge").attr('class', "badge badge-warning");
+        		$("#alertLevel").text("Warning");
+        		$("#alertIcon").attr("src","images/58.png");
+        		wait = 1800;
+        	} else if (level == "info"){
+        		$("#alert").attr('class', "alert alert-info");
+        		$("#alertBadge").attr('class', "badge badge-info");
+        		$("#alertLevel").text("Info");
+        		$("#alertIcon").attr("src","images/4.png");
+        	} else if (level == "success"){
+        		$("#alert").attr('class', "alert alert-success");
+        		$("#alertBadge").attr('class', "badge badge-success");
+        		$("#alertLevel").text("Success");
+        		$("#alertIcon").attr("src","images/3.png");
+        	} else if ((level == "error") || (level == "danger")){
+        		$("#alert").attr('class', "alert alert-danger");
+        		$("#alertBadge").attr('class', "badge badge-danger");
+        		$("#alertIcon").attr("src","images/89.png");
+        		$("#alertLevel").text("Error");
+        		wait = 2000;
+        	} else if (level == "primary"){
+        		$("#alert").attr('class', "alert alert-primary");
+        		$("#alertBadge").attr('class', "badge badge-primary");
+        		$("#alertLevel").text("Info");
+        		$("#alertIcon").attr("src","images/49.png");
+        	} else {
+        		$("#alert").attr('class', "alert alert-primary");
+        		$("#alertBadge").attr('class', "badge badge-primary");
+        		$("#alertLevel").text("");
+        		$("#alertIcon").attr("src","images/49.png");
+        	}
+    		$("#alertMessage").text(message);
+	   		$("#alert").show("slide").delay(wait).hide("fade", {}, 1000);
+    	}
     	function home(){
     		currentItem = null;
     		itemsList = new Array();
     		applyItem(null);
     	}
-    	function back(){
+    	function createItem(){
+    		$("#createItem").panel({
+            	url 	: 'forms/createItem.html?id='+Math.random(),
+            	class 	: 'panel-green',
+            	title 	: "Create an item",
+            	buttons : ["reload","close"]
+            }).state("maximized");
+    	}
+    	function previousItem(){
         	if (itemsList.length > 0){
         		currentItem = itemsList.pop();
         		applyItem(currentItem);
@@ -265,32 +323,59 @@ html {
     	function applyItem(item){
         	if (item != null){
         		$.getJSON( "api/element.php?id="+item.id, function(result) {
-        			var element = result.elements[0];
-        			currentItem = element;
-        			$("#menuCurrentItem").html(element.category.name+" - "+element.name);
-        			//$("#menuDeleteItem").prop( "disabled", false);
-        			$("#menuDeleteItem").attr('class', "dropdown-item");
-
-        			for (var i = 0; i < views.length; i++){
-                    	var view = views[i];
-                    	//if (!view.viewDescription.static){
-                   			view.reload(view.viewDescription.url+"?id="+item.id);
-                    	//}
-                	}
-        			
+        			if (result.elements.length == 0){
+            			openItem(null);
+            			sendMessage("warning","Item doesn't exist");
+        			} else {
+	        			currentItem = result.elements[0];
+	        			$("#menuCurrentItem").html(currentItem.category.name+" - "+currentItem.name);
+	        			$("#menuDeleteItem").attr("disabled", false);
+	        			$("#menuDeleteItem").attr('class', "dropdown-item");
+	        			for (var i = 0; i < views.length; i++){
+	                    	var view = views[i];
+	                    	if (!view.viewDescription.static){
+	                   			view.reload(view.viewDescription.url+"?id="+currentItem.id);
+	                    	}
+	                	}
+	        			/** Apply currentItem change */
+	                	$("*[data-provider^='currentItem']").each(function(index,listener){
+	                    	listener = $(listener);
+	                    	var attribute = listener.attr("data-provider");
+	                    	if (attribute == "currentItem.name"){
+	                    		listener.text(currentItem.name);
+	                    	} else if (attribute == "currentItem.class.name"){
+	                    		listener.text(currentItem.class.name);
+	                    	} else if (attribute == "currentItem.category.name"){
+	                    		listener.text(currentItem.category.name);
+	                    	}
+                			listener.trigger("change");
+	                	});
+        			}
         		});
         	} else {
-        		$("#menuCurrentItem").html("Choose an item");
-        		//$("#menuDeleteItem").prop( "disabled", true );
+        		$("#menuCurrentItem").html("No item selected");
+        		$("#menuDeleteItem").attr("disabled", true);
         		$("#menuDeleteItem").attr('class', "dropdown-item disabled");
         		for (var i = 0; i < views.length; i++){
                 	var view = views[i];
-                	if (!view.viewDescription.static){
-                   		view.reload(null);
+                	if (view.viewDescription.noItemSupported){
+                		view.reload(view.viewDescription.url);
+                	} else if (!view.viewDescription.static){
+                		view.reload(null);
+                	} else {
+                   		
                 	}
             	}
+        		/** Apply currentItem change */
+            	$("*[data-provider^='currentItem']").each(function(index,listener){
+                	listener = $(listener);
+                	var attribute = listener.attr("data-provider");
+                	var changed = false;
+               		listener.text("");
+               		changed = true;
+           			listener.trigger("change");
+            	});
         	}
-    		
     	}
     	function showContextMenu(what,id){
 	    	$.getJSON( "api/element.php?id="+id, function(result) {
@@ -303,7 +388,7 @@ html {
 				html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
 				showPopup("Détail",html);
 			}).fail(function(jxqr,textStatus,error) {
-				showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+				sendMessage("error","Unable to get element information : "+error);
 			});
     	}
     	function searchItem(){
@@ -323,17 +408,26 @@ html {
     	}
     	function svgElementClicked(what,id,button){
         	if (button == 0){ // Left button
-        		openItem({id : id, category : what});
+        		$.getJSON( "api/element.php?id="+id, function(result) {
+    				var element = result.elements[0];
+        			openItem(element);//{id : id, category : what});
+        		});
         	} else { // Right button
         		showContextMenu(what,id);
         	}
     	}
+    	var itemCategories = null;
     	$(function() {
     		var menuViewDropDown = $("#menuViewDropDown");
     		Object.keys(viewDescription).forEach(function (index) {
         		menuViewDropDown.append($("<a class='dropdown-item' href='#' onClick='addView(\""+index+"\")'>"+viewDescription[index].title+"</a>"));
         	});
         	$("#main").panelFrame();
+        	$.getJSON( "api/element_class.php", function(result) {
+        		itemCategories = result.categories;
+        	}).fail(function(jxqr,textStatus,error) {
+        		sendMessage("error","Unable to load item classes : "+error);
+        	});
     	});
     </script>
 </body>
