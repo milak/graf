@@ -26,8 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 //die("introuvable");
                 return;
             }
-        } else if (isset($_GET["sub_items"])){
-            $items = $dao->getRelatedItems($_GET["id"]);
+        } else if (isset($_GET["related_items"])){
+        	$direction = "down";
+        	if (isset($_GET["direction"])){
+        		$direction = $_GET["direction"];
+        	}
+        	$items = $dao->getRelatedItems($_GET["id"],'*',$direction);
         } else {
         	$items = $dao->getItems((object)['id'=>$_GET["id"]]);
         }

@@ -404,6 +404,7 @@ class ITopDao implements IDAO {
         }
     }
     private function getOverItems($aItemId,$category='*'){
+    	error_log("getOverItems $aItemId");
         $result = array();
         $itemId = $this->_splitItemId($aItemId);
         if ($itemId->prefix == 'actor'){ // On recherche les domaines auquel appartient un acteur
@@ -435,6 +436,7 @@ class ITopDao implements IDAO {
         return $result;
     }
     private function getSubItems($aItemId,$category='*'){
+    	error_log("getSubItems $aItemId");
         $result = array();
         $itemId = $this->_splitItemId($aItemId);
         if ($itemId->prefix == "actor"){ // On recherche les items sous un acteur
@@ -1048,7 +1050,7 @@ class ITopDao implements IDAO {
         $category->classes = array();
         return $category;
     }
-    private function _newItem($id,$name,$className,$properties){
+    private function _newItem($id,$name,$className,$properties = array()){
         $result = new stdClass();
         /*if ($className == 'DatabaseSchema') {
             $className = 'Data';
@@ -1076,11 +1078,7 @@ class ITopDao implements IDAO {
         $result->class->id 		= 1;
         $result->class->name 	= $className;
         $result->category 		= $category;
-        if (isset($properties)){
-        	$result->properties 	= $properties;
-        } else {
-        	$result->properties 	= array();
-        }
+       	$result->properties 	= $properties;
         return $result;
     }
     private function _splitItemId($itemId){
