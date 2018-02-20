@@ -33,9 +33,10 @@ foreach($categories as $category){
 									echo ",\n";
 								}
 								echo '{';
+								echo '	"label" : "'.$property->label.'",';
 								echo '	"name" : "'.$property->name.'",';
 								echo '	"type" : "'.$property->type.'",';
-								echo '	"mandatory" : "'.$property->mandatory.'"';
+								echo '	"required" : "'.$property->required.'"';
 								echo '}';
 								$firstProperty = false;
 							}

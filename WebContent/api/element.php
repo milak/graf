@@ -100,10 +100,18 @@ foreach ($items as $item){
             die("Missing class_name argument");
         }
         $class_name = $_POST["class_name"];
-        $dao->createItem($class_name,$name,$name,"");
-        if (isset($_POST["domain_id"])){
-            // ??
+        $properties = array();
+        foreach($_POST as $key => $value){
+        	if ($key == "name"){
+        		continue;
+        	}
+        	if ($key == "class_name"){
+        		continue;
+        	}
+        	$properties[$key] = $value;
         }
+        $dao->createItem($class_name,$name,$name,"",$properties);
+        
     }
 /** METHOD DELETE **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {

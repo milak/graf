@@ -66,7 +66,7 @@ class ITopDao implements IDAO {
     //
     // Gestion des items
     //
-    public function createItem($className,$name,$code,$description){
+    public function createItem($className,$name,$code,$description,$properties){
         $result = null;
         if ($className == "Domain"){
             $className = "Group";
@@ -81,7 +81,7 @@ class ITopDao implements IDAO {
                 'name'          => $name,
                 'type'          => 'BusinessDomain',
                 'status'        => 'production',
-                'description'   => $description
+                'description'   => $properties['area_id']
             ));
         } else if ($className == "Data"){
             $result = "domain_".$this->createObject('Group', array(
@@ -105,11 +105,29 @@ class ITopDao implements IDAO {
                 'name'              => $name,
                 'function'          => $description
             ));
-        } else if ($category->name == "software"){
+        } else if ($className == "Software"){
+        	$result = "item_".$this->createObject('Software', array(
+        			'name'              => $name,
+        			'type'              => $properties['type'],
+        			'version'			=> $properties['version'],
+        			'vendor'			=> $properties['vendor']
+        	));
+        } else if ($className == "Location"){
+        	$fields = array(
+        			'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
+        			'name'              => $name,
+        			'city'       		=> $properties['city'],
+        			'country'      		=> $properties['country']
+        	);
+        	// Créer un item
+        	$result = "item_".$this->createObject($className, $fields);
+        /*} else if ($category->name == "software"){
             $result = "item_".$this->createObject('Software', array(
                 'name'              => $name,
-                'type'              => $className
-            ));
+                'type'              => $className,
+            	'version'			=> $properties['version'],
+            	'vendor'			=> $properties['vendor']
+            ));*/
         } else {
             $fields = array(
                 'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
@@ -431,6 +449,45 @@ class ITopDao implements IDAO {
                     $result[] = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
                 }
             }
+        } else if ($itemId->prefix == 'location'){
+        	if (strpos($itemId->id,'country_') !== false){ // si c'est un pays, on ramène toutes les villes au dessus
+        		$pos = strpos($itemId->id,'_');
+        		$realId = substr($itemId->id,$pos+1);
+        		// D'abord on recherche le nom du pays
+        		$response = $this->getObjects('Location','id, country','WHERE id = '.$realId);
+        		foreach ($response->objects as $object){
+        			$countryName = $object->fields->country;
+        			break;
+        		}
+        		// On recherche les villes
+        		$dejaCite = array();
+        		$response = $this->getObjects('Location','id, city, country','WHERE country = "'.$countryName.'"');
+        		foreach ($response->objects as $object){
+        			if (isset($dejaCite[$object->fields->city])){
+        				continue;
+        			}
+        			$dejaCite[$object->fields->city] = true;
+        			$result[] = $this->_newItem('city_'.$object->fields->id, $object->fields->city, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
+        		}
+        	} else if (strpos($itemId->id,'city_') !== false){ // Si c'est une ville, on prend toutes les locations de la ville
+        		$pos = strpos($itemId->id,'_');
+        		$realId = substr($itemId->id,$pos+1);
+        		// D'abord on recherche le nom de la ville
+        		$response = $this->getObjects('Location','id, city','WHERE id = '.$realId);
+        		foreach ($response->objects as $object){
+        			$cityName = $object->fields->city;
+        			break;
+        		}
+        		$response = $this->getObjects('Location','id, name, city, country','WHERE city = "'.$cityName.'"');
+        		foreach ($response->objects as $object){
+        			$result[] = $this->_newItem($object->fields->id, $object->fields->name, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
+        		}
+        	} else { // sinon, on retourne les actors et les devices
+        		/*$response = $this->getObjects('Location','id, city, country','WHERE id = '.$itemId->id);
+        		foreach ($response->objects as $object){
+        			$result[] = $this->_newItem('city_'.$object->fields->id, $object->fields->city, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
+        		}*/
+        	}
         } else {
         }
         return $result;
@@ -525,6 +582,21 @@ class ITopDao implements IDAO {
                     }
                 }
             }
+        } else if ($itemId->prefix == 'location'){
+        	if (strpos($itemId->id,'country_') !== false){ // si c'est un pays, il n'y a rien en dessous
+        	} else if (strpos($itemId->id,'city_') !== false){ // Si c'est une ville, on retourne le pays
+        		$pos = strpos($itemId->id,'_');
+        		$realId = substr($itemId->id,$pos+1);
+        		$response = $this->getObjects('Location','id, country','WHERE id = '.$realId);
+        		foreach ($response->objects as $object){
+        			$result[] = $this->_newItem('country_'.$object->fields->id, $object->fields->country, "Location",['city' => '','country' => $object->fields->country]);
+        		}
+        	} else { // sinon, on retourne la ville
+        		$response = $this->getObjects('Location','id, city, country','WHERE id = '.$itemId->id);
+        		foreach ($response->objects as $object){
+        			$result[] = $this->_newItem('city_'.$object->fields->id, $object->fields->city, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
+        		}
+        	}
         } else {
         	$item = $this->getItems((object)['id'=>$aItemId])[0];
             if ($item->class->name == 'Data'){
@@ -631,16 +703,55 @@ class ITopDao implements IDAO {
         	if ($class != '*'){
         		$response = $this->getObjects($class,'id, name',$whereFilter);
         	} else {
-        		$response = $this->getObjects('Software','id, name, version',$whereFilter);
+        		$response = $this->getObjects('Software','id, name, version, vendor, type',$whereFilter);
         	}
         	foreach ($response->objects as $object){
-        		$result[]   = $this->_newItem($object->key, $object->fields->name, $object->class,['version' => $object->fields->version]);
+        		$result[]   = $this->_newItem($object->key, $object->fields->name, $object->class,['version' => $object->fields->version,'vendor' => $object->fields->vendor,'type' => $object->fields->type]);
         	}
         }
         if (($category == 'location') || ($category == '*')){
-        	$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation'".$andFilter);
-        	foreach ($response->objects as $object){
-        		$result[]   = $this->_newItem($object->fields->id, $object->fields->name, $object->class,['city' => $object->fields->city,'country' => $object->fields->country]);
+        	if ($id != '*'){
+        		if (strpos($itemId->id,'country_') !== false){ // si c'est un pays
+        			error_log("getItems $id search country");
+        			$pos = strpos($itemId->id,'_');
+        			$realId = substr($itemId->id,$pos+1);
+        			$response = $this->getObjects('Location','id, country','WHERE id = '.$realId);
+        			foreach ($response->objects as $object){
+        				$result[] = $this->_newItem('country_'.$object->fields->id, $object->fields->country, "Location",['city' => '','country' => $object->fields->country]);
+        			}
+        		} else if (strpos($itemId->id,'city_') !== false){ // Si c'est une ville
+        			error_log("getItems $id search city");
+        			$pos = strpos($itemId->id,'_');
+        			$realId = substr($itemId->id,$pos+1);
+        			$response = $this->getObjects('Location','id, city, country','WHERE id = '.$realId);
+        			foreach ($response->objects as $object){
+        				$result[] = $this->_newItem('city_'.$object->fields->id, $object->fields->city, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
+        			}
+        		} else { // sinon, on retourne la ville
+        			error_log("getItems $id search location");
+        			$response = $this->getObjects('Location','id, name, city, country','WHERE id = '.$itemId->id);
+        			foreach ($response->objects as $object){
+        				$result[] = $this->_newItem($object->fields->id, $object->fields->name, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
+        			}
+        		}
+        	} else if (name != '*'){
+        		$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation' AND name LIKE '%".$name."%'");
+        		foreach ($response->objects as $object){
+        			$result[]   = $this->_newItem($object->fields->id, $object->fields->name, $object->class,['city' => $object->fields->city,'country' => $object->fields->country]);
+        		}
+        		/*$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation' AND city LIKE '%".$name."%'");
+        		foreach ($response->objects as $object){
+        			$result[]   = $this->_newItem($object->fields->id, $object->fields->name, $object->class,['city' => $object->fields->city,'country' => $object->fields->country]);
+        		}
+        		$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation' AND country LIKE '%".$name."%'");
+        		foreach ($response->objects as $object){
+        			$result[]   = $this->_newItem($object->fields->id, $object->fields->name, $object->class,['city' => $object->fields->city,'country' => $object->fields->country]);
+        		}*/
+        	} else {
+	        	$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation'".$andFilter);
+	        	foreach ($response->objects as $object){
+	        		$result[]   = $this->_newItem($object->fields->id, $object->fields->name, $object->class,['city' => $object->fields->city,'country' => $object->fields->country]);
+	        	}
         	}
         }
         if (($category != 'actor') && ($category != 'data') && ($category != 'domain') && ($category != 'service') && ($category != 'software') && ($category != 'location')){
@@ -982,7 +1093,7 @@ class ITopDao implements IDAO {
         $this->_addItemClass("DatabaseSchema",     true,    $this->ITOP_CATEGORIES["data"]);    // Probleme 'dbserver_id'
         $this->_addItemClass("Data",               false,   $this->ITOP_CATEGORIES["data"]);
         
-        $this->_addItemClass("Group",              false,   $this->ITOP_CATEGORIES["domain"],[(object)['name'=>'area_id','type'=>'string','mandatory'=>true]]);
+        $this->_addItemClass("Group",              false,   $this->ITOP_CATEGORIES["domain"],[(object)['label' => 'Area', 'name'=>'area_id','type'=>'area(strategic)','required'=>true]]);
         
         $this->_addItemClass("ConnectableCI",      true,    $this->ITOP_CATEGORIES["device"]);
         $this->_addItemClass("DatacenterDevice",   true,    $this->ITOP_CATEGORIES["device"]);
@@ -1006,7 +1117,10 @@ class ITopDao implements IDAO {
         $this->_addItemClass("TapeLibrary",        false,   $this->ITOP_CATEGORIES["device"]);
         $this->_addItemClass("TelephonyCI",        true,    $this->ITOP_CATEGORIES["device"]);
         
-        $this->_addItemClass("Location",    	   false,   $this->ITOP_CATEGORIES["location"]);
+        $this->_addItemClass("Location",    	   false,   $this->ITOP_CATEGORIES["location"],[
+        		(object)['label' => 'City', 'name'=>'city','type'=>'string','required'=>true],
+        		(object)['label' => 'Country', 'name'=>'country','type'=>'string','required'=>true]
+        ]);
         
         $this->_addItemClass("BusinessProcess",    false,   $this->ITOP_CATEGORIES["process"]);
         
@@ -1020,18 +1134,36 @@ class ITopDao implements IDAO {
         $this->_addItemClass("Service",            false,   $this->ITOP_CATEGORIES["service"]);
         
         
-        $this->_addItemClass("Software",           true,   $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("Software",           false,   $this->ITOP_CATEGORIES["software"],[
+        		(object)['label' => 'Type', 	'name'=>'type',		'type'=>'list(DBServer,Middleware,OtherSoftware,PCSoftware,WebServer)','required'=>true],
+        		(object)['label' => 'Version',	'name'=>'version',	'type'=>'string','required'=>true],
+        		(object)['label' => 'Vendor', 	'name'=>'vendor',	'type'=>'string','required'=>true]
+        ]);
         
-        $this->_addItemClass("DBServer",           false,   $this->ITOP_CATEGORIES["software"]);
-        $this->_addItemClass("Middleware",         false,   $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("DBServer",           true,   $this->ITOP_CATEGORIES["software"],[
+        		(object)['label' => 'Version', 'name'=>'version','type'=>'string','required'=>true],
+        		(object)['label' => 'Vendor',  'name'=>'vendor','type'=>'string','required'=>true]
+        ]);
+        $this->_addItemClass("Middleware",         true,   $this->ITOP_CATEGORIES["software"],[
+        		(object)['label' => 'Version', 'name'=>'version','type'=>'string','required'=>true],
+        		(object)['label' => 'Vendor',  'name'=>'vendor','type'=>'string','required'=>true]
+        ]);
         $this->_addItemClass("MiddlewareInstance", true,   $this->ITOP_CATEGORIES["software"]);// Problem 'middleware_id'
-        $this->_addItemClass("OtherSoftware",      false,   $this->ITOP_CATEGORIES["software"]);
-        $this->_addItemClass("PCSoftware",         false,   $this->ITOP_CATEGORIES["software"]);
+        $this->_addItemClass("OtherSoftware",      true,   $this->ITOP_CATEGORIES["software"],[
+        		(object)['label' => 'Version', 'name'=>'version','type'=>'string','required'=>true],
+        		(object)['label' => 'Vendor',  'name'=>'vendor','type'=>'string','required'=>true]
+        ]);
+        $this->_addItemClass("PCSoftware",         true,   $this->ITOP_CATEGORIES["software"],[
+        		(object)['label' => 'Version', 'name'=>'version','type'=>'string','required'=>true],
+        		(object)['label' => 'Vendor',  'name'=>'vendor','type'=>'string','required'=>true]
+        ]);
         $this->_addItemClass("SoftwareInstance",   true,   $this->ITOP_CATEGORIES["software"]);
         $this->_addItemClass("WebApplication",     true,   $this->ITOP_CATEGORIES["software"]);// Problem 'webserver_id'
-        $this->_addItemClass("WebServer",          false,   $this->ITOP_CATEGORIES["software"]);
-        
-        $this->_addItemClass("ApplicationSolution",false,   $this->ITOP_CATEGORIES["solution"]);
+        $this->_addItemClass("WebServer",          true,   $this->ITOP_CATEGORIES["software"],[
+        		(object)['label' => 'Version', 'name'=>'version','type'=>'string','required'=>true],
+        		(object)['label' => 'Vendor',  'name'=>'vendor','type'=>'string','required'=>true]
+        ]);
+        $this->_addItemClass("ApplicationSolution",true,   $this->ITOP_CATEGORIES["solution"]);
     }
     private function _addItemClass($className,$abstract,$category,$properties=[]){
         $class = new stdClass();

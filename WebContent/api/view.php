@@ -55,6 +55,10 @@ if (isset($_GET["view"])){
 	echo "           ]}\n";
 	echo "}";
 } else {
+	$showAreas = "no";
+	if (isset($_GET["areas"])){
+		$showAreas = $_GET["areas"];
+	}
     $views = $dao->getViews();
     $first = true;?>
 { "views" : [
@@ -65,7 +69,44 @@ if (isset($_GET["view"])){
 	   }?>
 		{
 			"id"    : <?php echo $view->id; ?>,
-			"name" : "<?php echo $view->name; ?>"
+			"name" : "<?php echo $view->name; ?>"<?php
+			if ($showAreas != "no"){?>,
+				"areas" : [<?php
+				$areas = $dao->getViewByName($view->name);
+				if ($showAreas == "list"){
+					$first = true;
+					foreach($areas as $area){
+						if (!$first){
+							echo ",";
+						}
+						$first = false;?>
+						{
+							"name"     : "<?php echo $area->name;?>",
+							"id"       : "<?php echo $area->id;?>",
+							"code"     : "<?php echo $area->code;?>",
+							"display"  : "<?php echo $area->display;?>",
+							"position" : "<?php echo $area->position;?>"
+						}<?php
+					}
+				} else {
+					$roots = array();
+					foreach($areas as $area){
+						if ($area->parent == null){
+							$roots[] = $area;
+						}
+					}
+					$first = true;
+					foreach($roots as $area){
+						if (!$first){
+							echo ",";
+						}
+						$first = false;
+						recursiveDisplayArea(1,$area);
+					}
+				}
+				echo "           ]";
+			}
+			?>
 		}<?php
 	   $first = false;
     }

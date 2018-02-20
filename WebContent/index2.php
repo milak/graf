@@ -46,7 +46,7 @@ html {
 }
 </style>
 </head>
-<body oncontextmenu="event.preventDefault()" onresize="applyItem(currentItem)">
+<body oncontextmenu="event.preventDefault()" onresize="applyItem(global.currentItem)">
 	<header>
 		<!-- Fixed navbar -->
 		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
@@ -90,18 +90,22 @@ html {
 	<main id="main" style="position:absolute;top:60px;width:100%; bottom:0px;">
 	</main>
 	<div id="alert" class="alert alert-warning" style="position:absolute;display:none;bottom:10px;left:10px;right:10px;vertical-align:center" role="alert">
-  		<span id="alertBadge" class="badge">&nbsp;<img id="alertIcon" alt="" src=""/> <strong id="alertLevel"></strong></span> <span id="alertMessage"></span>
+  		<span id="alertBadge" class="badge" style="padding:8px;margin-right:15px">
+  			<img id="alertIcon"/>
+  			<strong id="alertLevel"/>
+  		</span>
+  		<span id="alertMessage"></span>
 	</div>
-	<svg id="strategic" style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="business" style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="logical" style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="service" style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="process" style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="technical" style="width: 100%; height: 100%; display: none"></svg>
-	<div id="viewItem" style="width: 100%; height: 100%; display: none"></div>
-	<div id="searchItem" style="display: none"></div>
-	<div id="createItem" style="display: none"></div>
-	<div id="popup" style="display: none"></div>
+	<svg id="strategic" 	style="width: 100%; height: 100%; display: none"></svg>
+	<svg id="business" 		style="width: 100%; height: 100%; display: none"></svg>
+	<svg id="logical" 		style="width: 100%; height: 100%; display: none"></svg>
+	<svg id="service" 		style="width: 100%; height: 100%; display: none"></svg>
+	<svg id="process" 		style="width: 100%; height: 100%; display: none"></svg>
+	<svg id="technical" 	style="width: 100%; height: 100%; display: none"></svg>
+	<div id="viewItem" 		style="width: 100%; height: 100%; display: none"></div>
+	<div id="searchItem" 	style="display: none"></div>
+	<div id="createItem" 	style="display: none"></div>
+	<div id="popup" 		style="display: none"></div>
 	
 	<!-- ========================================================== -->
 	<!-- Placed at the end of the document so the pages load faster -->
@@ -147,13 +151,14 @@ html {
 		 * Delete currentItem
 		 */
 		function deleteItem(){
-			if (currentItem == null){
+			var item = global.currentItem;
+			if (item == null){
 				return;
 			}
-			if (confirm("Do you really want to delete " + currentItem.category.name + " called '" + currentItem.name + "' ?")){
+			if (confirm("Do you really want to delete " + item.category.name + " called '" + item.name + "' ?")){
 				$.ajax({
 					type 	: "DELETE",
-					url 	: "api/element.php?id="+currentItem.id,
+					url 	: "api/element.php?id="+item.id,
 					dataType: "text",
 					success	: function(data) {
 						previousItem();
@@ -241,8 +246,8 @@ html {
         		}
                	var url = description.url;
                	if (!description.static) {
-               		if (currentItem != null){
-                	   	panel.url = url + "?id="+currentItem.id;
+               		if (global.currentItem != null){
+                	   	panel.url = url + "?id="+global.currentItem.id;
                		} else if (description.noItemSupported){
                			panel.url = url;
                		} else {
@@ -259,7 +264,6 @@ html {
         	}
     	}
     	var itemsList = new Array();
-    	var currentItem = null;
     	function sendMessage(level,message){
         	var wait = 1000;
         	if (level == "warning"){
@@ -267,7 +271,7 @@ html {
         		$("#alertBadge").attr('class', "badge badge-warning");
         		$("#alertLevel").text("Warning");
         		$("#alertIcon").attr("src","images/58.png");
-        		wait = 1800;
+        		wait = 2800;
         	} else if (level == "info"){
         		$("#alert").attr('class', "alert alert-info");
         		$("#alertBadge").attr('class', "badge badge-info");
@@ -283,7 +287,7 @@ html {
         		$("#alertBadge").attr('class', "badge badge-danger");
         		$("#alertIcon").attr("src","images/89.png");
         		$("#alertLevel").text("Error");
-        		wait = 2000;
+        		wait = 3000;
         	} else if (level == "primary"){
         		$("#alert").attr('class', "alert alert-primary");
         		$("#alertBadge").attr('class', "badge badge-primary");
@@ -296,12 +300,52 @@ html {
         		$("#alertIcon").attr("src","images/49.png");
         	}
     		$("#alertMessage").text(message);
-	   		$("#alert").show("slide").delay(wait).hide("fade", {}, 1000);
+	   		$("#alert").show("slide").delay(wait).hide("fade", {}, 1200);
     	}
     	function home(){
-    		currentItem = null;
+    		global.currentItem = null;
     		itemsList = new Array();
     		applyItem(null);
+    	}
+    	function linkItem(parentItem,childItem){
+    		// Ajouter l'item
+			$.ajax({
+				type 	: "POST",
+				url 	: "api/element.php",
+				data	: {
+					"id"		: parentItem.id,
+					"child_id"	: childItem.id
+				},
+				dataType: "text",
+				success	: function( data ) {
+					applyItem(global.currentItem);
+				}
+			}).fail(function(jxqr,textStatus,error){
+				sendMessage("error","Unable to link item : "+error);
+			});
+    	}
+    	function unlinkItem(parentItem,childItem){
+           	$.ajax({
+           		type 	: "DELETE",
+           		url 	: "api/element.php?id="+parentItem.id+"&child_id="+childItem.id,
+           		dataType: "text",
+           		success	: function(data) {
+           			applyItem(global.currentItem);
+           		}
+           	}).fail(function(jxqr,textStatus,error){
+               	sendMessage("error","Unable to unlink item : " + error);
+           	});
+    	}
+    	function addItem(itemId){
+        	if (global.currentItem == null){
+            	sendMessage("warning","No current item selected");
+            	return;
+        	}
+        	if (itemId == global.currentItem.id){
+        		sendMessage("warning","Cannot add an item to itself");
+            	return;
+        	}
+        	sendMessage("warning","Not yet implemented");
     	}
     	function createItem(){
     		$("#createItem").panel({
@@ -313,10 +357,10 @@ html {
     	}
     	function previousItem(){
         	if (itemsList.length > 0){
-        		currentItem = itemsList.pop();
-        		applyItem(currentItem);
+        		global.currentItem = itemsList.pop();
+        		applyItem(global.currentItem);
         	} else {
-        		currentItem = null;
+        		global.currentItem = null;
         		applyItem(null);
         	}
     	}
@@ -327,14 +371,15 @@ html {
             			openItem(null);
             			sendMessage("warning","Item doesn't exist");
         			} else {
-	        			currentItem = result.elements[0];
-	        			$("#menuCurrentItem").html(currentItem.category.name+" - "+currentItem.name);
+            			var item = result.elements[0];
+	        			global.currentItem = item;
+	        			$("#menuCurrentItem").html(item.category.name+" - "+item.name);
 	        			$("#menuDeleteItem").attr("disabled", false);
 	        			$("#menuDeleteItem").attr('class', "dropdown-item");
 	        			for (var i = 0; i < views.length; i++){
 	                    	var view = views[i];
 	                    	if (!view.viewDescription.static){
-	                   			view.reload(view.viewDescription.url+"?id="+currentItem.id);
+	                   			view.reload(view.viewDescription.url+"?id="+item.id);
 	                    	}
 	                	}
 	        			/** Apply currentItem change */
@@ -342,16 +387,18 @@ html {
 	                    	listener = $(listener);
 	                    	var attribute = listener.attr("data-provider");
 	                    	if (attribute == "currentItem.name"){
-	                    		listener.text(currentItem.name);
+	                    		listener.text(item.name);
 	                    	} else if (attribute == "currentItem.class.name"){
-	                    		listener.text(currentItem.class.name);
+	                    		listener.text(item.class.name);
 	                    	} else if (attribute == "currentItem.category.name"){
-	                    		listener.text(currentItem.category.name);
+	                    		listener.text(item.category.name);
 	                    	}
                 			listener.trigger("change");
 	                	});
         			}
-        		});
+        		}).fail(function(jxqr,textStatus,error) {
+    				sendMessage("error","Unable to get item information : "+error);
+    			});
         	} else {
         		$("#menuCurrentItem").html("No item selected");
         		$("#menuDeleteItem").attr("disabled", true);
@@ -388,7 +435,7 @@ html {
 				html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
 				showPopup("Détail",html);
 			}).fail(function(jxqr,textStatus,error) {
-				sendMessage("error","Unable to get element information : "+error);
+				sendMessage("error","Unable to get item information : "+error);
 			});
     	}
     	function searchItem(){
@@ -400,10 +447,10 @@ html {
             });//.state("maximized");
     	}
     	function openItem(item){
-    		if (currentItem != null){
-    			itemsList.push(currentItem);
+    		if (global.currentItem != null){
+    			itemsList.push(global.currentItem);
         	}
-    		currentItem = item;
+    		global.currentItem = item;
     		applyItem(item);
     	}
     	function svgElementClicked(what,id,button){
@@ -416,7 +463,11 @@ html {
         		showContextMenu(what,id);
         	}
     	}
-    	var itemCategories = null;
+    	var global = {
+    		itemCategories 	: null,
+    		views 			: null,
+    		currentItem 	: null
+    	};
     	$(function() {
     		var menuViewDropDown = $("#menuViewDropDown");
     		Object.keys(viewDescription).forEach(function (index) {
@@ -424,9 +475,14 @@ html {
         	});
         	$("#main").panelFrame();
         	$.getJSON( "api/element_class.php", function(result) {
-        		itemCategories = result.categories;
+        		global.itemCategories = result.categories;
         	}).fail(function(jxqr,textStatus,error) {
         		sendMessage("error","Unable to load item classes : "+error);
+        	});
+        	$.getJSON( "api/view.php?areas=list", function(result) {
+        		global.views = result.views;
+        	}).fail(function(jxqr,textStatus,error) {
+        		sendMessage("error","Unable to load views : "+error);
         	});
     	});
     </script>
