@@ -103,6 +103,8 @@ html {
 	<svg id="process" 		style="width: 100%; height: 100%; display: none"></svg>
 	<svg id="technical" 	style="width: 100%; height: 100%; display: none"></svg>
 	<div id="viewItem" 		style="width: 100%; height: 100%; display: none"></div>
+	<svg id="mapEurope"		style="width: 100%; height: 100%; display: none"></svg>
+	<svg id="mapWorld"		style="width: 100%; height: 100%; display: none"></svg>
 	<div id="searchItem" 	style="display: none"></div>
 	<div id="createItem" 	style="display: none"></div>
 	<div id="popup" 		style="display: none"></div>
@@ -175,8 +177,10 @@ html {
     	viewDescription['logical'] 		= { url : 'views/view_logique.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Logical view"};
     	viewDescription['service'] 		= { url : 'views/view_service.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Service view"};
     	viewDescription['process'] 		= { url : 'views/view_process.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Process view"};
-    	viewDescription['technical']	= { url : 'views/view_technique.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Technical view"};
+    	viewDescription['technical']	= { url : 'views/view_technical.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Technical view"};
     	viewDescription['viewItem']		= { url : 'forms/viewItem.html', 		class : 'panel-purple', noItemSupported : false, static : true,  svg : false, 	title : "Detail"};
+    	viewDescription['mapEurope']	= { url : 'views/view_map.php?map=europe', 		class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : "Map - Europe"};
+    	viewDescription['mapWorld']		= { url : 'views/view_map.php?map=world', 		class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : "Map - World"};
     	var views = new Array();
     	function addView(viewName){
         	var viewPanel;
@@ -205,6 +209,9 @@ html {
 		        				});
 	            			}catch(exception){}
         				}
+        			},
+        			fail : function(jxqr,textStatus,error){
+            			sendMessage("error","Unable to load view : " + error);
         			},
         			update	: function(){
             			if (this.viewDescription.svg) {
@@ -247,7 +254,11 @@ html {
                	var url = description.url;
                	if (!description.static) {
                		if (global.currentItem != null){
-                	   	panel.url = url + "?id="+global.currentItem.id;
+                   		var car = "?";
+                   		if (url.indexOf("?") != -1){
+                       		car = "&";
+                   		}
+                	   	panel.url = url + car + "id="+global.currentItem.id;
                		} else if (description.noItemSupported){
                			panel.url = url;
                		} else {
@@ -379,7 +390,11 @@ html {
 	        			for (var i = 0; i < views.length; i++){
 	                    	var view = views[i];
 	                    	if (!view.viewDescription.static){
-	                   			view.reload(view.viewDescription.url+"?id="+item.id);
+	                    		var car = "?";
+	                       		if (view.viewDescription.url.indexOf("?") != -1){
+	                           		car = "&";
+	                       		}
+	                   			view.reload(view.viewDescription.url+car+"id="+item.id);
 	                    	}
 	                	}
 	        			/** Apply currentItem change */
