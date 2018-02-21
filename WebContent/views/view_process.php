@@ -13,8 +13,8 @@ if (count($documents) != 0){
     $document = $documents[0];
     $content = $dao->getDocumentContent($document->id);
 } else {
-    http_response_code(404);
-    die();
+    //http_response_code(404);
+    //die();
     return;
 }
 
