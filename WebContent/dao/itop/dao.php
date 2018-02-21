@@ -482,18 +482,18 @@ class ITopDao implements IDAO {
         		foreach ($response->objects as $object){
         			$result[] = $this->_newItem($object->fields->id, $object->fields->name, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
         		}
-        	} else { // sinon, on retourne les actors et les devices
-        		/*$response = $this->getObjects('Location','id, city, country','WHERE id = '.$itemId->id);
+        	} else { // sinon, on retourne les devices
+        		$response = $this->getObjects('PhysicalDevice','id, name','WHERE location_id = '.$itemId->id);
         		foreach ($response->objects as $object){
-        			$result[] = $this->_newItem('city_'.$object->fields->id, $object->fields->city, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
-        		}*/
+        			$result[] = $this->_newItem($object->fields->id, $object->fields->name, $object->class);
+        		}
         	}
         } else {
         }
         return $result;
     }
     private function getSubItems($aItemId,$category='*'){
-    	error_log("getSubItems $aItemId");
+    	//error_log("getSubItems $aItemId");
         $result = array();
         $itemId = $this->_splitItemId($aItemId);
         if ($itemId->prefix == "actor"){ // On recherche les items sous un acteur
@@ -606,6 +606,22 @@ class ITopDao implements IDAO {
             foreach ($response->objects as $object){
                 $result[] = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
             }
+            if (($item->category->name == 'device') || ($item->class->name == 'Server')){
+            	$response = $this->getObjects('PhysicalDevice', 'location_id', 'WHERE id = '.$itemId->id);
+            	$location_id = null;
+            	foreach ($response->objects as $object){
+            		$location_id = $object->fields->location_id;
+            		if ($location_id == 0){
+            			$location_id = null;
+            		}
+            	}
+            	if ($location_id != null){
+            		$response = $this->getObjects('Location','id, name, city, country','WHERE id = '.$location_id);
+            		foreach ($response->objects as $object){
+            			$result[] = $this->_newItem($object->fields->id, $object->fields->name, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
+            		}
+            	}
+            }
         }
         return $result;
     }
@@ -712,7 +728,7 @@ class ITopDao implements IDAO {
         if (($category == 'location') || ($category == '*')){
         	if ($id != '*'){
         		if (strpos($itemId->id,'country_') !== false){ // si c'est un pays
-        			error_log("getItems $id search country");
+        			//error_log("getItems $id search country");
         			$pos = strpos($itemId->id,'_');
         			$realId = substr($itemId->id,$pos+1);
         			$response = $this->getObjects('Location','id, country','WHERE id = '.$realId);
@@ -720,7 +736,7 @@ class ITopDao implements IDAO {
         				$result[] = $this->_newItem('country_'.$object->fields->id, $object->fields->country, "Location",['city' => '','country' => $object->fields->country]);
         			}
         		} else if (strpos($itemId->id,'city_') !== false){ // Si c'est une ville
-        			error_log("getItems $id search city");
+        			//error_log("getItems $id search city");
         			$pos = strpos($itemId->id,'_');
         			$realId = substr($itemId->id,$pos+1);
         			$response = $this->getObjects('Location','id, city, country','WHERE id = '.$realId);
@@ -728,25 +744,25 @@ class ITopDao implements IDAO {
         				$result[] = $this->_newItem('city_'.$object->fields->id, $object->fields->city, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
         			}
         		} else { // sinon, on retourne la ville
-        			error_log("getItems $id search location");
+        			//error_log("getItems $id search location");
         			$response = $this->getObjects('Location','id, name, city, country','WHERE id = '.$itemId->id);
         			foreach ($response->objects as $object){
         				$result[] = $this->_newItem($object->fields->id, $object->fields->name, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
         			}
         		}
-        	} else if (name != '*'){
+        	} else if ($name != '*'){
         		$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation' AND name LIKE '%".$name."%'");
         		foreach ($response->objects as $object){
         			$result[]   = $this->_newItem($object->fields->id, $object->fields->name, $object->class,['city' => $object->fields->city,'country' => $object->fields->country]);
         		}
-        		/*$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation' AND city LIKE '%".$name."%'");
+        		$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation' AND city LIKE '%".$name."%'");
         		foreach ($response->objects as $object){
-        			$result[]   = $this->_newItem($object->fields->id, $object->fields->name, $object->class,['city' => $object->fields->city,'country' => $object->fields->country]);
+        			$result[]   = $this->_newItem('city_'.$object->fields->id, $object->fields->city, $object->class,['city' => $object->fields->city,'country' => $object->fields->country]);
         		}
         		$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation' AND country LIKE '%".$name."%'");
         		foreach ($response->objects as $object){
-        			$result[]   = $this->_newItem($object->fields->id, $object->fields->name, $object->class,['city' => $object->fields->city,'country' => $object->fields->country]);
-        		}*/
+        			$result[]   = $this->_newItem('country_'.$object->fields->id, $object->fields->country, $object->class,['city' => '','country' => $object->fields->country]);
+        		}
         	} else {
 	        	$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation'".$andFilter);
 	        	foreach ($response->objects as $object){

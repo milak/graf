@@ -345,4 +345,28 @@ function startsWith($haystack, $needle) {
     $length = strlen($needle);
     return (substr($haystack, 0, $length) === $needle);
 }
+$_allReadyBrowsed = array();
+function recursiveSearch($id,$categories,$direction){
+	global $_allReadyBrowsed;
+	global $dao;
+	error_log('recursiveSearch'.$id);
+	if (isset($_allReadyBrowsed[$id])){
+		return array();
+	}
+	$result = array();
+	$_allReadyBrowsed[$id] = true;
+	$items = $dao->getRelatedItems($id,'*',$direction);
+	foreach ($items as $item){
+		foreach ($categories as $category){
+			if ($item->category->name == $category){
+				$result[] = $item;
+				break;
+			}
+		}
+		foreach (recursiveSearch($item->id,$categories,$direction) as $foundItem){
+			$result[] = $foundItem;
+		}
+	}
+	return $result;
+}
 ?>
