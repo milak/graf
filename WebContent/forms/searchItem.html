@@ -118,7 +118,12 @@ function onImportItemFormSearchClick(){
 			row.push("<a href='#' onClick='event.preventDefault();openItem({id:\""+element.id+"\", name : \""+element.name+"\"});$(\"#popup\").panel().close()'>"+element.name+"</a>");
 			row.push(element.class.name);
 			row.push(element.category.name);
-			var label = "<button class='btn btn-primary btn-sm' onClick='event.preventDefault();linkItem({id:\""+global.currentItem.id+"\"},{id:\""+element.id+"\"});'>Add</button>";
+			var label = "";
+			if (global.currentItem != null){
+				if (global.currentItem.id != element.id){
+					label = "<button class='btn btn-primary btn-sm' onClick='event.preventDefault();linkItem({id:\""+global.currentItem.id+"\"},{id:\""+element.id+"\"});'>Link</button>";
+				}
+			}
 			row.push(label);
 			data.push(row);
 		}
