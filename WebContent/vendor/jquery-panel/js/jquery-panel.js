@@ -90,7 +90,7 @@ $(function () {
 		this._maximized = null;
 		this._panels 	= new Array();
 		this.addPanel 	= function (panel){
-			
+			// TODO ne plus faire un maxi update mais seulement ajouter des panels les uns après les autres
 		},
 		this.update 	= function (){
 			for (var i = 0; i < this.rows.length; i++){
@@ -275,6 +275,11 @@ $(function () {
 			} else {
 				target._onDone = function(){};
 			}
+			if (typeof option.fail !== "undefined"){
+				target._onFail = option.fail;
+			} else {
+				target._onFail = function(){};
+			}
 			if (typeof option.close !== "undefined"){
 				target._onClose = option.close;
 			} else {
@@ -303,6 +308,12 @@ $(function () {
 		    		$._panelFrame.removePanel(this.panelId);
 		    	} else {
 		    		this._onClose = func;
+		    	}
+		    	return this;
+		    };
+		    target.fail = function(func){
+		    	if (typeof func !== "undefined"){
+		    		this._onFail = func;
 		    	}
 		    	return this;
 		    };
@@ -358,6 +369,8 @@ $(function () {
     					console.log("jquery-panel - exception");
     					console.log(exception);
     				}
+	    		}).fail(function(jxqr,textStatus,error){
+	    			target._onFail(jxqr,textStatus,error);
 	    		});
 		    };
 		    if (typeof option.url !== "undefined"){
