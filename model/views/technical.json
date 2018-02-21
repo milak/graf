@@ -1,0 +1,68 @@
+{
+	"name"		: "root",
+	"label"		: "Vue technique",
+	"display"	: "horizontal",
+	"children"	: [{
+		"name"		: "Site1",
+		"label"		: "Site un",
+		"children"	: [{
+			"name"		: "Site1Etage1",
+			"label"		: "Etage 1",
+			"display"	: "horizontal",
+			"children"	: [{
+				"name"		: "Site1Etage1Zone1",
+				"label"		: "Zone un",
+				"display"	: "horizontal"
+			},{
+				"name"		: "Site1Etage1Zone2",
+				"label"		: "Zone deux",
+				"display"	: "horizontal"
+			}]
+		},{
+			"name"		: "Site1Etage2",
+			"label"		: "Etage 2",
+			"display"	: "horizontal",
+			"children"	: [{
+				"name"		: "Site1Etage2Zone1",
+				"label"		: "Zone un",
+				"display"	: "horizontal"
+			},{
+				"name"		: "Site1Etage2Zone2",
+				"label"		: "Zone deux",
+				"display"	: "horizontal"
+			},{
+				"name"		: "Site1Etage2Zone3",
+				"label"		: "Zone trois",
+				"display"	: "horizontal"
+			}]
+		},{
+			"name"		: "Site1Etage3",
+			"label"		: "Etage 3",
+			"display"	: "horizontal",
+			"children"	: [{
+				"name"		: "Site1Etage3Zone1",
+				"label"		: "Zone stockage",
+				"display"	: "horizontal"
+			}]
+		}]
+	},{
+		"name"		: "Site2",
+		"label"		: "Site deux",
+		"children"	: [{
+			"name"		: "Site2Zone1",
+			"label"		: "Zone un",
+			"display"	: "horizontal"
+		},{
+			"name"		: "Site2Zone2",
+			"label"		: "Zone deux",
+			"display"	: "horizontal"
+		}]
+	},{
+		"name"		: "Bureau1",
+		"label"		: "Bureau",
+		"display"	: "horizontal"
+	},{
+		"name"		: "default",
+		"label"		: "Autres"
+	}]
+}
