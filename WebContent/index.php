@@ -375,6 +375,9 @@ html {
         		applyItem(null);
         	}
     	}
+    	function refresh(){
+        	applyItem(global.currentItem);
+    	}
     	function applyItem(item){
         	if (item != null){
         		$.getJSON( "api/element.php?id="+item.id, function(result) {
