@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
 	}
 ?>
-{ "elements" : [
+{ "documents" : [
 <?php
 $first = true;
 foreach ($documents as $document){
@@ -62,7 +62,7 @@ foreach ($documents as $document){
 	if (!isset($_GET["id"])){
 		die("Missing id argument");
 	}
-	die("Not yet implemented");
+	$dao->deleteDocument($_GET["id"]);
 }
 $dao->disconnect();
 ?>
