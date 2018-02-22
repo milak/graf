@@ -11,6 +11,9 @@
 			<li class="nav-item"><a class="nav-link" id="relateds-tab" data-toggle="tab"
 				href="#relateds" role="tab" aria-controls="relateds" aria-selected="false">Relateds</a>
 			</li>
+			<li class="nav-item"><a class="nav-link" id="documents-tab" data-toggle="tab"
+				href="#documents" role="tab" aria-controls="documents" aria-selected="false">Documents</a>
+			</li>
 		</ul>
 		<div class="tab-content" id="myTabContent">
 			<div class="tab-pane fade show active" id="detail" role="tabpanel"
@@ -95,6 +98,19 @@
 						</tr>
 					</thead>
 					<tbody id="viewItemRelatedItemsDown"></tbody>
+				</table>
+			</div>
+			<div class="tab-pane fade" id="documents" role="tabpanel" aria-labelledby="documents-tab">
+				<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemDocumentsList">Documents list</label>
+				<table class="table table-bordered table-hover table-sm">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Type</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody id="viewItemDocumentsList"></tbody>
 				</table>
 			</div>
 		</div>
@@ -190,6 +206,34 @@
 					$("#viewItemRelatedItemsDown").html(html);
 				}).fail(function(jxqr,textStatus,error){
 					sendMessage("error","Unable to get related items : "+error);
+				});
+				$.getJSON( "api/document.php?itemId="+item.id, function(result) {
+					var html = "";
+					var document;
+					for (var d = 0; d < result.documents.length; d++){
+						document = result.documents[d];
+						html += "<tr><td><a href='#' onclick='sendMessage(\"warning\",\"Not yet implemented\")'>"+document.name+"</a></td>";
+						html += "<td>"+document.type+"</td>";
+						html += "<td><button class='btn btn-danger btn-sm' onclick='_viewItem.deleteDocument(\""+document.id+"\")'>Delete</button></td>";
+						html += "</tr>";
+					}
+					$("#viewItemDocumentsList").html(html);
+				}).fail(function(jxqr,textStatus,error){
+					sendMessage("error","Unable to get documents list : "+error);
+				});
+			}
+		},
+		deleteDocument : function(id){
+			if (confirm("Do you really want to delete this document ?")){
+				$.ajax({
+					url : "api/document.php?id="+id,
+					method : "DELETE",
+					success : function(){
+						sendMessage("success","Document successfully deleted");
+						refresh();
+					}
+				}).fail(function(jxqr,textStatus,error){
+					sendMessage("error","Unable to delete document : "+error);
 				});
 			}
 		},
