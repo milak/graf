@@ -7,8 +7,8 @@
  	<link rel="stylesheet" href="css/graf.css">
  	<link rel="stylesheet" href="lib/pure/pure-min.css">
  	<link rel="stylesheet" href="lib/jquery/ui/1.12.1/themes/base/jquery-ui.css">
- 	<script type="text/javascript" src="lib/jquery/jquery-3.2.1.min.js"></script>
-	<script type="text/javascript" src="lib/jquery/ui/1.12.1/jquery-ui.js"></script>
+ 	<script type="text/javascript" src="vendor/jquery/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="vendor/jquery/ui/1.12.1/jquery-ui.js"></script>
  	<script type="text/javascript">
  		function onDAOChange(){
  	 		var frameDAOSetup = $("#frameDAOSetup");
