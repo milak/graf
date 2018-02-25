@@ -1,46 +1,3 @@
-var currentItem = null;
-var panZoomInstance = null;
-function changeImage(url){
-	if (panZoomInstance != null){
-		panZoomInstance.destroy();
-		panZoomInstance = null;
-	}
-	if (url == null){
-		$('#frame').html("");
-		return;
-	}
-	$.get( url, function( data ) {
-		$('#frame').html(data);
-		panZoomInstance = svgPanZoom("#frame", {
-		    zoomEnabled				: true,
-		    dblClickZoomEnabled		: false,
-		    controlIconsEnabled		: true,
-		    fit						: true,
-		    center					: false,
-		    minZoom					: 0.1,
-		    zoomScaleSensitivity 	: 0.3
-		});
-	});
-}
-function hideToolBox(){
-	$("#default_toolbox"  ).hide();
-	$("#strategic_toolbox").hide();
-	$("#business_toolbox" ).hide();
-	$("#logic_toolbox"    ).hide();
-	$("#process_toolbox"  ).hide();
-	$("#technic_toolbox"  ).hide();
-	$("#views_toolbox"    ).hide();
-	$("#service_toolbox"  ).hide();
-	try{
-		$("#process_script_editor_form").dialog("close");
-	} catch(e){} // ignorer les erreurs de non initialisation de la fenetre
-	try{
-		$("#solution_script_editor_form").dialog("close");
-	} catch(e){} // ignorer les erreurs de non initialisation de la fenetre
-}
-function clearFrame(){
-	changeImage(null);
-}
 function showPopup(title,body){
 	$("#popup").html(body);
 	$("#popup").dialog({"modal":true,"title":title,"minWidth":400});
@@ -48,118 +5,125 @@ function showPopup(title,body){
 function hidePopup(){
 	$("#popup").dialog("close");
 }
-function svgElementDblClicked(what,id){
-	alert("svgElementDblClicked()");
-}
-function svgElementClicked(what,id,button){
-	if (button == 2){
-		if (what == "process"){
-			showProcessContext(id);
-		} else if (what == "domain"){
-			showDomainContext(id);
-		} else if (what == "step"){
-			showProcessStepContext(id);
-		} else if (what == "tosca_item"){
-			showToscaItemContext(id);
-		} else if (what == "box"){
-			// nothing to do at now
-		} else if (what == "instance"){
-			$.getJSON( "api/service_instance.php?id="+id, function(result) {
-				var instance = result.instances[0];
-				var html = "<p>Instance</p>";
-				html += "<b>Nom</b> : "+instance.name+"<br/><br/>";
-				html += "<b>Environnement</b> : "+instance.environment.name+"<br/><br/>";
-				html += "<hr/>";
-				html+="<button onclick='hidePopup();displayServiceInstance(\""+id+"\")'><img src='images/63.png'/> ouvrir</button>";
-				html += " <button onclick='hidePopup();deleteServiceInstance(\""+id+"\")'><img src='images/14.png'/> supprimer</button>";
-				html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
-				showPopup("Détail",html);
-			}).fail(function(jxqr,textStatus,error) {
-				showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-			});
-		} else if (what == "actor"){
-			$.getJSON( "api/element.php?id="+id, function(result) {
-				var element = result.elements[0];
-				var html = "<p>Acteur</p>";
-				html += "<b>Nom</b> : "+element.name+"<br/><br/>";
-				html += "<b>Classe</b> : "+element.class.name+"<br/><br/>";
-				html += "<hr/>";
-				html += " <button onclick='hidePopup();displayBusiness(\""+id+"\")'><img src='images/63.png'/> ouvrir</button>";
-				if (currentItem != null){
-					html += " <button onclick='hidePopup();removeItem(\""+currentItem.id+"\",\""+id+"\")'><img src='images/14.png'/> retirer</button>";
-				}
-				html += " <button onclick='hidePopup();deleteItem(\""+id+"\")'><img src='images/14.png'/> supprimer</button>";
-				html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
-				showPopup("Détail",html);
-			}).fail(function(jxqr,textStatus,error) {
-				showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-			});
-		} else if (what == "data"){
-			$.getJSON( "api/element.php?id="+id, function(result) {
-				var element = result.elements[0];
-				var html = "<p>Donnée</p>";
-				html += "<b>Nom</b> : "+element.name+"<br/><br/>";
-				html += "<b>Classe</b> : "+element.class.name+"<br/><br/>";
-				html += "<hr/>";
-				//html += " <button onclick='hidePopup();deleteItem(\""+id+"\")'><img src='images/14.png'/> supprimer</button>";
-				if (currentItem != null){
-					html += " <button onclick='hidePopup();removeItem(\""+currentItem.id+"\",\""+id+"\")'><img src='images/14.png'/> retirer</button>";
-				}
-				html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
-				showPopup("Détail",html);
-			}).fail(function(jxqr,textStatus,error) {
-				showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-			});
-		} else if (what == "service"){
-			$.getJSON( "api/service.php?id="+id, function(result) {
-				var service = result.services[0];
-				var html = "<p>Service</p>";
-				html += "<b>Nom</b> : "+service.name+"<br/><br/>";
-				html += "<b>Code</b> : "+service.code+"<br/><br/>";
-				html += "<hr/>";
-				html += " <button onclick='hidePopup();displayService(\""+id+"\")'><img src='images/63.png'/> ouvrir</button>";
-				if (currentItem != null){
-					html += " <button onclick='hidePopup();removeItem(\""+currentItem.id+"\",\""+id+"\")'><img src='images/14.png'/> retirer</button>";
-				}
-				html += " <button onclick='hidePopup();deleteItem(\""+id+"\")'><img src='images/14.png'/> supprimer</button>";
-				html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
-				showPopup("Détail",html);
-			}).fail(function(jxqr,textStatus,error) {
-				showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-			});
-		} else if (what == "solution"){
-			showItemContext(id);
-		} else if ((what == "device") || (what == "server") || (what == "software")){
-			showItemContext(id);
-		} else if (what == "component"){
-			showComponentContext(id);
-		} else {
-			alert("An "+what+" of id "+id +" was clicked");
-		}
-	}
-}
-function buildAreaList(view){
-	var areas = view.areas;
-	var options = "<option value='null'>~~Choisir une zone~~</option>";
-	for (var i = 0; i < areas.length; i++){
-		var area = areas[i];
-		//options += '<option value="'+area.id+'">'+area.name+'</option>';
-		options += recursiveBuildAreaList(area);
-	}
-	return options;
-}
-function recursiveBuildAreaList(area){
-	var html = "";
-	if (area.areas.length == 0){
-		html = '<option value="'+area.id+'">'+area.name+'</option>';
-	} else {
-		for (var i = 0; i < area.areas.length; i++){
-			var subarea = area.areas[i];
-			html += recursiveBuildAreaList(subarea);
-		}
-	}
-	return html;
-}
+
 function sortByName(a, b){
 	return a.name.localeCompare(b.name);
 }
+function initAutoComplete(){
+	//Auto completion lors de la recherche
+	$('input.typeahead').typeahead({
+			minLength: 3,
+		  	highlight: true
+	},{
+		source : function (query, syncResults, asyncResults){
+			return $.get('api/element.php', { name: query }, function (data) {
+	        	var elements = data.elements;
+	        	var result = new Array();
+	        	for(var i = 0; i < elements.length; i++){
+	        		elements[i].categoryName = elements[i].category.name;
+	        		result.push(elements[i]);
+	        	}
+	        	asyncResults(result);
+	        }).fail(function(jxqr,textStatus,error){
+				sendMessage("error","Unable to get elements : "+error);
+			});
+		},
+		display : Handlebars.compile(''),
+		templates: {
+			//header : "Items found",
+		    /*empty: [
+		      '<div class="empty-message">',
+		        'unable to find any item that match the current query',
+		      '</div>'
+		    ].join('\n'),*/
+		    suggestion: Handlebars.compile('<div><strong>{{categoryName}}</strong> – {{name}}</div>')
+		}
+	}).bind('typeahead:select', function(ev, suggestion) {
+		  openItem(suggestion);
+	});
+}
+function svgElementClicked(what,id,button){
+	if (button == 0){ // Left button
+		$.getJSON( "api/element.php?id="+id, function(result) {
+			var element = result.elements[0];
+			openItem(element);// {id : id, category : what});
+		});
+	} else { // Right button
+		showContextMenu(what,id);
+	}
+}
+function showContextMenu(what,id){
+	$.getJSON( "api/element.php?id="+id, function(result) {
+		var element = result.elements[0];
+		var html = "<p>Instance</p>";
+		html += "<b>Nom</b> : "+element.name+"<br/><br/>";
+		html += "<hr/>";
+		html+="<button onclick='hidePopup();svgElementClicked(\"\",\""+id+"\",0)'><img src='images/63.png'/> ouvrir</button>";
+		html += " <button onclick='hidePopup();deleteItem(\""+id+"\")'><img src='images/14.png'/> supprimer</button>";
+		html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
+		showPopup("Détail",html);
+	}).fail(function(jxqr,textStatus,error) {
+		sendMessage("error","Unable to get item information : "+error);
+	});
+}
+function sendMessage(level,message){
+	var wait = 1000;
+	if (level == "warning"){
+		$("#alert").attr('class', "alert alert-warning");
+		$("#alertBadge").attr('class', "badge badge-warning");
+		$("#alertLevel").text("Warning");
+		$("#alertIcon").attr("src","images/58.png");
+		wait = 2800;
+	} else if (level == "info"){
+		$("#alert").attr('class', "alert alert-info");
+		$("#alertBadge").attr('class', "badge badge-info");
+		$("#alertLevel").text("Info");
+		$("#alertIcon").attr("src","images/4.png");
+	} else if (level == "success"){
+		$("#alert").attr('class', "alert alert-success");
+		$("#alertBadge").attr('class', "badge badge-success");
+		$("#alertLevel").text("Success");
+		$("#alertIcon").attr("src","images/3.png");
+	} else if ((level == "error") || (level == "danger")){
+		$("#alert").attr('class', "alert alert-danger");
+		$("#alertBadge").attr('class', "badge badge-danger");
+		$("#alertIcon").attr("src","images/89.png");
+		$("#alertLevel").text("Error");
+		wait = 3000;
+	} else if (level == "primary"){
+		$("#alert").attr('class', "alert alert-primary");
+		$("#alertBadge").attr('class', "badge badge-primary");
+		$("#alertLevel").text("Info");
+		$("#alertIcon").attr("src","images/49.png");
+	} else {
+		$("#alert").attr('class', "alert alert-primary");
+		$("#alertBadge").attr('class', "badge badge-primary");
+		$("#alertLevel").text("");
+		$("#alertIcon").attr("src","images/49.png");
+	}
+	$("#alertMessage").text(message);
+	$("#alert").show("slide").delay(wait).hide("fade", {}, 1200);
+}
+var global = {
+	itemCategories 	: null,
+	views 			: null,
+	currentItem 	: null
+};
+$(function() {
+	initAutoComplete();
+	var menuViewDropDown = $("#menuViewDropDown");
+	Object.keys(viewDescription).forEach(function (index) {
+		menuViewDropDown.append($("<a class='dropdown-item' href='#' onClick='addView(\""+index+"\")'>"+viewDescription[index].title+"</a>"));
+	});
+	$("#main").panelFrame();
+	$.getJSON( "api/element_class.php", function(result) {
+		global.itemCategories = result.categories;
+	}).fail(function(jxqr,textStatus,error) {
+		sendMessage("error","Unable to load item classes : "+error);
+	});
+	$.getJSON( "api/view.php?areas=list", function(result) {
+		global.views = result.views;
+	}).fail(function(jxqr,textStatus,error) {
+		sendMessage("error","Unable to load views : "+error);
+	});
+});

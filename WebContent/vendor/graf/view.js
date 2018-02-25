@@ -1,58 +1,120 @@
-function displayViews() {
-	hideToolBox();
-	$("#views_toolbox").show();
-	selectView();
+var viewDescription = new Array();
+viewDescription['strategic'] 	= { url : 'views/view_strategique.php', class : 'panel-purple', noItemSupported : true, static : false,	svg : true, 	title : "Strategical view"};
+viewDescription['business'] 	= { url : 'views/view_business.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Business view"};
+viewDescription['logical'] 		= { url : 'views/view_logique.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Logical view"};
+viewDescription['service'] 		= { url : 'views/view_service.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Service view"};
+viewDescription['process'] 		= { url : 'views/view_process.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Process view"};
+viewDescription['technical']	= { url : 'views/view_technical.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Technical view"};
+viewDescription['viewItem']		= { url : 'forms/viewItem.html', 		class : 'panel-purple', noItemSupported : false, static : true,  svg : false, 	title : "Detail"};
+viewDescription['mapEurope']	= { url : 'views/view_map.php?map=europe', 		class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : "Map - Europe"};
+viewDescription['mapWorld']		= { url : 'views/view_map.php?map=world', 		class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : "Map - World"};
+var views = new Array();
+function createItem(){
+	$("#createItem").panel({
+    	url 	: 'forms/createItem.html?id='+Math.random(),
+    	class 	: 'panel-green',
+    	title 	: "Create an item",
+    	buttons : ["reload","close"]
+    });// .state("maximized");
 }
-function views_checkFill() {
-	selectView();
+function searchItem(){
+	$("#searchItem").panel({
+    	url : 'forms/searchItem.html',
+    	class : 'panel-green',
+    	title : "Search an item",
+    	// buttons : ["reload","close"]
+    });// .state("maximized");
 }
-function selectView() {
-	var view = $("#viewSelected").val();
-	if (view == "null") {
-		$("#views_update_button").button("disable");
-		clearFrame();
+
+function addView(viewName){
+	var viewPanel;
+	var description = viewDescription[viewName];
+   	if (description != null){
+		var panel = {
+			title 	: description.title,
+    		class 	: description.class,
+			done	: function(){
+				if (this.viewDescription.svg) {
+    				try{
+        				this.svgPanZoom.destroy();
+        			}catch(exception){}
+        			try{
+    					this.svgPanZoom.destroy();
+        			}catch(exception){}
+        			try{
+        				this.svgPanZoom = svgPanZoom("#"+viewName, {
+        				    zoomEnabled				: true,
+        				    dblClickZoomEnabled		: false,
+        				    controlIconsEnabled		: true,
+        				    fit						: true,
+        				    center					: false,
+        				    minZoom					: 0.1,
+        				    zoomScaleSensitivity 	: 0.3
+        				});
+        			}catch(exception){}
+				}
+			},
+			fail : function(jxqr,textStatus,error){
+    			sendMessage("error","Unable to load view : " + error);
+			},
+			update	: function(){
+    			if (this.viewDescription.svg) {
+        			try{
+        				this.svgPanZoom.destroy();
+        			}catch(exception){}
+        			try{
+    					this.svgPanZoom.destroy();
+        			}catch(exception){}
+        			try{
+    				this.svgPanZoom = svgPanZoom("#"+viewName, {
+    				    zoomEnabled				: true,
+    				    dblClickZoomEnabled		: false,
+    				    controlIconsEnabled		: true,
+    				    fit						: true,
+    				    center					: false,
+    				    minZoom					: 0.1,
+    				    zoomScaleSensitivity 	: 0.3
+    				});
+        			}catch(exception){
+            			// console.log(exception);
+            		}
+    			}
+			},
+			close  : function(){
+				// retirer la vue
+    			var index = -1;
+    			for(var i = 0; i < views.length; i++){
+                	var view = views[i];
+                	if (view.panelId == this.panelId){
+                    	index = i;
+                    	break;
+                	}
+    			}
+    			if (index != -1){
+    				views.splice(index,1);
+    			}
+			}
+		}
+       	var url = description.url;
+       	if (!description.static) {
+       		if (global.currentItem != null){
+           		var car = "?";
+           		if (url.indexOf("?") != -1){
+               		car = "&";
+           		}
+        	   	panel.url = url + car + "id="+global.currentItem.id;
+       		} else if (description.noItemSupported){
+       			panel.url = url;
+       		} else {
+       			panel.url = null;
+       		}
+       	} else {
+       		panel.url = url;
+       	}
+   		viewPanel = $('#'+viewName).panel(panel);
+		viewPanel.viewDescription = description;
+   		views.push(viewPanel);
 	} else {
-		$("#views_update_button").button("enable");
-		if ($('input[name=views_fill]').is(':checked')) {
-			changeImage("views/view_views.php?view=" + view);
-		} else {
-			changeImage("views/view_views.php?view=" + view + "&fill=no");
-		}
+    	alert("Vue non supportée " + view);
 	}
-}
-function updateView() {
-	var view = $("#viewSelected").val();
-	if (view == "null") {
-		return;
-	}
-	$.ajax({
-		url : "api/view.php?view=" + view,
-		dataType : "text",
-		success : function(result) {
-			$("#update_view_form_name").val(view);
-			$("#update_view_form_value").val(result);
-			$("#update_view_form").dialog({
-				"modal" : true,
-				"title" : "Mise à jour de la vue",
-				"width" : 500,
-				"height" : 400
-			});
-		}
-	}).fail(function(jxqr, textStatus, error) {
-		alert(textStatus + " : " + error);
-	});
-}
-function refreshAreaList(){
-	$.getJSON( "api/area.php?view=logical", function(result) {
-		var areas = result.areas;
-		var options = "";//<option value='null' selected>--choisir une zone--</option>";
-		for (var i = 0; i < areas.length; i++){
-			var area = areas[i];
-			options += '<option value="'+area.id+'">'+area.name+'</option>';
-		}
-		$('#edit_component_form_area').html(options);
-		$('#create_component_form_area').html(options);
-		}).fail(function(jxqr,textStatus,error) {
-		showPopup("Echec","<h1>Impossible de charger les zones</h1>"+textStatus+ " : " + error);
-	});
 }
