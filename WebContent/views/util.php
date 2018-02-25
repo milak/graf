@@ -345,7 +345,7 @@ function startsWith($haystack, $needle) {
     $length = strlen($needle);
     return (substr($haystack, 0, $length) === $needle);
 }
-$_allReadyBrowsed = array();
+/*$_allReadyBrowsed = array();
 function recursiveSearch($id,$categories,$direction){
 	global $_allReadyBrowsed;
 	global $dao;
@@ -368,5 +368,5 @@ function recursiveSearch($id,$categories,$direction){
 		}
 	}
 	return $result;
-}
+}*/
 ?>
