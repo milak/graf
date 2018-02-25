@@ -48,7 +48,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     	$items = $dao->getItems((object)$query);
     }
 ?>
-{ "elements" : [
+{
+	"code" : 0,
+	"message" : "Found <?php echo count($items);?>",
+	"elements" : [
 <?php
 $first = true;
 foreach ($items as $item){
@@ -119,8 +122,22 @@ foreach ($items as $item){
         	}
         	$properties[$key] = $value;
         }
-        $dao->createItem($class_name,$name,$name,"",$properties);
-        
+        $id = $dao->createItem($class_name,$name,$name,"",$properties);?>
+{
+   "code"		: 0,
+   "message"	: "Item created",
+   "objects"	: [{
+         "code"		: 0,
+         "message"	: "created",
+         "class"	: "Item",
+         "id"		: "<?php echo $id;?>",
+         "fields": {
+            "id"	: "<?php echo $id;?>",
+            "name"	: "<?php echo $name;?>"
+         }
+      }
+   ]
+}<?php
     }
 /** METHOD DELETE **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
