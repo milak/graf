@@ -1,7 +1,7 @@
 <html>
 <body>
 	<form>
-		<span style="display: none" data-provider="currentItem" onchange="_viewItem.refreshItem(global.currentItem)"/>
+		<span style="display: none" data-provider="currentItem" onchange="_viewItem.refreshItem(global.currentItem)"></span>
 		<ul class="nav nav-pills mb-3" id="myTab" role="tablist">
 			<li class="nav-item"><a class="nav-link active" id="detail-tab" data-toggle="tab"
 				href="#detail" role="tab" aria-controls="detail" aria-selected="true">Detail</a></li>
@@ -14,115 +14,160 @@
 			<li class="nav-item"><a class="nav-link" id="documents-tab" data-toggle="tab"
 				href="#documents" role="tab" aria-controls="documents" aria-selected="false">Documents</a>
 			</li>
+			<li class="nav-item"><a class="nav-link" id="viewItemFilters-tab" data-toggle="tab"
+				href="#viewItemFilters" role="tab" aria-controls="viewItemFilters" aria-selected="false">Filters related</a>
+			</li>
 		</ul>
 		<div class="tab-content" id="myTabContent">
 			<div class="tab-pane fade show active" id="detail" role="tabpanel"
 				aria-labelledby="detail-tab">
-				<fieldset class="form-group">
-					<legend>Item fields</legend>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemId">ID</label>
-						<div class="col-10">
-							<input class="form-control form-control-sm" type="text" id="viewItemId" readonly="true"/>
+				<div class="bd-callout-info bd-callout">
+					<fieldset class="form-group">
+						<legend>Item fields</legend>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemId">ID</label>
+							<div class="col-10">
+								<input class="form-control form-control-sm" type="text" id="viewItemId" readonly="true"/>
+							</div>
 						</div>
-					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemName">Name</label>
-						<div class="col-10">
-							<input class="form-control form-control-sm" type="text" id="viewItemName" />
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemName">Name</label>
+							<div class="col-10">
+								<input class="form-control form-control-sm" type="text" id="viewItemName" />
+							</div>
 						</div>
-					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemCategory">Category</label>
-						<div class="col-10">
-							<input class="form-control form-control-sm" type="text" id="viewItemCategory" readonly="true"/>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemCategory">Category</label>
+							<div class="col-10">
+								<input class="form-control form-control-sm" type="text" id="viewItemCategory" readonly="true"/>
+							</div>
 						</div>
-					</div>
-					<div class="form-group row">
-						<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemClass">Class</label>
-						<div class="col-10">
-							<input class="form-control form-control-sm" type="text" id="viewItemClass" readonly="true"/>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemClass">Class</label>
+							<div class="col-10">
+								<input class="form-control form-control-sm" type="text" id="viewItemClass" readonly="true"/>
+							</div>
 						</div>
-					</div>
-					<div class="table-responsive">
-						<table class="table table-bordered table-hover table-sm">
-							<thead>
-								<tr>
-									<th>Key</th>
-									<th>Value</th>
-								</tr>
-							</thead>
-							<tbody id="viewItemProperties"></tbody>
-						</table>
-					</div>
-				</fieldset>
-				<hr />
-				<button class="btn btn-primary btn-sm" type="button" onclick='_viewItem.updateItem();'
-					id="viewItemUpdateButton">
-					<img src='images/92.png' /> update
-				</button>
-				<button class="btn btn-danger btn-sm" type="button"
-					onclick='deleteItem(global.currentItem.id);' id="viewItemDeleteButton">
-					<img src='images/14.png' /> delete
-				</button>
+						<div class="table-responsive">
+							<table class="table table-bordered table-hover table-sm">
+								<thead>
+									<tr>
+										<th>Key</th>
+										<th>Value</th>
+									</tr>
+								</thead>
+								<tbody id="viewItemProperties"></tbody>
+							</table>
+						</div>
+					</fieldset>
+					<hr />
+					<button class="btn btn-primary btn-sm" type="button" onclick='_viewItem.updateItem();'
+						id="viewItemUpdateButton">
+						<img src='images/92.png' /> update
+					</button>
+					<button class="btn btn-danger btn-sm" type="button"
+						onclick='deleteItem(global.currentItem.id);' id="viewItemDeleteButton">
+						<img src='images/14.png' /> delete
+					</button>
+				</div>
 			</div>
 			<div class="tab-pane fade" id="description" role="tabpanel"
 				aria-labelledby="description-tab">
-				<div class="form-group row">
-					<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemDescription">Description</label>
-					<textarea id="viewItemDescription" class="form-control form-control-sm"
-						style="margin: 15px" rows="" cols="">
-					</textarea>
+				<div class="bd-callout-info bd-callout">
+					<fieldset class="form-group">
+					<legend>Description</legend>
+						<div class="form-group row">
+							<!--label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemDescription">Description</label-->
+							<textarea id="viewItemDescription" class="form-control form-control-sm"
+								style="margin: 15px" rows="" cols="">
+							</textarea>
+						</div>
+					</fieldset>
 				</div>
 			</div>
 			<div class="tab-pane fade" id="relateds" role="tabpanel" aria-labelledby="relateds-tab">
-				Category filter : <span id="viewItemFilterCategories" style="margin:6px"></span><button class='btn btn-sm btn-primary' onclick="_viewItem.resetFilter();_viewItem.updateCategoryFilter();_viewItem.refreshRelateds(global.currentItem)">all</button>
-				<br/>
-				<br/>
-				<table class="table table-bordered table-hover table-sm">
-					<thead>
-						<tr>
-							<th>Category</th>
-							<th>Name</th>
-							<th>Action</th>
-						</tr>
-					</thead>
-					<tbody id="viewItemRelatedItemsUp"></tbody>
-				</table>
-				<table class="table table-bordered table-hover table-sm">
-					<thead>
-						<tr>
-							<th>Category</th>
-							<th>Name</th>
-							<th>Action</th>
-						</tr>
-					</thead>
-					<tbody id="viewItemRelatedItemsDown"></tbody>
-				</table>
+				<fieldset class="form-group">
+					<legend>Related items</legend>
+					<table class="table table-bordered table-hover table-sm">
+						<thead>
+							<tr>
+								<th style="width:50px;text-align:center">Link</th>
+								<th style="width:10%;text-align:center">Category</th>
+								<th style="text-align:center">Name</th>
+								<th style="width:10%;text-align:center">Action</th>
+							</tr>
+						</thead>
+						<tbody id="viewItemRelatedItems"></tbody>
+					</table>
+				</fieldset>
 			</div>
 			<div class="tab-pane fade" id="documents" role="tabpanel" aria-labelledby="documents-tab">
-				<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemDocumentsList">Documents list</label>
-				<table class="table table-bordered table-hover table-sm">
-					<thead>
-						<tr>
-							<th>Name</th>
-							<th>Type</th>
-							<th>Action</th>
-						</tr>
-					</thead>
-					<tbody id="viewItemDocumentsList"></tbody>
-				</table>
+				<fieldset class="form-group">
+					<legend>Documents list</legend>
+						<table class="table table-bordered table-hover table-sm">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Type</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody id="viewItemDocumentsList"></tbody>
+						</table>
+				</fieldset>
+			</div>
+			<div class="tab-pane fade" id="viewItemFilters" role="tabpanel"
+				aria-labelledby="viewItemFilters-tab">
+				<div class="bd-callout-info bd-callout">
+				<fieldset class="form-group">
+					<legend>Filters for related items list</legend>
+					Show direction :<br/>
+					<div style="margin-left : 25px;margin-top:10px;margin-bottom:10px">
+						<button class='btn btn-sm btn-primary' id="viewItemUpFilter" onclick="_viewItem.toggleFilter('up');  " title="Display up related items"><img src="images/55.png"/> up</button>
+						<button class='btn btn-sm btn-primary' id="viewItemDownFilter" onclick="_viewItem.toggleFilter('down');" title="Display down related items"><img src="images/54.png"/> down</button>
+					</div>
+					Show Categories :<br/>
+					<div id="viewItemFilterCategories" style="margin-left : 25px;margin-top:10px;margin-bottom:10px"></div>
+					<button class='btn btn-sm btn-primary' onclick="_viewItem.resetFilter();">Show all</button>
+				</fieldset>
+				</div>
 			</div>
 		</div>
 	</form>
 	<script>
 	var _viewItem = {
 		_categoryFilter : null,
+		_directionUp : true,
+		_directionDown : true,
 		resetFilter : function(){
 			var categories = global.itemCategories;
 			for (var c = 0; c < categories.length; c++){
 				this._categoryFilter[categories[c].id] = true;
 			}
+			this.updateCategoryFilter();
+			this.refreshRelateds(global.currentItem);
+		},
+		toggleFilter : function(direction){
+			if (direction == 'up'){
+				this._directionUp = !this._directionUp;
+				if (this._directionUp){
+					$("#viewItemUpFilter").addClass("btn-primary");
+					$("#viewItemUpFilter").removeClass("btn-secondary");
+				} else {
+					$("#viewItemUpFilter").removeClass("btn-primary");
+					$("#viewItemUpFilter").addClass("btn-secondary");
+				}
+			} else if (direction == 'down'){
+				this._directionDown = !this._directionDown;
+				if (this._directionDown){
+					$("#viewItemDownFilter").addClass("btn-primary");
+					$("#viewItemDownFilter").removeClass("btn-secondary");
+				} else {
+					$("#viewItemDownFilter").removeClass("btn-primary");
+					$("#viewItemDownFilter").addClass("btn-secondary");
+				}
+			}
+			this.refreshRelateds(global.currentItem);
 		},
 		updateCategoryFilter : function(){
 			var categories = global.itemCategories;
@@ -151,8 +196,7 @@
 				$("#viewItemUpdateButton").	prop("disabled",true);
 				$("#viewItemDeleteButton").	prop("disabled",true);
 				$("#viewItemProperties").	html("");
-				$("#viewItemRelatedItemsUp").html("");
-				$("#viewItemRelatedItemsDown").html("");
+				$("#viewItemRelatedItems").html("");
 			} else {
 				$("#viewItemId").			val(item.id);
 				$("#viewItemName").			val(item.name);
@@ -171,51 +215,71 @@
 			}
 		},
 		refreshRelateds : function(item){
-			if (item == null){
-				$("#viewItemRelatedItemsUp").html("");
-				$("#viewItemRelatedItemsDown").html("");
-			} else {
-				$.getJSON( "api/element.php?id="+item.id+"&direction=up&related_items", function(result) {
-					var html = "";
-					var element;
-					for (var e = 0; e < result.elements.length; e++){
-		    			element = result.elements[e];
-		    			if (_viewItem._categoryFilter[element.category.id] == true){
-		    				html += "<tr><td>"+element.category.name+"</td>";
-			    			html += "<td><a href='#' onclick='openItem({id:\""+element.id+"\"})'>"+element.name+"</a></td>";
-			    			html += "<td><button class='btn btn-danger btn-sm' onClick='unlinkItem({id : \""+element.id+"\"},{id : \""+item.id+"\"});' title='Unlink \""+element.name+"\" from \""+item.name+"\"'>Unlink</button></td>";
-			    			html += "</tr>";
-		    			}
-					}
-					$("#viewItemRelatedItemsUp").html(html);
-				}).fail(function(jxqr,textStatus,error){
-					sendMessage("error","Unable to get related items : "+error);
-				});
-				$.getJSON( "api/element.php?id="+item.id+"&direction=down&related_items", function(result) {
-					var html = "";
-					var element;
-					for (var e = 0; e < result.elements.length; e++){
-		    			element = result.elements[e];
-		    			if (_viewItem._categoryFilter[element.category.id] == true){
-			    			html += "<tr><td>"+element.category.name+"</td>";
-			    			html += "<td><a href='#' onclick='openItem({id:\""+element.id+"\"})'>"+element.name+"</a></td>";
-			    			html += "<td><button class='btn btn-danger btn-sm' onClick='unlinkItem({id : \""+item.id+"\"},{id : \""+element.id+"\"});' title='Unlink \""+element.name+"\" from \""+item.name+"\"'>Unlink</button></td>";
-			    			html += "</tr>";
-		    			}
-					}
-					$("#viewItemRelatedItemsDown").html(html);
-				}).fail(function(jxqr,textStatus,error){
-					sendMessage("error","Unable to get related items : "+error);
-				});
+			$("#viewItemRelatedItems").html("");
+			if (item != null){
+				if (this._directionUp){
+					$.getJSON( "api/element.php?id="+item.id+"&direction=up&related_items", function(result) {
+						var html = "";
+						var element;
+						var count = 0;
+						for (var e = 0; e < result.elements.length; e++){
+			    			element = result.elements[e];
+			    			if (_viewItem._categoryFilter[element.category.id] == true){
+			    				html += "<tr><td>up</td><td>"+element.category.name+"</td>";
+				    			html += "<td><a href='#' onclick='openItem({id:\""+element.id+"\"})'>"+element.name+"</a></td>";
+				    			html += "<td><button class='btn btn-danger btn-sm' onClick='unlinkItem({id : \""+element.id+"\"},{id : \""+item.id+"\"});' title='Unlink \""+element.name+"\" from \""+item.name+"\"'>Unlink</button></td>";
+				    			html += "</tr>";
+				    			count++;
+				    			if (count > 8){
+				    				html += "<tr><td style='text-align:center' colspan='3'>...</td></tr>";
+				    				break;
+				    			}
+			    			}
+						}
+						$("#viewItemRelatedItems").append(html);
+					}).fail(function(jxqr,textStatus,error){
+						sendMessage("error","Unable to get related items : "+error);
+					});
+				}
+				if (this._directionDown){
+					$.getJSON( "api/element.php?id="+item.id+"&direction=down&related_items", function(result) {
+						var htmlDown = "";
+						var element;
+						var count = 0;
+						for (var e = 0; e < result.elements.length; e++){
+			    			element = result.elements[e];
+			    			if (_viewItem._categoryFilter[element.category.id] == true){
+			    				htmlDown += "<tr><td>Down</td><td>"+element.category.name+"</td>";
+			    				htmlDown += "<td><a href='#' onclick='openItem({id:\""+element.id+"\"})'>"+element.name+"</a></td>";
+			    				htmlDown += "<td><button class='btn btn-danger btn-sm' onClick='unlinkItem({id : \""+item.id+"\"},{id : \""+element.id+"\"});' title='Unlink \""+element.name+"\" from \""+item.name+"\"'>Unlink</button></td>";
+			    				htmlDown += "</tr>";
+				    			count++;
+				    			if (count > 8){
+				    				htmlDown += "<tr><td style='text-align:center' colspan='3'>...</td></tr>";
+				    				break;
+				    			}
+			    			}
+						}
+						$("#viewItemRelatedItems").append(htmlDown);
+					}).fail(function(jxqr,textStatus,error){
+						sendMessage("error","Unable to get related items : "+error);
+					});
+				}
 				$.getJSON( "api/document.php?itemId="+item.id, function(result) {
 					var html = "";
 					var document;
+					var count = 0;
 					for (var d = 0; d < result.documents.length; d++){
 						document = result.documents[d];
 						html += "<tr><td><a href='#' onclick='sendMessage(\"warning\",\"Not yet implemented\")'>"+document.name+"</a></td>";
 						html += "<td>"+document.type+"</td>";
 						html += "<td><button class='btn btn-danger btn-sm' onclick='_viewItem.deleteDocument(\""+document.id+"\")'>Delete</button></td>";
 						html += "</tr>";
+						count++;
+		    			if (count > 8){
+		    				html += "<tr><td style='text-align:center' colspan='3'>...</td></tr>";
+		    				break;
+		    			}
 					}
 					$("#viewItemDocumentsList").html(html);
 				}).fail(function(jxqr,textStatus,error){
