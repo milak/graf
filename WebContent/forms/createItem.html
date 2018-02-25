@@ -1,202 +1,228 @@
 <html>
 <body>
+	<span style="display: none" data-provider="currentItem" onchange="_createItem.refreshItem(global.currentItem)"/>
 	<form>
 		<fieldset class="form-group">
 			<legend>Item fields</legend>
 			<div class="form-group row">
 				<label class="col-sm-2 col-form-label col-form-label-sm" for="createItemName">Name*</label>
 				<div class="col-10">
-					<input class="form-control form-control-sm" type="text" id="createItemName" onchange="createItemOnNameChange()"/>
+					<input class="form-control form-control-sm" type="text" id="createItemName" onchange="_createItem.onNameChange()"/>
 				</div>
 			</div>
 			<div class="form-group row">
 				<label class="col-sm-2 col-form-label col-form-label-sm" for="createItemCategory">Category*</label>
 				<div class="col-10">
-					<select class="form-control form-control-sm" type="text" id="createItemCategory" onchange="createItemOnCategoryChange()"/>
+					<select class="form-control form-control-sm" type="text" id="createItemCategory" onchange="_createItem.onCategoryChange()"/>
 				</div>
 			</div>
 			<div class="form-group row">
 				<label class="col-sm-2 col-form-label col-form-label-sm" for="createItemClass">Class*</label>
 				<div class="col-10">
-					<select class="form-control form-control-sm" type="text" id="createItemClass" onchange="createItemApplyClass()"/>
+					<select class="form-control form-control-sm" type="text" id="createItemClass" onchange="_createItem.applyClass()"/>
 				</div>
 			</div>
 			<div id="createItemAdditionalProperties">
 			</div>
 		</fieldset>
 		<hr/>
-		<button class="btn btn-primary btn-sm" type="button"
-			onclick='createItemValidate();' id="createItemValidateButton">
-			<img src='images/92.png' /> create
-		</button>
 		<button class="btn btn-danger btn-sm" type="button"
-			onclick='createItemCancel();' id="createItemCancelButton">
+			onclick='_createItem.cancel();' id="createItemCancelButton">
 			<img src='images/14.png' /> cancel
 		</button>
+		<button class="btn btn-primary btn-sm" type="button"
+			onclick='_createItem.validate();' id="createItemValidateButton" disabled="true">
+			<img src='images/92.png' /> create
+		</button>
+		&nbsp;&nbsp;&nbsp;&nbsp;
+		<input class="form-check-input" type="checkbox" id="createItemAddToCurrentItem"/>
+		<label class="form-check-label" for="createItemAddToCurrentItem">Add to currentItem</label>
 	</form>
 	<script type="text/javascript">
-		var classesById = new Array();
-		var categoriesById = new Array();
-		function createItemOnNameChange(){
-			var name = $("#createItemName").val().trim();
-			var valid = true;
-			if (name.length == 0){
-				valid = false;
-			}
-			if (valid){
-				$("#createItemValidateButton").attr("disabled",false);
-			} else {
-				$("#createItemValidateButton").attr("disabled",true);
-			}
-		}
-		function createItemValidate(){
-			var name 		= $("#createItemName").val();
-			if (name.trim() == ""){
-				sendMessage("warning","Missing value for required property 'Name'");
-				$("#createItemName").focus();
-				return;
-			}
-			var className 	= $("#createItemClass").val();
-			var data = {
-				"name"		 : name,
-				"class_name" : className
-			}
-			var classId = $("#createItemClass").val();
-			var clazz = classesById[classId];
-			var value;
-			var property;
-			console.log("properties "+clazz.name);
-			for (var p = 0; p < clazz.properties.length; p++){
-				property = clazz.properties[p];
-				console.log(property.name);
-				value = $("#createItemAdditionalProperty"+p).val();
-				if (value == ""){
-					if (property.required == true){
-						sendMessage("warning","Missing value for required property '"+property.label+"'");
-						$("#createItemAdditionalProperty"+p).focus();
-						return;
-					}
-				} else {
-					data[property.name] = value;
-				}
-			}
-			$.ajax({
-				type 	: "POST",
-				url 	: "api/element.php",
-				data	: data,
-				dataType: "text",
-				success	: function( data ) {
-					sendMessage("success","Item successfully created");
-				}
-			}).fail(function(jxqr,textStatus,error){
-				sendMessage("error","Unable to create element : "+error);
-			});
-		}
-		function createItemApplyClass(){
-			var classId = $("#createItemClass").val();
-			var clazz = classesById[classId];
-			var html = "";
-			var property;
-			var required = null;
-			var label = null;
-			for (var p = 0; p < clazz.properties.length; p++){
-				property = clazz.properties[p];
-				html+='<div class="form-group row">';
-				label = property.label;
-				if (property.required == true){
-					required = " required='true'";
-					label += "*";
-				} else {
-					required = "";
-				}
-				html+='	<label class="col-sm-2 col-form-label col-form-label-sm" for="createItemAdditionalProperty'+p+'">'+label+'</label>';
-				html+='	<div class="col-10">';
-				if (property.type == 'integer'){
-					html+='	<input class="form-control form-control-sm" type="integer" id="createItemAdditionalProperty'+p+'"'+required+'/>';
-				} else if (property.type.startsWith('area(')){
-					var viewName = property.type.substring('area('.length,property.type.length-1);
-					var areas = null;
-					var view = null;
-					for (var v = 0; v < global.views.length; v++){
-						view = global.views[v];
-						if (view.name == viewName){
-							areas = view.areas;
-							break;
+		var _createItem = {
+			classesById : new Array(),
+			categoriesById : new Array(),
+			init : function(){
+				var html = "";
+				var category;
+				var clazz;
+				var htmlClasses = "";
+				var first = true;
+				for (var c = 0; c < global.itemCategories.length; c++){
+					category = global.itemCategories[c];
+					this.categoriesById[category.id] = category;
+					html += "<option value='"+category.id+"'>"+category.name+"</option>";
+					for (var cl = 0; cl < category.classes.length; cl++){
+						clazz = category.classes[cl];
+						if (clazz.abstract == 'false'){
+							this.classesById[clazz.id] = clazz;
+							if (first){
+								htmlClasses += "<option value='"+clazz.id+"'>"+clazz.name+"</option>";
+							}
 						}
 					}
-					if (areas == null){
-						sendMessage("warning","Unable to provide area list for property '"+property.label+"' view '"+viewName+"' not found");
-						html+='	<input class="form-control form-control-sm" type="text" id="createItemAdditionalProperty'+p+'"'+required+'/>';
+					first = false;
+				}
+				$("#createItemCategory").html(html);
+				$("#createItemClass").html(htmlClasses);
+				this.applyClass();
+				this.refreshItem(global.currentItem);
+			},
+			refreshItem : function(item){
+				if (item == null){
+					$("#createItemAddToCurrentItem").prop("disabled",true);
+				} else {
+					$("#createItemAddToCurrentItem").prop("disabled",false);
+				}
+			},
+			cancel : function (){
+				$("#createItem").panel().close();
+			},
+			validate : function (){
+				var name 		= $("#createItemName").val();
+				if (name.trim() == ""){
+					sendMessage("warning","Missing value for required property 'Name'");
+					$("#createItemName").focus();
+					return;
+				}
+				var className 	= $("#createItemClass").val();
+				var data = {
+					"name"		 : name,
+					"class_name" : className
+				}
+				var classId = $("#createItemClass").val();
+				var clazz = this.classesById[classId];
+				var value;
+				var property;
+				for (var p = 0; p < clazz.properties.length; p++){
+					property = clazz.properties[p];
+					value = $("#createItemAdditionalProperty"+p).val();
+					if (value == ""){
+						if (property.required == true){
+							sendMessage("warning","Missing value for required property '"+property.label+"'");
+							$("#createItemAdditionalProperty"+p).focus();
+							return;
+						}
 					} else {
-						var area;
-						html += '<select class="form-control form-control-sm" type="text" id="createItemAdditionalProperty'+p+'"'+required+'>';
-						for (var a = 0; a < areas.length; a++){
-							area = areas[a];
-							html += '<option value="'+area.id+'">'+area.name+'</option>';
+						data[property.name] = value;
+					}
+				}
+				$.ajax({
+					type 	: "POST",
+					url 	: "api/element.php",
+					data	: data,
+					dataType: "json",
+					success	: function( data ) {
+						if (global.currentItem != null){
+							var linkToCurrentItem = !($("#createItemAddToCurrentItem").prop("disabled"));
+							if (linkToCurrentItem){
+								linkItem(global.currentItem,{id:data.objects[0].id});
+							} else {
+								sendMessage("success","Item successfully created");
+							}
+						} else {
+							sendMessage("success","Item successfully created");
+							openItem({id:data.objects[0].id});
 						}
-						html += '</select>';
 					}
-				} else if (property.type.startsWith('list(')){
-					var valueList = property.type.substring('list('.length,property.type.length-1);
-					valueList = valueList.split(",");
-					var value;
-					html += '<select class="form-control form-control-sm" type="text" id="createItemAdditionalProperty'+p+'"'+required+'>';
-					for (var a = 0; a < valueList.length; a++){
-						value = valueList[a];
-						html += '<option value="'+value+'">'+value+'</option>';
-					}
-					html += '</select>';
-				} else if (property.type == 'string'){
-					html+='	<input class="form-control form-control-sm" type="text" id="createItemAdditionalProperty'+p+'"'+required+'/>';
+				}).fail(function(jxqr,textStatus,error){
+					sendMessage("error","Unable to create element : "+error);
+				});
+			},
+			onNameChange : function (){
+				var name = $("#createItemName").val().trim();
+				var valid = true;
+				if (name.length == 0){
+					valid = false;
+				}
+				if (valid){
+					$("#createItemValidateButton").attr("disabled",false);
 				} else {
-					html+='	<input class="form-control form-control-sm" type="text" id="createItemAdditionalProperty'+p+'"'+required+'/>';
-					sendMessage("warning","Unsupported additionnal property type : '"+property.type+"', text type assumed");
+					$("#createItemValidateButton").attr("disabled",true);
 				}
-				html+='	</div>';
-				html+='</div>';
-			}
-			$("#createItemAdditionalProperties").html(html);
-		}
-		function createItemCancel(){
-			$("#createItem").panel().close();
-		}
-		function createItemOnCategoryChange(){
-			var categoryId = $("#createItemCategory").val();
-			var category = categoriesById[categoryId];
-			var htmlClasses = "";
-			for (var cl = 0; cl < category.classes.length; cl++){
-				clazz = category.classes[cl];
-				if (clazz.abstract == 'false'){
-					htmlClasses += "<option value='"+clazz.id+"'>"+clazz.name+"</option>";
-				}
-			}
-			$("#createItemClass").html(htmlClasses);
-			createItemApplyClass();
-		}
-		$(function() {
-			var html = "";
-			var category;
-			var clazz;
-			var htmlClasses = "";
-			var first = true;
-			for (var c = 0; c < global.itemCategories.length; c++){
-				category = global.itemCategories[c];
-				categoriesById[category.id] = category;
-				html += "<option value='"+category.id+"'>"+category.name+"</option>";
+			},
+			onCategoryChange : function (){
+				var categoryId = $("#createItemCategory").val();
+				var category = this.categoriesById[categoryId];
+				var htmlClasses = "";
+				var clazz;
 				for (var cl = 0; cl < category.classes.length; cl++){
 					clazz = category.classes[cl];
 					if (clazz.abstract == 'false'){
-						classesById[clazz.id] = clazz;
-						if (first){
-							htmlClasses += "<option value='"+clazz.id+"'>"+clazz.name+"</option>";
-						}
+						htmlClasses += "<option value='"+clazz.id+"'>"+clazz.name+"</option>";
 					}
 				}
-				first = false;
+				$("#createItemClass").html(htmlClasses);
+				this.applyClass();
+			},
+			applyClass : function (){
+				var classId = $("#createItemClass").val();
+				var clazz = this.classesById[classId];
+				var html = "";
+				var property;
+				var required = null;
+				var label = null;
+				for (var p = 0; p < clazz.properties.length; p++){
+					property = clazz.properties[p];
+					html+='<div class="form-group row">';
+					label = property.label;
+					if (property.required == true){
+						required = " required='true'";
+						label += "*";
+					} else {
+						required = "";
+					}
+					html+='	<label class="col-sm-2 col-form-label col-form-label-sm" for="createItemAdditionalProperty'+p+'">'+label+'</label>';
+					html+='	<div class="col-10">';
+					if (property.type == 'integer'){
+						html+='	<input class="form-control form-control-sm" type="integer" id="createItemAdditionalProperty'+p+'"'+required+'/>';
+					} else if (property.type.startsWith('area(')){
+						var viewName = property.type.substring('area('.length,property.type.length-1);
+						var areas = null;
+						var view = null;
+						for (var v = 0; v < global.views.length; v++){
+							view = global.views[v];
+							if (view.name == viewName){
+								areas = view.areas;
+								break;
+							}
+						}
+						if (areas == null){
+							sendMessage("warning","Unable to provide area list for property '"+property.label+"' view '"+viewName+"' not found");
+							html+='	<input class="form-control form-control-sm" type="text" id="createItemAdditionalProperty'+p+'"'+required+'/>';
+						} else {
+							var area;
+							html += '<select class="form-control form-control-sm" type="text" id="createItemAdditionalProperty'+p+'"'+required+'>';
+							for (var a = 0; a < areas.length; a++){
+								area = areas[a];
+								html += '<option value="'+area.id+'">'+area.name+'</option>';
+							}
+							html += '</select>';
+						}
+					} else if (property.type.startsWith('list(')){
+						var valueList = property.type.substring('list('.length,property.type.length-1);
+						valueList = valueList.split(",");
+						var value;
+						html += '<select class="form-control form-control-sm" type="text" id="createItemAdditionalProperty'+p+'"'+required+'>';
+						for (var a = 0; a < valueList.length; a++){
+							value = valueList[a];
+							html += '<option value="'+value+'">'+value+'</option>';
+						}
+						html += '</select>';
+					} else if (property.type == 'string'){
+						html+='	<input class="form-control form-control-sm" type="text" id="createItemAdditionalProperty'+p+'"'+required+'/>';
+					} else {
+						html+='	<input class="form-control form-control-sm" type="text" id="createItemAdditionalProperty'+p+'"'+required+'/>';
+						sendMessage("warning","Unsupported additionnal property type : '"+property.type+"', text type assumed");
+					}
+					html+='	</div>';
+					html+='</div>';
+				}
+				$("#createItemAdditionalProperties").html(html);
 			}
-			$("#createItemCategory").html(html);
-			$("#createItemClass").html(htmlClasses);
-			createItemApplyClass();
+		};
+		$(function() {
+			_createItem.init();
 		});
 	</script>
 </body>
