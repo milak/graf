@@ -76,7 +76,7 @@ class ITopDao implements IDAO {
         $category = $this->getItemCategoryByClass($className);
         error_log("Création d'un $category->name de classe $className de nom $name");
         if ($category->name == "domain"){
-            $result = "domain_".$this->createObject('Group', array(
+        	$result = $category->name."_".$this->createObject('Group', array(
                 'org_id'        => "SELECT Organization WHERE name = '$this->organisation'",
                 'name'          => $name,
                 'type'          => 'BusinessDomain',
@@ -84,7 +84,7 @@ class ITopDao implements IDAO {
                 'description'   => $properties['area_id']
             ));
         } else if ($className == "Data"){
-            $result = "domain_".$this->createObject('Group', array(
+        	$result = $category->name."_".$this->createObject('Group', array(
                 'org_id'        => "SELECT Organization WHERE name = '$this->organisation'",
                 'name'          => $name,
                 'type'          => 'DataModel',
@@ -92,7 +92,7 @@ class ITopDao implements IDAO {
                 'description'   => $description
             ));
         } else if ($category->name == "service"){
-            $result = "service_".$this->createObject("Service", array(
+        	$result = $category->name."_".$this->createObject("Service", array(
                 'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
                 'name'              => $name,
                 'servicefamily_id'  => "SELECT ServiceFamily WHERE name = 'IT Services'",
@@ -100,13 +100,13 @@ class ITopDao implements IDAO {
                 'description'       => $description
             ));
         } else if ($category->name == "actor"){
-            $result = "service_".$this->createObject("Team", array(
+        	$result = $category->name."_".$this->createObject("Team", array(
                 'org_id'            => "SELECT Organization WHERE name = '$this->organisation'",
                 'name'              => $name,
                 'function'          => $description
             ));
         } else if ($className == "Software"){
-        	$result = "item_".$this->createObject('Software', array(
+        	$result = $category->name."_".$this->createObject('Software', array(
         			'name'              => $name,
         			'type'              => $properties['type'],
         			'version'			=> $properties['version'],
@@ -120,7 +120,7 @@ class ITopDao implements IDAO {
         			'country'      		=> $properties['country']
         	);
         	// Créer un item
-        	$result = "item_".$this->createObject($className, $fields);
+        	$result = $category->name."_".$this->createObject($className, $fields);
         /*} else if ($category->name == "software"){
             $result = "item_".$this->createObject('Software', array(
                 'name'              => $name,
@@ -140,7 +140,7 @@ class ITopDao implements IDAO {
                 $fields['dbserver_id'] = $this->getGenericDBServerId();
             }
             // Créer un item
-            $result = "item_".$this->createObject($className, $fields);
+            $result = $category->name."_".$this->createObject($className, $fields);
         }
         return $result;
     }
@@ -210,6 +210,7 @@ class ITopDao implements IDAO {
                 }
                 break;
             case 'solution' : // ajouter dans une solution
+            case 'process' : // ajouter dans un processus
                 if ($childItem->category->name == "software"){ // ajouter un logiciel
                     $response = $this->getObjects("Software", "type","WHERE id = ".$childItemId->id);
                     foreach ($response->objects as $object){
@@ -253,6 +254,8 @@ class ITopDao implements IDAO {
                             'functionalci_id'        => $childItemId->id
                         ));
                     }
+                } else if ($childItem->category->name == "actor"){
+                	$this->addSubItem($aChildItemId,$aParentItemId); // on inverse
                 } else {
                     throw new Exception("Unable to add ".$childItem->category->name." in ".$parentItem->category->name);
                 }
@@ -426,12 +429,26 @@ class ITopDao implements IDAO {
         $result = array();
         $itemId = $this->_splitItemId($aItemId);
         if ($itemId->prefix == 'actor'){ // On recherche les domaines auquel appartient un acteur
-            /*$response = $this->getObjects('Team', 'function', 'WHERE id = '.$itemId->id);
-            foreach ($response->objects as $object){
-                $function = $object->fields->function;
-                ICI
-                break;
-            }*/
+            // Chercher tous les domaines
+        	$response = $this->getObjects('Team','function',"WHERE id = $itemId->id");
+        	$domains = '';
+        	foreach ($response->objects as $object){
+        		$domains = $object->fields->function;
+        		break;
+        	}
+            $domainList = '';
+            foreach(explode(',',$domains) as $domain){
+                if (strlen($domainList) > 0){
+                    $domainList .= ',';
+                }
+                $domainList .= "'$domain'";
+            }
+            $response = $this->getObjects("Group","*","WHERE name IN ($domainList)");
+            if (($category == "*") || ($rowcategory->name == $category)){
+            	foreach ($response->objects as $object){
+            		$result[]   = $this->_newItem($object->key, $object->fields->name, "Group");
+            	}
+            }
         } else if ($this->isFunctionalCI($itemId->prefix)){
             // Trouver les groupes liés
             if (($category == '*') || ($category == 'domain')){
@@ -448,6 +465,10 @@ class ITopDao implements IDAO {
                 foreach ($response->objects as $object){
                     $result[] = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
                 }
+            }
+            $response = $this->getObjects('lnkContactToFunctionalCI', 'contact_id,contact_name', 'WHERE functionalci_id = '.$itemId->id);
+            foreach($response->objects as $object){
+            	$result[] = $this->_newItem($object->fields->contact_id, $object->fields->contact_name, 'Team');
             }
         } else if ($itemId->prefix == 'location'){
         	if (strpos($itemId->id,'country_') !== false){ // si c'est un pays, on ramène toutes les villes au dessus
@@ -499,9 +520,7 @@ class ITopDao implements IDAO {
         if ($itemId->prefix == "actor"){ // On recherche les items sous un acteur
             // Chercher tous les items liés à l'équipe
             $response = $this->getObjects("Team","function,cis_list","WHERE id = $itemId->id");
-            $domains = "";
             foreach ($response->objects as $object){
-                $domains = $object->fields->function;
                 foreach($object->fields->cis_list as $item){
                     $rowclass = $item->functionalci_id_finalclass_recall;
                     $rowcategory = $this->getItemCategoryByClass($rowclass);
@@ -517,20 +536,6 @@ class ITopDao implements IDAO {
             $response = $this->getObjects('lnkContactToService', 'service_id, service_name, contact_id_finalclass_recall', 'WHERE contact_id = '.$itemId->id);
             foreach ($response->objects as $object){
                 $result[]   = $this->_newItem($object->fields->service_id, $object->fields->service_name, 'Service');
-            }
-            // Chercher tous les domaines
-            $domainList = "";
-            foreach(explode(",",$domains) as $domain){
-                if (strlen($domainList) > 0){
-                    $domainList .= ",";
-                }
-                $domainList .= "'$domain'";
-            }
-            $response = $this->getObjects("Group","*","WHERE name IN ($domainList)");
-            if (($category == "*") || ($rowcategory->name == $category)){
-                foreach ($response->objects as $object){
-                    $result[]   = $this->_newItem($object->key, $object->fields->name, "Group");
-                }
             }
         } else if ($itemId->prefix == "domain"){ // On recherche les items sous un domaine
             // Chercher le items
@@ -959,6 +964,9 @@ class ITopDao implements IDAO {
             'text'              => htmlspecialchars($newContent)
         ));
     }
+    public function deleteDocument($documentId){
+    	$this->deleteObject("DocumentNote", $documentId);
+    }
     //
     // Méthodes permettant de simplifier les appels à l'API rest
     //    
@@ -1179,7 +1187,7 @@ class ITopDao implements IDAO {
         		(object)['label' => 'Version', 'name'=>'version','type'=>'string','required'=>true],
         		(object)['label' => 'Vendor',  'name'=>'vendor','type'=>'string','required'=>true]
         ]);
-        $this->_addItemClass("ApplicationSolution",true,   $this->ITOP_CATEGORIES["solution"]);
+        $this->_addItemClass("ApplicationSolution",false,   $this->ITOP_CATEGORIES["solution"]);
     }
     private function _addItemClass($className,$abstract,$category,$properties=[]){
         $class = new stdClass();
