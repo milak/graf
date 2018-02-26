@@ -113,12 +113,23 @@ var global = {
 	views 			: null,
 	currentItem 	: null
 };
-$(function() {
-	initAutoComplete();
-	var menuViewDropDown = $("#menuViewDropDown");
-	Object.keys(viewDescription).forEach(function (index) {
-		menuViewDropDown.append($("<a class='dropdown-item' href='#' onClick='addView(\""+index+"\")'><img src='images/"+viewDescription[index].icon+"'/> "+viewDescription[index].title+"</a>"));
+function initI18N(){
+	var lang = navigator.language || navigator.userLanguage; 
+	$.getJSON("i18n/"+lang+".json", function(result) {
+		var resources = {
+			"lng" : lang,
+			"resources" : result
+		};
+		i18next.init(resources, function(err, t) {
+			jqueryI18next.init(i18next, $);
+			$('*[data-i18n]').localize();
+			loadViews();
+		});
 	});
+}
+$(function() {
+	initI18N();
+	initAutoComplete();
 	$("#main").panelFrame();
 	$.getJSON( "api/element_class.php", function(result) {
 		global.itemCategories = result.categories;
@@ -130,4 +141,5 @@ $(function() {
 	}).fail(function(jxqr,textStatus,error) {
 		sendMessage("error","Unable to load views : "+error);
 	});
+	
 });

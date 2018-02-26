@@ -1,14 +1,20 @@
 var viewDescription = new Array();
-viewDescription['strategic'] 	= { url : 'views/view_strategique.php', 	icon  : '63.png', class : 'panel-purple', noItemSupported : true, static : false,	svg : true, 	title : "Strategical view"};
-viewDescription['business'] 	= { url : 'views/view_business.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Business view"};
-viewDescription['logical'] 		= { url : 'views/view_logique.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Logical view"};
-viewDescription['service'] 		= { url : 'views/view_service.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Service view"};
-viewDescription['process'] 		= { url : 'views/view_process.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Process view"};
-viewDescription['technical']	= { url : 'views/view_technical.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Technical view"};
-viewDescription['viewItem']		= { url : 'forms/viewItem.html', 			icon  : '2.png' , class : 'panel-purple', noItemSupported : false, static : true,  svg : false, 	title : "Detail"};
-viewDescription['mapEurope']	= { url : 'views/view_map.php?map=europe', 	icon  : '77.png', class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : "Map - Europe"};
-viewDescription['mapWorld']		= { url : 'views/view_map.php?map=world', 	icon  : '77.png', class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : "Map - World"};
 var views = new Array();
+function loadViews(){
+	viewDescription['strategic'] 	= { url : 'views/view_strategique.php', 	icon  : '63.png', class : 'panel-purple', noItemSupported : true, static : false,	svg : true, title : i18next.t("view.strategical")};
+	viewDescription['business'] 	= { url : 'views/view_business.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : i18next.t("view.business")};
+	viewDescription['logical'] 		= { url : 'views/view_logique.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : i18next.t("view.logical")};
+	viewDescription['service'] 		= { url : 'views/view_service.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Service view"};
+	viewDescription['process'] 		= { url : 'views/view_process.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Process view"};
+	viewDescription['technical']	= { url : 'views/view_technical.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Technical view"};
+	viewDescription['viewItem']		= { url : 'forms/viewItem.html', 			icon  : '2.png' , class : 'panel-purple', noItemSupported : false, static : true,  svg : false, 	title : i18next.t("view.detail")};
+	viewDescription['mapEurope']	= { url : 'views/view_map.php?map=europe', 	icon  : '77.png', class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : i18next.t("view.map.europe")};
+	viewDescription['mapWorld']		= { url : 'views/view_map.php?map=world', 	icon  : '77.png', class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : i18next.t("view.map.world")};
+	var menuViewDropDown = $("#menuViewDropDown");
+	Object.keys(viewDescription).forEach(function (index) {
+		menuViewDropDown.append($("<a class='dropdown-item' href='#' onClick='addView(\""+index+"\")'><img src='images/"+viewDescription[index].icon+"'/> "+viewDescription[index].title+"</a>"));
+	});
+}
 function createItem(){
 	$("#createItem").panel({
     	url 	: 'forms/createItem.html?id='+Math.random(),
@@ -55,7 +61,7 @@ function addView(viewName){
 				}
 			},
 			fail : function(jxqr,textStatus,error){
-    			sendMessage("error","Unable to load view : " + error);
+    			sendMessage("error",i18next.t("message.unable_to_load_view")+" : " + error);
 			},
 			update	: function(){
     			if (this.viewDescription.svg) {
@@ -115,6 +121,6 @@ function addView(viewName){
 		viewPanel.viewDescription = description;
    		views.push(viewPanel);
 	} else {
-    	alert("Vue non supportée " + view);
+    	sendMessage("error",i18next.t("message.unknown_view") + " : " + viewName);
 	}
 }

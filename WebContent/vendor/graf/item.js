@@ -27,7 +27,7 @@ function openItem(item){
 		$.getJSON( "api/element.php?id="+item.id, function(result) {
 			if (result.elements.length == 0){
     			openItem(null);
-    			sendMessage("warning","Item doesn't exist");
+    			sendMessage("warning",i18next.t("message.item_not_exist"));
 			} else {
     			var item = result.elements[0];
     			// Open the item
@@ -41,7 +41,7 @@ function openItem(item){
     			applyItem(item);
 			}
 		}).fail(function(jxqr,textStatus,error) {
-			sendMessage("error","Unable to get item information : "+error);
+			sendMessage("error",i18next.t("message.item_no_information")+" : "+error);
 		});
 	}
 }
@@ -51,10 +51,10 @@ function refresh(){
 function _refreshBreadCrumb(){
 	var html = "";
 	if (global.currentItem == null){
-		html += '<li class="breadcrumb-item active">No item selected</li>';
+		html += '<li class="breadcrumb-item active">'+i18next.t("breadcrumb.no_item")+'</li>';
 	} else {
 		var start = 0;
-		html += '<li class="breadcrumb-item"><a href="#" onclick="home()">Home</a></li>';
+		html += '<li class="breadcrumb-item"><a href="#" onclick="home()">'+i18next.t("breadcrumb.home")+'</a></li>';
 		if (itemsList.length > 5){
 			start = itemsList.length - 5;
 			html += '<li class="breadcrumb-item">...</li>';
@@ -83,7 +83,7 @@ function applyItem(item){
 		$.getJSON( "api/element.php?id="+item.id, function(result) {
 			if (result.elements.length == 0){
     			openItem(null);
-    			sendMessage("warning","Item doesn't exist");
+    			sendMessage("warning",i18next.t("message.item_not_exist"));
 			} else {
     			var item = result.elements[0];
     			global.currentItem = item;
@@ -115,7 +115,7 @@ function applyItem(item){
             	});
 			}
 		}).fail(function(jxqr,textStatus,error) {
-			sendMessage("error","Unable to get item information : "+error);
+			sendMessage("error",i18next.t("message.item_no_information")+" : "+error);
 		});
 	} else {
 		$("#menuCurrentItem").html("No item selected");
@@ -157,10 +157,10 @@ function deleteItem(){
 			dataType: "text",
 			success	: function(data) {
 				previousItem();
-				sendMessage("success","Item successfully deleted");
+				sendMessage("success",i18next.t("message.item_success_delete"));
 			}
 		}).fail(function(jxqr,textStatus,error){
-			sendMessage("error","Unable to delete current item : "+error);
+			sendMessage("error",i18next.t("message.item_failure_delete")+" : "+error);
 		});
 	}
 }
@@ -177,13 +177,13 @@ function linkItem(parentItem,childItem){
 		success	: function( data ) {
 			if (data.code == 0){
 				applyItem(global.currentItem);
-				sendMessage("success","Item successfully linked");
+				sendMessage("success",i18next.t("message.item_success_link"));
 			} else {
-				sendMessage("error","Unable to link item : "+data.message);
+				sendMessage("error",i18next.t("item_failure_link")+" : "+data.message);
 			}
 		}
 	}).fail(function(jxqr,textStatus,error){
-		sendMessage("error","Unable to link item : "+error);
+		sendMessage("error",i18next.t("item_failure_link")+" : "+error);
 	});
 }
 function unlinkItem(parentItem,childItem){
@@ -193,9 +193,10 @@ function unlinkItem(parentItem,childItem){
    		dataType: "text",
    		success	: function(data) {
    			applyItem(global.currentItem);
+   			sendMessage("success",i18next.t("message.item_success_unlink"));
    		}
    	}).fail(function(jxqr,textStatus,error){
-       	sendMessage("error","Unable to unlink item : " + error);
+       	sendMessage("error",i18next.t("message.item_failure_unlink") +" : " + error);
    	});
 }   	
 

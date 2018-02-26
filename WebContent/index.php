@@ -7,12 +7,13 @@
 <meta name="author" content="milak">
 <link rel="icon" href="images/favicon.ico">
 <title>GRAF - Graphic Rendering Architecture Framework</title>
-<link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.css">
-<link rel="stylesheet" href="vendor/bootstrap/css/callout.css">
-<link rel="stylesheet" href="vendor/jquery-panel/css/jquery-panel.css" />
-<link rel="stylesheet" href="vendor/jquery/ui/1.12.1/themes/base/jquery-ui.css">
-<link rel="stylesheet" href="vendor/datatable/jquery.dataTables.min.css">
-<link rel="stylesheet" href="vendor/font-awsome/css/font-awesome.min.css" />
+<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/callout.css">
+<link rel="stylesheet" type="text/css" href="vendor/jquery-panel/css/jquery-panel.css" />
+<link rel="stylesheet" type="text/css" href="vendor/jquery/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" type="text/css" href="vendor/DataTables/datatables.min.css"/>
+<link rel="stylesheet" type="text/css" href="vendor/DataTables/jquery.dataTables.min.css"/>
+<link rel="stylesheet" type="text/css" href="vendor/font-awsome/css/font-awesome.min.css" />
 <style type="text/css">
 html {
 	height: 100%;
@@ -55,23 +56,22 @@ html {
 			<div class="collapse navbar-collapse" id="navbarCollapse">
 				<ul class="navbar-nav mr-auto">
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle"
-						href="http://example.com" id="menuItem" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Item</a>
+						href="http://example.com" id="menuItem" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span data-i18n="menu.item"/></a>
 						<div class="dropdown-menu" aria-labelledby="menuItem">
-							<a class="dropdown-item" href="#" onClick="searchItem()" disabled="true"><img src="images/65.png"/> Search</a>
-							<a class="dropdown-item" href="#" onClick="createItem()" disabled="true"><img src="images/78.png"/> Create</a>
-							<a class="dropdown-item disabled" href="#" id="menuDeleteItem" onClick="deleteItem()" disabled="true"><img src="images/33.png"/> Delete</a>
+							<a class="dropdown-item" href="#" onClick="searchItem()" disabled="true"><img src="images/65.png"/> <span data-i18n="menu.search"/></a>
+							<a class="dropdown-item" href="#" onClick="createItem()" disabled="true"><img src="images/78.png"/> <span data-i18n="menu.create"/></a>
+							<a class="dropdown-item disabled" href="#" id="menuDeleteItem" onClick="deleteItem()" disabled="true"><img src="images/33.png"/> <span data-i18n="menu.delete"/></a>
 						</div>
 					</li>
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle"
 						href="http://example.com" id="menuView" data-toggle="dropdown"
-						aria-haspopup="true" aria-expanded="false">Views</a>
+						aria-haspopup="true" aria-expanded="false"><span data-i18n="menu.views"/></a>
 						<div class="dropdown-menu" id="menuViewDropDown" aria-labelledby="menuView">
 						</div>
 					</li>
-					<li class="nav-item disabled" style="display:none"><a class="nav-link" href="#" id="menuCurrentItem">No item selected</a></li>
 					<li class="nav-item">
 						<ol class="breadcrumb black" id="breadcrumb" style="background-color:transparent;padding:0px;margin:0px;margin-top:8px">
-							<li class="breadcrumb-item active">No item selected</li>
+							<li class="breadcrumb-item active"><span data-i18n="breadcrumb.no_item"/></li>
 						</ol>
 					</li>
 				</ul>
@@ -116,6 +116,9 @@ html {
 	<script type="text/javascript" src="vendor/jquery/typeahead/typeahead.jquery.min.js"></script>
 	<script type="text/javascript" src="vendor/jquery/typeahead/handlebars.js"></script>
 	<script type="text/javascript" src="vendor/jquery-panel/js/jquery-panel.js"></script>
+	<script type="text/javascript" src="vendor/DataTables/datatables.min.js"></script>
+	<script type="text/javascript" src="vendor/jquery-i18next/i18next.min.js"></script>
+	<script type="text/javascript" src="vendor/jquery-i18next/jquery-i18next.min.js"></script>
 	<script type="text/javascript" src="vendor/graf/view.js"></script>
 	<script type="text/javascript" src="vendor/graf/item.js"></script>
 	<script type="text/javascript" src="vendor/graf/util.js"></script>
