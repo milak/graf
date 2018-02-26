@@ -335,6 +335,14 @@ class ITopDao implements IDAO {
                     throw new Exception("Unable to add ".$childItem->category->name." from ".$parentItem->category->name);
                 }
                 break;
+            case "data" : // ajouter un élément à un data
+            	if ($childItem->category->name == "domain"){
+            		$this->addSubItem($aChildItemId,$aParentItemId); // on inverse
+            	} else {
+            		// TODO supporter l'ajout de software
+            		throw new Exception("Unable to add ".$childItem->category->name." from ".$parentItem->category->name);
+            	}
+            	break;
             default:
                 throw new Exception("Unable to add ".$childItem->category->name." in ".$parentItem->category->name);
                 break;
@@ -683,21 +691,25 @@ class ITopDao implements IDAO {
             }
             $response = $this->getRelated($item->class->name,$itemId->id,'up');
             foreach ($response->objects as $object){
-                $result[] = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
+            	$item = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
+            	if ($item->id == $this->getGenericDBServerId()){
+            		continue;
+            	} else if ($item->id == $this->getGenericServerId()){
+            		continue;
+            	}
+            	if (($category == "*") || ($item->category->name == $category)){
+                	$result[] = $îtem;
+            	}
             }
             if (($item->category->name == 'device') || ($item->class->name == 'Server')){
             	$response = $this->getObjects('PhysicalDevice', 'location_id', 'WHERE id = '.$itemId->id);
-            	$location_id = null;
             	foreach ($response->objects as $object){
             		$location_id = $object->fields->location_id;
-            		if ($location_id == 0){
-            			$location_id = null;
-            		}
-            	}
-            	if ($location_id != null){
-            		$response = $this->getObjects('Location','id, name, city, country','WHERE id = '.$location_id);
-            		foreach ($response->objects as $object){
-            			$result[] = $this->_newItem($object->fields->id, $object->fields->name, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
+            		if ($location_id != 0){
+            			$response = $this->getObjects('Location','id, name, city, country','WHERE id = '.$location_id);
+            			foreach ($response->objects as $object){
+            				$result[] = $this->_newItem($object->fields->id, $object->fields->name, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
+            			}
             		}
             	}
             }
@@ -785,15 +797,17 @@ class ITopDao implements IDAO {
                 $item->area_id   = $object->fields->description;
                 $result[] = $item;
             }
-           	$response = $this->getObjects('DatabaseSchema','id, name, description',"WHERE organization_name = '$this->organisation'".$andFilter);
-            foreach ($response->objects as $object){
-            	$item = $this->_newItem($object->fields->id, $object->fields->name, $object->class, ['description' => $object->fields->description]);
-            	if ($category != "*"){
-            		if ($item->category->name != $category){
-            			continue;
-            		}
-            	}
-            	$result[]   = $item;
+            if ($id != '*'){
+	           	$response = $this->getObjects('DatabaseSchema','id, name, description',"WHERE organization_name = '$this->organisation'".$andFilter);
+	            foreach ($response->objects as $object){
+	            	$item = $this->_newItem($object->fields->id, $object->fields->name, $object->class, ['description' => $object->fields->description]);
+	            	if ($category != "*"){
+	            		if ($item->category->name != $category){
+	            			continue;
+	            		}
+	            	}
+	            	$result[]   = $item;
+	            }
             }
         }
         if (($category == 'service') || ($category == '*')){
