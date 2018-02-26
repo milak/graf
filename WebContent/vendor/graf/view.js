@@ -15,6 +15,9 @@ function loadViews(){
 		menuViewDropDown.append($("<a class='dropdown-item' href='#' onClick='addView(\""+index+"\")'><img src='images/"+viewDescription[index].icon+"'/> "+viewDescription[index].title+"</a>"));
 	});
 }
+function searchDocument(){
+	global.document.setCurrent(10);
+}
 function createItem(){
 	$("#createItem").panel({
     	url 	: 'forms/createItem.html?id='+Math.random(),

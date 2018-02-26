@@ -1,18 +1,15 @@
-var itemsList = new Array();
-function home(){
-	global.item.setCurrent(null);
-	itemsList = new Array();
-}
 global.item = {
 	_currentItem : null,
 	getCurrent : function(){
 		return this._currentItem;
 	},
 	setCurrent : function(aItem){
+		global.document.close();
 		this._currentItem = aItem;
 		this.refresh();
 	},
 	open : function(aItem){
+		global.document.close();
 		if (aItem != null){
 			$.getJSON( "api/element.php?id="+aItem.id, function(result) {
 				if (result.elements.length == 0){
@@ -26,7 +23,7 @@ global.item = {
 	    				if (currentItem.id == item.id){
 	    					return;
 	    				}
-	    				itemsList.push(currentItem);
+	    				breadCrumb.add(currentItem);
 	    			}
 	    			global.item.setCurrent(item);
 				}
@@ -48,7 +45,6 @@ global.item = {
 				} else {
 	    			var item = result.elements[0];
 	    			this._currentItem = item;
-	    			$("#menuCurrentItem").html(item.category.name+" - "+item.name);
 	    			$("#menuDeleteItem").attr("disabled", false);
 	    			$("#menuDeleteItem").attr('class', "dropdown-item");
 	    			for (var i = 0; i < views.length; i++){
@@ -79,7 +75,6 @@ global.item = {
 				sendMessage("error",i18next.t("message.item_no_information")+" : "+error);
 			});
 		} else {
-			$("#menuCurrentItem").html("No item selected");
 			$("#menuDeleteItem").attr("disabled", true);
 			$("#menuDeleteItem").attr('class', "dropdown-item disabled");
 			for (var i = 0; i < views.length; i++){
@@ -162,18 +157,26 @@ global.item = {
 	}
 };
 var breadCrumb = {
+	_itemsList = new Array(),
+	add : function(item){
+		this._itemsList.push(item);
+	},
+	home : function(){
+		this._itemsList = new Array();
+		global.item.setCurrent(null);
+	},
 	selectItem : function(index){
-		var item = itemsList[index];
+		var item = this._itemsList[index];
 		var newList = new Array();
 		for (var i = 0; i < index; i++){
-			newList.push(itemsList[i]);
+			newList.push(this._itemsList[i]);
 		}
-		itemsList = newList;
+		this._itemsList = newList;
 		global.item.setCurrent(item);
 	},
 	previous : function(){
-		if (itemsList.length > 0){
-			global.item.setCurrent(itemsList.pop());
+		if (this._itemsList.length > 0){
+			global.item.setCurrent(this._itemsList.pop());
 		} else {
 			global.item.setCurrent(null);
 		}
@@ -186,25 +189,30 @@ var breadCrumb = {
 		} else {
 			var start = 0;
 			html += '<li class="breadcrumb-item"><a href="#" onclick="home()">'+i18next.t("breadcrumb.home")+'</a></li>';
-			if (itemsList.length > 5){
-				start = itemsList.length - 5;
+			if (this._itemsList.length > 5){
+				start = this._itemsList.length - 5;
 				html += '<li class="breadcrumb-item">...</li>';
 			}
-			for (var i = start; i < itemsList.length; i++){
+			for (var i = start; i < this._itemsList.length; i++){
 				html += '<li class="breadcrumb-item"><a href="#"';
-				html += ' title="'+itemsList[i].name+'" ';
+				html += ' title="'+this._itemsList[i].name+'" ';
 				html += 'onClick="breadCrumb.selectItem('+i+')">';
-				if (itemsList[i].name.length > 15){
-					html += itemsList[i].name.substring(0,5);
+				if (this._itemsList[i].name.length > 15){
+					html += this._itemsList[i].name.substring(0,5);
 					html += '...';
-					html += itemsList[i].name.substring(itemsList[i].name.length-5);
+					html += this._itemsList[i].name.substring(this._itemsList[i].name.length-5);
 				} else {
-					html += itemsList[i].name;
+					html += this._itemsList[i].name;
 				}
 				html += '</a></li>';
 			}
 			html += '<li class="breadcrumb-item active">';
 			html += ''+currentItem.name+'</li>';
+			var currentDocument = global.document.getCurrent();
+			if (currentDocument != null){
+				html += '<li class="breadcrumb-item active">';
+				html += '<img src="images/2.png"/>'+currentDocument.name+'</li>';
+			}
 		}
 		$("#breadcrumb").html(html);
 	}

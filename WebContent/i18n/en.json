@@ -3,6 +3,7 @@
 		"translation" : {
 			"menu" : {
 				"item" : "Item",
+				"document" : "Document",
 				"search" : "Search",
 				"create" : "Create",
 				"delete" : "Delete",
@@ -18,6 +19,8 @@
 				"Error"							: "Error",
 				"Success"						: "Success",
 				"unable_to_load_view" 			: "Unable to load view",
+				"unable_to_load_views" 			: "Unable to load views",
+				"unable_to_load_item_classes" 	: "Unable to load item classes",
 				"unknown_view" 					: "Unknown view",
 				"item_not_exist" 				: "Item doesn't exist",
 				"item_no_information" 			: "Unable to get item information",
@@ -33,6 +36,7 @@
 			},
 			"form" : {
 				"item" : {
+					"title"		: "Item",
 					"name" 		: "Name",
 					"category"	: "Category",
 					"class" 	: "Class",
@@ -40,7 +44,10 @@
 				},
 				"button" : {
 					"cancel" 	: "Cancel",
-					"create" 	: "Create"
+					"create" 	: "Create",
+					"open"		: "Open",
+					"delete"	: "Delete",
+					"close"		: "Close"
 				}
 			},
 			"view" : {

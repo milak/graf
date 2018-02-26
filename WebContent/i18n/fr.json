@@ -3,6 +3,7 @@
 		"translation" : {
 			"menu" : {
 				"item" 		: "Elément",
+				"document"  : "Document",
 				"search" 	: "Chercher",
 				"create" 	: "Créer",
 				"delete" 	: "Effacer",
@@ -18,6 +19,8 @@
 				"Error"							: "Erreur",
 				"Success"						: "Succès",
 				"unable_to_load_view" 			: "Impossible de charger la vue",
+				"unable_to_load_views" 			: "Impossible de charger les vues",
+				"unable_to_load_item_classes" 	: "Impossible de charger les classes d'éléments",
 				"unknown_view" 					: "Vue non supportée",
 				"item_not_exist" 				: "L'élément n'existe pas",
 				"item_no_information" 			: "Impossible d'obtenir d'information sur l'élément",
@@ -33,6 +36,7 @@
 			},
 			"form" : {
 				"item" : {
+					"title"					: "Elément",
 					"name" 					: "Nom",
 					"category" 				: "Categorie",
 					"class" 				: "Classe",
@@ -40,7 +44,10 @@
 				},
 				"button" : {
 					"cancel" 	: "Annuler",
-					"create" 	: "Créer"
+					"create" 	: "Créer",
+					"open"		: "Ouvrir",
+					"delete"	: "Effacer",
+					"close"		: "Fermer"
 				}
 			},
 			"view" : {

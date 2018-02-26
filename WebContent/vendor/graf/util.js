@@ -59,15 +59,16 @@ function svgElementClicked(what,id,button){
 function showContextMenu(what,id){
 	$.getJSON( "api/element.php?id="+id, function(result) {
 		var element = result.elements[0];
-		var html = "<p>Instance</p>";
-		html += "<b>Nom</b> : "+element.name+"<br/><br/>";
-		html += "<hr/>";
-		html+="<button onclick='hidePopup();svgElementClicked(\"\",\""+id+"\",0)'><img src='images/63.png'/> ouvrir</button>";
-		html += " <button onclick='hidePopup();global.item.delete(\""+id+"\")'><img src='images/14.png'/> supprimer</button>";
-		html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
-		showPopup("Détail",html);
+		var html = "<p>"+i18next.t("form.item.title")+"</p>";
+		html += "<div class='bd-callout-info bd-callout'>";
+		html += "<b>"+i18next.t("form.item.name")+"</b> : "+element.name+"<br/><br/>";
+		html += "</div>";
+		html+="<button class='btn btn-primary btn-sm' onclick='hidePopup();svgElementClicked(\"\",\""+id+"\",0)'><img src='images/63.png'/> "+i18next.t("form.button.open")+"</button>";
+		html += " <button class='btn btn-danger btn-sm' onclick='hidePopup();global.item.delete(\""+id+"\")'><img src='images/14.png'/> "+i18next.t("form.button.delete")+"</button>";
+		html += " <button class='btn btn-danger btn-sm' onclick='hidePopup()'><img src='images/33.png'/> "+i18next.t("form.button.close")+"</button>";
+		showPopup(i18next.t("view.detail"),html);
 	}).fail(function(jxqr,textStatus,error) {
-		sendMessage("error","Unable to get item information : "+error);
+		sendMessage("error",i18next.t("message.item_no_information")+" : "+error);
 	});
 }
 function sendMessage(level,message){
@@ -143,12 +144,11 @@ $(function() {
 	$.getJSON( "api/element_class.php", function(result) {
 		global.itemCategories = result.categories;
 	}).fail(function(jxqr,textStatus,error) {
-		sendMessage("error","Unable to load item classes : "+error);
+		sendMessage("error",i18next.t("unable_to_load_item_classes")+" : "+error);
 	});
 	$.getJSON( "api/view.php?areas=list", function(result) {
 		global.views = result.views;
 	}).fail(function(jxqr,textStatus,error) {
-		sendMessage("error","Unable to load views : "+error);
+		sendMessage("error",i18next.t("unable_to_load_views")+" : "+error);
 	});
-	
 });
