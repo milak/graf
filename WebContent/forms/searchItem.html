@@ -1,11 +1,13 @@
 <html>
 <head>
-<link rel="stylesheet" href="vendor/datatable/jquery.dataTables.min.css">
-<script type="text/javascript" src="vendor/datatable/jquery.dataTables.min.js"></script>
+<!--link rel="stylesheet" href="vendor/DataTables/datatables.css">
+<script type="text/javascript" src="vendor/DataTables/datatables.js"></script-->
 </head>
 <body>
 	<form>
+		
 		<fieldset class="form-group border-bottom">
+		<div class="bd-callout-info bd-callout">
 			<div class="form-group row">
 				<label class="col-sm-2 col-form-label col-form-label-sm"
 					for="import_item_form_category">Category</label>
@@ -26,6 +28,7 @@
 					<input type="text" class="form-control form-control-sm" id="import_item_form_name" />
 				</div>
 			</div>
+			</div>
 			<div class="form-group row">
 				<div class="col-sm-10">
 					<button type="button" class="btn btn-primary btn-sm" onClick="onImportItemFormSearchClick()">
@@ -34,6 +37,7 @@
 				</div>
 			</div>
 		</fieldset>
+		
 		<table style="width: 100%" class="display compact" id="import_item_form_result">
 			<thead style="width: 100%">
 				<tr>
@@ -88,7 +92,8 @@ function onImportItemFormSearchClick(){
 	if (datatableItems == null){
 		datatableItems = $("#import_item_form_result").dataTable({
 			  "searching": false,
-			  "lengthChange": false
+			  "lengthChange": false,
+			  "responsive" : true
 		});
 	}
 	var url = "api/element.php";
