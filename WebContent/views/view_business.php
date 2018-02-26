@@ -12,10 +12,8 @@ if (isset($_GET["id"])) {
 } else {
     displayErrorAndDie('Need "id" argument');
 }
-error_log("Id ".$id);
 $items = $dao->getItems((object)['id'=>$id]);
 foreach ($items as $item) {
-	error_log("getItem ".$item->name);
 	$currentItem = $item;
 	break;
 }
@@ -28,12 +26,10 @@ if (isTechnical($currentItem->category->name)){
 if ($currentItem->category->name == 'data'){
 	$direction = 'up';
 }
-error_log('$direction : '.$direction.' '.$currentItem->category->name);
 $currentItems = $items;
 $domains = array();
 $interestingItems = array();
 while (count($currentItems) > 0){
-	error_log("iteration");
 	$newItems = array();
 	foreach ($currentItems as $item){
 		if ($item->category->name == 'domain'){
@@ -56,9 +52,7 @@ while (count($currentItems) > 0){
 if ($direction == 'down'){
 	$currentItems 	= $dao->getRelatedItems($id,"*","down");
 	foreach ($currentItems as $subitem) {
-		error_log("".$subitem->category->name);
 		if (isBusiness($subitem->category->name)){
-			error_log("interestingItems ".$subitem->name);
 			$interestingItems[] = $subitem;
 		}
 	}
