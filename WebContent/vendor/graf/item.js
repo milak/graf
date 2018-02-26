@@ -94,7 +94,7 @@ global.item = {
 	        	var changed = false;
 	       		listener.text("");
 	       		changed = true;
-	   			listener.trigger("change");
+       			listener.trigger("change");
 	    	});
 		}
 	},
@@ -157,7 +157,7 @@ global.item = {
 	}
 };
 var breadCrumb = {
-	_itemsList = new Array(),
+	_itemsList : new Array(),
 	add : function(item){
 		this._itemsList.push(item);
 	},
@@ -188,7 +188,7 @@ var breadCrumb = {
 			html += '<li class="breadcrumb-item active">'+i18next.t("breadcrumb.no_item")+'</li>';
 		} else {
 			var start = 0;
-			html += '<li class="breadcrumb-item"><a href="#" onclick="home()">'+i18next.t("breadcrumb.home")+'</a></li>';
+			html += '<li class="breadcrumb-item"><a href="#" onclick="breadCrumb.home()">'+i18next.t("breadcrumb.home")+'</a></li>';
 			if (this._itemsList.length > 5){
 				start = this._itemsList.length - 5;
 				html += '<li class="breadcrumb-item">...</li>';
@@ -211,7 +211,7 @@ var breadCrumb = {
 			var currentDocument = global.document.getCurrent();
 			if (currentDocument != null){
 				html += '<li class="breadcrumb-item active">';
-				html += '<img src="images/2.png"/>'+currentDocument.name+'</li>';
+				html += 'Document : '+currentDocument.name+'</li>';
 			}
 		}
 		$("#breadcrumb").html(html);

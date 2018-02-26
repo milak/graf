@@ -32,6 +32,7 @@
 				"item_failure_unlink"			: "Unable to unlink item",
 				"item_success_create"   		: "Item successfully created",
 				"item_failure_create"   		: "Unable to create item",
+				"not_yet_implemented"			: "Function not yet implemented",
 				"missing_value_for_property" 	: "Missing value for required property"
 			},
 			"form" : {

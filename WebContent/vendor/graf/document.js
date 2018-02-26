@@ -2,6 +2,7 @@ global.document = {
 	_current : null,
 	open : function(id){
 		this._current = {id:id};
+		sendMessage("warning",i18next.t("message.not_yet_implemented"));
 		this.refresh();
 	},
 	close : function(id){
@@ -35,5 +36,8 @@ global.document = {
 			listener.trigger("change");
     	});
 		breadCrumb.refresh();
+	},
+	"delete" : function(){
+		sendMessage("warning",i18next.t("message.not_yet_implemented"));
 	}
 };

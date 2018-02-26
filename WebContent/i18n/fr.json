@@ -32,6 +32,7 @@
 				"item_failure_unlink"			: "Impossible de dissocier l'élément",
 				"item_success_create"   		: "Elément créé avec succés",
 				"item_failure_create"   		: "Impossible de créer l'élément",
+				"not_yet_implemented"			: "Function non encore implémentée",
 				"missing_value_for_property" 	: "Il manque une valeur pour une propriété obligatoire"
 			},
 			"form" : {

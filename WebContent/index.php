@@ -55,7 +55,7 @@ html {
 	<header>
 		<!-- Fixed navbar -->
 		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-			<a class="navbar-brand" href="#" onClick="home()" title="Graphic Rendering Architecture Framework">GRAF</a>
+			<a class="navbar-brand" href="#" onClick="breadCrumb.home()" title="Graphic Rendering Architecture Framework">GRAF</a>
 			<div class="collapse navbar-collapse" id="navbarCollapse">
 				<ul class="navbar-nav mr-auto">
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="menuItem" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span

@@ -17,6 +17,10 @@ function loadViews(){
 }
 function searchDocument(){
 	global.document.setCurrent(10);
+	sendMessage("warning",i18next.t("message.not_yet_implemented"));
+}
+function createDocument(){
+	sendMessage("warning",i18next.t("message.not_yet_implemented"));
 }
 function createItem(){
 	$("#createItem").panel({
