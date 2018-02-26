@@ -183,9 +183,15 @@ var breadCrumb = {
 	},
 	refresh : function(){
 		var html = "";
+		var currentDocument = global.document.getCurrent();
 		var currentItem = global.item.getCurrent();
 		if (currentItem == null){
-			html += '<li class="breadcrumb-item active">'+i18next.t("breadcrumb.no_item")+'</li>';
+			if (currentDocument != null){
+				html += '<li class="breadcrumb-item active">';
+				html += 'Document : '+currentDocument.name+'</li>';
+			} else {
+				html += '<li class="breadcrumb-item active">'+i18next.t("breadcrumb.no_item")+'</li>';
+			}
 		} else {
 			var start = 0;
 			html += '<li class="breadcrumb-item"><a href="#" onclick="breadCrumb.home()">'+i18next.t("breadcrumb.home")+'</a></li>';
@@ -208,7 +214,6 @@ var breadCrumb = {
 			}
 			html += '<li class="breadcrumb-item active">';
 			html += ''+currentItem.name+'</li>';
-			var currentDocument = global.document.getCurrent();
 			if (currentDocument != null){
 				html += '<li class="breadcrumb-item active">';
 				html += 'Document : '+currentDocument.name+'</li>';
