@@ -128,7 +128,7 @@
 					</div>
 					Show Categories :<br/>
 					<div id="viewItemFilterCategories" style="margin-left : 25px;margin-top:10px;margin-bottom:10px"></div>
-					<button class='btn btn-sm btn-primary' onclick="_viewItem.resetFilter();">Show all</button>
+					<button class='btn btn-sm btn-primary' onclick="_viewItem.resetFilter();_viewItem.updateCategoryFilter();_viewItem.refreshRelateds(global.currentItem);">Show all</button>
 				</fieldset>
 				</div>
 			</div>
@@ -144,8 +144,6 @@
 			for (var c = 0; c < categories.length; c++){
 				this._categoryFilter[categories[c].id] = true;
 			}
-			this.updateCategoryFilter();
-			this.refreshRelateds(global.currentItem);
 		},
 		toggleFilter : function(direction){
 			if (direction == 'up'){
@@ -226,8 +224,8 @@
 			    			element = result.elements[e];
 			    			if (_viewItem._categoryFilter[element.category.id] == true){
 			    				html += "<tr><td>up</td><td>"+element.category.name+"</td>";
-				    			html += "<td><a href='#' onclick='openItem({id:\""+element.id+"\"})'>"+element.name+"</a></td>";
-				    			html += "<td><button class='btn btn-danger btn-sm' onClick='unlinkItem({id : \""+element.id+"\"},{id : \""+item.id+"\"});' title='Unlink \""+element.name+"\" from \""+item.name+"\"'>Unlink</button></td>";
+				    			html += '<td><a href="#" onclick="openItem({id:\''+element.id+'\'})">'+element.name+'</a></td>';
+				    			html += '<td><button class="btn btn-danger btn-sm" onClick="unlinkItem({id : \''+element.id+'\'},{id : \''+item.id+'\'});" title="Unlink \''+element.name+'\' from \"'+item.name+'\'">Unlink</button></td>';
 				    			html += "</tr>";
 				    			count++;
 				    			if (count > 8){
