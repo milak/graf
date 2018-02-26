@@ -2,9 +2,15 @@
 	padding : 1.25rem;
 	margin-top : 1.25rem;
 	margin-bottom : 1.25rem;
-	border : 1px solid #eee;
-	border-left-width : 0.25rem;
+	//border : 3px outset #eee;
+	//border : 2px solid #444;
+	border-top : 1px solid #555;
+	border-bottom : 1px solid #555;
+	border-left : 0.25rem solid #eee;
+	border-right : 1px solid #eee;
+	//border-left-width : 0.25rem;
 	border-radius : 0.25rem;
+	//background-color: floralwhite;
 }
 .bd-callout-warning {
 	border-left-color : #f0ad4e;
