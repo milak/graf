@@ -1,5 +1,6 @@
 <?php
-const DEFAULT_PROCESS_CONTENT = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;bpmn:startEvent name="" id="1"/&gt;&lt;/bpmn:definitions&gt;';
+//const DEFAULT_PROCESS_CONTENT = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;bpmn:startEvent name="" id="1"/&gt;&lt;/bpmn:definitions&gt;';
+const DATA_INSTANCE_REASON = 'Data instance';
 /**
  * Dao accédant aux données de itop
  */
@@ -139,6 +140,9 @@ class ITopDao implements IDAO {
             } else if ($className == 'DatabaseSchema') {
                 $fields['dbserver_id'] = $this->getGenericDBServerId();
             }
+            if ($className == 'VirtualMachine'){
+            	$fields['virtualhost_id'] = $properties['virtualhost_id'];
+            }
             // Créer un item
             $result = $category->name."_".$this->createObject($className, $fields);
         }
@@ -189,7 +193,7 @@ class ITopDao implements IDAO {
                     $this->createObject("lnkGroupToCI", array(
                         'group_id'      => $childItemId->id,
                         'ci_id'         => $id,
-                        'reason'        => 'Data instance'
+                        'reason'        => DATA_INSTANCE_REASON
                     ));
                     // Le rajouter au Domaine
                     $this->createObject("lnkGroupToCI", array(
@@ -449,27 +453,6 @@ class ITopDao implements IDAO {
             		$result[]   = $this->_newItem($object->key, $object->fields->name, "Group");
             	}
             }
-        } else if ($this->isFunctionalCI($itemId->prefix)){
-            // Trouver les groupes liés
-            if (($category == '*') || ($category == 'domain')){
-                // Le rajouter au domaine
-                $response = $this->getObjects("lnkGroupToCI", '*', 'WHERE ci_id = '.$itemId->id);
-                foreach ($response->objects as $object){
-                    $result[] = $this->_newItem($object->fields->group_id, $object->fields->group_name, "Group");
-                }
-            }
-            if (($category == '*') || ($category == 'solution') || ($category == 'process') || ($category == 'device') || ($category == 'software')){
-                // Trouver tous les items 
-            	$item = $this->getItems((object)['id'=>$aItemId])[0];
-                $response = $this->getRelated($item->class->name,$itemId->id,'down');
-                foreach ($response->objects as $object){
-                    $result[] = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
-                }
-            }
-            $response = $this->getObjects('lnkContactToFunctionalCI', 'contact_id,contact_name', 'WHERE functionalci_id = '.$itemId->id);
-            foreach($response->objects as $object){
-            	$result[] = $this->_newItem($object->fields->contact_id, $object->fields->contact_name, 'Team');
-            }
         } else if ($itemId->prefix == 'location'){
         	if (strpos($itemId->id,'country_') !== false){ // si c'est un pays, on ramène toutes les villes au dessus
         		$pos = strpos($itemId->id,'_');
@@ -509,7 +492,98 @@ class ITopDao implements IDAO {
         			$result[] = $this->_newItem($object->fields->id, $object->fields->name, $object->class);
         		}
         	}
+        } else if ($this->isFunctionalCI($itemId->prefix)){
+        	// Trouver les groupes liés
+        	if (($category == '*') || ($category == 'domain')){
+        		// Le rajouter au domaine
+        		$response = $this->getObjects("lnkGroupToCI", '*', 'WHERE ci_id = '.$itemId->id);
+        		foreach ($response->objects as $object){
+        			$result[] = $this->_newItem($object->fields->group_id, $object->fields->group_name, "Group");
+        		}
+        	}
+        	if (($category == '*') || ($this->isFunctionalCI($category))){
+        		// Trouver tous les items
+        		$item = $this->getItems((object)['id'=>$aItemId])[0];
+        		$response = $this->getRelated($item->class->name,$itemId->id,'down');
+        		foreach ($response->objects as $object){
+        			$result[] = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
+        		}
+        	}
+        	$response = $this->getObjects('lnkContactToFunctionalCI', 'contact_id,contact_name', 'WHERE functionalci_id = '.$itemId->id);
+        	foreach($response->objects as $object){
+        		$result[] = $this->_newItem($object->fields->contact_id, $object->fields->contact_name, 'Team');
+        	}
+        } else if ($itemId->prefix == 'data'){
+        	$item = $this->getItems((object)['id'=>$aItemId])[0];
+        	$schemaIdList = '(';
+        	$first = true;
+        	$schemas = array();
+        	if ($item->class->name == 'Data'){
+        		// Chercher les DatabaseSchema
+        		$response = $this->getObjects('lnkGroupToCI','ci_id, ci_name, ci_id_finalclass_recall','WHERE group_id='.$itemId->id);
+        		foreach($response->objects as $object){
+        			$item = $this->_newItem($object->fields->ci_id, $object->fields->ci_name, $object->fields->ci_id_finalclass_recall);
+        			if (!$first){
+        				$schemaIdList .= ',';
+        			}
+        			$schemaIdList .= $object->fields->ci_id;
+        			$first = false;
+        			$schemas[] = $item;
+        		}
+        	} else if ($item->class->name == 'DatabaseSchema'){
+        		$response = $this->getObjects('lnkGroupToCI','group_id, reason','WHERE ci_id='.$itemId->id);
+        		$groupId = null;
+        		foreach($response->objects as $object){
+        			// S'ils s'agit bien d'une instance de ce groupe
+        			if ($object->fields->reason == DATA_INSTANCE_REASON){
+        				$groupId = $object->fields->group_id;
+        				break;
+        			}
+        		}
+        		if ($groupId != null){
+        			$response = $this->getObjects('lnkGroupToCI','ci_id, ci_name, ci_id_finalclass_recall','WHERE group_id='.$groupId);
+        			foreach($response->objects as $object){
+        				$item = $this->_newItem($object->fields->ci_id, $object->fields->ci_name, $object->fields->ci_id_finalclass_recall);
+        				if (!$first){
+        					$schemaIdList .= ',';
+        				}
+        				$schemaIdList .= $object->fields->ci_id;
+        				$first = false;
+        				$schemas[] = $item;
+        			}
+        		}
+        	} else {
+        		error_log('getOverItems unknown class '.$item->class->name);
+        	}
+        	$schemaIdList .= ')';
+        	// Si on n'a trouvé aucun groupe associé, on ajoute au moins l'instance elle même, cela signifie que cette instance n'est liée à aucun group 'Data' -> création hors Graf
+        	if ((strlen($schemaIdList) == 2) && ($item->class->name == 'DatabaseSchema')){
+        		$schemaIdList = '('.$itemId->id.')';
+        	}
+        	// Si on a trouvé au moins une instance de données, sinon, pour le moment, ce modèle n'est lié à personne
+        	if (strlen($schemaIdList) != 2){
+	        	error_log('$schemaIdList = '.$schemaIdList);
+	        	// Retrouver tous les domaines liés à cette donnée
+	        	if (($category == '*') || ($category == 'domain')){
+	        		$response = $this->getObjects('lnkGroupToCI','group_id, group_name, reason','WHERE ci_id IN '.$schemaIdList);
+		        	foreach($response->objects as $object){
+		        		// S'il ne s'agit pas d'une instance de ce groupe
+		        		if ($object->fields->reason != DATA_INSTANCE_REASON){
+		        			$result[] = $this->_newItem($object->fields->group_id, $object->fields->group_name, 'Group');
+		        		}
+		        	}
+	        	}
+        	}
+        	/*if (($category == '*') || ($this->isFunctionalCI($category)){
+        		// Trouver tous les items
+        		$item = $this->getItems((object)['id'=>$aItemId])[0];
+        		$response = $this->getRelated($item->class->name,$itemId->id,'down');
+        		foreach ($response->objects as $object){
+        			$result[] = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
+        		}
+        	}*/
         } else {
+        	error_log('getOverItems other');
         }
         return $result;
     }
@@ -710,6 +784,16 @@ class ITopDao implements IDAO {
                 $item = $this->_newItem($object->fields->id, $object->fields->name, "Data");
                 $item->area_id   = $object->fields->description;
                 $result[] = $item;
+            }
+           	$response = $this->getObjects('DatabaseSchema','id, name, description',"WHERE organization_name = '$this->organisation'".$andFilter);
+            foreach ($response->objects as $object){
+            	$item = $this->_newItem($object->fields->id, $object->fields->name, $object->class, ['description' => $object->fields->description]);
+            	if ($category != "*"){
+            		if ($item->category->name != $category){
+            			continue;
+            		}
+            	}
+            	$result[]   = $item;
             }
         }
         if (($category == 'service') || ($category == '*')){
@@ -1150,7 +1234,9 @@ class ITopDao implements IDAO {
         
         $this->_addItemClass("Server",             false,   $this->ITOP_CATEGORIES["server"]);
         $this->_addItemClass("VirtualHost",        true,    $this->ITOP_CATEGORIES["server"]);
-        $this->_addItemClass("VirtualMachine",     true,    $this->ITOP_CATEGORIES["server"]); // Problem 'virtualhost_id'
+        $this->_addItemClass("VirtualMachine",     false,    $this->ITOP_CATEGORIES["server"],[
+        		(object)['label' => 'Host', 'name'=>'virtualhost_id','type'=>'string','required'=>true],
+        ]); // Problem 'virtualhost_id'
         $this->_addItemClass("Hypervisor",         false,   $this->ITOP_CATEGORIES["server"]);
         $this->_addItemClass("Farm",               false,   $this->ITOP_CATEGORIES["server"]);
         $this->_addItemClass("VirtualDevice",      true,    $this->ITOP_CATEGORIES["server"]);
