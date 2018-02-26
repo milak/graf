@@ -1,0 +1,39 @@
+{
+	"en" : {
+		"translation" : {
+			"menu" : {
+				"item" : "Item",
+				"search" : "Search",
+				"create" : "Create",
+				"delete" : "Delete",
+				"views" : "Views"
+			},
+			"breadcrumb" : {
+				"no_item" : "No item selected",
+				"home" : "Home"
+			},
+			"message" : {
+				"unable_to_load_view" 	: "Unable to load view",
+				"unknown_view" 			: "Unknown view",
+				"item_not_exist" 		: "Item doesn't exist",
+				"item_no_information" 	: "Unable to get item information",
+				"item_success_delete"   : "Item successfully deleted",
+				"item_failure_delete"   : "Unable to delete item",
+				"item_success_link"   	: "Item successfully linked",
+				"item_failure_link"		: "Unable to link item",
+				"item_success_unlink"	: "Item successfully unlinked",
+				"item_failure_unlink"	: "Unable to unlink item"
+			},
+			"view" : {
+				"strategical" 	: "Strategical view",
+				"business" 		: "Business view",
+				"logical"		: "Logical view",
+				"detail"		: "Detail",
+				"map"			: {
+					"europe"	: "Map - Europe",
+					"world"		: "Map - World"
+				}
+			}
+		}
+	}
+}

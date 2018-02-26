@@ -1,0 +1,39 @@
+{
+	"fr" : {
+		"translation" : {
+			"menu" : {
+				"item" : "Elément",
+				"search" : "Chercher",
+				"create" : "Créer",
+				"delete" : "Effacer",
+				"views" : "Vues"
+			},
+			"breadcrumb" : {
+				"no_item" : "Aucun élément sélectionné",
+				"home" : "Retour"
+			},
+			"message" : {
+				"unable_to_load_view" 	: "Impossible de charger la vue",
+				"unknown_view" 			: "Vue non supportée",
+				"item_not_exist" 		: "L'élément n'existe pas",
+				"item_no_information" 	: "Impossible d'obtenir d'information sur l'élément",
+				"item_success_delete"   : "Elément supprimé avec succés",
+				"item_failure_delete"   : "Impossible de supprimer l'élément",
+				"item_success_link"   	: "Elément lié avec succés",
+				"item_failure_link"		: "Impossible de lier l'élément",
+				"item_success_unlink"	: "Elément dissocié avec succés",
+				"item_failure_unlink"	: "Impossible de dissocier l'élément"
+			},
+			"view" : {
+				"strategical" 	: "Vue stratégique",
+				"business" 		: "Vue métier",
+				"logical"		: "Vue logique",
+				"detail"		: "Détail",
+				"map"			: {
+					"europe"	: "Carte - Europe",
+					"world"		: "Carte - Monde"
+				}
+			}
+		}
+	}
+}
