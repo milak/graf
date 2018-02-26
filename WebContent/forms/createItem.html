@@ -122,7 +122,7 @@
 							}
 						} else {
 							sendMessage("success","Item successfully created");
-							openItem({id:data.objects[0].id});
+							openItem({id:data.objects[0].id, name : data.objects[0].name});
 						}
 					}
 				}).fail(function(jxqr,textStatus,error){
