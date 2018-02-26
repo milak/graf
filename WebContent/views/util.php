@@ -341,6 +341,35 @@ class Schema extends Parseable {
         }
     }
 }
+$CATEGORIES = array();
+$CATEGORIES['domain'] 	= 'business';
+$CATEGORIES['service'] 	= 'business';
+$CATEGORIES['process'] 	= 'business';
+$CATEGORIES['actor'] 	= 'business';
+$CATEGORIES['solution'] 	= 'business';
+$CATEGORIES['data'] 		= 'business';
+
+$CATEGORIES['software'] 	= 'technical';
+$CATEGORIES['service'] 	= 'technical';
+$CATEGORIES['server'] 	= 'technical';
+$CATEGORIES['device'] 	= 'technical';
+$CATEGORIES['location'] 	= 'technical';
+function isBusiness($category){
+	global $CATEGORIES;
+	if (!isset($CATEGORIES[$category])){
+		error_log('WARNING util.php.isBusiness('.$category.') -> not set');
+		return false;
+	}
+	return ($CATEGORIES[$category] == 'business');
+}
+function isTechnical($category){
+	global $CATEGORIES;
+	if (!isset($CATEGORIES[$category])){
+		error_log('WARNING util.php.isTechnical('.$category.') -> not set');
+		return false;
+	}
+	return ($CATEGORIES[$category] == 'technical');
+}
 function startsWith($haystack, $needle) {
     $length = strlen($needle);
     return (substr($haystack, 0, $length) === $needle);
