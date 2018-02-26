@@ -4,13 +4,10 @@ function home(){
 	itemsList = new Array();
 	applyItem(null);
 }
-function breadCrumbItem(id){
+function breadCrumbItem(index){
+	global.currentItem = itemsList[index];
 	var newList = new Array();
-	for (var i = 0; i < itemsList.length; i++){
-		if (itemsList[i].id == id){
-			global.currentItem = itemsList[i];
-			break;
-		}
+	for (var i = 0; i < index; i++){
 		newList.push(itemsList[i]);
 	}
 	itemsList = newList;
@@ -65,7 +62,7 @@ function _refreshBreadCrumb(){
 		for (var i = start; i < itemsList.length; i++){
 			html += '<li class="breadcrumb-item"><a href="#"';
 			html += ' title="'+itemsList[i].name+'" ';
-			html += 'onClick="breadCrumbItem(\''+itemsList[i].id+'\')">';
+			html += 'onClick="breadCrumbItem('+i+')">';
 			if (itemsList[i].name.length > 15){
 				html += itemsList[i].name.substring(0,5);
 				html += '...';
