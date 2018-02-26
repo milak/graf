@@ -3,7 +3,7 @@ require("../svg/header.php");
 require("../dao/dao.php");
 require("../svg/body.php");
 $dao->connect();
-$areas = $dao->getViewByName("service");
+$areas 			= $dao->getViewByName("service");
 $rootarea       = $areas["root"];
 $processarea    = $areas["process"];
 $actorarea      = $areas["actor"];
