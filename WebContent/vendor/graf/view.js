@@ -1,13 +1,13 @@
 var viewDescription = new Array();
-viewDescription['strategic'] 	= { url : 'views/view_strategique.php', class : 'panel-purple', noItemSupported : true, static : false,	svg : true, 	title : "Strategical view"};
-viewDescription['business'] 	= { url : 'views/view_business.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Business view"};
-viewDescription['logical'] 		= { url : 'views/view_logique.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Logical view"};
-viewDescription['service'] 		= { url : 'views/view_service.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Service view"};
-viewDescription['process'] 		= { url : 'views/view_process.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Process view"};
-viewDescription['technical']	= { url : 'views/view_technical.php', 	class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Technical view"};
-viewDescription['viewItem']		= { url : 'forms/viewItem.html', 		class : 'panel-purple', noItemSupported : false, static : true,  svg : false, 	title : "Detail"};
-viewDescription['mapEurope']	= { url : 'views/view_map.php?map=europe', 		class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : "Map - Europe"};
-viewDescription['mapWorld']		= { url : 'views/view_map.php?map=world', 		class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : "Map - World"};
+viewDescription['strategic'] 	= { url : 'views/view_strategique.php', 	icon  : '63.png', class : 'panel-purple', noItemSupported : true, static : false,	svg : true, 	title : "Strategical view"};
+viewDescription['business'] 	= { url : 'views/view_business.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Business view"};
+viewDescription['logical'] 		= { url : 'views/view_logique.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Logical view"};
+viewDescription['service'] 		= { url : 'views/view_service.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Service view"};
+viewDescription['process'] 		= { url : 'views/view_process.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Process view"};
+viewDescription['technical']	= { url : 'views/view_technical.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Technical view"};
+viewDescription['viewItem']		= { url : 'forms/viewItem.html', 			icon  : '2.png' , class : 'panel-purple', noItemSupported : false, static : true,  svg : false, 	title : "Detail"};
+viewDescription['mapEurope']	= { url : 'views/view_map.php?map=europe', 	icon  : '77.png', class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : "Map - Europe"};
+viewDescription['mapWorld']		= { url : 'views/view_map.php?map=world', 	icon  : '77.png', class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : "Map - World"};
 var views = new Array();
 function createItem(){
 	$("#createItem").panel({
