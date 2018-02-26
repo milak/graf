@@ -26,14 +26,27 @@ function previousItem(){
 	}
 }
 function openItem(item){
-	if (global.currentItem != null){
-		if (global.currentItem.id == item.id){
-			return;
-		}
-		itemsList.push(global.currentItem);
+	if (item != null){
+		$.getJSON( "api/element.php?id="+item.id, function(result) {
+			if (result.elements.length == 0){
+    			openItem(null);
+    			sendMessage("warning","Item doesn't exist");
+			} else {
+    			var item = result.elements[0];
+    			// Open the item
+    			if (global.currentItem != null){
+    				if (global.currentItem.id == item.id){
+    					return;
+    				}
+    				itemsList.push(global.currentItem);
+    			}
+    			global.currentItem = item;
+    			applyItem(item);
+			}
+		}).fail(function(jxqr,textStatus,error) {
+			sendMessage("error","Unable to get item information : "+error);
+		});
 	}
-	global.currentItem = item;
-	applyItem(item);
 }
 function refresh(){
 	applyItem(global.currentItem);
@@ -163,10 +176,14 @@ function linkItem(parentItem,childItem){
 			"id"		: parentItem.id,
 			"child_id"	: childItem.id
 		},
-		dataType: "text",
+		dataType: "json",
 		success	: function( data ) {
-			applyItem(global.currentItem);
-			sendMessage("success","Item successfully linked");
+			if (data.code == 0){
+				applyItem(global.currentItem);
+				sendMessage("success","Item successfully linked");
+			} else {
+				sendMessage("error","Unable to link item : "+data.message);
+			}
 		}
 	}).fail(function(jxqr,textStatus,error){
 		sendMessage("error","Unable to link item : "+error);
