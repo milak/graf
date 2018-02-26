@@ -48,7 +48,7 @@ html {
 }
 </style>
 </head>
-<body oncontextmenu="event.preventDefault()" onresize="applyItem(global.currentItem)">
+<body oncontextmenu="event.preventDefault()" onresize="item.refresh()">
 	<header>
 		<!-- Fixed navbar -->
 		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
@@ -60,7 +60,7 @@ html {
 						<div class="dropdown-menu" aria-labelledby="menuItem">
 							<a class="dropdown-item" href="#" onClick="searchItem()" disabled="true"><img src="images/65.png"/> <span data-i18n="menu.search"/></a>
 							<a class="dropdown-item" href="#" onClick="createItem()" disabled="true"><img src="images/78.png"/> <span data-i18n="menu.create"/></a>
-							<a class="dropdown-item disabled" href="#" id="menuDeleteItem" onClick="deleteItem()" disabled="true"><img src="images/33.png"/> <span data-i18n="menu.delete"/></a>
+							<a class="dropdown-item disabled" href="#" id="menuDeleteItem" onClick="global.item.delete()" disabled="true"><img src="images/33.png"/> <span data-i18n="menu.delete"/></a>
 						</div>
 					</li>
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle"
@@ -120,7 +120,8 @@ html {
 	<script type="text/javascript" src="vendor/jquery-i18next/i18next.min.js"></script>
 	<script type="text/javascript" src="vendor/jquery-i18next/jquery-i18next.min.js"></script>
 	<script type="text/javascript" src="vendor/graf/view.js"></script>
-	<script type="text/javascript" src="vendor/graf/item.js"></script>
 	<script type="text/javascript" src="vendor/graf/util.js"></script>
+	<script type="text/javascript" src="vendor/graf/item.js"></script>
+	
 </body>
 </html>

@@ -1,204 +1,218 @@
 var itemsList = new Array();
 function home(){
-	global.currentItem = null;
+	global.item.setCurrent(null);
 	itemsList = new Array();
-	applyItem(null);
 }
-function breadCrumbItem(index){
-	global.currentItem = itemsList[index];
-	var newList = new Array();
-	for (var i = 0; i < index; i++){
-		newList.push(itemsList[i]);
-	}
-	itemsList = newList;
-	applyItem(global.currentItem);
-}
-function previousItem(){
-	if (itemsList.length > 0){
-		global.currentItem = itemsList.pop();
-		applyItem(global.currentItem);
-	} else {
-		global.currentItem = null;
-		applyItem(null);
-	}
-}
-function openItem(item){
-	if (item != null){
-		$.getJSON( "api/element.php?id="+item.id, function(result) {
-			if (result.elements.length == 0){
-    			openItem(null);
-    			sendMessage("warning",i18next.t("message.item_not_exist"));
-			} else {
-    			var item = result.elements[0];
-    			// Open the item
-    			if (global.currentItem != null){
-    				if (global.currentItem.id == item.id){
-    					return;
-    				}
-    				itemsList.push(global.currentItem);
-    			}
-    			global.currentItem = item;
-    			applyItem(item);
-			}
-		}).fail(function(jxqr,textStatus,error) {
-			sendMessage("error",i18next.t("message.item_no_information")+" : "+error);
-		});
-	}
-}
-function refresh(){
-	applyItem(global.currentItem);
-}
-function _refreshBreadCrumb(){
-	var html = "";
-	if (global.currentItem == null){
-		html += '<li class="breadcrumb-item active">'+i18next.t("breadcrumb.no_item")+'</li>';
-	} else {
-		var start = 0;
-		html += '<li class="breadcrumb-item"><a href="#" onclick="home()">'+i18next.t("breadcrumb.home")+'</a></li>';
-		if (itemsList.length > 5){
-			start = itemsList.length - 5;
-			html += '<li class="breadcrumb-item">...</li>';
+global.item = {
+	_currentItem : null,
+	getCurrent : function(){
+		return this._currentItem;
+	},
+	setCurrent : function(aItem){
+		this._currentItem = aItem;
+		this.refresh();
+	},
+	open : function(aItem){
+		if (aItem != null){
+			$.getJSON( "api/element.php?id="+aItem.id, function(result) {
+				if (result.elements.length == 0){
+	    			this.open(null);
+	    			sendMessage("warning",i18next.t("message.item_not_exist"));
+				} else {
+	    			var item = result.elements[0];
+	    			// Open the item
+	    			var currentItem = global.item.getCurrent();
+	    			if (currentItem != null){
+	    				if (currentItem.id == item.id){
+	    					return;
+	    				}
+	    				itemsList.push(currentItem);
+	    			}
+	    			global.item.setCurrent(item);
+				}
+			}).fail(function(jxqr,textStatus,error) {
+				sendMessage("error",i18next.t("message.item_no_information")+" : "+error);
+			});
 		}
-		for (var i = start; i < itemsList.length; i++){
-			html += '<li class="breadcrumb-item"><a href="#"';
-			html += ' title="'+itemsList[i].name+'" ';
-			html += 'onClick="breadCrumbItem('+i+')">';
-			if (itemsList[i].name.length > 15){
-				html += itemsList[i].name.substring(0,5);
-				html += '...';
-				html += itemsList[i].name.substring(itemsList[i].name.length-5);
-			} else {
-				html += itemsList[i].name;
-			}
-			html += '</a></li>';
+	},
+	refresh : function(){
+		this._displayItem(this._currentItem);
+	},
+	_displayItem : function(item){
+		breadCrumb.refresh();
+		if (item != null){
+			$.getJSON( "api/element.php?id="+item.id, function(result) {
+				if (result.elements.length == 0){
+	    			this.open(null);
+	    			sendMessage("warning",i18next.t("message.item_not_exist"));
+				} else {
+	    			var item = result.elements[0];
+	    			this._currentItem = item;
+	    			$("#menuCurrentItem").html(item.category.name+" - "+item.name);
+	    			$("#menuDeleteItem").attr("disabled", false);
+	    			$("#menuDeleteItem").attr('class', "dropdown-item");
+	    			for (var i = 0; i < views.length; i++){
+	                	var view = views[i];
+	                	if (!view.viewDescription.static){
+	                		var car = "?";
+	                   		if (view.viewDescription.url.indexOf("?") != -1){
+	                       		car = "&";
+	                   		}
+	               			view.reload(view.viewDescription.url+car+"id="+item.id);
+	                	}
+	            	}
+	    			/** Apply currentItem change */
+	            	$("*[data-provider^='currentItem']").each(function(index,listener){
+	                	listener = $(listener);
+	                	var attribute = listener.attr("data-provider");
+	                	if (attribute == "currentItem.name"){
+	                		listener.text(item.name);
+	                	} else if (attribute == "currentItem.class.name"){
+	                		listener.text(item.class.name);
+	                	} else if (attribute == "currentItem.category.name"){
+	                		listener.text(item.category.name);
+	                	}
+	        			listener.trigger("change");
+	            	});
+				}
+			}).fail(function(jxqr,textStatus,error) {
+				sendMessage("error",i18next.t("message.item_no_information")+" : "+error);
+			});
+		} else {
+			$("#menuCurrentItem").html("No item selected");
+			$("#menuDeleteItem").attr("disabled", true);
+			$("#menuDeleteItem").attr('class', "dropdown-item disabled");
+			for (var i = 0; i < views.length; i++){
+	        	var view = views[i];
+	        	if (view.viewDescription.noItemSupported){
+	        		view.reload(view.viewDescription.url);
+	        	} else if (!view.viewDescription.static){
+	        		view.reload(null);
+	        	} else {
+	           		
+	        	}
+	    	}
+			/** Apply currentItem change */
+	    	$("*[data-provider^='currentItem']").each(function(index,listener){
+	        	listener = $(listener);
+	        	var attribute = listener.attr("data-provider");
+	        	var changed = false;
+	       		listener.text("");
+	       		changed = true;
+	   			listener.trigger("change");
+	    	});
 		}
-		html += '<li class="breadcrumb-item active">';
-		html += ''+global.currentItem.name+'</li>';
-	}
-	$("#breadcrumb").html(html);
-}
-function applyItem(item){
-	_refreshBreadCrumb();
-	if (item != null){
-		$.getJSON( "api/element.php?id="+item.id, function(result) {
-			if (result.elements.length == 0){
-    			openItem(null);
-    			sendMessage("warning",i18next.t("message.item_not_exist"));
-			} else {
-    			var item = result.elements[0];
-    			global.currentItem = item;
-    			$("#menuCurrentItem").html(item.category.name+" - "+item.name);
-    			$("#menuDeleteItem").attr("disabled", false);
-    			$("#menuDeleteItem").attr('class', "dropdown-item");
-    			for (var i = 0; i < views.length; i++){
-                	var view = views[i];
-                	if (!view.viewDescription.static){
-                		var car = "?";
-                   		if (view.viewDescription.url.indexOf("?") != -1){
-                       		car = "&";
-                   		}
-               			view.reload(view.viewDescription.url+car+"id="+item.id);
-                	}
-            	}
-    			/** Apply currentItem change */
-            	$("*[data-provider^='currentItem']").each(function(index,listener){
-                	listener = $(listener);
-                	var attribute = listener.attr("data-provider");
-                	if (attribute == "currentItem.name"){
-                		listener.text(item.name);
-                	} else if (attribute == "currentItem.class.name"){
-                		listener.text(item.class.name);
-                	} else if (attribute == "currentItem.category.name"){
-                		listener.text(item.category.name);
-                	}
-        			listener.trigger("change");
-            	});
-			}
-		}).fail(function(jxqr,textStatus,error) {
-			sendMessage("error",i18next.t("message.item_no_information")+" : "+error);
-		});
-	} else {
-		$("#menuCurrentItem").html("No item selected");
-		$("#menuDeleteItem").attr("disabled", true);
-		$("#menuDeleteItem").attr('class', "dropdown-item disabled");
-		for (var i = 0; i < views.length; i++){
-        	var view = views[i];
-        	if (view.viewDescription.noItemSupported){
-        		view.reload(view.viewDescription.url);
-        	} else if (!view.viewDescription.static){
-        		view.reload(null);
-        	} else {
-           		
-        	}
-    	}
-		/** Apply currentItem change */
-    	$("*[data-provider^='currentItem']").each(function(index,listener){
-        	listener = $(listener);
-        	var attribute = listener.attr("data-provider");
-        	var changed = false;
-       		listener.text("");
-       		changed = true;
-   			listener.trigger("change");
-    	});
-	}
-}
-/**
- * Delete currentItem
- */
-function deleteItem(){
-	var item = global.currentItem;
-	if (item == null){
-		return;
-	}
-	if (confirm("Do you really want to delete " + item.category.name + " called '" + item.name + "' ?")){
+	},
+	link(parentItem,childItem){
+		// Ajouter l'item
 		$.ajax({
-			type 	: "DELETE",
-			url 	: "api/element.php?id="+item.id,
-			dataType: "text",
-			success	: function(data) {
-				previousItem();
-				sendMessage("success",i18next.t("message.item_success_delete"));
+			type 	: "POST",
+			url 	: "api/element.php",
+			data	: {
+				"id"		: parentItem.id,
+				"child_id"	: childItem.id
+			},
+			dataType: "json",
+			success	: function( data ) {
+				if (data.code == 0){
+					this.refresh();
+					sendMessage("success",i18next.t("message.item_success_link"));
+				} else {
+					sendMessage("error",i18next.t("item_failure_link")+" : "+data.message);
+				}
 			}
 		}).fail(function(jxqr,textStatus,error){
-			sendMessage("error",i18next.t("message.item_failure_delete")+" : "+error);
+			sendMessage("error",i18next.t("item_failure_link")+" : "+error);
 		});
-	}
-}
-function linkItem(parentItem,childItem){
-	// Ajouter l'item
-	$.ajax({
-		type 	: "POST",
-		url 	: "api/element.php",
-		data	: {
-			"id"		: parentItem.id,
-			"child_id"	: childItem.id
-		},
-		dataType: "json",
-		success	: function( data ) {
-			if (data.code == 0){
-				applyItem(global.currentItem);
-				sendMessage("success",i18next.t("message.item_success_link"));
-			} else {
-				sendMessage("error",i18next.t("item_failure_link")+" : "+data.message);
-			}
+	},
+	unlink : function(parentItem,childItem){
+	   	$.ajax({
+	   		type 	: "DELETE",
+	   		url 	: "api/element.php?id="+parentItem.id+"&child_id="+childItem.id,
+	   		dataType: "text",
+	   		success	: function(data) {
+	   			global.item.refresh();
+	   			sendMessage("success",i18next.t("message.item_success_unlink"));
+	   		}
+	   	}).fail(function(jxqr,textStatus,error){
+	       	sendMessage("error",i18next.t("message.item_failure_unlink") +" : " + error);
+	   	});
+	},
+	/**
+	 * Delete currentItem
+	 */
+	"delete" : function (){
+		var item = this.getCurrent();
+		if (item == null){
+			return;
 		}
-	}).fail(function(jxqr,textStatus,error){
-		sendMessage("error",i18next.t("item_failure_link")+" : "+error);
-	});
-}
-function unlinkItem(parentItem,childItem){
-   	$.ajax({
-   		type 	: "DELETE",
-   		url 	: "api/element.php?id="+parentItem.id+"&child_id="+childItem.id,
-   		dataType: "text",
-   		success	: function(data) {
-   			applyItem(global.currentItem);
-   			sendMessage("success",i18next.t("message.item_success_unlink"));
-   		}
-   	}).fail(function(jxqr,textStatus,error){
-       	sendMessage("error",i18next.t("message.item_failure_unlink") +" : " + error);
-   	});
-}   	
+		if (confirm("Do you really want to delete " + item.category.name + " called '" + item.name + "' ?")){
+			$.ajax({
+				type 	: "DELETE",
+				url 	: "api/element.php?id="+item.id,
+				dataType: "text",
+				success	: function(data) {
+					global.breadCrumb.previous();
+					sendMessage("success",i18next.t("message.item_success_delete"));
+				}
+			}).fail(function(jxqr,textStatus,error){
+				sendMessage("error",i18next.t("message.item_failure_delete")+" : "+error);
+			});
+		}
+	}
+};
+var breadCrumb = {
+	selectItem : function(index){
+		var item = itemsList[index];
+		var newList = new Array();
+		for (var i = 0; i < index; i++){
+			newList.push(itemsList[i]);
+		}
+		itemsList = newList;
+		global.item.setCurrent(item);
+	},
+	previous : function(){
+		if (itemsList.length > 0){
+			global.item.setCurrent(itemsList.pop());
+		} else {
+			global.item.setCurrent(null);
+		}
+	},
+	refresh : function(){
+		var html = "";
+		var currentItem = global.item.getCurrent();
+		if (currentItem == null){
+			html += '<li class="breadcrumb-item active">'+i18next.t("breadcrumb.no_item")+'</li>';
+		} else {
+			var start = 0;
+			html += '<li class="breadcrumb-item"><a href="#" onclick="home()">'+i18next.t("breadcrumb.home")+'</a></li>';
+			if (itemsList.length > 5){
+				start = itemsList.length - 5;
+				html += '<li class="breadcrumb-item">...</li>';
+			}
+			for (var i = start; i < itemsList.length; i++){
+				html += '<li class="breadcrumb-item"><a href="#"';
+				html += ' title="'+itemsList[i].name+'" ';
+				html += 'onClick="breadCrumb.selectItem('+i+')">';
+				if (itemsList[i].name.length > 15){
+					html += itemsList[i].name.substring(0,5);
+					html += '...';
+					html += itemsList[i].name.substring(itemsList[i].name.length-5);
+				} else {
+					html += itemsList[i].name;
+				}
+				html += '</a></li>';
+			}
+			html += '<li class="breadcrumb-item active">';
+			html += ''+currentItem.name+'</li>';
+		}
+		$("#breadcrumb").html(html);
+	}
+};
+
+
+
+ 	
 
 
     	

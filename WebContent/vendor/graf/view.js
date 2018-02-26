@@ -19,15 +19,15 @@ function createItem(){
 	$("#createItem").panel({
     	url 	: 'forms/createItem.html?id='+Math.random(),
     	class 	: 'panel-green',
-    	title 	: "Create an item",
-    	buttons : ["reload","close"]
+    	title 	: "Create an item"
+    	//buttons : ["reload","close"]
     });// .state("maximized");
 }
 function searchItem(){
 	$("#searchItem").panel({
     	url : 'forms/searchItem.html',
     	class : 'panel-green',
-    	title : "Search an item",
+    	title : "Search an item"
     	// buttons : ["reload","close"]
     });// .state("maximized");
 }
@@ -103,12 +103,13 @@ function addView(viewName){
 		}
        	var url = description.url;
        	if (!description.static) {
-       		if (global.currentItem != null){
+       		var currentItem = global.item.getCurrent();
+       		if (currentItem != null){
            		var car = "?";
            		if (url.indexOf("?") != -1){
                		car = "&";
            		}
-        	   	panel.url = url + car + "id="+global.currentItem.id;
+        	   	panel.url = url + car + "id="+currentItem.id;
        		} else if (description.noItemSupported){
        			panel.url = url;
        		} else {

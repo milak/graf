@@ -37,7 +37,7 @@ $("path").on("click",function(event){
 	var name = $(event.target).attr("title");
 	$.getJSON( "api/element.php?class_name=Location&name="+name, function(result) {
 		if (result.elements.length > 0){
-			openItem({id:result.elements[0].id});
+			global.item.open({id:result.elements[0].id});
 		} else {
 			sendMessage("warning","No item located in " + name);
 		}

@@ -193,7 +193,7 @@ function showProcessContext(id){
 		if (currentItem != null){
 			html +=  " <button onclick='removeItem(\""+currentItem.id+"\",\""+process.id+"\");hidePopup()'><img src='images/14.png'/> retirer</button>";
 		}
-		html +=  " <button onclick='deleteItem(\""+process.id+"\");hidePopup()'><img src='images/14.png'/> supprimer</button>";
+		html +=  " <button onclick='global.item.delete(\""+process.id+"\");hidePopup()'><img src='images/14.png'/> supprimer</button>";
 		html +=  " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
 		showPopup("Détail",html);
 		}).fail(function(jxqr,textStatus,error) {

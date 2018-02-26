@@ -39,7 +39,7 @@ function initAutoComplete(){
 		    suggestion: Handlebars.compile('<div><strong>{{categoryName}}</strong> – {{name}}</div>')
 		}
 	}).bind('typeahead:select', function(ev, suggestion) {
-		  openItem(suggestion);
+		global.item.open(suggestion);
 	});
 }
 function svgElementClicked(what,id,button){
@@ -49,7 +49,7 @@ function svgElementClicked(what,id,button){
 				sendMessage("warning","Item not found (id = "+id+")");
 			} else {
 				var element = result.elements[0];
-				openItem(element);
+				global.item.open(element);
 			}
 		});
 	} else { // Right button
@@ -63,7 +63,7 @@ function showContextMenu(what,id){
 		html += "<b>Nom</b> : "+element.name+"<br/><br/>";
 		html += "<hr/>";
 		html+="<button onclick='hidePopup();svgElementClicked(\"\",\""+id+"\",0)'><img src='images/63.png'/> ouvrir</button>";
-		html += " <button onclick='hidePopup();deleteItem(\""+id+"\")'><img src='images/14.png'/> supprimer</button>";
+		html += " <button onclick='hidePopup();global.item.delete(\""+id+"\")'><img src='images/14.png'/> supprimer</button>";
 		html += " <button onclick='hidePopup()'><img src='images/33.png'/> fermer</button>";
 		showPopup("Détail",html);
 	}).fail(function(jxqr,textStatus,error) {
@@ -75,29 +75,29 @@ function sendMessage(level,message){
 	if (level == "warning"){
 		$("#alert").attr('class', "alert alert-warning");
 		$("#alertBadge").attr('class', "badge badge-warning");
-		$("#alertLevel").text("Warning");
+		$("#alertLevel").text(i18next.t("message.Warning"));
 		$("#alertIcon").attr("src","images/58.png");
 		wait = 2800;
 	} else if (level == "info"){
 		$("#alert").attr('class', "alert alert-info");
 		$("#alertBadge").attr('class', "badge badge-info");
-		$("#alertLevel").text("Info");
+		$("#alertLevel").text(i18next.t("message.Info"));
 		$("#alertIcon").attr("src","images/4.png");
 	} else if (level == "success"){
 		$("#alert").attr('class', "alert alert-success");
 		$("#alertBadge").attr('class', "badge badge-success");
-		$("#alertLevel").text("Success");
+		$("#alertLevel").text(i18next.t("message.Success"));
 		$("#alertIcon").attr("src","images/3.png");
 	} else if ((level == "error") || (level == "danger")){
 		$("#alert").attr('class', "alert alert-danger");
 		$("#alertBadge").attr('class', "badge badge-danger");
 		$("#alertIcon").attr("src","images/89.png");
-		$("#alertLevel").text("Error");
+		$("#alertLevel").text(i18next.t("message.Error"));
 		wait = 3000;
 	} else if (level == "primary"){
 		$("#alert").attr('class', "alert alert-primary");
 		$("#alertBadge").attr('class', "badge badge-primary");
-		$("#alertLevel").text("Info");
+		$("#alertLevel").text(i18next.t("message.Info"));
 		$("#alertIcon").attr("src","images/49.png");
 	} else {
 		$("#alert").attr('class', "alert alert-primary");
@@ -115,6 +115,9 @@ var global = {
 };
 function initI18N(){
 	var lang = navigator.language || navigator.userLanguage; 
+	_loadLang(lang);
+}
+function _loadLang(lang){
 	$.getJSON("i18n/"+lang+".json", function(result) {
 		var resources = {
 			"lng" : lang,
@@ -125,6 +128,12 @@ function initI18N(){
 			$('*[data-i18n]').localize();
 			loadViews();
 		});
+	}).fail(function (jxqr,textStatus,error){
+		if (lang != "en") {
+			_loadLang("en");
+		} else {
+			sendMessage("error","Can't find any lang resources"); // Nb : ne pas essayer d'internationaliser
+		}
 	});
 }
 $(function() {

@@ -1,7 +1,7 @@
 <html>
 <body>
 	<form>
-		<span style="display: none" data-provider="currentItem" onchange="_viewItem.refreshItem(global.currentItem)"></span>
+		<span style="display: none" data-provider="currentItem" onchange="_viewItem.refreshItem(global.item.getCurrent();)"></span>
 		<ul class="nav nav-pills mb-3" id="myTab" role="tablist">
 			<li class="nav-item"><a class="nav-link active" id="detail-tab" data-toggle="tab"
 				href="#detail" role="tab" aria-controls="detail" aria-selected="true">Detail</a></li>
@@ -66,7 +66,7 @@
 						<img src='images/92.png' /> update
 					</button>
 					<button class="btn btn-danger btn-sm" type="button"
-						onclick='deleteItem(global.currentItem.id);' id="viewItemDeleteButton">
+						onclick='global.item.delete(global.item.getCurrent().id);' id="viewItemDeleteButton">
 						<img src='images/14.png' /> delete
 					</button>
 				</div>
@@ -128,7 +128,7 @@
 					</div>
 					Show Categories :<br/>
 					<div id="viewItemFilterCategories" style="margin-left : 25px;margin-top:10px;margin-bottom:10px"></div>
-					<button class='btn btn-sm btn-primary' onclick="_viewItem.resetFilter();_viewItem.updateCategoryFilter();_viewItem.refreshRelateds(global.currentItem);">Show all</button>
+					<button class='btn btn-sm btn-primary' onclick="_viewItem.resetFilter();_viewItem.updateCategoryFilter();_viewItem.refreshRelateds(global.item.getCurrent());">Show all</button>
 				</fieldset>
 				</div>
 			</div>
@@ -165,7 +165,7 @@
 					$("#viewItemDownFilter").addClass("btn-secondary");
 				}
 			}
-			this.refreshRelateds(global.currentItem);
+			this.refreshRelateds(global.item.getCurrent());
 		},
 		updateCategoryFilter : function(){
 			var categories = global.itemCategories;
@@ -181,7 +181,7 @@
 				} else {
 					html += "btn-secondary";
 				}
-				html += "'onclick='_viewItem._categoryFilter[\""+categories[c].id+"\"]=!_viewItem._categoryFilter[\""+categories[c].id+"\"];_viewItem.updateCategoryFilter();_viewItem.refreshRelateds(global.currentItem);'>"+categories[c].name+"</button>&nbsp;";
+				html += "'onclick='_viewItem._categoryFilter[\""+categories[c].id+"\"]=!_viewItem._categoryFilter[\""+categories[c].id+"\"];_viewItem.updateCategoryFilter();_viewItem.refreshRelateds(global.item.getCurrent());'>"+categories[c].name+"</button>&nbsp;";
 			}
 			$("#viewItemFilterCategories").html(html);
 		},
@@ -224,8 +224,8 @@
 			    			element = result.elements[e];
 			    			if (_viewItem._categoryFilter[element.category.id] == true){
 			    				html += "<tr><td>up</td><td>"+element.category.name+"</td>";
-				    			html += '<td><a href="#" onclick="openItem({id:\''+element.id+'\'})">'+element.name+'</a></td>';
-				    			html += '<td><button class="btn btn-danger btn-sm" onClick="unlinkItem({id : \''+element.id+'\'},{id : \''+item.id+'\'});" title="Unlink \''+element.name+'\' from \"'+item.name+'\'">Unlink</button></td>';
+				    			html += '<td><a href="#" onclick="global.item.open({id:\''+element.id+'\'})">'+element.name+'</a></td>';
+				    			html += '<td><button class="btn btn-danger btn-sm" onClick="global.item.unlink({id : \''+element.id+'\'},{id : \''+item.id+'\'});" title="Unlink \''+element.name+'\' from \"'+item.name+'\'">Unlink</button></td>';
 				    			html += "</tr>";
 				    			count++;
 				    			if (count > 8){
@@ -248,8 +248,8 @@
 			    			element = result.elements[e];
 			    			if (_viewItem._categoryFilter[element.category.id] == true){
 			    				htmlDown += "<tr><td>Down</td><td>"+element.category.name+"</td>";
-			    				htmlDown += "<td><a href='#' onclick='openItem({id:\""+element.id+"\"})'>"+element.name+"</a></td>";
-			    				htmlDown += "<td><button class='btn btn-danger btn-sm' onClick='unlinkItem({id : \""+item.id+"\"},{id : \""+element.id+"\"});' title='Unlink \""+element.name+"\" from \""+item.name+"\"'>Unlink</button></td>";
+			    				htmlDown += "<td><a href='#' onclick='global.item.open({id:\""+element.id+"\"})'>"+element.name+"</a></td>";
+			    				htmlDown += "<td><button class='btn btn-danger btn-sm' onClick='global.item.unlink({id : \""+item.id+"\"},{id : \""+element.id+"\"});' title='Unlink \""+element.name+"\" from \""+item.name+"\"'>Unlink</button></td>";
 			    				htmlDown += "</tr>";
 				    			count++;
 				    			if (count > 8){
@@ -292,7 +292,7 @@
 					method : "DELETE",
 					success : function(){
 						sendMessage("success","Document successfully deleted");
-						refresh();
+						item.refresh();
 					}
 				}).fail(function(jxqr,textStatus,error){
 					sendMessage("error","Unable to delete document : "+error);
@@ -305,7 +305,7 @@
 	};
 	$(function(){
 		_viewItem.updateCategoryFilter();
-		_viewItem.refreshItem(global.currentItem);
+		_viewItem.refreshItem(global.item.getCurrent());
 	});
 </script>
 </body>
