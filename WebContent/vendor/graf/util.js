@@ -45,8 +45,12 @@ function initAutoComplete(){
 function svgElementClicked(what,id,button){
 	if (button == 0){ // Left button
 		$.getJSON( "api/element.php?id="+id, function(result) {
-			var element = result.elements[0];
-			openItem(element);// {id : id, category : what});
+			if (result.elements.length == 0){
+				sendMessage("warning","Item not found (id = "+id+")");
+			} else {
+				var element = result.elements[0];
+				openItem(element);
+			}
 		});
 	} else { // Right button
 		showContextMenu(what,id);
@@ -113,7 +117,7 @@ $(function() {
 	initAutoComplete();
 	var menuViewDropDown = $("#menuViewDropDown");
 	Object.keys(viewDescription).forEach(function (index) {
-		menuViewDropDown.append($("<a class='dropdown-item' href='#' onClick='addView(\""+index+"\")'>"+viewDescription[index].title+"</a>"));
+		menuViewDropDown.append($("<a class='dropdown-item' href='#' onClick='addView(\""+index+"\")'><img src='images/"+viewDescription[index].icon+"'/> "+viewDescription[index].title+"</a>"));
 	});
 	$("#main").panelFrame();
 	$.getJSON( "api/element_class.php", function(result) {
