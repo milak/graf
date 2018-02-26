@@ -2,27 +2,46 @@
 	"fr" : {
 		"translation" : {
 			"menu" : {
-				"item" : "Elément",
-				"search" : "Chercher",
-				"create" : "Créer",
-				"delete" : "Effacer",
-				"views" : "Vues"
+				"item" 		: "Elément",
+				"search" 	: "Chercher",
+				"create" 	: "Créer",
+				"delete" 	: "Effacer",
+				"views" 	: "Vues"
 			},
 			"breadcrumb" : {
-				"no_item" : "Aucun élément sélectionné",
-				"home" : "Retour"
+				"no_item" 						: "Aucun élément sélectionné",
+				"home" 							: "Racine"
 			},
 			"message" : {
-				"unable_to_load_view" 	: "Impossible de charger la vue",
-				"unknown_view" 			: "Vue non supportée",
-				"item_not_exist" 		: "L'élément n'existe pas",
-				"item_no_information" 	: "Impossible d'obtenir d'information sur l'élément",
-				"item_success_delete"   : "Elément supprimé avec succés",
-				"item_failure_delete"   : "Impossible de supprimer l'élément",
-				"item_success_link"   	: "Elément lié avec succés",
-				"item_failure_link"		: "Impossible de lier l'élément",
-				"item_success_unlink"	: "Elément dissocié avec succés",
-				"item_failure_unlink"	: "Impossible de dissocier l'élément"
+				"Warning"						: "Attention",
+				"Info"							: "Information",
+				"Error"							: "Erreur",
+				"Success"						: "Succès",
+				"unable_to_load_view" 			: "Impossible de charger la vue",
+				"unknown_view" 					: "Vue non supportée",
+				"item_not_exist" 				: "L'élément n'existe pas",
+				"item_no_information" 			: "Impossible d'obtenir d'information sur l'élément",
+				"item_success_delete"   		: "Elément supprimé avec succés",
+				"item_failure_delete"  			: "Impossible de supprimer l'élément",
+				"item_success_link"   			: "Elément lié avec succés",
+				"item_failure_link"				: "Impossible de lier l'élément",
+				"item_success_unlink"			: "Elément dissocié avec succés",
+				"item_failure_unlink"			: "Impossible de dissocier l'élément",
+				"item_success_create"   		: "Elément créé avec succés",
+				"item_failure_create"   		: "Impossible de créer l'élément",
+				"missing_value_for_property" 	: "Il manque une valeur pour une propriété obligatoire"
+			},
+			"form" : {
+				"item" : {
+					"name" 					: "Nom",
+					"category" 				: "Categorie",
+					"class" 				: "Classe",
+					"add_to_current_item" 	: "Ajouter à l'élément courrant"
+				},
+				"button" : {
+					"cancel" 	: "Annuler",
+					"create" 	: "Créer"
+				}
 			},
 			"view" : {
 				"strategical" 	: "Vue stratégique",

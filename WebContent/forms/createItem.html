@@ -1,46 +1,39 @@
 <html>
 <body>
-	<span style="display: none" data-provider="currentItem"
-		onchange="_createItem.refreshItem(global.currentItem)" />
-	<form>
+	<span style="display: none" data-provider="currentItem" onchange="_createItem.refreshItem(global.item.getCurrent())"></span>
+	<form id="createItemForm">
 		<div class="bd-callout-info bd-callout">
 			<fieldset class="form-group">
 				<legend>Item fields</legend>
 				<div class="form-group row">
-					<label class="col-sm-2 col-form-label col-form-label-sm" for="createItemName">Name*</label>
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="createItemName"><span data-i18n="form.item.name"></span>*</label>
 					<div class="col-10">
-						<input class="form-control form-control-sm" type="text" id="createItemName"
-							onchange="_createItem.onNameChange()" />
+						<input class="form-control form-control-sm" type="text" id="createItemName" onchange="_createItem.onNameChange()" />
 					</div>
 				</div>
 				<div class="form-group row">
-					<label class="col-sm-2 col-form-label col-form-label-sm" for="createItemCategory">Category*</label>
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="createItemCategory"><span data-i18n="form.item.category"></span>*</label>
 					<div class="col-10">
-						<select class="form-control form-control-sm" type="text" id="createItemCategory"
-							onchange="_createItem.onCategoryChange()" />
+						<select class="form-control form-control-sm" type="text" id="createItemCategory" onchange="_createItem.onCategoryChange()"></select>
 					</div>
 				</div>
 				<div class="form-group row">
-					<label class="col-sm-2 col-form-label col-form-label-sm" for="createItemClass">Class*</label>
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="createItemClass"><span data-i18n="form.item.class"></span>*</label>
 					<div class="col-10">
-						<select class="form-control form-control-sm" type="text" id="createItemClass"
-							onchange="_createItem.applyClass()" />
+						<select class="form-control form-control-sm" type="text" id="createItemClass" onchange="_createItem.applyClass()"></select>
 					</div>
 				</div>
 				<div id="createItemAdditionalProperties"></div>
 			</fieldset>
 		</div>
-		<button class="btn btn-danger btn-sm" type="button" onclick='_createItem.cancel();'
-			id="createItemCancelButton">
-			<img src='images/14.png' /> cancel
+		<button class="btn btn-danger btn-sm" type="button" onclick='_createItem.cancel();' id="createItemCancelButton">
+			<img src='images/14.png' /> <span data-i18n="form.button.cancel"></span>
 		</button>
-		<button class="btn btn-primary btn-sm" type="button" onclick='_createItem.validate();'
-			id="createItemValidateButton" disabled="true">
-			<img src='images/92.png' /> create
+		<button class="btn btn-primary btn-sm" type="button" onclick='_createItem.validate();' id="createItemValidateButton" disabled="true">
+			<img src='images/92.png' /> <span data-i18n="form.button.create"></span>
 		</button>
-		&nbsp;&nbsp;&nbsp;&nbsp; <input class="form-check-input" type="checkbox"
-			id="createItemAddToCurrentItem" /> <label class="form-check-label"
-			for="createItemAddToCurrentItem">Add to currentItem</label>
+		&nbsp;&nbsp;&nbsp;&nbsp; <input class="form-check-input" type="checkbox" id="createItemAddToCurrentItem" /> <label
+			class="form-check-label" for="createItemAddToCurrentItem"><span data-i18n="form.item.add_to_current_item"></span></label>
 	</form>
 	<script type="text/javascript">
 		var _createItem = {
@@ -70,7 +63,7 @@
 				$("#createItemCategory").html(html);
 				$("#createItemClass").html(htmlClasses);
 				this.applyClass();
-				this.refreshItem(global.currentItem);
+				this.refreshItem(global.item.getCurrent());
 			},
 			refreshItem : function(item){
 				if (item == null){
@@ -103,7 +96,7 @@
 					value = $("#createItemAdditionalProperty"+p).val();
 					if (value == ""){
 						if (property.required == true){
-							sendMessage("warning","Missing value for required property '"+property.label+"'");
+							sendMessage("warning",i18next.t("message.missing_value_for_property")+" : '"+property.label+"'");
 							$("#createItemAdditionalProperty"+p).focus();
 							return;
 						}
@@ -117,20 +110,20 @@
 					data	: data,
 					dataType: "json",
 					success	: function( data ) {
-						if (global.currentItem != null){
+						if (global.item.getCurrent() != null){
 							var linkToCurrentItem = !($("#createItemAddToCurrentItem").prop("disabled"));
 							if (linkToCurrentItem){
-								linkItem(global.currentItem,{id:data.objects[0].id});
+								global.item.link(global.item.getCurrent(),{id:data.objects[0].id});
 							} else {
-								sendMessage("success","Item successfully created");
+								sendMessage("success",i18next.t("message.item_success_create"));
 							}
 						} else {
-							sendMessage("success","Item successfully created");
-							openItem({id:data.objects[0].id, name : data.objects[0].name});
+							sendMessage("success",i18next.t("message.item_success_create"));
+							global.item.open({id:data.objects[0].id, name : data.objects[0].name});
 						}
 					}
 				}).fail(function(jxqr,textStatus,error){
-					sendMessage("error","Unable to create element : "+error);
+					sendMessage("error",i18next.t("message.item_failure_create")+" : "+error);
 				});
 			},
 			onNameChange : function (){
@@ -227,6 +220,7 @@
 		};
 		$(function() {
 			_createItem.init();
+			$('#createItemForm').find('*[data-i18n]').localize();
 		});
 	</script>
 </body>
