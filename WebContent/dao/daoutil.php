@@ -127,9 +127,9 @@ interface IDAO {
     public function getViewByName($name);
     
     public function getItemCategories();
-    public function getItemDocuments($itemId,$documentType);
     public function getItems($query);
     
+    public function getDocuments($query);
     public function disconnect();
 }
 ?>

@@ -4,21 +4,27 @@ $dao->connect();
 /** METHOD GET **/
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 	if (isset($_GET["id"])){
-		$content = $dao->getDocumentContent($_GET["id"]);
-		echo $content;
-		return;
-	} else {
-		$type = '*';
-		if (isset($_GET["type"])){
-			$type = $_GET["type"];
+		if (isset($_GET['content'])){
+			$content = $dao->getDocumentContent($_GET["id"]);
+			echo $content;
+			return;
+		} else {
+			$query = array();
+			$query['id'] = $_GET['id'];
+			$documents = $dao->getDocuments((object)$query);
 		}
-		if (isset($_GET["itemId"])){
-			$documents = $dao->getItemDocuments($_GET["itemId"],$type);
-        } else {
-        	// pour le moment, on ne liste pas tous les documents, on doit passer par un item
-        	die("Missing itemId argument");
-        	return;
+	} else {
+		$query = array();
+		if (isset($_GET['type'])){
+			$query['documentType'] = $_GET['type'];
+		}
+		if (isset($_GET['itemId'])){
+			$query['itemId'] = $_GET['itemId'];
         }
+        if (isset($_GET['name'])){
+        	$query['name'] = $_GET['name'];
+        }
+        $documents = $dao->getDocuments((object)$query);
 	}
 ?>
 { "documents" : [

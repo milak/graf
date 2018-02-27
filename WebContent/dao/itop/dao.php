@@ -910,62 +910,99 @@ class ITopDao implements IDAO {
             return false;
         }
     }
-    public function getItemDocuments($itemId,$documentType='*'){
-        $itemId = $this->_splitItemId($itemId);
-        $result = array();
-        if ($this->isFunctionalCI($itemId->prefix)){
-            $response = $this->getObjects('FunctionalCI','documents_list',"WHERE id = $itemId->id");
-            $document_id = null;
-            foreach ($response->objects as $object){
-                foreach ($object->fields->documents_list as $document){
-                    $document_id = $document->document_id;
-                    $doc = new stdClass();
-                    $doc->id = $document_id;
-                    $doc->name = $document->document_name;
-                    $subresponse = $this->getObjects('Document','documenttype_name',"WHERE id = $doc->id");
-                    foreach ($subresponse->objects as $subobject){
-                        $doc->type = $subobject->fields->documenttype_name;
-                        break;
-                    }
-                    // Filtrer sur le documentType
-                    if ($documentType != '*'){
-                        if ($doc->type != $documentType){
-                            continue;
-                        }
-                    }
-                    $result[] = $doc;
-                }
-            }
-        } else if ($itemId->prefix == "service"){
-            $response = $this->getObjects('Service','documents_list',"WHERE id = $itemId->id");
-            foreach ($response->objects as $object){
-                foreach ($object->fields->documents_list as $document){
-                    $document_id = $document->document_id;
-                    $doc = new stdClass();
-                    $doc->id = $document_id;
-                    $doc->name = $document->document_name;
-                    $subresponse = $this->getObjects("Document","documenttype_name","WHERE id = $doc->id");
-                    foreach ($subresponse->objects as $object){
-                        $doc->type = $object->fields->documenttype_name;
-                        break;
-                    }
-                    // Filtrer sur le documentType
-                    if ($documentType != "*"){
-                        if ($doc->type != $documentType){
-                            continue;
-                        }
-                    }
-                    $result[] = $doc;
-                }
-            }
-        } else {
-            // rien pour le moment
-        }
+    public function getDocuments($query){
+    	$result = array();
+    	$itemId = null;
+    	if (isset($query->itemId)){
+    		$itemId = $query->itemId;
+    	}
+    	$id = '*';
+    	if (isset($query->id)){
+    		$id = $query->id;
+    	}
+    	$documentType = '*';
+    	if (isset($query->documentType)){
+    		$documentType = $query->documentType;
+    	}
+    	$name = '*';
+    	if (isset($query->name)){
+    		$name = $query->name;
+    	}
+    	if ($itemId != null){
+	        $itemId = $this->_splitItemId($itemId);
+	        if ($this->isFunctionalCI($itemId->prefix)){
+	            $response = $this->getObjects('FunctionalCI','documents_list',"WHERE id = $itemId->id");
+	            $document_id = null;
+	            foreach ($response->objects as $object){
+	                foreach ($object->fields->documents_list as $document){
+	                    $document_id = $document->document_id;
+	                    $doc = new stdClass();
+	                    $doc->id = $document_id;
+	                    $doc->name = $document->document_name;
+	                    $subresponse = $this->getObjects('Document','documenttype_name',"WHERE id = $doc->id");
+	                    foreach ($subresponse->objects as $subobject){
+	                        $doc->type = $subobject->fields->documenttype_name;
+	                        break;
+	                    }
+	                    // Filtrer sur le documentType
+	                    if ($documentType != '*'){
+	                        if ($doc->type != $documentType){
+	                            continue;
+	                        }
+	                    }
+	                    $result[] = $doc;
+	                }
+	            }
+	        } else if ($itemId->prefix == "service"){
+	            $response = $this->getObjects('Service','documents_list',"WHERE id = $itemId->id");
+	            foreach ($response->objects as $object){
+	                foreach ($object->fields->documents_list as $document){
+	                    $document_id = $document->document_id;
+	                    $doc = new stdClass();
+	                    $doc->id = $document_id;
+	                    $doc->name = $document->document_name;
+	                    $subresponse = $this->getObjects("Document","documenttype_name","WHERE id = $doc->id");
+	                    foreach ($subresponse->objects as $object){
+	                        $doc->type = $object->fields->documenttype_name;
+	                        break;
+	                    }
+	                    // Filtrer sur le documentType
+	                    if ($documentType != "*"){
+	                        if ($doc->type != $documentType){
+	                            continue;
+	                        }
+	                    }
+	                    $result[] = $doc;
+	                }
+	            }
+	        } else {
+	            // rien pour le moment
+	        }
+    	} else {
+    		$filter = '';
+    		if ($name != '*'){
+    			$filter = ' AND name LIKE \'%'.$name.'%\'';
+    		}
+    		if ($documentType != '*'){
+    			$filter .= ' AND documenttype_name = \''.$documentType.'\'';
+    		}
+    		if ($id != '*'){
+    			$filter .= ' AND id = \''.$id.'\'';
+    		}
+    		$response = $this->getObjects('Document','id, name, documenttype_name, version','WHERE org_name = \''.$this->organisation.'\''.$filter);
+    		foreach ($response->objects as $object){
+    			$doc = new stdClass();
+    			$doc->id = $object->fields->id;
+    			$doc->name = $object->fields->name;
+    			$doc->type = $object->fields->documenttype_name;
+    			$result[] = $doc;
+    		}
+    	}
         return $result;
     }
     public function deleteItem($itemId){
         // Supprimer les documents liés
-        $documents = $this->getItemDocuments($itemId);
+        $documents = $this->getDocuments((object)['itemId'=>$itemId]);
         foreach ($documents as $document){
             $this->deleteObject('DocumentNote', $document->id);
         }
