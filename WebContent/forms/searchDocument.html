@@ -1,0 +1,109 @@
+<html>
+<body>
+	<form id="searchDocumentForm">
+		<fieldset class="form-group border-bottom">
+			<div class="bd-callout-info bd-callout">
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="search_document_form_name" data-i18n="form.document.name"></label>
+					<div class="col-10">
+						<input class="form-control form-control-sm" id="search_document_form_name" onChange="" />
+					</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="search_document_form_type" data-i18n="form.document.type"></label>
+					<div class="col-10">
+						<select class="form-control form-control-sm" id="search_document_form_type">
+							<option value="null">~select a value~</option>
+							<option value="TOSCA">TOSCA</option>
+							<option value="Template">Template</option>
+							<option value="BPMN">BPMN</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-10">
+					<button onClick="_searchDocument.search()" type="button" class="btn btn-primary btn-sm">
+						<img src='images/65.png' /> <span data-i18n="form.button.search" />
+					</button>
+				</div>
+			</div>
+		</fieldset>
+		<table style="width: 100%" class="display compact" id="search_document_form_result">
+			<thead>
+				<tr>
+					<td data-i18n="form.document.name"></td>
+					<td data-i18n="form.document.type"></td>
+					<td data-i18n="form.all.action"></td>
+				</tr>
+			</thead>
+		</table>
+	</form>
+	<script type="text/javascript">
+		var _searchDocument = {
+			_dataTable : null,
+			search : function() {
+				if (this._dataTable == null) {
+					this._dataTable = $("#search_document_form_result")
+							.dataTable({
+								"searching" : false,
+								"lengthChange" : false,
+								"responsive" : true
+							});
+				}
+				this._dataTable.fnClearTable();
+				var url = "api/document.php";
+				var first = true;
+				var name = $("#search_document_form_name").val();
+				if (name != "") {
+					url += "?name=" + name;
+					first = false;
+				}
+				var type = $("#search_document_form_type").val();
+				if (type != "null") {
+					if (first) {
+						url += "?";
+					} else {
+						url += "&";
+					}
+					url += "type=" + type;
+				}
+				$
+						.getJSON(
+								url,
+								function(result) {
+									var documents = result.documents;
+									var data = new Array();
+									for (var i = 0; i < documents.length; i++) {
+										var doc = new Array();
+										doc
+												.push("<a href='#' onclick='global.document.open("
+														+ documents[i].id
+														+ ")'>"
+														+ documents[i].name
+														+ "</a>");
+										doc.push(documents[i].type);
+										doc
+												.push("<button type='button' class='btn btn-danger btn-sm'>"
+														+ i18next
+																.t("form.button.delete")
+														+ "</button>");
+										data.push(doc);
+									}
+									if (data.length > 0) {
+										_searchDocument._dataTable
+												.fnAddData(data);
+									}
+								}).fail(
+								function(jxqr, textStatus, error) {
+									sendMessage("error", "<h1>Error</h1>"
+											+ textStatus + " : " + error);
+								});
+			}
+		};
+		$(function() {
+			$("#searchDocumentForm").find('*[data-i18n]').localize();
+		});
+	</script>
+</body>
+</html>
