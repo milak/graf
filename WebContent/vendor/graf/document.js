@@ -1,9 +1,18 @@
 global.document = {
 	_current : null,
 	open : function(id){
-		this._current = {id:id};
-		sendMessage("warning",i18next.t("message.not_yet_implemented"));
-		this.refresh();
+		$.getJSON("api/document.php?id="+id,function(result){
+			if (result.documents.length == 0){
+				sendMessage("error",i18next.t("message.document_failure_get"));
+			} else {
+				var document = result.documents[0];
+				global.document._current = {id:id,name:document.name};
+				global.document.refresh();
+			}
+		}).fail(function(jxqr,textStatus,error){
+			sendMessage("error",i18next.t("message.document_failure_get")+" : "+error);
+		});
+		
 	},
 	close : function(id){
 		this._current = null;

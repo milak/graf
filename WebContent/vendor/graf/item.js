@@ -113,11 +113,11 @@ global.item = {
 					this.refresh();
 					sendMessage("success",i18next.t("message.item_success_link"));
 				} else {
-					sendMessage("error",i18next.t("item_failure_link")+" : "+data.message);
+					sendMessage("error",i18next.t("message.item_failure_link")+" : "+data.message);
 				}
 			}
 		}).fail(function(jxqr,textStatus,error){
-			sendMessage("error",i18next.t("item_failure_link")+" : "+error);
+			sendMessage("error",i18next.t("message.item_failure_link")+" : "+error);
 		});
 	},
 	unlink : function(parentItem,childItem){

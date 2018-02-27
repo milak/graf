@@ -1,6 +1,72 @@
 <html>
 <body>
-<div style="display: none;"></div>
-<textarea style="width:100%;height:100%"></textarea>
+	<span style="display: none" data-provider="currentDocument" onchange="_viewDocument.refresh()"></span>
+	<form id="viewDocumentForm">
+		<fieldset class="form-group border-bottom">
+			<div class="bd-callout-info bd-callout">
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="view_document_form_name" data-i18n="form.document.name"></label>
+					<div class="col-10">
+						<input class="form-control form-control-sm" id="view_document_form_name" onChange="" readonly="true"/>
+					</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="view_document_form_type" data-i18n="form.document.type"></label>
+					<div class="col-10">
+						<input class="form-control form-control-sm" id="view_document_form_type" onChange=""  readonly="true"/>
+					</div>
+				</div>
+				<div class="form-group row">
+					<div class="col-sm-10">
+						<button onClick="_searchDocument.search()" type="button" class="btn btn-success btn-sm">
+							<img src='images/93.png' /> <span data-i18n="form.button.validate" />
+						</button>
+					</div>
+				</div>
+			</div>
+		</fieldset>
+	</form>
+	<textarea style="width:100%" id="view_document_content"></textarea>
+	<script type="text/javascript">
+		var _viewDocument = {
+			refresh : function() {
+				$("#view_document_form_name").val("");
+				$("#view_document_form_type").val("");
+				var document = global.document.getCurrent();
+				if (document == null) {
+					$("#view_document_content").text("");
+				} else {
+					$.ajax({
+						url : "api/document.php?id=" + document.id + "&content=true",
+						dataType : "text",
+						success : function(data) {
+							$("#view_document_content").text(data);
+						}
+					}).fail(function(jxqr, textStatus, error) {
+						sendMessage("error", i18next.t("message.document_failure_get") + " : " + error);
+					});
+					$.ajax({
+						url : "api/document.php?id=" + document.id,
+						dataType : "json",
+						success : function(result) {
+							if (result.documents.length == 0){
+								sendMessage("error", i18next.t("message.document_failure_get") + " : " + error);
+							} else {
+								var document = result.documents[0];
+								$("#view_document_form_name").val(document.name);
+								$("#view_document_form_type").val(document.type);
+							}
+						}
+					}).fail(function(jxqr, textStatus, error) {
+						sendMessage("error", i18next.t("message.document_failure_get") + " : " + error);
+					});
+				}
+			}
+		};
+		$(function() {
+			$("#viewDocumentForm").find('*[data-i18n]').localize();
+			_viewDocument.refresh();
+		});
+	</script>
 </body>
 </html>

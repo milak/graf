@@ -20,12 +20,12 @@ function initAutoComplete(){
 	        	var elements = data.elements;
 	        	var result = new Array();
 	        	for(var i = 0; i < elements.length; i++){
-	        		elements[i].categoryName = elements[i].category.name;
+	        		elements[i].categoryName = i18next.t("category."+elements[i].category.name);
 	        		result.push(elements[i]);
 	        	}
 	        	asyncResults(result);
 	        }).fail(function(jxqr,textStatus,error){
-				sendMessage("error","Unable to get elements : "+error);
+				sendMessage("error",i18next.t("message.item_failure_search")+" : "+error);
 			});
 		},
 		display : Handlebars.compile(''),
@@ -46,11 +46,13 @@ function svgElementClicked(what,id,button){
 	if (button == 0){ // Left button
 		$.getJSON( "api/element.php?id="+id, function(result) {
 			if (result.elements.length == 0){
-				sendMessage("warning","Item not found (id = "+id+")");
+				sendMessage("warning",i18next.t("message.item_no_information") + " ("+i18next.t("form.item.id")+" = "+id+")");
 			} else {
 				var element = result.elements[0];
 				global.item.open(element);
 			}
+		}).fail(function(jxqr,textStatus,error){
+			sendMessage("error",i18next.t("message.item_no_information")+" : "+error);
 		});
 	} else { // Right button
 		showContextMenu(what,id);

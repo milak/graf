@@ -1,21 +1,21 @@
 <html>
 <body>
-	<form>
+	<form id="viewItemForm">
 		<span style="display: none" data-provider="currentItem" onchange="_viewItem.refreshItem(global.item.getCurrent())"></span>
 		<ul class="nav nav-pills mb-3" id="myTab" role="tablist">
 			<li class="nav-item"><a class="nav-link active" id="detail-tab" data-toggle="tab"
-				href="#detail" role="tab" aria-controls="detail" aria-selected="true">Detail</a></li>
+				href="#detail" role="tab" aria-controls="detail" aria-selected="true" data-i18n="form.item.detail"></a></li>
 			<li class="nav-item"><a class="nav-link" id="description-tab" data-toggle="tab"
-				href="#description" role="tab" aria-controls="description" aria-selected="false">Description</a>
-			</li>
-			<li class="nav-item"><a class="nav-link" id="relateds-tab" data-toggle="tab"
-				href="#relateds" role="tab" aria-controls="relateds" aria-selected="false">Relateds</a>
+				href="#description" role="tab" aria-controls="description" aria-selected="false" data-i18n="form.item.description"></a>
 			</li>
 			<li class="nav-item"><a class="nav-link" id="documents-tab" data-toggle="tab"
-				href="#documents" role="tab" aria-controls="documents" aria-selected="false">Documents</a>
+				href="#documents" role="tab" aria-controls="documents" aria-selected="false" data-i18n="form.item.documents"></a>
+			</li>
+			<li class="nav-item"><a class="nav-link" id="relateds-tab" data-toggle="tab"
+				href="#relateds" role="tab" aria-controls="relateds" aria-selected="false" data-i18n="form.item.relateds"></a>
 			</li>
 			<li class="nav-item"><a class="nav-link" id="viewItemFilters-tab" data-toggle="tab"
-				href="#viewItemFilters" role="tab" aria-controls="viewItemFilters" aria-selected="false">Filters related</a>
+				href="#viewItemFilters" role="tab" aria-controls="viewItemFilters" aria-selected="false" data-i18n="form.item.filters"></a>
 			</li>
 		</ul>
 		<div class="tab-content" id="myTabContent">
@@ -23,27 +23,27 @@
 				aria-labelledby="detail-tab">
 				<div class="bd-callout-info bd-callout">
 					<fieldset class="form-group">
-						<legend>Item fields</legend>
+						<legend data-i18n="form.item.fields"></legend>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemId">ID</label>
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemId" data-i18n="form.item.id"></label>
 							<div class="col-10">
 								<input class="form-control form-control-sm" type="text" id="viewItemId" readonly="true"/>
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemName">Name</label>
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemName" data-i18n="form.item.name"></label>
 							<div class="col-10">
 								<input class="form-control form-control-sm" type="text" id="viewItemName" />
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemCategory">Category</label>
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemCategory" data-i18n="form.item.category"></label>
 							<div class="col-10">
 								<input class="form-control form-control-sm" type="text" id="viewItemCategory" readonly="true"/>
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemClass">Class</label>
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemClass" data-i18n="form.item.class"></label>
 							<div class="col-10">
 								<input class="form-control form-control-sm" type="text" id="viewItemClass" readonly="true"/>
 							</div>
@@ -63,11 +63,11 @@
 					<hr />
 					<button class="btn btn-primary btn-sm" type="button" onclick='_viewItem.updateItem();'
 						id="viewItemUpdateButton">
-						<img src='images/92.png' /> update
+						<img src='images/92.png' /> <span data-i18n="form.button.update"></span>
 					</button>
 					<button class="btn btn-danger btn-sm" type="button"
 						onclick='global.item.delete(global.item.getCurrent().id);' id="viewItemDeleteButton">
-						<img src='images/14.png' /> delete
+						<img src='images/14.png' /> <span data-i18n="form.button.delete"></span>
 					</button>
 				</div>
 			</div>
@@ -75,7 +75,7 @@
 				aria-labelledby="description-tab">
 				<div class="bd-callout-info bd-callout">
 					<fieldset class="form-group">
-					<legend>Description</legend>
+					<legend data-i18n="form.item.description"></legend>
 						<div class="form-group row">
 							<!--label class="col-sm-2 col-form-label col-form-label-sm" for="viewItemDescription">Description</label-->
 							<textarea id="viewItemDescription" class="form-control form-control-sm"
@@ -87,14 +87,14 @@
 			</div>
 			<div class="tab-pane fade" id="relateds" role="tabpanel" aria-labelledby="relateds-tab">
 				<fieldset class="form-group">
-					<legend>Related items</legend>
+					<legend data-i18n="form.item.relateds"></legend>
 					<table class="table table-bordered table-hover table-sm">
 						<thead>
 							<tr>
-								<th style="width:50px;text-align:center">Link</th>
-								<th style="width:10%;text-align:center">Category</th>
-								<th style="text-align:center">Name</th>
-								<th style="width:10%;text-align:center">Action</th>
+								<th style="width:50px;text-align:center" data-i18n="form.item.link"></th>
+								<th style="width:10%;text-align:center" data-i18n="form.item.category"></th>
+								<th style="text-align:center" data-i18n="form.item.name"></th>
+								<th style="width:10%;text-align:center" data-i18n="form.all.action"></th>
 							</tr>
 						</thead>
 						<tbody id="viewItemRelatedItems"></tbody>
@@ -103,13 +103,13 @@
 			</div>
 			<div class="tab-pane fade" id="documents" role="tabpanel" aria-labelledby="documents-tab">
 				<fieldset class="form-group">
-					<legend>Documents list</legend>
+					<legend data-i18n="form.item.documents"></legend>
 						<table class="table table-bordered table-hover table-sm">
 							<thead>
 								<tr>
-									<th>Name</th>
-									<th>Type</th>
-									<th>Action</th>
+									<th data-i18n="form.document.name"></th>
+									<th data-i18n="form.document.type"></th>
+									<th data-i18n="form.all.action"></th>
 								</tr>
 							</thead>
 							<tbody id="viewItemDocumentsList"></tbody>
@@ -120,15 +120,15 @@
 				aria-labelledby="viewItemFilters-tab">
 				<div class="bd-callout-info bd-callout">
 				<fieldset class="form-group">
-					<legend>Filters for related items list</legend>
-					Show direction :<br/>
+					<legend data-i18n="form.item.filters"></legend>
+					<span data-i18n="form.item.filter_direction"></span> :<br/>
 					<div style="margin-left : 25px;margin-top:10px;margin-bottom:10px">
-						<button class='btn btn-sm btn-primary' id="viewItemUpFilter" onclick="_viewItem.toggleFilter('up');  " title="Display up related items"><img src="images/55.png"/> up</button>
-						<button class='btn btn-sm btn-primary' id="viewItemDownFilter" onclick="_viewItem.toggleFilter('down');" title="Display down related items"><img src="images/54.png"/> down</button>
+						<button class='btn btn-sm btn-primary' id="viewItemUpFilter" onclick="_viewItem.toggleFilter('up');  " title="Display up related items"><img src="images/55.png"/> <span data-i18n="form.item.up"></span></button>
+						<button class='btn btn-sm btn-primary' id="viewItemDownFilter" onclick="_viewItem.toggleFilter('down');" title="Display down related items"><img src="images/54.png"/> <span data-i18n="form.item.down"></span></button>
 					</div>
-					Show Categories :<br/>
+					<span data-i18n="form.item.filter_categories"></span> :<br/>
 					<div id="viewItemFilterCategories" style="margin-left : 25px;margin-top:10px;margin-bottom:10px"></div>
-					<button class='btn btn-sm btn-primary' onclick="_viewItem.resetFilter();_viewItem.updateCategoryFilter();_viewItem.refreshRelateds(global.item.getCurrent());">Show all</button>
+					<button class='btn btn-sm btn-primary' onclick="_viewItem.resetFilter();_viewItem.updateCategoryFilter();_viewItem.refreshRelateds(global.item.getCurrent());" data-i18n="form.item.show_all"></button>
 				</fieldset>
 				</div>
 			</div>
@@ -181,7 +181,9 @@
 				} else {
 					html += "btn-secondary";
 				}
-				html += "'onclick='_viewItem._categoryFilter[\""+categories[c].id+"\"]=!_viewItem._categoryFilter[\""+categories[c].id+"\"];_viewItem.updateCategoryFilter();_viewItem.refreshRelateds(global.item.getCurrent());'>"+categories[c].name+"</button>&nbsp;";
+				html += "'onclick='_viewItem._categoryFilter[\""+categories[c].id+"\"]=!_viewItem._categoryFilter[\""+categories[c].id+"\"];_viewItem.updateCategoryFilter();_viewItem.refreshRelateds(global.item.getCurrent());'>";
+				html += i18next.t("category."+categories[c].name);
+				html += "</button>&nbsp;";
 			}
 			$("#viewItemFilterCategories").html(html);
 		},
@@ -198,7 +200,7 @@
 			} else {
 				$("#viewItemId").			val(item.id);
 				$("#viewItemName").			val(item.name);
-				$("#viewItemCategory").		val(item.category.name);
+				$("#viewItemCategory").		val(i18next.t("category."+item.category.name));
 				$("#viewItemClass").		val(item.class.name);
 				$("#viewItemUpdateButton").	prop("disabled",true);
 				$("#viewItemDeleteButton").	prop("disabled",false);
@@ -260,7 +262,7 @@
 						}
 						$("#viewItemRelatedItems").append(htmlDown);
 					}).fail(function(jxqr,textStatus,error){
-						sendMessage("error","Unable to get related items : "+error);
+						sendMessage("error",i18next.t("item_failure_related_items") + " : "+error);
 					});
 				}
 				$.getJSON( "api/document.php?itemId="+item.id, function(result) {
@@ -269,7 +271,7 @@
 					var count = 0;
 					for (var d = 0; d < result.documents.length; d++){
 						document = result.documents[d];
-						html += "<tr><td><a href='#' onclick='sendMessage(\"warning\",\"Not yet implemented\")'>"+document.name+"</a></td>";
+						html += "<tr><td><a href='#' onclick='global.document.open("+document.id+")'>"+document.name+"</a></td>";
 						html += "<td>"+document.type+"</td>";
 						html += "<td><button class='btn btn-danger btn-sm' onclick='_viewItem.deleteDocument(\""+document.id+"\")'>Delete</button></td>";
 						html += "</tr>";
@@ -281,29 +283,30 @@
 					}
 					$("#viewItemDocumentsList").html(html);
 				}).fail(function(jxqr,textStatus,error){
-					sendMessage("error","Unable to get documents list : "+error);
+					sendMessage("error",i18next.t("document_failure_list")+" : "+error);
 				});
 			}
 		},
 		deleteDocument : function(id){
-			if (confirm("Do you really want to delete this document ?")){
+			if (confirm(i18next.t("message.document_delete_confirm"))){
 				$.ajax({
 					url : "api/document.php?id="+id,
 					method : "DELETE",
 					success : function(){
-						sendMessage("success","Document successfully deleted");
+						sendMessage("success",i18next.t("message.document_success_delete"));
 						item.refresh();
 					}
 				}).fail(function(jxqr,textStatus,error){
-					sendMessage("error","Unable to delete document : "+error);
+					sendMessage("error",i18next.t("message.document_failure_delete") + " : "+error);
 				});
 			}
 		},
 		updateItem : function(){
-			sendMessage("warning","Not yet implemented");
+			sendMessage("warning",i18next.t("message.not_yet_implemented"));
 		}
 	};
 	$(function(){
+		$("#viewItemForm").find('*[data-i18n]').localize();
 		_viewItem.updateCategoryFilter();
 		_viewItem.refreshItem(global.item.getCurrent());
 	});

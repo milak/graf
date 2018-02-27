@@ -7,7 +7,8 @@ function loadViews(){
 	viewDescription['service'] 		= { url : 'views/view_service.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Service view"};
 	viewDescription['process'] 		= { url : 'views/view_process.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Process view"};
 	viewDescription['technical']	= { url : 'views/view_technical.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Technical view"};
-	viewDescription['viewItem']		= { url : 'forms/viewItem.html', 			icon  : '2.png' , class : 'panel-purple', noItemSupported : false, static : true,  svg : false, 	title : i18next.t("view.detail")};
+	viewDescription['viewItem']		= { url : 'forms/viewItem.html', 			icon  : '2.png' , class : 'panel-purple', noItemSupported : false, static : true,  svg : false, 	title : i18next.t("view.item_detail")};
+	viewDescription['viewDocument']	= { url : 'forms/viewDocument.html',		icon  : '2.png' , class : 'panel-purple', noItemSupported : false, static : true,  svg : false, 	title : i18next.t("view.document_detail")};
 	viewDescription['mapEurope']	= { url : 'views/view_map.php?map=europe', 	icon  : '77.png', class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : i18next.t("view.map.europe")};
 	viewDescription['mapWorld']		= { url : 'views/view_map.php?map=world', 	icon  : '77.png', class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : i18next.t("view.map.world")};
 	var menuViewDropDown = $("#menuViewDropDown");
@@ -16,8 +17,11 @@ function loadViews(){
 	});
 }
 function searchDocument(){
-	global.document.setCurrent(10);
-	sendMessage("warning",i18next.t("message.not_yet_implemented"));
+	$("#searchDocument").panel({
+    	url : 'forms/searchDocument.html',
+    	class : 'panel-green',
+    	title : "Search a document"
+    });
 }
 function createDocument(){
 	sendMessage("warning",i18next.t("message.not_yet_implemented"));

@@ -2,12 +2,12 @@
 	"en" : {
 		"translation" : {
 			"menu" : {
-				"item" : "Item",
-				"document" : "Document",
-				"search" : "Search",
-				"create" : "Create",
-				"delete" : "Delete",
-				"views" : "Views"
+				"item" 							: "Item",
+				"document" 						: "Document",
+				"search" 						: "Search",
+				"create" 						: "Create",
+				"delete" 						: "Delete",
+				"views" 						: "Views"
 			},
 			"breadcrumb" : {
 				"no_item" 						: "No item selected",
@@ -24,41 +24,86 @@
 				"unknown_view" 					: "Unknown view",
 				"item_not_exist" 				: "Item doesn't exist",
 				"item_no_information" 			: "Unable to get item information",
+				"item_failure_search"  			: "Unable to perform the search",
 				"item_success_delete"   		: "Item successfully deleted",
-				"item_failure_delete"   		: "Unable to delete item",
+				"item_failure_delete"   		: "Unable to delete the item",
 				"item_success_link"   			: "Item successfully linked",
-				"item_failure_link"				: "Unable to link item",
+				"item_failure_link"				: "Unable to link the item",
 				"item_success_unlink"			: "Item successfully unlinked",
-				"item_failure_unlink"			: "Unable to unlink item",
+				"item_failure_unlink"			: "Unable to unlink the item",
 				"item_success_create"   		: "Item successfully created",
-				"item_failure_create"   		: "Unable to create item",
+				"item_failure_create"   		: "Unable to create the item",
+				"item_failure_related_items"  	: "Unable to get the related items",
+				"document_delete_confirm"		: "Do you really want to delete this document ?",
+				"document_success_delete"		: "Document successfully deleted",
+				"document_failure_delete"		: "Unable to delete the document",
+				"document_failure_list"			: "Unable to get documents list",
+				"document_failure_get"			: "Unable to get document information",
 				"not_yet_implemented"			: "Function not yet implemented",
 				"missing_value_for_property" 	: "Missing value for required property"
 			},
+			"category" : {
+				"actor"		: "actor",
+				"data"		: "data",
+				"device"	: "device",
+				"domain"	: "domain",
+				"location"	: "location",
+				"process"	: "process",
+				"server"	: "server",
+				"service"	: "service",
+				"software"	: "software",
+				"solution"	: "solution"			
+			},
 			"form" : {
 				"item" : {
-					"title"		: "Item",
-					"name" 		: "Name",
-					"category"	: "Category",
-					"class" 	: "Class",
-					"add_to_current_item" 	: "Add to current item"
+					"id"						: "Identifier",
+					"title"						: "Item",
+					"name" 						: "Name",
+					"category"					: "Category",
+					"class" 					: "Class",
+					"add_to_current_item" 		: "Add to current item",
+					"detail" 					: "Detail",
+					"fields"					: "Item fields",
+					"description"				: "Description",
+					"relateds" 					: "Related items",
+					"link"						: "Link",
+					"documents" 				: "Documents",
+					"filters" 					: "Filters",
+					"filter_direction"			: "Direction",
+					"filter_categories"			: "Categories",
+					"show_all"					: "Show all",
+					"up"						: "Up",
+					"down"						: "Down"
+				},
+				"document" : {
+					"title"						: "Document",
+					"name" 						: "Name",
+					"type" 						: "Type"
+				},
+				"all" : {
+					"action"					: "Action",
+					"select_a_value"			: "Select a value"
 				},
 				"button" : {
-					"cancel" 	: "Cancel",
-					"create" 	: "Create",
-					"open"		: "Open",
-					"delete"	: "Delete",
-					"close"		: "Close"
+					"cancel" 					: "Cancel",
+					"create" 					: "Create",
+					"update" 					: "Update",
+					"open"						: "Open",
+					"delete"					: "Delete",
+					"close"						: "Close",
+					"validate"					: "Validate",
+					"search"					: "Search"
 				}
 			},
 			"view" : {
-				"strategical" 	: "Strategical view",
-				"business" 		: "Business view",
-				"logical"		: "Logical view",
-				"detail"		: "Detail",
-				"map"			: {
-					"europe"	: "Map - Europe",
-					"world"		: "Map - World"
+				"strategical" 					: "Strategical view",
+				"business" 						: "Business view",
+				"logical"						: "Logical view",
+				"item_detail"					: "Elément",
+				"document_detail"				: "Document",
+				"map" : {
+					"europe"					: "Map - Europe",
+					"world"						: "Map - World"
 				}
 			}
 		}

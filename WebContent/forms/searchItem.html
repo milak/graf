@@ -4,142 +4,144 @@
 <script type="text/javascript" src="vendor/DataTables/datatables.js"></script-->
 </head>
 <body>
-	<form>
+	<form id="searchItemForm">
 		<fieldset class="form-group border-bottom">
-		<div class="bd-callout-info bd-callout">
-			<div class="form-group row">
-				<label class="col-sm-2 col-form-label col-form-label-sm"
-					for="import_item_form_category">Category</label>
-				<div class="col-10">
-					<select class="form-control form-control-sm" id="import_item_form_category"
-						onChange="applyCategory('import_item_form_category','import_item_form_class',false)"></select>
+			<div class="bd-callout-info bd-callout">
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="import_item_form_name" data-i18n="form.item.name"></label>
+					<div class="col-10">
+						<input type="text" class="form-control form-control-sm" id="import_item_form_name" />
+					</div>
 				</div>
-			</div>
-			<div class="form-group row">
-				<label class="col-sm-2 col-form-label col-form-label-sm" for="import_item_form_class">Class</label>
-				<div class="col-10">
-					<select class="form-control form-control-sm" id="import_item_form_class"></select>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label col-form-label-sm"
+						for="import_item_form_category" data-i18n="form.item.category"></label>
+					<div class="col-10">
+						<select class="form-control form-control-sm" id="import_item_form_category"
+							onChange="_searchItem.applyCategory('import_item_form_category','import_item_form_class',false)"></select>
+					</div>
 				</div>
-			</div>
-			<div class="form-group row">
-				<label class="col-sm-2 col-form-label col-form-label-sm" for="import_item_form_name">Name</label>
-				<div class="col-10">
-					<input type="text" class="form-control form-control-sm" id="import_item_form_name" />
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="import_item_form_class" data-i18n="form.item.class"></label>
+					<div class="col-10">
+						<select class="form-control form-control-sm" id="import_item_form_class"></select>
+					</div>
 				</div>
-			</div>
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-10">
-					<button type="button" class="btn btn-primary btn-sm" onClick="onImportItemFormSearchClick()">
-						<img style="height: 14px" src="images/65.png" /> search
+					<button type="button" class="btn btn-primary btn-sm" onClick="_searchItem.search()">
+						<img src="images/65.png" /> <span data-i18n="form.button.search"/>
 					</button>
 				</div>
 			</div>
 		</fieldset>
-		
 		<table style="width: 100%" class="display compact" id="import_item_form_result">
 			<thead style="width: 100%">
 				<tr>
-					<td>&Eacute;l&eacute;ment</td>
-					<td>Classe</td>
-					<td>Cat&eacute;gorie</td>
-					<td>Action</td>
+					<td data-i18n="form.item.title"></td>
+					<td data-i18n="form.item.class"></td>
+					<td data-i18n="form.item.category"></td>
+					<td data-i18n="form.all.action"></td>
 				</tr>
 			</thead>
-			<tbody>
-			</tbody>
 		</table>
 	</form>
 	<script>
-var datatableItems = null;
-function applyCategory(categoryList,classList,create){
-	var categoryName = $("#"+categoryList).val();
-	$.getJSON( "api/element_class.php", function(result) {
-		var categories = result.categories;
-		var first = null;
-		var count = 0;
-		var htmlClasses = "";
-		if (!create){
-			htmlClasses = "<option value='NULL'>~~Toutes les classes~~</option>"
-		}
-		for (var i = 0; i < categories.length; i++){
-			var category = categories[i];
-			if (categoryName != "NULL"){
-				if (categoryName != category.name){
-					continue;
+var _searchItem = {
+	_dataTable : null,
+	applyCategory : function (categoryList,classList,create){
+		var categoryName = $("#"+categoryList).val();
+		$.getJSON( "api/element_class.php", function(result) {
+			var categories = result.categories;
+			var first = null;
+			var count = 0;
+			var htmlClasses = "";
+			if (!create){
+				htmlClasses = "<option value='NULL'>~~Toutes les classes~~</option>"
+			}
+			for (var i = 0; i < categories.length; i++){
+				var category = categories[i];
+				if (categoryName != "NULL"){
+					if (categoryName != category.name){
+						continue;
+					}
+				}
+				for (var j = 0; j < category.classes.length; j++){
+					var classe = category.classes[j];
+					if (create && (classe.abstract == "true")){
+						continue;
+					}
+					first = classe.id;
+					count++;
+					htmlClasses += "<option value='"+classe.id+"'>"+classe.name+"</option>";
 				}
 			}
-			for (var j = 0; j < category.classes.length; j++){
-				var classe = category.classes[j];
-				if (create && (classe.abstract == "true")){
-					continue;
-				}
-				first = classe.id;
-				count++;
-				htmlClasses += "<option value='"+classe.id+"'>"+classe.name+"</option>";
+			$("#"+classList).html(htmlClasses);
+			if (count == 1){
+				$("#"+classList).val(first);
+			}
+		}).fail(function(jxqr,textStatus,error) {
+			sendMessage("error","<h1>Error</h1>"+textStatus+ " : " + error);
+		});
+	},
+	search : function (){
+		if (this._dataTable == null){
+			this._dataTable = $("#import_item_form_result").dataTable({
+				  "searching"		: false,
+				  "lengthChange"	: false,
+				  "responsive" 		: true
+			});
+		}
+		var url = "api/element.php";
+		var selectClass = $("#import_item_form_class").val();
+		if (selectClass != "NULL"){
+			url += "?class_name="+selectClass;
+		} else {
+			var selectCategorie = $("#import_item_form_category").val();
+			if (selectCategorie != "NULL"){
+				url += "?category_name="+selectCategorie;
 			}
 		}
-		$("#"+classList).html(htmlClasses);
-		if (count == 1){
-			$("#"+classList).val(first);
-		}
-	}).fail(function(jxqr,textStatus,error) {
-		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-	});
-}
-function onImportItemFormSearchClick(){
-	if (datatableItems == null){
-		datatableItems = $("#import_item_form_result").dataTable({
-			  "searching": false,
-			  "lengthChange": false,
-			  "responsive" : true
+		this._dataTable.fnClearTable();
+		$.getJSON( url, function(result) {
+			var selectName = $("#import_item_form_name").val().trim();
+			var html = "";
+			var elements = result.elements;
+			var data = new Array();
+			for (var i = 0; i < elements.length; i++){
+				var element = elements[i];
+				if (selectName != ""){
+					if (element.name.indexOf(selectName) == -1){
+						continue;
+					}
+				}
+				var row = new Array();
+				row.push("<a href='#' onClick='event.preventDefault();global.item.open({id:\""+element.id+"\", name : \""+element.name+"\"});$(\"#popup\").panel().close()'>"+element.name+"</a>");
+				row.push(element.class.name);
+				row.push(element.category.name);
+				var label = "";
+				var currentItem = global.item.getCurrent();
+				if (currentItem != null){
+					if (currentItem.id != element.id){
+						label = "<button class='btn btn-primary btn-sm' onClick='event.preventDefault();global.item.link({id:\""+currentItem.id+"\"},{id:\""+element.id+"\"});'>Link</button>";
+					}
+				}
+				row.push(label);
+				data.push(row);
+			}
+			if (data.length > 0){
+				_searchItem._dataTable.fnAddData(data);
+			}
+		}).fail(function(jxqr,textStatus,error) {
+			sendMessage("error","<h1>Error</h1>"+textStatus+ " : " + error);
 		});
 	}
-	var url = "api/element.php";
-	var selectClass = $("#import_item_form_class").val();
-	if (selectClass != "NULL"){
-		url += "?class_name="+selectClass;
-	} else {
-		var selectCategorie = $("#import_item_form_category").val();
-		if (selectCategorie != "NULL"){
-			url += "?category_name="+selectCategorie;
-		}
-	}
-	datatableItems.fnClearTable();
-	$.getJSON( url, function(result) {
-		var selectName = $("#import_item_form_name").val().trim();
-		var html = "";
-		var elements = result.elements;
-		var data = new Array();
-		for (var i = 0; i < elements.length; i++){
-			var element = elements[i];
-			if (selectName != ""){
-				if (element.name.indexOf(selectName) == -1){
-					continue;
-				}
-			}
-			var row = new Array();
-			row.push("<a href='#' onClick='event.preventDefault();global.item.open({id:\""+element.id+"\", name : \""+element.name+"\"});$(\"#popup\").panel().close()'>"+element.name+"</a>");
-			row.push(element.class.name);
-			row.push(element.category.name);
-			var label = "";
-			var currentItem = global.item.getCurrent();
-			if (currentItem != null){
-				if (currentItem.id != element.id){
-					label = "<button class='btn btn-primary btn-sm' onClick='event.preventDefault();global.item.link({id:\""+currentItem.id+"\"},{id:\""+element.id+"\"});'>Link</button>";
-				}
-			}
-			row.push(label);
-			data.push(row);
-		}
-		if (data.length > 0){
-			datatableItems.fnAddData(data);
-		}
-	}).fail(function(jxqr,textStatus,error) {
-		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-	});
-}
+};
+
+
 $(function(){
+	$("#searchItemForm").find('*[data-i18n]').localize();
 	/*$.getJSON( "api/view.php?view=logical", function(result) {
 		var areaList = buildAreaList(result.view);
 		$('#import_item_form_area').html(areaList);
@@ -172,7 +174,7 @@ $(function(){
 		$("#import_item_form_create_category").html(htmlCategoryCreate);
 		$("#import_item_form_create_class").html(htmlClassesCreate);
 	}).fail(function(jxqr,textStatus,error) {
-		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
+		sendMessage("error","<h1>Error</h1>"+textStatus+ " : " + error);
 	});
 });
 </script>

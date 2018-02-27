@@ -53,28 +53,26 @@ html {
 </head>
 <body oncontextmenu="event.preventDefault()" onresize="item.refresh()">
 	<header>
-		<!-- Fixed navbar -->
 		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
 			<a class="navbar-brand" href="#" onClick="breadCrumb.home()" title="Graphic Rendering Architecture Framework">GRAF</a>
 			<div class="collapse navbar-collapse" id="navbarCollapse">
 				<ul class="navbar-nav mr-auto">
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="menuItem" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span
-							data-i18n="menu.item" /></a>
+							data-i18n="menu.item">Items</span></a>
 						<div class="dropdown-menu" aria-labelledby="menuItem">
 							<a class="dropdown-item" href="#" onClick="searchItem()"><img src="images/65.png" /> <span data-i18n="menu.search" /></a> <a class="dropdown-item" href="#"
 								onClick="createItem()"><img src="images/78.png" /> <span data-i18n="menu.create" /></a> <a class="dropdown-item disabled" href="#" id="menuDeleteItem"
 								onClick="global.item.delete()" disabled="true"><img src="images/33.png" /> <span data-i18n="menu.delete" /></a>
 						</div></li>
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="menuDocument" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span
-							data-i18n="menu.document" /></a>
+							data-i18n="menu.document">Documents</span></a>
 						<div class="dropdown-menu" aria-labelledby="menuDocument">
-							<a class="dropdown-item" href="#" onClick="searchDocument()"><img src="images/65.png" /> <span data-i18n="menu.search" /></a>
-							<a class="dropdown-item" href="#" onClick="createDocument()"><img src="images/78.png" /> <span data-i18n="menu.create" /></a>
-							<a class="dropdown-item disabled" href="#" id="menuDeleteDocument"
+							<a class="dropdown-item" href="#" onClick="searchDocument()"><img src="images/65.png" /> <span data-i18n="menu.search" /></a> <a class="dropdown-item" href="#"
+								onClick="createDocument()"><img src="images/78.png" /> <span data-i18n="menu.create" /></a> <a class="dropdown-item disabled" href="#" id="menuDeleteDocument"
 								onClick="global.document.delete()" disabled="true"><img src="images/33.png" /> <span data-i18n="menu.delete" /></a>
 						</div></li>
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="menuView" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span
-							data-i18n="menu.views" /></a>
+							data-i18n="menu.views">Views</span></a>
 						<div class="dropdown-menu" id="menuViewDropDown" aria-labelledby="menuView"></div></li>
 					<li class="nav-item">
 						<ol class="breadcrumb black" id="breadcrumb" style="background-color: transparent; padding: 0px; margin: 0px; margin-top: 8px">
@@ -86,7 +84,6 @@ html {
 					<div>
 						<input class="typeahead form-control mr-sm-2" type="text" id="menuSearchInput" placeholder="Search" aria-label="Search">
 					</div>
-					<!--button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button-->
 				</form>
 			</div>
 		</nav>
@@ -97,18 +94,20 @@ html {
 		<span id="alertBadge" class="badge" style="padding: 8px; margin-right: 15px"> <img id="alertIcon" /> <strong id="alertLevel" />
 		</span> <span id="alertMessage"></span>
 	</div>
-	<svg id="strategic" style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="business" style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="logical" style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="service" style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="process" style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="technical" style="width: 100%; height: 100%; display: none"></svg>
-	<div id="viewItem" style="width: 100%; height: 100%; display: none"></div>
-	<svg id="mapEurope" style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="mapWorld" style="width: 100%; height: 100%; display: none"></svg>
-	<div id="searchItem" style="display: none"></div>
-	<div id="createItem" style="display: none"></div>
-	<div id="popup" style="display: none"></div>
+	<svg id="strategic" 	style="width: 100%; height: 100%; display: none"></svg>
+	<svg id="business" 		style="width: 100%; height: 100%; display: none"></svg>
+	<svg id="logical" 		style="width: 100%; height: 100%; display: none"></svg>
+	<svg id="service" 		style="width: 100%; height: 100%; display: none"></svg>
+	<svg id="process" 		style="width: 100%; height: 100%; display: none"></svg>
+	<svg id="technical" 	style="width: 100%; height: 100%; display: none"></svg>
+	<div id="viewItem" 		style="width: 100%; height: 100%; display: none"></div>
+	<div id="viewDocument" 	style="width: 100%; height: 100%; display: none"></div>
+	<svg id="mapEurope" 	style="width: 100%; height: 100%; display: none"></svg>
+	<svg id="mapWorld" 		style="width: 100%; height: 100%; display: none"></svg>
+	<div id="searchItem" 	style="display: none"></div>
+	<div id="searchDocument" style="display: none"></div>
+	<div id="createItem" 	style="display: none"></div>
+	<div id="popup" 		style="display: none"></div>
 
 	<!-- ========================================================== -->
 	<!-- Placed at the end of the document so the pages load faster -->
