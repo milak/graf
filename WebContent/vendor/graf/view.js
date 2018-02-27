@@ -36,27 +36,29 @@ function searchDocument(){
 	$("#searchDocument").panel({
     	url : 'forms/searchDocument.html',
     	class : 'panel-green',
-    	title : "Search a document"
+    	title : i18next.t("view.document_search")
     });
 }
 function createDocument(){
-	sendMessage("warning",i18next.t("message.not_yet_implemented"));
+	$("#createDocument").panel({
+    	url 	: 'forms/createDocument.html',
+    	class 	: 'panel-green',
+    	title 	: i18next.t("view.document_create")
+    });
 }
 function createItem(){
 	$("#createItem").panel({
     	url 	: 'forms/createItem.html?id='+Math.random(),
     	class 	: 'panel-green',
-    	title 	: "Create an item"
-    	//buttons : ["reload","close"]
-    });// .state("maximized");
+    	title 	: i18next.t("view.item_create")
+    });
 }
 function searchItem(){
 	$("#searchItem").panel({
     	url : 'forms/searchItem.html',
     	class : 'panel-green',
-    	title : "Search an item"
-    	// buttons : ["reload","close"]
-    });// .state("maximized");
+    	title : i18next.t("view.item_search")
+    });
 }
 
 function addView(viewName){

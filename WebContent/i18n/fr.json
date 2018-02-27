@@ -61,7 +61,6 @@
 					"name" 						: "Nom",
 					"category" 					: "Catégorie",
 					"class" 					: "Classe",
-					"add_to_current_item" 		: "Ajouter à l'élément courrant",
 					"detail" 					: "Détail",
 					"fields"					: "Attributs de l'élément",
 					"description"				: "Description",
@@ -78,10 +77,12 @@
 				"document" : {
 					"title"						: "Document",
 					"name" 						: "Nom",
+					"fields"					: "Attributs du document",
 					"type" 						: "Type"
 				},
 				"all" : {
 					"action"					: "Action",
+					"add_to_current_item" 		: "Ajouter à l'élément courrant",
 					"select_a_value"			: "Choisir une valeur"
 				},
 				"button" : {
@@ -101,12 +102,16 @@
 				"logical"						: "Vue logique",
 				"process"						: "Vue processus",
 				"technical"						: "Vue technique",
-				"item_detail"					: "Item",
-				"document_detail"				: "Document",
+				"item_create"					: "Créer un élément",
+				"item_detail"					: "Elément",
+				"item_search"					: "Chercher un élément",
 				"map" : {
 					"europe"					: "Carte - Europe",
 					"world"						: "Carte - Monde"
-				}
+				},
+				"document_create"				: "Créer un document",
+				"document_detail"				: "Document",
+				"document_search"				: "Chercher un document"
 			}
 		}
 	}
