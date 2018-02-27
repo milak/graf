@@ -13,7 +13,7 @@ if ($_SERVER ['REQUEST_METHOD'] === 'GET') {
 		if (! isset ( $_GET ["id"] )) {
 			die ( "Missing id argument" );
 		}
-		$documents = $dao->getItemDocuments ( $_GET ["id"], $_GET ["type"] );
+		$documents = $dao->getDocuments ( (object)['itemId' => $_GET ['id'], 'type' => $_GET ['type']] );
 		if (count ( $documents ) != 0) {
 			$document = $documents [0];
 			$content = $dao->getDocumentContent ( $document->id );
@@ -93,7 +93,7 @@ if ($_SERVER ['REQUEST_METHOD'] === 'GET') {
 				die ( "Missing type argument" );
 			}
 			// Retrouver l'id du document, l'ideal serait que l'on fournisse l'id du document
-			$documents = $dao->getItemDocuments ( $id, $_POST ["type"] );
+			$documents = $dao->getDocuments ( (object)['itemId' => $id, 'type' => $_POST ['type']] );
 			if (count ( $documents ) != 0) {
 				$document = $documents [0];
 				$dao->updateDocument ( $document->id, $_POST ["document"] );

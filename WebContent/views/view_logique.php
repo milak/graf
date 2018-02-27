@@ -22,7 +22,7 @@ if (isset($areas["default"])){
     $defaultarea  = null;
 }
 // Afficher la description de la solution
-$documents = $dao->getItemDocuments($itemId,"TOSCA");
+$documents = $dao->getDocuments((object)['itemId' => $itemId, 'type' => 'TOSCA']);
 if (count($documents) != 0){
     $document = $documents[0];
     $content = $dao->getDocumentContent($document->id);
