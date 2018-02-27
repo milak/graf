@@ -196,7 +196,6 @@
 				$("#viewItemUpdateButton").	prop("disabled",true);
 				$("#viewItemDeleteButton").	prop("disabled",true);
 				$("#viewItemProperties").	html("");
-				$("#viewItemRelatedItems").html("");
 			} else {
 				$("#viewItemId").			val(item.id);
 				$("#viewItemName").			val(item.name);
@@ -211,12 +210,39 @@
 					html += "<tr><td>"+property.key+"</td><td>"+property.value+"</td></tr>";
 				}
 				$("#viewItemProperties").html(html);
-				this.refreshRelateds(item);
 			}
+			this.refreshRelateds(item);
+			this.refreshDocumentList(item);
 		},
 		refreshRelateds : function(item){
 			$("#viewItemRelatedItems").html("");
 			if (item != null){
+				if (this._directionDown){
+					$.getJSON( "api/element.php?id="+item.id+"&direction=down&related_items", function(result) {
+						var html = "";
+						var element;
+						var count = 0;
+						for (var e = 0; e < result.elements.length; e++){
+			    			element = result.elements[e];
+			    			if (_viewItem._categoryFilter[element.category.id] == true){
+			    				html += "<tr>";
+			    				html += "<td>"+i18next.t("form.item.down")+"</td>";
+			    				html += "<td>"+i18next.t("category."+element.category.name)+"</td>";
+			    				html += "<td><a href='#' onclick='global.item.open({id:\""+element.id+"\"})'>"+element.name+"</a></td>";
+			    				html += "<td><button class='btn btn-danger btn-sm' onClick='global.item.unlink({id : \""+item.id+"\"},{id : \""+element.id+"\"});' title='Unlink \""+element.name+"\" from \""+item.name+"\"'>Unlink</button></td>";
+			    				html += "</tr>";
+				    			count++;
+				    			if (count > 8){
+				    				html += "<tr><td style='text-align:center' colspan='3'>...</td></tr>";
+				    				break;
+				    			}
+			    			}
+						}
+						$("#viewItemRelatedItems").append(html);
+					}).fail(function(jxqr,textStatus,error){
+						sendMessage("error",i18next.t("item_failure_related_items") + " : "+error);
+					});
+				}
 				if (this._directionUp){
 					$.getJSON( "api/element.php?id="+item.id+"&direction=up&related_items", function(result) {
 						var html = "";
@@ -225,7 +251,9 @@
 						for (var e = 0; e < result.elements.length; e++){
 			    			element = result.elements[e];
 			    			if (_viewItem._categoryFilter[element.category.id] == true){
-			    				html += "<tr><td>up</td><td>"+element.category.name+"</td>";
+			    				html += "<tr>";
+			    				html += "<td>"+i18next.t("form.item.up")+"</td>";
+			    				html += "<td>"+i18next.t("category."+element.category.name)+"</td>";
 				    			html += '<td><a href="#" onclick="global.item.open({id:\''+element.id+'\'})">'+element.name+'</a></td>';
 				    			html += '<td><button class="btn btn-danger btn-sm" onClick="global.item.unlink({id : \''+element.id+'\'},{id : \''+item.id+'\'});" title="Unlink \''+element.name+'\' from \"'+item.name+'\'">Unlink</button></td>';
 				    			html += "</tr>";
@@ -241,30 +269,11 @@
 						sendMessage("error","Unable to get related items : "+error);
 					});
 				}
-				if (this._directionDown){
-					$.getJSON( "api/element.php?id="+item.id+"&direction=down&related_items", function(result) {
-						var htmlDown = "";
-						var element;
-						var count = 0;
-						for (var e = 0; e < result.elements.length; e++){
-			    			element = result.elements[e];
-			    			if (_viewItem._categoryFilter[element.category.id] == true){
-			    				htmlDown += "<tr><td>Down</td><td>"+element.category.name+"</td>";
-			    				htmlDown += "<td><a href='#' onclick='global.item.open({id:\""+element.id+"\"})'>"+element.name+"</a></td>";
-			    				htmlDown += "<td><button class='btn btn-danger btn-sm' onClick='global.item.unlink({id : \""+item.id+"\"},{id : \""+element.id+"\"});' title='Unlink \""+element.name+"\" from \""+item.name+"\"'>Unlink</button></td>";
-			    				htmlDown += "</tr>";
-				    			count++;
-				    			if (count > 8){
-				    				htmlDown += "<tr><td style='text-align:center' colspan='3'>...</td></tr>";
-				    				break;
-				    			}
-			    			}
-						}
-						$("#viewItemRelatedItems").append(htmlDown);
-					}).fail(function(jxqr,textStatus,error){
-						sendMessage("error",i18next.t("item_failure_related_items") + " : "+error);
-					});
-				}
+			}
+		},
+		refreshDocumentList : function(item){
+			$("#viewItemDocumentsList").html("");
+			if (item != null){
 				$.getJSON( "api/document.php?itemId="+item.id, function(result) {
 					var html = "";
 					var document;

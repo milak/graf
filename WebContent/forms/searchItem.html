@@ -1,37 +1,33 @@
 <html>
-<head>
-<!--link rel="stylesheet" href="vendor/DataTables/datatables.css">
-<script type="text/javascript" src="vendor/DataTables/datatables.js"></script-->
-</head>
 <body>
 	<form id="searchItemForm">
 		<fieldset class="form-group border-bottom">
 			<div class="bd-callout-info bd-callout">
 				<div class="form-group row">
-					<label class="col-sm-2 col-form-label col-form-label-sm" for="import_item_form_name" data-i18n="form.item.name"></label>
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="search_item_form_name" data-i18n="form.item.name"></label>
 					<div class="col-10">
-						<input type="text" class="form-control form-control-sm" id="import_item_form_name" />
+						<input type="text" class="form-control form-control-sm" id="search_item_form_name" />
 					</div>
 				</div>
 				<div class="form-group row">
 					<label class="col-sm-2 col-form-label col-form-label-sm"
-						for="import_item_form_category" data-i18n="form.item.category"></label>
+						for="search_item_form_category" data-i18n="form.item.category"></label>
 					<div class="col-10">
-						<select class="form-control form-control-sm" id="import_item_form_category"
-							onChange="_searchItem.applyCategory('import_item_form_category','import_item_form_class',false)"></select>
+						<select class="form-control form-control-sm" id="search_item_form_category"
+							onChange="_searchItem.applyCategory('search_item_form_category','search_item_form_class',false)"></select>
 					</div>
 				</div>
 				<div class="form-group row">
-					<label class="col-sm-2 col-form-label col-form-label-sm" for="import_item_form_class" data-i18n="form.item.class"></label>
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="search_item_form_class" data-i18n="form.item.class"></label>
 					<div class="col-10">
-						<select class="form-control form-control-sm" id="import_item_form_class"></select>
+						<select class="form-control form-control-sm" id="search_item_form_class"></select>
 					</div>
 				</div>
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-10">
 					<button type="button" class="btn btn-primary btn-sm" onClick="_searchItem.search()">
-						<img src="images/65.png" /> <span data-i18n="form.button.search"/>
+						<img src="images/65.png" /> <span data-i18n="form.button.search"></span>
 					</button>
 				</div>
 			</div>
@@ -40,8 +36,8 @@
 			<thead style="width: 100%">
 				<tr>
 					<td data-i18n="form.item.title"></td>
-					<td data-i18n="form.item.class"></td>
 					<td data-i18n="form.item.category"></td>
+					<td data-i18n="form.item.class"></td>
 					<td data-i18n="form.all.action"></td>
 				</tr>
 			</thead>
@@ -50,40 +46,56 @@
 	<script>
 var _searchItem = {
 	_dataTable : null,
+	displayCategories : function(){
+		var itemClasses = new Array();
+		var categories = global.itemCategories;
+		var htmlClasses = "<option value='NULL'>~~Toutes les classes~~</option>";
+		var htmlCategory = "<option value='NULL'>~~Toutes les catégories~~</option>";
+		for (var i = 0; i < categories.length; i++){
+			var category = categories[i];
+			htmlCategory += "<option value='"+category.id+"'>";
+			htmlCategory += i18next.t("category."+category.name)
+			htmlCategory += "</option>";
+			for (var j = 0; j < category.classes.length; j++){
+				var classe = category.classes[j];
+				htmlClasses += "<option value='"+classe.id+"'>"+classe.name+"</option>";
+				itemClasses[classe.id] = classe;
+			}
+		}
+		$("#search_item_form_category").html(htmlCategory);
+		$("#search_item_form_class").html(htmlClasses);
+	},
 	applyCategory : function (categoryList,classList,create){
 		var categoryName = $("#"+categoryList).val();
-		$.getJSON( "api/element_class.php", function(result) {
-			var categories = result.categories;
-			var first = null;
-			var count = 0;
-			var htmlClasses = "";
-			if (!create){
-				htmlClasses = "<option value='NULL'>~~Toutes les classes~~</option>"
-			}
-			for (var i = 0; i < categories.length; i++){
-				var category = categories[i];
-				if (categoryName != "NULL"){
-					if (categoryName != category.name){
-						continue;
-					}
-				}
-				for (var j = 0; j < category.classes.length; j++){
-					var classe = category.classes[j];
-					if (create && (classe.abstract == "true")){
-						continue;
-					}
-					first = classe.id;
-					count++;
-					htmlClasses += "<option value='"+classe.id+"'>"+classe.name+"</option>";
+		var categories = global.itemCategories;
+		var first = null;
+		var count = 0;
+		var htmlClasses = "";
+		if (!create){
+			htmlClasses = "<option value='NULL'>~~Toutes les classes~~</option>"
+		}
+		for (var i = 0; i < categories.length; i++){
+			var category = categories[i];
+			if (categoryName != "NULL"){
+				if (categoryName != category.name){
+					continue;
 				}
 			}
-			$("#"+classList).html(htmlClasses);
-			if (count == 1){
-				$("#"+classList).val(first);
+			for (var j = 0; j < category.classes.length; j++){
+				var classe = category.classes[j];
+				if (create && (classe.abstract == "true")){
+					continue;
+				}
+				first = classe.id;
+				count++;
+				htmlClasses += "<option value='"+classe.id+"'>"+classe.name+"</option>";
 			}
-		}).fail(function(jxqr,textStatus,error) {
-			sendMessage("error","<h1>Error</h1>"+textStatus+ " : " + error);
-		});
+		}
+		$("#"+classList).html(htmlClasses);
+		if (count == 1){
+			$("#"+classList).val(first);
+		}
+		
 	},
 	search : function (){
 		if (this._dataTable == null){
@@ -94,18 +106,18 @@ var _searchItem = {
 			});
 		}
 		var url = "api/element.php";
-		var selectClass = $("#import_item_form_class").val();
+		var selectClass = $("#search_item_form_class").val();
 		if (selectClass != "NULL"){
 			url += "?class_name="+selectClass;
 		} else {
-			var selectCategorie = $("#import_item_form_category").val();
+			var selectCategorie = $("#search_item_form_category").val();
 			if (selectCategorie != "NULL"){
 				url += "?category_name="+selectCategorie;
 			}
 		}
 		this._dataTable.fnClearTable();
 		$.getJSON( url, function(result) {
-			var selectName = $("#import_item_form_name").val().trim();
+			var selectName = $("#search_item_form_name").val().trim();
 			var html = "";
 			var elements = result.elements;
 			var data = new Array();
@@ -118,8 +130,8 @@ var _searchItem = {
 				}
 				var row = new Array();
 				row.push("<a href='#' onClick='event.preventDefault();global.item.open({id:\""+element.id+"\", name : \""+element.name+"\"});$(\"#popup\").panel().close()'>"+element.name+"</a>");
+				row.push(i18next.t("category."+element.category.name));
 				row.push(element.class.name);
-				row.push(element.category.name);
 				var label = "";
 				var currentItem = global.item.getCurrent();
 				if (currentItem != null){
@@ -138,44 +150,9 @@ var _searchItem = {
 		});
 	}
 };
-
-
 $(function(){
 	$("#searchItemForm").find('*[data-i18n]').localize();
-	/*$.getJSON( "api/view.php?view=logical", function(result) {
-		var areaList = buildAreaList(result.view);
-		$('#import_item_form_area').html(areaList);
-		$('#import_item_form_create_area').html(areaList);
-	}).fail(function(jxqr,textStatus,error) {
-		showPopup("Echec","<h1>Error</h1>"+textStatus+ " : " + error);
-	});*/
-	$.getJSON( "api/element_class.php", function(result) {
-		itemClasses = new Array();
-		var categories = result.categories;
-		var htmlClassesCreate = "";
-		var htmlCategoryCreate = "";
-		var htmlClassesSearch = "<option value='NULL'>~~Toutes les classes~~</option>";
-		var htmlCategorySearch = "<option value='NULL'>~~Toutes les catégories~~</option>";
-		for (var i = 0; i < categories.length; i++){
-			var category = categories[i];
-			htmlCategorySearch += "<option value='"+category.id+"'>"+category.name+"</option>";
-			htmlCategoryCreate += "<option value='"+category.id+"'>"+category.name+"</option>";
-			for (var j = 0; j < category.classes.length; j++){
-				var classe = category.classes[j];
-				if (classe.abstract == "false"){
-					htmlClassesCreate += "<option value='"+classe.id+"'>"+classe.name+"</option>";
-				}
-				htmlClassesSearch += "<option value='"+classe.id+"'>"+classe.name+"</option>";
-				itemClasses[classe.id] = classe;
-			}
-		}
-		$("#import_item_form_category").html(htmlCategorySearch);
-		$("#import_item_form_class").html(htmlClassesSearch);
-		$("#import_item_form_create_category").html(htmlCategoryCreate);
-		$("#import_item_form_create_class").html(htmlClassesCreate);
-	}).fail(function(jxqr,textStatus,error) {
-		sendMessage("error","<h1>Error</h1>"+textStatus+ " : " + error);
-	});
+	_searchItem.displayCategories();
 });
 </script>
 </html>

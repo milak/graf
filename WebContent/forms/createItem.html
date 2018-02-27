@@ -48,7 +48,7 @@
 				for (var c = 0; c < global.itemCategories.length; c++){
 					category = global.itemCategories[c];
 					this.categoriesById[category.id] = category;
-					html += "<option value='"+category.id+"'>"+category.name+"</option>";
+					html += "<option value='"+category.id+"'>"+i18next.t("category."+category.name)+"</option>";
 					for (var cl = 0; cl < category.classes.length; cl++){
 						clazz = category.classes[cl];
 						if (clazz.abstract == 'false'){

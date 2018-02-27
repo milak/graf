@@ -99,6 +99,8 @@
 				"strategical" 					: "Strategical view",
 				"business" 						: "Business view",
 				"logical"						: "Logical view",
+				"process"						: "Process view",
+				"technical"						: "Technical view",
 				"item_detail"					: "Elément",
 				"document_detail"				: "Document",
 				"map" : {

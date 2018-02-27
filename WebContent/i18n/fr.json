@@ -99,6 +99,8 @@
 				"strategical" 					: "Vue stratégique",
 				"business" 						: "Vue métier",
 				"logical"						: "Vue logique",
+				"process"						: "Vue processus",
+				"technical"						: "Vue technique",
 				"item_detail"					: "Item",
 				"document_detail"				: "Document",
 				"map" : {
