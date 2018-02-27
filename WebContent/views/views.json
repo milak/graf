@@ -1,0 +1,104 @@
+{
+	"views" : [
+		{
+			"name"				: "strategical", 
+			"title"				: "strategical",
+			"url" 				: "views/view_strategique.php",
+			"icon"  			: "63.png",
+			"class" 			: "panel-purple",
+			"noItemSupported"	: true,
+			"static"			: false,
+			"svg"			 	: true
+		},
+		{
+			"name"				: "business",
+			"title"				: "business",
+			"url" 				: "views/view_business.php",
+			"icon"  			: "63.png",
+			"class"				: "panel-purple",
+			"noItemSupported"	: false,
+			"static"			: false,
+			"svg"				: true
+		},
+		{
+			"name"				: "logical",
+			"title"				: "logical",
+			"url" 				: "views/view_logique.php",
+			"icon"  			: "63.png",
+			"class" 			: "panel-purple",
+			"noItemSupported" 	: false,
+			"static" 			: false,
+			"svg" 				: true
+		},
+		{
+			"name"				: "service",
+			"title"				: "service",
+			"url" 				: "views/view_service.php",
+			"icon"				: "63.png",
+			"class"				: "panel-purple",
+			"noItemSupported" 	: false,
+			"static"			: false,
+			"svg"				: true
+		},
+		{
+			"name"				: "process",
+			"title"				: "process",
+			"url" 				: "views/view_process.php",
+			"icon"				: "63.png",
+			"class"				: "panel-purple",
+			"noItemSupported" 	: false,
+			"static"			: false,
+			"svg"				: true
+		},
+		{
+			"name"				: "technical",
+			"title"				: "technical",
+			"url" 				: "views/view_technical.php",
+			"icon"				: "63.png",
+			"class"				: "panel-purple",
+			"noItemSupported" 	: false,
+			"static"			: false,
+			"svg"				: true
+		},
+		{
+			"name"				: "viewItem",
+			"title"				: "item_detail",
+			"url"				: "forms/viewItem.html",
+			"icon"  			: "2.png" ,
+			"class"				: "panel-purple",
+			"noItemSupported" 	: false,
+			"static"			: true,
+			"svg"				: false
+		},
+		{
+			"name"				: "viewDocument",
+			"title"				: "document_detail",
+			"url"				: "forms/viewDocument.html",
+			"icon"				: "2.png",
+			"class"				: "panel-purple",
+			"noItemSupported"	: false,
+			"static"			: true,
+			"svg"				: false
+		},
+		{
+			"name"				: "mapEurope",
+			"title"				: "map.europe",
+			"url" 				: "views/view_map.php?map=europe",
+			"icon"				: "77.png",
+			"class" 			: "panel-purple",
+			"noItemSupported" 	: true,
+			"static"			: false,
+			"svg"				: true
+		},
+		{
+			"name"				: "mapWorld",
+			"title"				: "map.world",
+			"url"				: "views/view_map.php?map=world",
+			"icon"				: "77.png",
+			"class"				: "panel-purple",
+			"noItemSupported"	: true,
+			"static"			: false,
+			"svg"				: true
+		}
+	]
+}

@@ -1,7 +1,7 @@
 var viewDescription = new Array();
 var views = new Array();
 function loadViews(){
-	viewDescription['strategic'] 	= { url : 'views/view_strategique.php', 	icon  : '63.png', class : 'panel-purple', noItemSupported : true, static : false,	svg : true, title : i18next.t("view.strategical")};
+	/*viewDescription['strategic'] 	= { url : 'views/view_strategique.php', 	icon  : '63.png', class : 'panel-purple', noItemSupported : true, static : false,	svg : true, title : i18next.t("view.strategical")};
 	viewDescription['business'] 	= { url : 'views/view_business.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : i18next.t("view.business")};
 	viewDescription['logical'] 		= { url : 'views/view_logique.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : i18next.t("view.logical")};
 	viewDescription['service'] 		= { url : 'views/view_service.php', 		icon  : '63.png', class : 'panel-purple', noItemSupported : false, static : false, svg : true, 	title : "Service view"};
@@ -10,10 +10,26 @@ function loadViews(){
 	viewDescription['viewItem']		= { url : 'forms/viewItem.html', 			icon  : '2.png' , class : 'panel-purple', noItemSupported : false, static : true,  svg : false, 	title : i18next.t("view.item_detail")};
 	viewDescription['viewDocument']	= { url : 'forms/viewDocument.html',		icon  : '2.png' , class : 'panel-purple', noItemSupported : false, static : true,  svg : false, 	title : i18next.t("view.document_detail")};
 	viewDescription['mapEurope']	= { url : 'views/view_map.php?map=europe', 	icon  : '77.png', class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : i18next.t("view.map.europe")};
-	viewDescription['mapWorld']		= { url : 'views/view_map.php?map=world', 	icon  : '77.png', class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : i18next.t("view.map.world")};
-	var menuViewDropDown = $("#menuViewDropDown");
-	Object.keys(viewDescription).forEach(function (index) {
-		menuViewDropDown.append($("<a class='dropdown-item' href='#' onClick='addView(\""+index+"\")'><img src='images/"+viewDescription[index].icon+"'/> "+viewDescription[index].title+"</a>"));
+	viewDescription['mapWorld']		= { url : 'views/view_map.php?map=world', 	icon  : '77.png', class : 'panel-purple', noItemSupported : true, static : false,  svg : true, 	title : i18next.t("view.map.world")};*/
+	$.getJSON("views/views.json",function (result){
+		var views = result.views;
+		var main = $("#main");
+		for (var v = 0; v < views.length; v++){
+			var view = views[v];
+			view.title = i18next.t("view."+view.title);
+			viewDescription[view.name] = view;
+			if (view.svg){
+				main.append("<svg id='"+view.name+"' style='width:100%;height:100%;display:none'></svg>");
+			} else {
+				main.append("<div id='"+view.name+"' style='width:100%;height:100%;display:none'></div>");
+			}
+		}
+		var menuViewDropDown = $("#menuViewDropDown");
+		Object.keys(viewDescription).forEach(function (index) {
+			menuViewDropDown.append($("<a class='dropdown-item' href='#' onClick='addView(\""+index+"\")'><img src='images/"+viewDescription[index].icon+"'/> "+viewDescription[index].title+"</a>"));
+		});
+	}).fail(function(jxqr,textStatus,error){
+		sendMessage("error","Unable to load views : " + error);
 	});
 }
 function searchDocument(){

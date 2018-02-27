@@ -94,20 +94,11 @@ html {
 		<span id="alertBadge" class="badge" style="padding: 8px; margin-right: 15px"> <img id="alertIcon" /> <strong id="alertLevel" />
 		</span> <span id="alertMessage"></span>
 	</div>
-	<svg id="strategic" 	style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="business" 		style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="logical" 		style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="service" 		style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="process" 		style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="technical" 	style="width: 100%; height: 100%; display: none"></svg>
-	<div id="viewItem" 		style="width: 100%; height: 100%; display: none"></div>
-	<div id="viewDocument" 	style="width: 100%; height: 100%; display: none"></div>
-	<svg id="mapEurope" 	style="width: 100%; height: 100%; display: none"></svg>
-	<svg id="mapWorld" 		style="width: 100%; height: 100%; display: none"></svg>
-	<div id="searchItem" 	style="display: none"></div>
-	<div id="searchDocument" style="display: none"></div>
-	<div id="createItem" 	style="display: none"></div>
-	<div id="popup" 		style="display: none"></div>
+	<div id="searchItem" 		style="display: none"></div>
+	<div id="searchDocument" 	style="display: none"></div>
+	<div id="createItem" 		style="display: none"></div>
+	<div id="createDocument"	style="display: none"></div>
+	<div id="popup" 			style="display: none"></div>
 
 	<!-- ========================================================== -->
 	<!-- Placed at the end of the document so the pages load faster -->
