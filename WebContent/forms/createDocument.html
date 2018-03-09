@@ -28,7 +28,7 @@
 		<button class="btn btn-primary btn-sm" type="button" onclick='_createDocument.validate();' id="createDocumentValidateButton" disabled="true">
 			<img src='images/92.png' /> <span data-i18n="form.button.create"></span>
 		</button>
-		&nbsp;&nbsp;&nbsp;&nbsp; <input class="form-check-input" type="checkbox" id="createItemAddToCurrentItem" /> <label class="form-check-label" for="createDocumentAddToCurrentItem"><span
+		&nbsp;&nbsp;&nbsp;&nbsp; <input class="form-check-input" type="checkbox" id="createDocumentAddToCurrentItem" /> <label class="form-check-label" for="createDocumentAddToCurrentItem"><span
 			data-i18n="form.all.add_to_current_item"></span></label>
 	</form>
 	<script type="text/javascript">
@@ -60,9 +60,11 @@
 					"name" : name,
 					"type" : type
 				}
+				var link = false;
 				if (global.item.getCurrent() != null){
 					var linkToCurrentItem = $("#createDocumentAddToCurrentItem").prop("checked");
 					if (linkToCurrentItem){
+						link = true;
 						data.itemId = global.item.getCurrent().id;
 					}
 				}
@@ -74,6 +76,9 @@
 					"success" 	: function(data) {
 						sendMessage("success",i18next.t("message.document_success_create"));
 						global.document.open(data.objects[0].id);
+						if (link){
+							global.item.refresh();
+						}
 					}
 				}).fail(function(jxqr, textStatus, error) {
 					sendMessage("error",i18next.t("message.document_failure_create") + " : "+error);

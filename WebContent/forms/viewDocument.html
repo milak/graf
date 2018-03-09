@@ -7,7 +7,7 @@
 				<div class="form-group row">
 					<label class="col-sm-2 col-form-label col-form-label-sm" for="view_document_form_name" data-i18n="form.document.name"></label>
 					<div class="col-10">
-						<input class="form-control form-control-sm" id="view_document_form_name" onChange="_viewDocument.onNameChange()"/>
+						<input class="form-control form-control-sm" id="view_document_form_name" onkeypress="_viewDocument.onNameChange()"/>
 					</div>
 				</div>
 				<div class="form-group row">
@@ -26,7 +26,7 @@
 			</div>
 		</fieldset>
 	</form>
-	<textarea style="width:100%" id="view_document_content" onChange="_viewDocument.onContentChange()"></textarea>
+	<textarea style="width:100%" id="view_document_content" onkeypress="_viewDocument.onContentChange()"></textarea>
 	<script type="text/javascript">
 		var _viewDocument = {
 			_contentChanged : false,

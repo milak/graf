@@ -898,10 +898,19 @@ class ITopDao implements IDAO {
     public function addItemDocument($itemId,$documentId){
     	$item = $this->getItems((object)['id'=>$itemId])[0];
         $itemId = $this->_splitItemId($itemId);
-        // TODO on n'ajoute pas on remplace, il faut gérer l'ajout en redemandant tous les documents
-        $this->updateObject($item->class->name, $itemId->id, array(
-            'documents_list'    => array(array('document_id' => $documentId))
-        ));
+        if ($this->isFunctionalCI($itemId->prefix)){
+	        $this->createObject('lnkDocumentToFunctionalCI', array(
+	        		'functionalci_id' 	=> $itemId->id,
+	        		'document_id'		=> $documentId
+        	));
+        } else if ($itemId->prefix == 'service'){
+        	$this->createObject('lnkDocumentToService', array(
+        			'service_id' 	=> $itemId->id,
+        			'document_id'	=> $documentId
+        	));
+        } else {
+        	throw new Exception("Unable to add document to this kind of item");
+        }
     }
     private function isFunctionalCI($prefix){
         if (($prefix == 'solution') || ($prefix == 'device') || ($prefix == 'process') || ($prefix == 'server')){

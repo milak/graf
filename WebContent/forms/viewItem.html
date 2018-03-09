@@ -282,7 +282,7 @@
 						document = result.documents[d];
 						html += "<tr><td><a href='#' onclick='global.document.open("+document.id+")'>"+document.name+"</a></td>";
 						html += "<td>"+document.type+"</td>";
-						html += "<td><button class='btn btn-danger btn-sm' onclick='_viewItem.deleteDocument(\""+document.id+"\")'>Delete</button></td>";
+						html += "<td><button class='btn btn-danger btn-sm' onclick='global.document.delete(\""+document.id+"\")'>Delete</button></td>";
 						html += "</tr>";
 						count++;
 		    			if (count > 8){
@@ -293,20 +293,6 @@
 					$("#viewItemDocumentsList").html(html);
 				}).fail(function(jxqr,textStatus,error){
 					sendMessage("error",i18next.t("document_failure_list")+" : "+error);
-				});
-			}
-		},
-		deleteDocument : function(id){
-			if (confirm(i18next.t("message.document_delete_confirm"))){
-				$.ajax({
-					url : "api/document.php?id="+id,
-					method : "DELETE",
-					success : function(){
-						sendMessage("success",i18next.t("message.document_success_delete"));
-						item.refresh();
-					}
-				}).fail(function(jxqr,textStatus,error){
-					sendMessage("error",i18next.t("message.document_failure_delete") + " : "+error);
 				});
 			}
 		},

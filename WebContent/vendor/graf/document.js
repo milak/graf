@@ -68,6 +68,10 @@ global.document = {
 							global.document.close();
 						}
 					}
+					// Maybe the document was linked to item
+					if (global.item.getCurrent() != null){
+						global.item.refresh();
+					}
 				}
 			}).fail(function (jxqr,textStatus,error){
 				sendMessage("error",i18next.t("message.document_failure_delete"));
