@@ -47,21 +47,49 @@ foreach ($documents as $document){
     if (isset($_POST["id"])){
         // Update
         $id = $_POST["id"];
-        if (isset($_POST["document"])){
-            $dao->updateDocument($id,$_POST["document"]);
+        if (!isset($_POST["name"])){
+        	die("Missing name argument");
+        }
+        $name = $_POST["name"];
+        if (!isset($_POST["type"])){
+        	die("Missing type argument");
+        }
+        $type = $_POST["type"];
+        if (isset($_POST["content"])){
+            $dao->updateDocument($id,$name,$type,$_POST["content"]);
+        } else {
+        	$dao->updateDocument($id,$name,$type,null);
         }
     } else {
+    	if (!isset($_POST["name"])){
+    		die("Missing name argument");
+    	}
+    	$name = $_POST["name"];
     	if (!isset($_POST["type"])){
     		die("Missing type argument");
     	}
     	$type = $_POST["type"];
-    	if (!isset($_POST["itemId"])){
-    		die("Missing itemId argument");
-    	}
-    	$itemId = $_POST["itemId"];
     	// creation du document
-    	$document_id = $dao->createDocument("Document",$type,$_POST["document"]);
-    	$dao->addItemDocument($itemId,$document_id);
+    	$document_id = $dao->createDocument($name,$type," ");
+    	if (isset($_POST["itemId"])){
+    		$itemId = $_POST["itemId"];
+    		$dao->addItemDocument($itemId,$document_id);
+    	}
+?>{
+   "code"		: 0,
+   "message"	: "Document created",
+   "objects"	: [{
+         "code"		: 0,
+         "message"	: "created",
+         "class"	: "Document",
+         "id"		: "<?php echo $document_id;?>",
+         "fields": {
+            "id"	: "<?php echo $document_id;?>",
+            "name"	: "<?php echo $name;?>"
+         }
+      }
+   ]
+}<?php
     }
 /** METHOD DELETE **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {

@@ -1094,10 +1094,18 @@ class ITopDao implements IDAO {
         }
         return $result;
     }
-    public function updateDocument($documentId,$newContent){
-        $this->updateObject("DocumentNote", $documentId, array(
-            'text'              => htmlspecialchars($newContent)
-        ));
+    public function updateDocument($documentId,$name,$type,$newContent){
+    	$data = array();
+    	if ($name != null){
+    		$data["name"] = $name;
+    	}
+    	if ($type != null){
+    		$data["documenttype_id"] = "SELECT DocumentType WHERE name = '$type'";
+    	}
+    	if ($newContent != null){
+    		$data["text"] = htmlspecialchars($newContent);
+    	}
+        $this->updateObject("DocumentNote", $documentId, $data);
     }
     public function deleteDocument($documentId){
     	$this->deleteObject("DocumentNote", $documentId);

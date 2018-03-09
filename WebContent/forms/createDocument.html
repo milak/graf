@@ -1,0 +1,88 @@
+<html>
+<body>
+	<form id="createDocumentForm">
+		<div class="bd-callout-info bd-callout">
+			<fieldset class="form-group">
+				<legend data-i18n="form.document.fields"></legend>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="createDocumentName"><span data-i18n="form.document.name"></span>*</label>
+					<div class="col-10">
+						<input class="form-control form-control-sm" type="text" id="createDocumentName" onchange="_createDocument.onNameChange()" />
+					</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="createDocumentType"><span data-i18n="form.document.type"></span>*</label>
+					<div class="col-10">
+						<select class="form-control form-control-sm" type="text" id="createDocumentType">
+							<option value="TOSCA">TOSCA</option>
+							<option value="Template">Template</option>
+							<option value="BPMN">BPMN</option>
+						</select>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+		<button class="btn btn-danger btn-sm" type="button" onclick='_createDocument.cancel();'>
+			<img src='images/14.png' /> <span data-i18n="form.button.cancel"></span>
+		</button>
+		<button class="btn btn-primary btn-sm" type="button" onclick='_createDocument.validate();' id="createDocumentValidateButton" disabled="true">
+			<img src='images/92.png' /> <span data-i18n="form.button.create"></span>
+		</button>
+		&nbsp;&nbsp;&nbsp;&nbsp; <input class="form-check-input" type="checkbox" id="createItemAddToCurrentItem" /> <label class="form-check-label" for="createDocumentAddToCurrentItem"><span
+			data-i18n="form.all.add_to_current_item"></span></label>
+	</form>
+	<script type="text/javascript">
+		var _createDocument = {
+			init : function() {
+				$('#createDocumentForm').find('*[data-i18n]').localize();
+			},
+			onNameChange : function (){
+				var name = $('#createDocumentName').val().trim();
+				var valid = true;
+				if (name.length == 0){
+					valid = false;
+				}
+				if (valid){
+					$("#createDocumentValidateButton").attr("disabled",false);
+				} else {
+					$("#createDocumentValidateButton").attr("disabled",true);
+				}
+			},
+			validate : function() {
+				var name = $('#createDocumentName').val().trim();
+				if (name.length == 0){
+					sendMessage("warning","Missing value for required property 'Name'");
+					$("#createDocumentName").focus();
+					return;
+				}
+				var type = $('#createDocumentType').val();
+				var data = {
+					"name" : name,
+					"type" : type
+				}
+				if (global.item.getCurrent() != null){
+					var linkToCurrentItem = $("#createDocumentAddToCurrentItem").prop("checked");
+					if (linkToCurrentItem){
+						data.itemId = global.item.getCurrent().id;
+					}
+				}
+				$.ajax({
+					"url" 		: "api/document.php",
+					"method" 	: "POST",
+					"data" 		: data,
+					"dataType"	: "json",
+					"success" 	: function(data) {
+						sendMessage("success",i18next.t("message.document_success_create"));
+						global.document.open(data.objects[0].id);
+					}
+				}).fail(function(jxqr, textStatus, error) {
+					sendMessage("error",i18next.t("message.document_failure_create") + " : "+error);
+				});
+			}
+		};
+		$(function() {
+			_createDocument.init();
+		});
+	</script>
+</body>
+</html>

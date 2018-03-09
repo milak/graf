@@ -46,7 +46,32 @@ global.document = {
     	});
 		breadCrumb.refresh();
 	},
-	"delete" : function(){
-		sendMessage("warning",i18next.t("message.not_yet_implemented"));
+	"delete" : function(aDocumentId){
+		var documentId;
+		if (typeof aDocumentId === "undefined") {
+			if (this._current == null){
+				sendMessage("warning",i18next.t("message.no_document_selected"));
+				return;
+			}
+			documentId = this._current.id;
+		} else {
+			documentId = aDocumentId;
+		}
+		if (confirm(i18next.t("message.document_delete_confirm"))){
+			$.ajax({
+				"url" : "api/document.php?id="+documentId,
+				"method" : "DELETE",
+				"success" : function(){
+					sendMessage("success",i18next.t("message.document_success_delete"));
+					if (global.document.getCurrent() != null){
+						if (global.document.getCurrent().id == documentId){
+							global.document.close();
+						}
+					}
+				}
+			}).fail(function (jxqr,textStatus,error){
+				sendMessage("error",i18next.t("message.document_failure_delete"));
+			});
+		}
 	}
 };

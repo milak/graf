@@ -32,9 +32,9 @@
 		<table style="width: 100%" class="display compact" id="search_document_form_result">
 			<thead>
 				<tr>
-					<td data-i18n="form.document.name"></td>
-					<td data-i18n="form.document.type"></td>
-					<td data-i18n="form.all.action"></td>
+					<td style="text-align:center" data-i18n="form.document.name"></td>
+					<td style="width:10%;text-align:center" data-i18n="form.document.type"></td>
+					<td style="width:10%;text-align:center" data-i18n="form.all.action"></td>
 				</tr>
 			</thead>
 		</table>
@@ -68,37 +68,26 @@
 					}
 					url += "type=" + type;
 				}
-				$
-						.getJSON(
-								url,
-								function(result) {
-									var documents = result.documents;
-									var data = new Array();
-									for (var i = 0; i < documents.length; i++) {
-										var doc = new Array();
-										doc
-												.push("<a href='#' onclick='global.document.open("
-														+ documents[i].id
-														+ ")'>"
-														+ documents[i].name
-														+ "</a>");
-										doc.push(documents[i].type);
-										doc
-												.push("<button type='button' class='btn btn-danger btn-sm'>"
-														+ i18next
-																.t("form.button.delete")
-														+ "</button>");
-										data.push(doc);
-									}
-									if (data.length > 0) {
-										_searchDocument._dataTable
-												.fnAddData(data);
-									}
-								}).fail(
-								function(jxqr, textStatus, error) {
-									sendMessage("error", "<h1>Error</h1>"
-											+ textStatus + " : " + error);
-								});
+				$.getJSON(url,function(result) {
+					var documents = result.documents;
+					var data = new Array();
+					for (var i = 0; i < documents.length; i++) {
+						var doc = new Array();
+						doc.push("<a href='#' onclick='global.document.open("+ documents[i].id + ")'>"
+										+ documents[i].name
+										+ "</a>");
+						doc.push(documents[i].type);
+						doc.push("<button type='button' class='btn btn-danger btn-sm' onClick='global.document.delete(" + documents[i].id + ")'>" + i18next.t("form.button.delete") + "</button>");
+						data.push(doc);
+					}
+					if (data.length > 0) {
+						_searchDocument._dataTable.fnAddData(data);
+					}
+				}).fail(
+				function(jxqr, textStatus, error) {
+					sendMessage("error", "<h1>Error</h1>"
+							+ textStatus + " : " + error);
+				});
 			}
 		};
 		$(function() {

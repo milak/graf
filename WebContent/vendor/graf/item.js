@@ -141,7 +141,8 @@ global.item = {
 		if (item == null){
 			return;
 		}
-		if (confirm("Do you really want to delete " + item.category.name + " called '" + item.name + "' ?")){
+		// TODO voir comment on ajoute des champs dans un template :  + " + item.category.name + " called '" + item.name + "' ?"
+		if (confirm(i18next.t("message.item_delete_confirm"))){
 			$.ajax({
 				type 	: "DELETE",
 				url 	: "api/element.php?id="+item.id,
