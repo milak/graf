@@ -28,14 +28,15 @@ Here is the list of allready available features :
     * **Solution** : describes macro or micro software solution. Based on TOSCA Yaml format to describe logic and technical structure of the solution and all environments (developement, production, test, etc.). It can be linked to any technical item
     * **Data** : (under construction) based on a standard format (to find) will describe all the main Business Data Models and the use maid in the Software Solution
     * **Server, Software, Device, etc.** : all real life components can be used in the diagrams to describe the solutions or processes
+    * **Location** : a Country, City or any detailed place
   * Views :
     * all the views are based on templates described in JSON and can be customized
     * **Strategic View** : describes all the domains
     * **Business View** : describes all the Actors, Process, Service and Data linked to a Business Domain or an Actor
     * **Process View** : the view of BPMN process
     * **Logic View** : the view of any Software Solution based on TOSCA format
-    * **Technical View** (not yet implemented) : the technical view of Software Solution : Sites, Machines, etc.
-  * Generated documents (not yet started) :
+    * **Technical View** : the technical view of Software Solution : Location, Devices, Machines, etc.
+  * Generated documents (just started) :
     * Will generate architect documents containing all necessary diagrams and all the description
 
 See [TODO List](TODO.md)
