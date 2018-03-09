@@ -4,7 +4,7 @@
 	<form id="createItemForm">
 		<div class="bd-callout-info bd-callout">
 			<fieldset class="form-group">
-				<legend>Item fields</legend>
+				<legend data-i18n="form.item.fields"></legend>
 				<div class="form-group row">
 					<label class="col-sm-2 col-form-label col-form-label-sm" for="createItemName"><span data-i18n="form.item.name"></span>*</label>
 					<div class="col-10">
@@ -33,7 +33,7 @@
 			<img src='images/92.png' /> <span data-i18n="form.button.create"></span>
 		</button>
 		&nbsp;&nbsp;&nbsp;&nbsp; <input class="form-check-input" type="checkbox" id="createItemAddToCurrentItem" /> <label
-			class="form-check-label" for="createItemAddToCurrentItem"><span data-i18n="form.item.add_to_current_item"></span></label>
+			class="form-check-label" for="createItemAddToCurrentItem"><span data-i18n="form.all.add_to_current_item"></span></label>
 	</form>
 	<script type="text/javascript">
 		var _createItem = {
@@ -76,8 +76,8 @@
 				$("#createItem").panel().close();
 			},
 			validate : function (){
-				var name 		= $("#createItemName").val();
-				if (name.trim() == ""){
+				var name 		= $("#createItemName").val().trim();
+				if (name == ""){
 					sendMessage("warning","Missing value for required property 'Name'");
 					$("#createItemName").focus();
 					return;
@@ -111,7 +111,7 @@
 					dataType: "json",
 					success	: function( data ) {
 						if (global.item.getCurrent() != null){
-							var linkToCurrentItem = !($("#createItemAddToCurrentItem").prop("disabled"));
+							var linkToCurrentItem = $("#createItemAddToCurrentItem").prop("checked");
 							if (linkToCurrentItem){
 								global.item.link(global.item.getCurrent(),{id:data.objects[0].id});
 							} else {
