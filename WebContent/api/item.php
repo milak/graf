@@ -6,48 +6,57 @@ $dao->connect ();
  */
 if ($_SERVER ['REQUEST_METHOD'] === 'GET') {
 	header ( "Content-Type: application/json" );
-	if (isset ( $_GET ["document"] )) {
-		if (! isset ( $_GET ["type"] )) {
-			die ( "Missing type argument" );
-		}
-		if (! isset ( $_GET ["id"] )) {
-			die ( "Missing id argument" );
-		}
-		$documents = $dao->getDocuments ( (object)['itemId' => $_GET ['id'], 'type' => $_GET ['type']] );
-		if (count ( $documents ) != 0) {
-			$document = $documents [0];
-			$content = $dao->getDocumentContent ( $document->id );
-			echo $content;
-			return;
+	try{
+		if (isset ( $_GET ["document"] )) {
+			if (! isset ( $_GET ["type"] )) {
+				die ( "Missing type argument" );
+			}
+			if (! isset ( $_GET ["id"] )) {
+				die ( "Missing id argument" );
+			}
+			$documents = $dao->getDocuments ( (object)['itemId' => $_GET ['id'], 'type' => $_GET ['type']] );
+			if (count ( $documents ) != 0) {
+				$document = $documents [0];
+				$content = $dao->getDocumentContent ( $document->id );
+				echo $content;
+				return;
+			} else {
+				http_response_code ( 404 );
+				// die("introuvable");
+				return;
+			}
+		} else if (isset ( $_GET ["related_items"] )) {
+			if (! isset ( $_GET ["id"] )) {
+				die ( "Missing id argument" );
+			}
+			$direction = "down";
+			if (isset ( $_GET ["direction"] )) {
+				$direction = $_GET ["direction"];
+			}
+			$items = $dao->getRelatedItems ( $_GET ["id"], '*', $direction );
 		} else {
-			http_response_code ( 404 );
-			// die("introuvable");
-			return;
+			$query = array ();
+			if (isset ( $_GET ["category_name"] )) {
+				$query ['category'] = $_GET ["category_name"];
+			}
+			if (isset ( $_GET ["class_name"] )) {
+				$query ['class'] = $_GET ["class_name"];
+			}
+			if (isset ( $_GET ["name"] )) {
+				$query ['name'] = $_GET ["name"];
+			}
+			if (isset ( $_GET ["id"] )) {
+				$query ['id'] = $_GET ["id"];
+			}
+			$items = $dao->getItems ( ( object ) $query );
 		}
-	} else if (isset ( $_GET ["related_items"] )) {
-		if (! isset ( $_GET ["id"] )) {
-			die ( "Missing id argument" );
+	}catch(Exception $exception){?>
+		{
+			"code"		: 12,
+			"message"	: "<?php echo $exception->getMessage()?>",
+			"objects"	: []
 		}
-		$direction = "down";
-		if (isset ( $_GET ["direction"] )) {
-			$direction = $_GET ["direction"];
-		}
-		$items = $dao->getRelatedItems ( $_GET ["id"], '*', $direction );
-	} else {
-		$query = array ();
-		if (isset ( $_GET ["category_name"] )) {
-			$query ['category'] = $_GET ["category_name"];
-		}
-		if (isset ( $_GET ["class_name"] )) {
-			$query ['class'] = $_GET ["class_name"];
-		}
-		if (isset ( $_GET ["name"] )) {
-			$query ['name'] = $_GET ["name"];
-		}
-		if (isset ( $_GET ["id"] )) {
-			$query ['id'] = $_GET ["id"];
-		}
-		$items = $dao->getItems ( ( object ) $query );
+		<?php  			return;
 	}
 	?>
 {
