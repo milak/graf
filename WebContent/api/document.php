@@ -70,11 +70,20 @@ foreach ($documents as $document){
     	}
     	$type = $_POST["type"];
     	// creation du document
-    	$document_id = $dao->createDocument($name,$type," ");
-    	if (isset($_POST["itemId"])){
-    		$itemId = $_POST["itemId"];
-    		$dao->addItemDocument($itemId,$document_id);
-    	}
+    	try {
+	    	$document_id = $dao->createDocument($name,$type," ");
+	    	if (isset($_POST["itemId"])){
+	    		$itemId = $_POST["itemId"];
+	    		$dao->addItemDocument($itemId,$document_id);
+	    	}
+    	} catch (Exception $exception){?>
+{
+   "code"		: 12,
+   "message"	: "<?php echo $exception->getMessage()?>",
+   "objects"	: []
+}
+<?php  			return;
+    		}
 ?>{
    "code"		: 0,
    "message"	: "Document created",

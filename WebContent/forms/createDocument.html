@@ -74,10 +74,14 @@
 					"data" 		: data,
 					"dataType"	: "json",
 					"success" 	: function(data) {
-						sendMessage("success",i18next.t("message.document_success_create"));
-						global.document.open(data.objects[0].id);
-						if (link){
-							global.item.refresh();
+						if (data.code == 0){
+							sendMessage("success",i18next.t("message.document_success_create"));
+							global.document.open(data.objects[0].id);
+							if (link){
+								global.item.refresh();
+							}
+						} else {
+							sendMessage("error",i18next.t("message.document_failure_create") + " : "+data.message);
 						}
 					}
 				}).fail(function(jxqr, textStatus, error) {

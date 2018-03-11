@@ -909,7 +909,7 @@ class ITopDao implements IDAO {
         			'document_id'	=> $documentId
         	));
         } else {
-        	throw new Exception("Unable to add document to this kind of item");
+        	throw new Exception("Unable to add document to a ".$itemId->prefix);
         }
     }
     private function isFunctionalCI($prefix){
