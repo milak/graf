@@ -47,16 +47,7 @@ global.item = {
 	    			this._currentItem = item;
 	    			$("#menuDeleteItem").attr("disabled", false);
 	    			$("#menuDeleteItem").attr('class', "dropdown-item");
-	    			for (var i = 0; i < views.length; i++){
-	                	var view = views[i];
-	                	if (!view.viewDescription.static){
-	                		var car = "?";
-	                   		if (view.viewDescription.url.indexOf("?") != -1){
-	                       		car = "&";
-	                   		}
-	               			view.reload(view.viewDescription.url+car+"id="+item.id);
-	                	}
-	            	}
+	    			global.view.applyItem(item);
 	    			/** Apply currentItem change */
 	            	$("*[data-provider^='currentItem']").each(function(index,listener){
 	                	listener = $(listener);
@@ -77,16 +68,7 @@ global.item = {
 		} else {
 			$("#menuDeleteItem").attr("disabled", true);
 			$("#menuDeleteItem").attr('class', "dropdown-item disabled");
-			for (var i = 0; i < views.length; i++){
-	        	var view = views[i];
-	        	if (view.viewDescription.noItemSupported){
-	        		view.reload(view.viewDescription.url);
-	        	} else if (!view.viewDescription.static){
-	        		view.reload(null);
-	        	} else {
-	           		
-	        	}
-	    	}
+			global.view.applyItem(item);
 			/** Apply currentItem change */
 	    	$("*[data-provider^='currentItem']").each(function(index,listener){
 	        	listener = $(listener);

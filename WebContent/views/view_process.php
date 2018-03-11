@@ -1,8 +1,8 @@
 <?php
-if (isset($_GET["id"])){
-    $id = $_GET["id"];
+if (isset($_GET["itemId"])){
+    $id = $_GET["itemId"];
 } else {
-    die("Missing id argument");
+    die("Missing itemId argument");
 }
 require("../dao/dao.php");
 require("util.php");

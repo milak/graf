@@ -16,14 +16,25 @@ function initAutoComplete(){
 		  	highlight: true
 	},{
 		source : function (query, syncResults, asyncResults){
-			return $.get('api/element.php', { name: query }, function (data) {
+			$.getJSON('api/element.php', { name: query }, function (data) {
 	        	var elements = data.elements;
 	        	var result = new Array();
-	        	for(var i = 0; i < elements.length; i++){
+	        	for (var i = 0; i < elements.length; i++){
 	        		elements[i].categoryName = i18next.t("category."+elements[i].category.name);
+	        		elements[i].is = "item";
 	        		result.push(elements[i]);
 	        	}
-	        	asyncResults(result);
+	        	$.getJSON('api/document.php', { name: query }, function (data) {
+	        		var documents = data.documents;
+		        	for (var i = 0; i < documents.length; i++){
+		        		documents[i].categoryName = documents[i].type;
+		        		documents[i].is = "document";
+		        		result.push(documents[i]);
+		        	}
+	        		asyncResults(result);
+	        	}).fail(function(jxqr,textStatus,error){
+					sendMessage("error",i18next.t("message.item_failure_search")+" : "+error);
+				});
 	        }).fail(function(jxqr,textStatus,error){
 				sendMessage("error",i18next.t("message.item_failure_search")+" : "+error);
 			});
@@ -39,7 +50,11 @@ function initAutoComplete(){
 		    suggestion: Handlebars.compile('<div><strong>{{categoryName}}</strong> – {{name}}</div>')
 		}
 	}).bind('typeahead:select', function(ev, suggestion) {
-		global.item.open(suggestion);
+		if (suggestion.is == "item"){
+			global.item.open(suggestion);
+		} else {
+			global.document.open(suggestion.id);
+		}
 	});
 }
 function svgElementClicked(what,id,button){
@@ -129,7 +144,7 @@ function _loadLang(lang){
 		i18next.init(resources, function(err, t) {
 			jqueryI18next.init(i18next, $);
 			$('*[data-i18n]').localize();
-			loadViews();
+			global.view.init();
 		});
 	}).fail(function (jxqr,textStatus,error){
 		if (lang != "en") {

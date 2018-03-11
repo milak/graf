@@ -24,14 +24,14 @@ function recursiveSearchLocation($id){
 	}
 }
 echo "<script>";
-if (isset($_GET["id"])){
-	$items = $dao->getItems((object)['id'=>$_GET["id"]]);
+if (isset($_GET["itemId"])){
+	$items = $dao->getItems((object)['id'=>$_GET["itemId"]]);
 	foreach ($items as $item){
 		if ($item->category->name == "location"){
 			echo '$("path[title=\''.$item->name.'\']").css({ fill: "#DD00DD" });';
 		}
 	}
-	recursiveSearchLocation($_GET["id"]);
+	recursiveSearchLocation($_GET["itemId"]);
 }?>
 $("path").on("click",function(event){
 	var name = $(event.target).attr("title");

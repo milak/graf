@@ -7,8 +7,8 @@ $areas = $dao->getViewByName("strategic");
 $roots = array();
 $roots[] = $areas["root"];
 $id = null;
-if (isset($_GET["id"])){
-	$id = $_GET["id"];
+if (isset($_GET["itemId"])){
+	$id = $_GET["itemId"];
 	$item = $dao->getItems((object)['id'=>$id])[0];
 	// Si ce n'est pas un domaine, on va rechercher un domaine en remontant
 	if ($item->category->name != "domain"){

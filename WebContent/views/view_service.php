@@ -13,10 +13,10 @@ $solutionarea   = $areas["solution"];
 // ****************************************************************
 // Chercher tous les noeuds correspondant aux critères de recherche
 // ****************************************************************
-if (isset($_GET["id"])){
-    $itemId = $_GET["id"];
+if (isset($_GET["itemId"])){
+    $itemId = $_GET["itemId"];
 } else {
-    displayErrorAndDie('Missing id argument');
+    displayErrorAndDie('Missing itemId argument');
 }
 $service = $dao->getItems((object)['id'=>$itemId])[0];
 $rootarea->name = $rootarea->name." ".$service->name;

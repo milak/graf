@@ -1,5 +1,6 @@
 <?php
-if (!isset($_GET["id"])){
+if (!isset($_GET["itemId"])){
+	displayErrorAndDie('Missing itemId argument');
 	return;
 }
 require("../svg/header.php");
@@ -37,9 +38,9 @@ function recursiveSearch($id){
 	return $result;
 }
 
-$items = recursiveSearch($_GET['id']);
+$items = recursiveSearch($_GET['itemId']);
 
-foreach ($dao->getItems((object)['id'=>$_GET['id']]) as $currentItem){
+foreach ($dao->getItems((object)['id'=>$_GET['itemId']]) as $currentItem){
 	if ($currentItem->category->name == 'location'){
 		$items[] = $currentItem;
 	} else if ($currentItem->category->name == 'device'){

@@ -7,10 +7,10 @@ require ("../svg/body.php");
 $dao->connect();
 $areas = $dao->getViewByName("business");
 $label = "";
-if (isset($_GET["id"])) {
-    $id = $_GET["id"];
+if (isset($_GET["itemId"])) {
+    $id = $_GET["itemId"];
 } else {
-    displayErrorAndDie('Need "id" argument');
+    displayErrorAndDie('Need "itemId" argument');
 }
 $items = $dao->getItems((object)['id'=>$id]);
 foreach ($items as $item) {

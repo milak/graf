@@ -3,10 +3,10 @@ require("../svg/header.php");
 require("../dao/dao.php");
 require("../svg/body.php");
 require("util.php");
-if (isset($_GET["id"])){
-    $itemId = $_GET["id"];
+if (isset($_GET["itemId"])){
+    $itemId = $_GET["itemId"];
 } else {
-    displayErrorAndDie("Missing id argument");
+    displayErrorAndDie("Missing itemId argument");
 }
 $dao->connect();
 $areas = $dao->getViewByName("logical");
