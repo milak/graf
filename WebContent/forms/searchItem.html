@@ -105,7 +105,7 @@ var _searchItem = {
 				  "responsive" 		: true
 			});
 		}
-		var url = "api/element.php";
+		var url = "api/item.php";
 		var selectClass = $("#search_item_form_class").val();
 		if (selectClass != "NULL"){
 			url += "?class_name="+selectClass;
@@ -117,36 +117,40 @@ var _searchItem = {
 		}
 		this._dataTable.fnClearTable();
 		$.getJSON( url, function(result) {
-			var selectName = $("#search_item_form_name").val().trim();
-			var html = "";
-			var elements = result.elements;
-			var data = new Array();
-			for (var i = 0; i < elements.length; i++){
-				var element = elements[i];
-				if (selectName != ""){
-					if (element.name.indexOf(selectName) == -1){
-						continue;
+			if (result.code != 0){
+				sendMessage("error",i18next.t("message.item_failure_search")+" : "+result.message);
+			} else {
+				var selectName = $("#search_item_form_name").val().trim();
+				var html = "";
+				var elements = result.objects;
+				var data = new Array();
+				for (var i = 0; i < elements.length; i++){
+					var element = elements[i];
+					if (selectName != ""){
+						if (element.name.indexOf(selectName) == -1){
+							continue;
+						}
 					}
-				}
-				var row = new Array();
-				row.push("<a href='#' onClick='event.preventDefault();global.item.open({id:\""+element.id+"\", name : \""+element.name+"\"});$(\"#popup\").panel().close()'>"+element.name+"</a>");
-				row.push(i18next.t("category."+element.category.name));
-				row.push(element.class.name);
-				var label = "";
-				var currentItem = global.item.getCurrent();
-				if (currentItem != null){
-					if (currentItem.id != element.id){
-						label = "<button class='btn btn-primary btn-sm' onClick='event.preventDefault();global.item.link({id:\""+currentItem.id+"\"},{id:\""+element.id+"\"});'>Link</button>";
+					var row = new Array();
+					row.push("<a href='#' onClick='event.preventDefault();global.item.open({id:\""+element.id+"\", name : \""+element.name+"\"});$(\"#popup\").panel().close()'>"+element.name+"</a>");
+					row.push(i18next.t("category."+element.category.name));
+					row.push(element.class.name);
+					var label = "";
+					var currentItem = global.item.getCurrent();
+					if (currentItem != null){
+						if (currentItem.id != element.id){
+							label = "<button class='btn btn-primary btn-sm' onClick='event.preventDefault();global.item.link({id:\""+currentItem.id+"\"},{id:\""+element.id+"\"});'>Link</button>";
+						}
 					}
+					row.push(label);
+					data.push(row);
 				}
-				row.push(label);
-				data.push(row);
-			}
-			if (data.length > 0){
-				_searchItem._dataTable.fnAddData(data);
+				if (data.length > 0){
+					_searchItem._dataTable.fnAddData(data);
+				}
 			}
 		}).fail(function(jxqr,textStatus,error) {
-			sendMessage("error","<h1>Error</h1>"+textStatus+ " : " + error);
+			sendMessage("error",i18next.t("message.item_failure_search")+" : "+error);
 		});
 	}
 };

@@ -35,9 +35,11 @@ if (isset($_GET["itemId"])){
 }?>
 $("path").on("click",function(event){
 	var name = $(event.target).attr("title");
-	$.getJSON( "api/element.php?class_name=Location&name="+name, function(result) {
-		if (result.elements.length > 0){
-			global.item.open({id:result.elements[0].id});
+	$.getJSON( "api/item.php?class_name=Location&name="+name, function(result) {
+		if (result.code != 0){
+			sendMessage("error",i18next.t("message.no_item_information")+" : "+result.message);
+		} else if (result.objects.length > 0){
+			global.item.open({id:result.objects[0].id});
 		} else {
 			sendMessage("warning","No item located in " + name);
 		}

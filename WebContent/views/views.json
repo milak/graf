@@ -76,7 +76,7 @@
 			"name"				: "mapEurope",
 			"title"				: "map.europe",
 			"url" 				: "views/view_map.php?map=europe",
-			"params"			: [{"name" : "itemId", "usage" : "required"}],
+			"params"			: [{"name" : "itemId", "usage" : "used"}],
 			"icon"				: "77.png",
 			"class" 			: "panel-purple",
 			"svg"				: true
@@ -85,7 +85,7 @@
 			"name"				: "mapWorld",
 			"title"				: "map.world",
 			"url"				: "views/view_map.php?map=world",
-			"params"			: [{"name" : "itemId", "usage" : "required"}],
+			"params"			: [{"name" : "itemId", "usage" : "used"}],
 			"icon"				: "77.png",
 			"class"				: "panel-purple",
 			"svg"				: true

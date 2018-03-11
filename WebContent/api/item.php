@@ -53,7 +53,7 @@ if ($_SERVER ['REQUEST_METHOD'] === 'GET') {
 {
 	"code" : 0,
 	"message" : "Found <?php echo count($items);?>",
-	"elements" : [
+	"objects" : [
 <?php
 	$first = true;
 	foreach ( $items as $item ) {

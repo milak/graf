@@ -16,25 +16,29 @@ function initAutoComplete(){
 		  	highlight: true
 	},{
 		source : function (query, syncResults, asyncResults){
-			$.getJSON('api/element.php', { name: query }, function (data) {
-	        	var elements = data.elements;
-	        	var result = new Array();
-	        	for (var i = 0; i < elements.length; i++){
-	        		elements[i].categoryName = i18next.t("category."+elements[i].category.name);
-	        		elements[i].is = "item";
-	        		result.push(elements[i]);
-	        	}
-	        	$.getJSON('api/document.php', { name: query }, function (data) {
-	        		var documents = data.documents;
-		        	for (var i = 0; i < documents.length; i++){
-		        		documents[i].categoryName = documents[i].type;
-		        		documents[i].is = "document";
-		        		result.push(documents[i]);
+			$.getJSON('api/item.php', { name: query }, function (result) {
+				if (result.code != 0){
+					sendMessage("error",i18next.t("message.item_failure_search")+" : "+result.message);
+				} else {
+		        	var elements = result.objects;
+		        	var searchResult = new Array();
+		        	for (var i = 0; i < elements.length; i++){
+		        		elements[i].categoryName = i18next.t("category."+elements[i].category.name);
+		        		elements[i].is = "item";
+		        		searchResult.push(elements[i]);
 		        	}
-	        		asyncResults(result);
-	        	}).fail(function(jxqr,textStatus,error){
-					sendMessage("error",i18next.t("message.item_failure_search")+" : "+error);
-				});
+		        	$.getJSON('api/document.php', { name: query }, function (result) {
+		        		var documents = result.documents;
+			        	for (var i = 0; i < documents.length; i++){
+			        		documents[i].categoryName = documents[i].type;
+			        		documents[i].is = "document";
+			        		searchResult.push(documents[i]);
+			        	}
+		        		asyncResults(searchResult);
+		        	}).fail(function(jxqr,textStatus,error){
+						sendMessage("error",i18next.t("message.document_failure_search")+" : "+error);
+					});
+				}
 	        }).fail(function(jxqr,textStatus,error){
 				sendMessage("error",i18next.t("message.item_failure_search")+" : "+error);
 			});
@@ -59,11 +63,13 @@ function initAutoComplete(){
 }
 function svgElementClicked(what,id,button){
 	if (button == 0){ // Left button
-		$.getJSON( "api/element.php?id="+id, function(result) {
-			if (result.elements.length == 0){
+		$.getJSON( "api/item.php?id="+id, function(result) {
+			if (result.code != 0){
+				sendMessage("error",i18next.t("message.item_no_information")+" : "+result.message);
+			} else if (result.objects.length == 0){
 				sendMessage("warning",i18next.t("message.item_no_information") + " ("+i18next.t("form.item.id")+" = "+id+")");
 			} else {
-				var element = result.elements[0];
+				var element = result.objects[0];
 				global.item.open(element);
 			}
 		}).fail(function(jxqr,textStatus,error){
@@ -74,16 +80,22 @@ function svgElementClicked(what,id,button){
 	}
 }
 function showContextMenu(what,id){
-	$.getJSON( "api/element.php?id="+id, function(result) {
-		var element = result.elements[0];
-		var html = "<p>"+i18next.t("form.item.title")+"</p>";
-		html += "<div class='bd-callout-info bd-callout'>";
-		html += "<b>"+i18next.t("form.item.name")+"</b> : "+element.name+"<br/><br/>";
-		html += "</div>";
-		html+="<button class='btn btn-primary btn-sm' onclick='hidePopup();svgElementClicked(\"\",\""+id+"\",0)'><img src='images/63.png'/> "+i18next.t("form.button.open")+"</button>";
-		html += " <button class='btn btn-danger btn-sm' onclick='hidePopup();global.item.delete(\""+id+"\")'><img src='images/14.png'/> "+i18next.t("form.button.delete")+"</button>";
-		html += " <button class='btn btn-danger btn-sm' onclick='hidePopup()'><img src='images/33.png'/> "+i18next.t("form.button.close")+"</button>";
-		showPopup(i18next.t("view.item_detail"),html);
+	$.getJSON( "api/item.php?id="+id, function(result) {
+		if (result.code != 0){
+			sendMessage("error",i18next.t("message.item_no_information")+" : "+result.message);
+		} else if (result.objects.length == 0){
+			sendMessage("warning",i18next.t("message.item_no_information") + " ("+i18next.t("form.item.id")+" = "+id+")");
+		} else {
+			var element = result.objects[0];
+			var html = "<p>"+i18next.t("form.item.title")+"</p>";
+			html += "<div class='bd-callout-info bd-callout'>";
+			html += "<b>"+i18next.t("form.item.name")+"</b> : "+element.name+"<br/><br/>";
+			html += "</div>";
+			html+="<button class='btn btn-primary btn-sm' onclick='hidePopup();svgElementClicked(\"\",\""+id+"\",0)'><img src='images/63.png'/> "+i18next.t("form.button.open")+"</button>";
+			html += " <button class='btn btn-danger btn-sm' onclick='hidePopup();global.item.delete(\""+id+"\")'><img src='images/14.png'/> "+i18next.t("form.button.delete")+"</button>";
+			html += " <button class='btn btn-danger btn-sm' onclick='hidePopup()'><img src='images/33.png'/> "+i18next.t("form.button.close")+"</button>";
+			showPopup(i18next.t("view.item_detail"),html);
+		}
 	}).fail(function(jxqr,textStatus,error) {
 		sendMessage("error",i18next.t("message.item_no_information")+" : "+error);
 	});

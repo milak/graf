@@ -106,20 +106,24 @@
 				}
 				$.ajax({
 					type 	: "POST",
-					url 	: "api/element.php",
+					url 	: "api/item.php",
 					data	: data,
 					dataType: "json",
-					success	: function( data ) {
-						if (global.item.getCurrent() != null){
-							var linkToCurrentItem = $("#createItemAddToCurrentItem").prop("checked");
-							if (linkToCurrentItem){
-								global.item.link(global.item.getCurrent(),{id:data.objects[0].id});
+					success	: function( result ) {
+						if (result.code != 0){
+							sendMessage("error",i18next.t("message.item_failure_create")+" : "+result.message);
+						} else {
+							if (global.item.getCurrent() != null){
+								var linkToCurrentItem = $("#createItemAddToCurrentItem").prop("checked");
+								if (linkToCurrentItem){
+									global.item.link(global.item.getCurrent(),{id:result.objects[0].id});
+								} else {
+									sendMessage("success",i18next.t("message.item_success_create"));
+								}
 							} else {
 								sendMessage("success",i18next.t("message.item_success_create"));
+								global.item.open({id:data.objects[0].id, name : result.objects[0].name});
 							}
-						} else {
-							sendMessage("success",i18next.t("message.item_success_create"));
-							global.item.open({id:data.objects[0].id, name : data.objects[0].name});
 						}
 					}
 				}).fail(function(jxqr,textStatus,error){

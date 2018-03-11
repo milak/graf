@@ -35,6 +35,7 @@
 				"item_success_create"   		: "Item successfully created",
 				"item_failure_create"   		: "Unable to create the item",
 				"item_failure_related_items"  	: "Unable to get the related items",
+				"document_failure_search"		: "Unable to perform the search",
 				"document_delete_confirm"		: "Do you really want to delete this document ?",
 				"document_success_delete"		: "Document successfully deleted",
 				"document_failure_delete"		: "Unable to delete the document",

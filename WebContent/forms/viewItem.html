@@ -218,59 +218,69 @@
 			$("#viewItemRelatedItems").html("");
 			if (item != null){
 				if (this._directionDown){
-					$.getJSON( "api/element.php?id="+item.id+"&direction=down&related_items", function(result) {
-						var html = "";
-						var element;
-						var count = 0;
-						for (var e = 0; e < result.elements.length; e++){
-			    			element = result.elements[e];
-			    			if (_viewItem._categoryFilter[element.category.id] == true){
-			    				html += "<tr>";
-			    				html += "<td>"+i18next.t("form.item.down")+"</td>";
-			    				html += "<td>"+i18next.t("category."+element.category.name)+"</td>";
-			    				html += "<td><a href='#' onclick='global.item.open({id:\""+element.id+"\"})'>"+element.name+"</a></td>";
-			    				html += '<td>';
-			    				html += '<button class="btn btn-danger btn-sm" onClick="global.item.unlink({id : \''+item.id+'\'},{id : \''+element.id+'\'});" title="Unlink \''+element.name+'\' from \''+item.name+'\'">'+i18next.t("form.button.unlink")+'</button>';
-			    				html += '</td>';
-			    				html += "</tr>";
-				    			count++;
-				    			if (count > 8){
-				    				html += "<tr><td style='text-align:center' colspan='3'>...</td></tr>";
-				    				break;
+					$.getJSON( "api/item.php?id="+item.id+"&direction=down&related_items", function(result) {
+						if (result.code != 0){
+							sendMessage("error",i18next.t("message.item_failure_related_items")+" : "+result.message);
+						} else {
+							var html = "";
+							var element;
+							var count = 0;
+							var elements = result.objects;
+							for (var e = 0; e < elements.length; e++){
+				    			element = elements[e];
+				    			if (_viewItem._categoryFilter[element.category.id] == true){
+				    				html += "<tr>";
+				    				html += "<td>"+i18next.t("form.item.down")+"</td>";
+				    				html += "<td>"+i18next.t("category."+element.category.name)+"</td>";
+				    				html += "<td><a href='#' onclick='global.item.open({id:\""+element.id+"\"})'>"+element.name+"</a></td>";
+				    				html += '<td>';
+				    				html += '<button class="btn btn-danger btn-sm" onClick="global.item.unlink({id : \''+item.id+'\'},{id : \''+element.id+'\'});" title="Unlink \''+element.name+'\' from \''+item.name+'\'">'+i18next.t("form.button.unlink")+'</button>';
+				    				html += '</td>';
+				    				html += "</tr>";
+					    			count++;
+					    			if (count > 8){
+					    				html += "<tr><td style='text-align:center' colspan='3'>...</td></tr>";
+					    				break;
+					    			}
 				    			}
-			    			}
+							}
+							$("#viewItemRelatedItems").append(html);
 						}
-						$("#viewItemRelatedItems").append(html);
 					}).fail(function(jxqr,textStatus,error){
-						sendMessage("error",i18next.t("item_failure_related_items") + " : "+error);
+						sendMessage("error",i18next.t("message.item_failure_related_items") + " : "+error);
 					});
 				}
 				if (this._directionUp){
-					$.getJSON( "api/element.php?id="+item.id+"&direction=up&related_items", function(result) {
-						var html = "";
-						var element;
-						var count = 0;
-						for (var e = 0; e < result.elements.length; e++){
-			    			element = result.elements[e];
-			    			if (_viewItem._categoryFilter[element.category.id] == true){
-			    				html += "<tr>";
-			    				html += "<td>"+i18next.t("form.item.up")+"</td>";
-			    				html += "<td>"+i18next.t("category."+element.category.name)+"</td>";
-				    			html += '<td><a href="#" onclick="global.item.open({id:\''+element.id+'\'})">'+element.name+'</a></td>';
-				    			html += '<td>';
-				    			html += '	<button class="btn btn-danger btn-sm" onClick="global.item.unlink({id : \''+element.id+'\'},{id : \''+item.id+'\'});" title="Unlink \''+element.name+'\' from \"'+item.name+'\'">'+i18next.t("form.button.unlink")+'</button>';
-				    			html += '</td>';
-				    			html += "</tr>";
-				    			count++;
-				    			if (count > 8){
-				    				html += "<tr><td style='text-align:center' colspan='3'>...</td></tr>";
-				    				break;
+					$.getJSON( "api/item.php?id="+item.id+"&direction=up&related_items", function(result) {
+						if (result.code != 0){
+							sendMessage("error",i18next.t("message.item_failure_related_items")+" : "+result.message);
+						} else {
+							var html = "";
+							var element;
+							var count = 0;
+							var elements = result.objects;
+							for (var e = 0; e < elements.length; e++){
+				    			element = elements[e];
+				    			if (_viewItem._categoryFilter[element.category.id] == true){
+				    				html += "<tr>";
+				    				html += "<td>"+i18next.t("form.item.up")+"</td>";
+				    				html += "<td>"+i18next.t("category."+element.category.name)+"</td>";
+					    			html += '<td><a href="#" onclick="global.item.open({id:\''+element.id+'\'})">'+element.name+'</a></td>';
+					    			html += '<td>';
+					    			html += '	<button class="btn btn-danger btn-sm" onClick="global.item.unlink({id : \''+element.id+'\'},{id : \''+item.id+'\'});" title="Unlink \''+element.name+'\' from \"'+item.name+'\'">'+i18next.t("form.button.unlink")+'</button>';
+					    			html += '</td>';
+					    			html += "</tr>";
+					    			count++;
+					    			if (count > 8){
+					    				html += "<tr><td style='text-align:center' colspan='3'>...</td></tr>";
+					    				break;
+					    			}
 				    			}
-			    			}
+							}
+							$("#viewItemRelatedItems").append(html);
 						}
-						$("#viewItemRelatedItems").append(html);
 					}).fail(function(jxqr,textStatus,error){
-						sendMessage("error","Unable to get related items : "+error);
+						sendMessage("error",i18next.t("message.item_failure_related_items") + " : "+error);
 					});
 				}
 			}

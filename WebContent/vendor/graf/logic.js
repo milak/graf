@@ -136,7 +136,7 @@ function solutionSelected(){
 	displaySolution(selectedSolution);
 }
 function showSolutionContext(id){
-	$.getJSON( "api/element.php?id="+id, function(result) {
+	$.getJSON( "api/item.php?id="+id, function(result) {
 		var element = result.elements[0];
 		var html = "<p>Solution</p>";
 		html += "<b>Nom</b> : "+element.name+"<br/><br/>";

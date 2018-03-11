@@ -11,12 +11,14 @@ global.item = {
 	open : function(aItem){
 		global.document.close();
 		if (aItem != null){
-			$.getJSON( "api/element.php?id="+aItem.id, function(result) {
-				if (result.elements.length == 0){
+			$.getJSON( "api/item.php?id="+aItem.id, function(result) {
+				if (result.code != 0){
+					sendMessage("error",i18next.t("message.item_no_information")+" : "+result.message);
+				} else if (result.objects.length == 0){
 	    			this.open(null);
 	    			sendMessage("warning",i18next.t("message.item_not_exist"));
 				} else {
-	    			var item = result.elements[0];
+	    			var item = result.objects[0];
 	    			// Open the item
 	    			var currentItem = global.item.getCurrent();
 	    			if (currentItem != null){
@@ -38,12 +40,14 @@ global.item = {
 	_displayItem : function(item){
 		breadCrumb.refresh();
 		if (item != null){
-			$.getJSON( "api/element.php?id="+item.id, function(result) {
-				if (result.elements.length == 0){
+			$.getJSON( "api/item.php?id="+item.id, function(result) {
+				if (result.code != 0){
+					sendMessage("error",i18next.t("message.item_no_information")+" : "+result.message);
+				} else if (result.objects.length == 0){
 	    			this.open(null);
 	    			sendMessage("warning",i18next.t("message.item_not_exist"));
 				} else {
-	    			var item = result.elements[0];
+	    			var item = result.objects[0];
 	    			this._currentItem = item;
 	    			$("#menuDeleteItem").attr("disabled", false);
 	    			$("#menuDeleteItem").attr('class', "dropdown-item");
@@ -84,18 +88,18 @@ global.item = {
 		// Ajouter l'item
 		$.ajax({
 			type 	: "POST",
-			url 	: "api/element.php",
+			url 	: "api/item.php",
 			data	: {
 				"id"		: parentItem.id,
 				"child_id"	: childItem.id
 			},
 			dataType: "json",
-			success	: function( data ) {
-				if (data.code == 0){
+			success	: function( result ) {
+				if (result.code == 0){
 					this.refresh();
 					sendMessage("success",i18next.t("message.item_success_link"));
 				} else {
-					sendMessage("error",i18next.t("message.item_failure_link")+" : "+data.message);
+					sendMessage("error",i18next.t("message.item_failure_link")+" : "+result.message);
 				}
 			}
 		}).fail(function(jxqr,textStatus,error){
@@ -105,11 +109,15 @@ global.item = {
 	unlink : function(parentItem,childItem){
 	   	$.ajax({
 	   		type 	: "DELETE",
-	   		url 	: "api/element.php?id="+parentItem.id+"&child_id="+childItem.id,
-	   		dataType: "text",
-	   		success	: function(data) {
-	   			global.item.refresh();
-	   			sendMessage("success",i18next.t("message.item_success_unlink"));
+	   		url 	: "api/item.php?id="+parentItem.id+"&child_id="+childItem.id,
+	   		dataType: "json",
+	   		success	: function(result) {
+	   			if (result.code != 0){
+					sendMessage("error",i18next.t("message.item_failure_unlink")+" : "+result.message);
+				} else {
+					global.item.refresh();
+		   			sendMessage("success",i18next.t("message.item_success_unlink"));
+				}
 	   		}
 	   	}).fail(function(jxqr,textStatus,error){
 	       	sendMessage("error",i18next.t("message.item_failure_unlink") +" : " + error);
@@ -127,11 +135,15 @@ global.item = {
 		if (confirm(i18next.t("message.item_delete_confirm"))){
 			$.ajax({
 				type 	: "DELETE",
-				url 	: "api/element.php?id="+item.id,
-				dataType: "text",
-				success	: function(data) {
-					global.breadCrumb.previous();
-					sendMessage("success",i18next.t("message.item_success_delete"));
+				url 	: "api/item.php?id="+item.id,
+				dataType: "json",
+				success	: function(result) {
+					if (result.code != 0){
+						sendMessage("error",i18next.t("message.item_failure_delete")+" : "+result.message);
+					} else {
+						global.breadCrumb.previous();
+						sendMessage("success",i18next.t("message.item_success_delete"));
+					}
 				}
 			}).fail(function(jxqr,textStatus,error){
 				sendMessage("error",i18next.t("message.item_failure_delete")+" : "+error);
@@ -248,7 +260,7 @@ var breadCrumb = {
  * $("#edit_item_form_target_id").val("");
  * $("#edit_item_form_display_target").hide();
  * 
- * if (id != null){ $.getJSON( "api/element.php?id="+id, function(result) { if
+ * if (id != null){ $.getJSON( "api/item.php?id="+id, function(result) { if
  * (result.elements.length != 0){ var element = result.elements[0];
  * $("#edit_item_form_class_field").show();
  * $("#edit_item_form_category_field").show();
