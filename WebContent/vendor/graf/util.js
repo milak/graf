@@ -55,7 +55,7 @@ function initAutoComplete(){
 		}
 	}).bind('typeahead:select', function(ev, suggestion) {
 		if (suggestion.is == "item"){
-			global.item.open(suggestion);
+			global.item.open(suggestion.id);
 		} else {
 			global.document.open(suggestion.id);
 		}
@@ -63,6 +63,40 @@ function initAutoComplete(){
 }
 function svgElementClicked(what,id,button){
 	if (button == 0){ // Left button
+		if (what == "BPMN"){
+			var currentDocument = global.document.getCurrent()
+			if (currentDocument == null){
+				sendMessage("error","Internal error");
+			} else {
+				if (typeof currentDocument.content === "undefined"){
+					
+				}
+				//var content = 
+			}
+		} else if (what == "TOSCA"){
+			
+		} else {
+			global.item.open(id);
+		}
+	} else { // Right button
+		showContextMenu(what,id);
+	}
+}
+function showContextMenu(what,id){
+	if (what == "BPMN"){
+		var element = result.objects[0];
+		var html = "<p>"+i18next.t("form.item.title")+"</p>";
+		html += "<div class='bd-callout-info bd-callout'>";
+		//html += "<b>"+i18next.t("form.item.name")+"</b> : "+element.name+"<br/><br/>";
+		html += "<b>Process</b> : "+id+"<br/><br/>";
+		html += "</div>";
+		html+="<button class='btn btn-primary btn-sm' onclick='hidePopup();svgElementClicked(\"\",\""+id+"\",0)'><img src='images/63.png'/> "+i18next.t("form.button.open")+"</button>";
+		html += " <button class='btn btn-danger btn-sm' onclick='hidePopup();global.item.delete(\""+id+"\")'><img src='images/14.png'/> "+i18next.t("form.button.delete")+"</button>";
+		html += " <button class='btn btn-danger btn-sm' onclick='hidePopup()'><img src='images/33.png'/> "+i18next.t("form.button.close")+"</button>";
+		showPopup(i18next.t("view.process"),html);
+	} else if (what == "TOSCA"){
+		
+	} else {
 		$.getJSON( "api/item.php?id="+id, function(result) {
 			if (result.code != 0){
 				sendMessage("error",i18next.t("message.item_no_information")+" : "+result.message);
@@ -70,35 +104,19 @@ function svgElementClicked(what,id,button){
 				sendMessage("warning",i18next.t("message.item_no_information") + " ("+i18next.t("form.item.id")+" = "+id+")");
 			} else {
 				var element = result.objects[0];
-				global.item.open(element);
+				var html = "<p>"+i18next.t("form.item.title")+"</p>";
+				html += "<div class='bd-callout-info bd-callout'>";
+				html += "<b>"+i18next.t("form.item.name")+"</b> : "+element.name+"<br/><br/>";
+				html += "</div>";
+				html+="<button class='btn btn-primary btn-sm' onclick='hidePopup();svgElementClicked(\"\",\""+id+"\",0)'><img src='images/63.png'/> "+i18next.t("form.button.open")+"</button>";
+				html += " <button class='btn btn-danger btn-sm' onclick='hidePopup();global.item.delete(\""+id+"\")'><img src='images/14.png'/> "+i18next.t("form.button.delete")+"</button>";
+				html += " <button class='btn btn-danger btn-sm' onclick='hidePopup()'><img src='images/33.png'/> "+i18next.t("form.button.close")+"</button>";
+				showPopup(i18next.t("view.item_detail"),html);
 			}
-		}).fail(function(jxqr,textStatus,error){
+		}).fail(function(jxqr,textStatus,error) {
 			sendMessage("error",i18next.t("message.item_no_information")+" : "+error);
 		});
-	} else { // Right button
-		showContextMenu(what,id);
 	}
-}
-function showContextMenu(what,id){
-	$.getJSON( "api/item.php?id="+id, function(result) {
-		if (result.code != 0){
-			sendMessage("error",i18next.t("message.item_no_information")+" : "+result.message);
-		} else if (result.objects.length == 0){
-			sendMessage("warning",i18next.t("message.item_no_information") + " ("+i18next.t("form.item.id")+" = "+id+")");
-		} else {
-			var element = result.objects[0];
-			var html = "<p>"+i18next.t("form.item.title")+"</p>";
-			html += "<div class='bd-callout-info bd-callout'>";
-			html += "<b>"+i18next.t("form.item.name")+"</b> : "+element.name+"<br/><br/>";
-			html += "</div>";
-			html+="<button class='btn btn-primary btn-sm' onclick='hidePopup();svgElementClicked(\"\",\""+id+"\",0)'><img src='images/63.png'/> "+i18next.t("form.button.open")+"</button>";
-			html += " <button class='btn btn-danger btn-sm' onclick='hidePopup();global.item.delete(\""+id+"\")'><img src='images/14.png'/> "+i18next.t("form.button.delete")+"</button>";
-			html += " <button class='btn btn-danger btn-sm' onclick='hidePopup()'><img src='images/33.png'/> "+i18next.t("form.button.close")+"</button>";
-			showPopup(i18next.t("view.item_detail"),html);
-		}
-	}).fail(function(jxqr,textStatus,error) {
-		sendMessage("error",i18next.t("message.item_no_information")+" : "+error);
-	});
 }
 function sendMessage(level,message){
 	var wait = 1000;

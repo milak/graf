@@ -132,7 +132,7 @@ var _searchItem = {
 						}
 					}
 					var row = new Array();
-					row.push("<a href='#' onClick='event.preventDefault();global.item.open({id:\""+element.id+"\", name : \""+element.name+"\"});$(\"#popup\").panel().close()'>"+element.name+"</a>");
+					row.push("<a href='#' onClick='event.preventDefault();global.item.open(\""+element.id+"\");$(\"#popup\").panel().close()'>"+element.name+"</a>");
 					row.push(i18next.t("category."+element.category.name));
 					row.push(element.class.name);
 					var label = "";

@@ -232,7 +232,7 @@
 				    				html += "<tr>";
 				    				html += "<td>"+i18next.t("form.item.down")+"</td>";
 				    				html += "<td>"+i18next.t("category."+element.category.name)+"</td>";
-				    				html += "<td><a href='#' onclick='global.item.open({id:\""+element.id+"\"})'>"+element.name+"</a></td>";
+				    				html += "<td><a href='#' onclick='global.item.open(\""+element.id+"\")'>"+element.name+"</a></td>";
 				    				html += '<td>';
 				    				html += '<button class="btn btn-danger btn-sm" onClick="global.item.unlink({id : \''+item.id+'\'},{id : \''+element.id+'\'});" title="Unlink \''+element.name+'\' from \''+item.name+'\'">'+i18next.t("form.button.unlink")+'</button>';
 				    				html += '</td>';
@@ -265,7 +265,7 @@
 				    				html += "<tr>";
 				    				html += "<td>"+i18next.t("form.item.up")+"</td>";
 				    				html += "<td>"+i18next.t("category."+element.category.name)+"</td>";
-					    			html += '<td><a href="#" onclick="global.item.open({id:\''+element.id+'\'})">'+element.name+'</a></td>';
+					    			html += '<td><a href="#" onclick="global.item.open(\''+element.id+'\')">'+element.name+'</a></td>';
 					    			html += '<td>';
 					    			html += '	<button class="btn btn-danger btn-sm" onClick="global.item.unlink({id : \''+element.id+'\'},{id : \''+item.id+'\'});" title="Unlink \''+element.name+'\' from \"'+item.name+'\'">'+i18next.t("form.button.unlink")+'</button>';
 					    			html += '</td>';

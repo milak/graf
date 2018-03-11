@@ -122,7 +122,7 @@
 								}
 							} else {
 								sendMessage("success",i18next.t("message.item_success_create"));
-								global.item.open({id:data.objects[0].id, name : result.objects[0].name});
+								global.item.open(data.objects[0].id);
 							}
 						}
 					}

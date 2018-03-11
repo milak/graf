@@ -8,10 +8,10 @@ global.item = {
 		this._currentItem = aItem;
 		this.refresh();
 	},
-	open : function(aItem){
+	open : function(aItemId){
 		global.document.close();
-		if (aItem != null){
-			$.getJSON( "api/item.php?id="+aItem.id, function(result) {
+		if (aItemId != null){
+			$.getJSON( "api/item.php?id="+aItemId, function(result) {
 				if (result.code != 0){
 					sendMessage("error",i18next.t("message.item_no_information")+" : "+result.message);
 				} else if (result.objects.length == 0){

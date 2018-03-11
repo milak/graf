@@ -39,7 +39,7 @@ $("path").on("click",function(event){
 		if (result.code != 0){
 			sendMessage("error",i18next.t("message.no_item_information")+" : "+result.message);
 		} else if (result.objects.length > 0){
-			global.item.open({id:result.objects[0].id});
+			global.item.open(result.objects[0].id);
 		} else {
 			sendMessage("warning","No item located in " + name);
 		}
