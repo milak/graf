@@ -6,27 +6,25 @@ global.document = {
 				sendMessage("error",i18next.t("message.document_failure_get"));
 			} else {
 				var document = result.documents[0];
-				global.document._current = {id:id,name:document.name};
-				global.document.refresh();
+				global.document.setCurrent({id:id,name:document.name,type:document.type});
 			}
 		}).fail(function(jxqr,textStatus,error){
 			sendMessage("error",i18next.t("message.document_failure_get")+" : "+error);
 		});
-		
 	},
-	close : function(id){
-		this._current = null;
-		this.refresh();
+	close : function(){
+		this.setCurrent(null);
 	},
-	setCurrent : function(id){
-		this._current = id;
+	setCurrent : function(document){
+		this._current = document;
 		this.refresh();
 	},
 	getCurrent : function(){
 		return this._current;
 	},
 	refresh : function(){
-		if (this._current != null){
+		var current = this.getCurrent();
+		if (current != null){
 			$("#menuDeleteDocument").attr("disabled", false);
 			$("#menuDeleteDocument").attr('class', "dropdown-item");
 		} else {
@@ -38,22 +36,24 @@ global.document = {
         	listener = $(listener);
         	var attribute = listener.attr("data-provider");
         	if (attribute == "currentDocument.name"){
-        		listener.text(item.name);
+        		listener.text(current.name);
         	} else if (attribute == "currentDocument.type"){
-        		listener.text(item.type);
+        		listener.text(current.type);
         	}
 			listener.trigger("change");
     	});
 		breadCrumb.refresh();
+		global.view.applyDocument(document);
 	},
 	"delete" : function(aDocumentId){
 		var documentId;
 		if (typeof aDocumentId === "undefined") {
-			if (this._current == null){
+			var current = this.getCurrent();
+			if (current == null){
 				sendMessage("warning",i18next.t("message.no_document_selected"));
 				return;
 			}
-			documentId = this._current.id;
+			documentId = current.id;
 		} else {
 			documentId = aDocumentId;
 		}

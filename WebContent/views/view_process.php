@@ -1,23 +1,31 @@
 <?php
-if (isset($_GET["itemId"])){
-    $id = $_GET["itemId"];
-} else {
-    die("Missing itemId argument");
-}
 require("../dao/dao.php");
 require("util.php");
 $dao->connect();
-$process = $dao->getItems((object)['id'=>$id])[0];
-$documents = $dao->getDocuments((object)['itemId' => $id, 'type' => 'BPMN']);
+if (isset($_GET["itemId"])){
+    $itemId = $_GET["itemId"];
+    $process = $dao->getItems((object)['id'=>$itemId])[0];
+    $title = "Processus ".$process->name;
+} else {
+	$title = "Processus";
+}
+if (isset($_GET["documentId"])){
+	$documentId = $_GET["documentId"];
+} else {
+    die("Missing documentId argument");
+}
+$documents = $dao->getDocuments((object)['id' => $documentId]);
 if (count($documents) != 0){
     $document = $documents[0];
-    $content = $dao->getDocumentContent($document->id);
+    if ($document->type != 'BPMN'){
+    	return;
+    }
+    $content = $dao->getDocumentContent($documentId);
 } else {
     //http_response_code(404);
     //die();
     return;
 }
-
 $steps = (new Process($content))->elements;
 require("../svg/header.php");
 require("../svg/body.php");
@@ -28,7 +36,7 @@ $areas = array();
 $area = new stdClass();
 $area->id        = 0;
 // TODO retrouver le nom du process
-$area->name     	= "Processus ".$process->name;
+$area->name      = $title;
 $area->code      = "";
 $area->parent_id = null;
 $area->display   = "horizontal";

@@ -83,7 +83,7 @@ function showContextMenu(what,id){
 		html+="<button class='btn btn-primary btn-sm' onclick='hidePopup();svgElementClicked(\"\",\""+id+"\",0)'><img src='images/63.png'/> "+i18next.t("form.button.open")+"</button>";
 		html += " <button class='btn btn-danger btn-sm' onclick='hidePopup();global.item.delete(\""+id+"\")'><img src='images/14.png'/> "+i18next.t("form.button.delete")+"</button>";
 		html += " <button class='btn btn-danger btn-sm' onclick='hidePopup()'><img src='images/33.png'/> "+i18next.t("form.button.close")+"</button>";
-		showPopup(i18next.t("view.detail"),html);
+		showPopup(i18next.t("view.item_detail"),html);
 	}).fail(function(jxqr,textStatus,error) {
 		sendMessage("error",i18next.t("message.item_no_information")+" : "+error);
 	});

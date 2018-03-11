@@ -1,27 +1,5 @@
 var viewDescription = new Array();
 var views = new Array();
-function _updatePanZoom(view){
-	console.log("_updatePanZoom"+this.viewDescription);
-	if (this.viewDescription.svg) {
-		try{
-			this.svgPanZoom.destroy();
-		}catch(exception){}
-		try{
-			this.svgPanZoom.destroy();
-		}catch(exception){}
-		try{
-			this.svgPanZoom = svgPanZoom("#"+viewName, {
-			    zoomEnabled				: true,
-			    dblClickZoomEnabled		: false,
-			    controlIconsEnabled		: true,
-			    fit						: true,
-			    center					: false,
-			    minZoom					: 0.1,
-			    zoomScaleSensitivity 	: 0.3
-			});
-		}catch(exception){}
-	}
-}
 global.view = {
 	open : function(viewName){
 		var viewPanel;
@@ -90,23 +68,7 @@ global.view = {
 	    			}
 				}
 			}
-	       	var url = description.url;
-	       	if (!description.static) {
-	       		var currentItem = global.item.getCurrent();
-	       		if (currentItem != null){
-	           		var car = "?";
-	           		if (url.indexOf("?") != -1){
-	               		car = "&";
-	           		}
-	        	   	panel.url = url + car + "id="+currentItem.id;
-	       		} else if (description.noItemSupported){
-	       			panel.url = url;
-	       		} else {
-	       			panel.url = null;
-	       		}
-	       	} else {
-	       		panel.url = url;
-	       	}
+			panel.url = _buildURL(description);
 	   		viewPanel = $('#'+viewName).panel(panel);
 			viewPanel.viewDescription = description;
 	   		views.push(viewPanel);
@@ -115,38 +77,32 @@ global.view = {
 		}
 	},
 	applyItem(aItem){
-		if (aItem == null){
-			for (var i = 0; i < views.length; i++){
-	        	var view = views[i];
-	        	var desc = view.viewDescription;
-	        	for (var p = 0; p < desc.params.length; p++){
-	        		var param = desc.params[p];
-	        		if (param.name == "itemId"){
-	        			if (param.usage == "required"){
-	        				view.reload(null);
-	        			} else if (param.usage == "used"){
-	        				view.reload(view.viewDescription.url);
-	        			} else {
-	        			}
-	        		}
-	        	}
-	    	}
-		} else {
-			for (var i = 0; i < views.length; i++){
-            	var view = views[i];
-            	var desc = view.viewDescription;
-	        	for (var p = 0; p < desc.params.length; p++){
-	        		var param = desc.params[p];
-	        		if (param.name == "itemId"){
-	        			var car = "?";
-	               		if (view.viewDescription.url.indexOf("?") != -1){
-	                   		car = "&";
-	               		}
-	           			view.reload(view.viewDescription.url+car+"itemId="+item.id);
-	        		}
-	        	}
+		for (var i = 0; i < views.length; i++){
+        	var view = views[i];
+        	var desc = view.viewDescription;
+        	if (desc.svg){
+        		for (var p = 0; p < desc.params.length; p++){
+        			if (desc.params[p].name == "itemId"){
+        				view.reload(_buildURL(desc));
+        				break;
+        			}
+        		}
         	}
-		}
+    	}
+	},
+	applyDocument(aDocument){
+		for (var i = 0; i < views.length; i++){
+        	var view = views[i];
+        	var desc = view.viewDescription;
+        	if (desc.svg){
+        		for (var p = 0; p < desc.params.length; p++){
+        			if (desc.params[p].name == "documentId"){
+        				view.reload(_buildURL(desc));
+        				break;
+        			}
+        		}
+        	}
+    	}
 	},
 	init : function(){
 		$.getJSON("views/views.json",function (result){
@@ -172,6 +128,45 @@ global.view = {
 		});
 	}	
 };
+function _buildURL(description){
+	var url = description.url;
+  	var car = "?";
+    if (url.indexOf("?") != -1){
+    	car = "&";
+    }
+	var result = "";
+	var current;
+	var first = true;
+	var params = description.params;
+	for (var p = 0; p < params.length; p++){
+		if (!first){
+			result += "&";
+		}
+		var param = params[p];
+		if (param.name == "itemId"){
+			current = global.item.getCurrent();
+			if (current != null){
+				result += "itemId="+current.id;
+				first = false;
+			} else if (param.usage == "required"){
+				if (description.svg) {
+					return null;
+				}
+			}
+		} else if (param.name == "documentId"){
+			current = global.document.getCurrent();
+			if (current != null){
+				result += "documentId="+current.id;
+				first = false;
+			} else if (param.usage == "required"){
+				if (description.svg) {
+					return null;
+				}
+			}
+		}
+	}
+	return url + car + result;
+}
 function searchDocument(){
 	$("#searchDocument").panel({
     	url : 'forms/searchDocument.html',

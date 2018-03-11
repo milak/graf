@@ -57,6 +57,7 @@
 					"success" : function(data) {
 						sendMessage("success", i18next.t("message.document_success_update"));
 						_viewDocument.refresh();
+						global.document.refresh();
 					}
 				}).fail(function(jxqr, textStatus, error) {
 					sendMessage("error", i18next.t("message.document_failure_update") + " : " + error);
