@@ -26,7 +26,7 @@ if (count($documents) != 0){
     //die();
     return;
 }
-$steps = (new Process($content))->elements;
+$steps = parseBPMN($content);
 require("../svg/header.php");
 require("../svg/body.php");
 
@@ -48,7 +48,7 @@ $areas[] = $area;
 
 // Charger toutes les étapes
 foreach($steps as $step){
-	$step->type 		    = "step";
+	$step->type 		    = "BPMN";
 	$step->display          = new stdClass();
 	$step->display->class   = "process_".strtolower($step->type_name);
 	$step->allreadyComputed = false;// flag qui sera positionné lorsqu'on aura calculé sa position, cela évite de boucler

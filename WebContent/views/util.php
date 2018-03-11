@@ -82,72 +82,78 @@ abstract class Parseable {
  */
 //const DEFAULT_PROCESS_CONTENT = '&lt;bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"&gt;&lt;bpmn:startEvent name="" id="1"/&gt;&lt;/bpmn:definitions&gt;';
 //const DEFAULT_PROCESS_CONTENT = '<bpmn:definitions id="ID_1" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"><bpmn:startEvent name="" id="1"/></bpmn:definitions>';
-class Process extends Parseable {
-    protected function defaultContent(){
-        //return DEFAULT_PROCESS_CONTENT;
-        return "";
-    }
-    protected function parse(){
-        $xml = new SimpleXMLElement($this->xml);
-        $xml->registerXPathNamespace('prefix', 'http://www.omg.org/spec/BPMN/20100524/MODEL');
-        $children = $xml->xpath("//prefix:*");
-        $this->elements = array();
-        $links = array();
-        foreach($children as $node){
-            $name = $node->getName();
-            if ($name == "definitions"){
-                continue;
-            } else if ($name == "startEvent"){
-                $step = new stdClass();
-                $step->type_name = "START";
-            } else if ($name == "endEvent"){
-                $step = new stdClass();
-                $step->type_name = "END";
-            } else if ($name == "userTask"){
-                $step = new stdClass();
-                $step->type_name = "ACTOR";
-            } else if ($name == "exclusiveGateway"){
-                $step = new stdClass();
-                $step->type_name = "CHOICE";
-            } else if ($name == "parallelGateway"){
-                $step = new stdClass();
-                $step->type_name = "CHOICE";
-            } else if ($name == "serviceTask"){
-                $step = new stdClass();
-                $step->type_name = "SERVICE";
-            } else if ($name == "task"){
-                $step = new stdClass();
-                $step->type_name = "SERVICE";
-            } else if ($name == "scriptTask"){
-                $step = new stdClass();
-                $step->type_name = "SERVICE";
-            } else if ($name == "subProcess"){
-                $step = new stdClass();
-                $step->type_name = "SUB-PROCESS";
-            } else if ($name == "sequenceFlow"){
-                $link = new stdClass();
-                $link->id    = "".$node["id"];
-                $link->label = "".$node["name"];
-                $link->name  = "".$node["name"];
-                $link->from_id  = "".$node["sourceRef"];
-                $link->to_id    = "".$node["targetRef"];
-                $links[] = $link;
-                continue;
-            } else {
-                error_log("Type non reconnu : $name");
-                $step = new stdClass();
-                $step->type_name = "SERVICE";
-            }
-            $step->id    = "".$node["id"];
-            $step->name  = "".$node["name"];
-            $step->links = array();
-            $this->elements[$step->id] = $step;
-        }
-        // Raccrocher toutes les étapes entre elles
-        foreach ($links as $link){
-            $this->addLink($link);
-        }
-    }
+function parseBPMN($text){
+	$xml = new SimpleXMLElement($text);
+	$xml->registerXPathNamespace('prefix', 'http://www.omg.org/spec/BPMN/20100524/MODEL');
+	$children = $xml->xpath("//prefix:*");
+	$elements = array();
+	$links = array();
+	foreach($children as $node){
+		$name = $node->getName();
+		if ($name == "definitions"){
+			continue;
+		} else if ($name == "startEvent"){
+			$step = new stdClass();
+			$step->type_name = "START";
+		} else if ($name == "endEvent"){
+			$step = new stdClass();
+			$step->type_name = "END";
+		} else if ($name == "userTask"){
+			$step = new stdClass();
+			$step->type_name = "ACTOR";
+		} else if ($name == "exclusiveGateway"){
+			$step = new stdClass();
+			$step->type_name = "CHOICE";
+		} else if ($name == "parallelGateway"){
+			$step = new stdClass();
+			$step->type_name = "CHOICE";
+		} else if ($name == "serviceTask"){
+			$step = new stdClass();
+			$step->type_name = "SERVICE";
+		} else if ($name == "task"){
+			$step = new stdClass();
+			$step->type_name = "SERVICE";
+		} else if ($name == "scriptTask"){
+			$step = new stdClass();
+			$step->type_name = "SERVICE";
+		} else if ($name == "subProcess"){
+			$step = new stdClass();
+			$step->type_name = "SUB-PROCESS";
+		} else if ($name == "sequenceFlow"){
+			$link = new stdClass();
+			$link->id    = "".$node["id"];
+			$link->label = "".$node["name"];
+			$link->name  = "".$node["name"];
+			$link->from_id  = "".$node["sourceRef"];
+			$link->to_id    = "".$node["targetRef"];
+			$links[] = $link;
+			continue;
+		} else {
+			error_log("Type non reconnu : $name");
+			$step = new stdClass();
+			$step->type_name = "SERVICE";
+		}
+		$step->id    = "".$node["id"];
+		$step->name  = "".$node["name"];
+		$step->links = array();
+		$elements[$step->id] = $step;
+	}
+	// Raccrocher toutes les étapes entre elles
+	foreach ($links as $link){
+		$elementFrom = $elements[$link->from_id];
+		if ($elementFrom == null){
+			error_log ("Step (id=$link->from_id) not found, skipped");
+			return;
+		}
+		$elementTo = $elements[$link->to_id];
+		if ($elementTo == null){
+			error_log ("Step (id=$link->to_id) not found, skipped");
+			return;
+		}
+		$link->to 	= $elementTo;
+		$elementFrom->links[] = $link;
+	}
+	return $elements;
 }
 /**
  * Class TOSCA
