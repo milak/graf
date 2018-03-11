@@ -97,6 +97,8 @@
 					"open"						: "Open",
 					"delete"					: "Delete",
 					"close"						: "Close",
+					"link"						: "Link",
+					"unlink"					: "Unlink",
 					"validate"					: "Validate",
 					"search"					: "Search"
 				}

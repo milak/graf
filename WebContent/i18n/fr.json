@@ -98,6 +98,8 @@
 					"open"						: "Ouvrir",
 					"delete"					: "Effacer",
 					"close"						: "Fermer",
+					"link"						: "Lier",
+					"unlink"					: "Détacher",
 					"validate"					: "Valider",
 					"search"					: "Chercher"
 				}
