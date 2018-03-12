@@ -45,6 +45,9 @@ if ($_SERVER ['REQUEST_METHOD'] === 'GET') {
 			if (isset ( $_GET ["name"] )) {
 				$query ['name'] = $_GET ["name"];
 			}
+			if (isset ( $_GET ["documentId"] )) {
+				$query ['documentId'] = $_GET ["documentId"];
+			}
 			if (isset ( $_GET ["id"] )) {
 				$query ['id'] = $_GET ["id"];
 			}

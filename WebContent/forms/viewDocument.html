@@ -1,6 +1,7 @@
 <html>
 <body>
 	<span style="display: none" data-provider="currentDocument" onchange="_viewDocument.refresh()"></span>
+	<span style="display: none" data-provider="currentItem" onchange="_viewDocument.refreshLinkToItem()"></span>
 	<form id="viewDocumentForm">
 		<fieldset class="form-group border-bottom">
 			<div class="bd-callout-info bd-callout">
@@ -17,6 +18,20 @@
 					</div>
 				</div>
 				<div class="form-group row">
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="view_document_form_item" data-i18n="form.item.name" readonly="true"></label>
+					<div class="col-8">
+						<a href="#" id="view_document_form_item" onClick="global.item.open(_viewDocument._itemId)"/>
+						<button id="viewDocumentLink" onClick="_viewDocument.linkToCurrentItem()" type="button" class="btn btn-primary btn-sm" style="display:none">
+							<!--span data-i18n="form.button.link" /-->Link to current item
+						</button>
+					</div>
+					<div class="col-2">
+						<button id="viewDocumentUnlink" onClick="_viewDocument.unlinkFromItem()" type="button" class="btn btn-danger btn-sm" style="width:100%;display:none">
+							<!--span data-i18n="form.button.link" /-->Unlink
+						</button>
+					</div>
+				</div>
+				<div class="form-group row">
 					<div class="col-sm-10">
 						<button id="viewDocumentUpdate" onClick="_viewDocument.update()" type="button" class="btn btn-primary btn-sm">
 							<img src='images/93.png' /> <span data-i18n="form.button.validate" />
@@ -30,6 +45,7 @@
 	<script type="text/javascript">
 		var _viewDocument = {
 			_contentChanged : false,
+			_itemId	: null,
 			onNameChange : function(){
 				$("#viewDocumentUpdate").prop("disabled",false);
 			},
@@ -54,9 +70,9 @@
 					"url" : "api/document.php",
 					"method" : "POST",
 					"data" : data,
+					"dataType" : "json",
 					"success" : function(data) {
 						sendMessage("success", i18next.t("message.document_success_update"));
-						_viewDocument.refresh();
 						global.document.refresh();
 					}
 				}).fail(function(jxqr, textStatus, error) {
@@ -94,7 +110,90 @@
 					}).fail(function(jxqr, textStatus, error) {
 						sendMessage("error", i18next.t("message.document_failure_get") + " : " + error);
 					});
+					this.refreshLinkToItem();
 				}
+			},
+			refreshLinkToItem : function(){
+				this._itemId = null;
+				var document = global.document.getCurrent();
+				if (document != null) {
+					$.ajax({
+						url : "api/item.php?documentId=" + document.id,
+						dataType : "json",
+						success : function(result) {
+							if (result.code != 0){
+								sendMessage("error", i18next.t("message.document_failure_get") + " : " + error);
+							} else if (result.objects.length > 0){
+								_viewDocument._itemId = result.objects[0].id;
+								$("#view_document_form_item").show();
+								$("#view_document_form_item").text(result.objects[0].category.name + " " + result.objects[0].name);
+								$("#viewDocumentLink").hide();
+								$("#viewDocumentUnlink").show();
+							} else {
+								$("#viewDocumentUnlink").hide();
+								if (global.item.getCurrent() != null){
+									$("#view_document_form_item").hide();
+									$("#viewDocumentLink").show();
+								} else {
+									$("#viewDocumentLink").hide();
+									$("#view_document_form_item").text("");
+									$("#view_document_form_item").show();
+								}
+							}
+						}
+					}).fail(function(jxqr, textStatus, error) {
+						sendMessage("error", i18next.t("message.document_failure_get") + " : " + error);
+					});
+				} else {
+					$("#viewDocumentUnlink").hide();
+					$("#viewDocumentLink").hide();
+					$("#view_document_form_item").text("");
+					$("#view_document_form_item").show();
+				}
+			},
+			linkToCurrentItem : function(){
+				var document = global.document.getCurrent();
+				var item = global.item.getCurrent();
+				if (item == null){
+					sendMessage("warning","No current item");
+					return;
+				}
+				if (document == null){
+					sendMessage("warning","No current document");
+					return;
+				}
+				var data = new Object();
+				data.id = document.id;
+				data.itemId = item.id;
+				$.ajax({
+					"url" 		: "api/document.php",
+					"method" 	: "POST",
+					"data" 		: data,
+					"dataType" 	: "json",
+					"success" 	: function(result) {
+						if (result.code != 0){
+							sendMessage("error", i18next.t("message.document_failure_update") + " : " + result.message);
+						} else {
+							sendMessage("success", i18next.t("message.document_success_update"));
+							global.document.refresh();
+							global.item.refresh();
+						}
+					}
+				}).fail(function(jxqr, textStatus, error) {
+					sendMessage("error", i18next.t("message.document_failure_update") + " : " + error);
+				});
+			},
+			unlinkFromItem : function(){
+				var document = global.document.getCurrent();
+				if (document == null){
+					sendMessage("warning","No current document");
+					return;
+				}
+				if (this._itemId == null){
+					sendMessage("warning","No linked item");
+					return;
+				}
+				global.document.unlinkFromItem(document.id,this._itemId);
 			}
 		};
 		$(function() {

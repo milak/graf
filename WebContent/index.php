@@ -57,6 +57,7 @@ html {
 			<a class="navbar-brand" href="#" onClick="breadCrumb.home()" title="Graphic Rendering Architecture Framework">GRAF</a>
 			<div class="collapse navbar-collapse" id="navbarCollapse">
 				<ul class="navbar-nav mr-auto">
+					<li class="nav-item dropdown"><a class="nav-link" href="#" id="menuItem" aria-expanded="false" onclick="testBPMN()">Test</a></li>
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="menuItem" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span
 							data-i18n="menu.item">Items</span></a>
 						<div class="dropdown-menu" aria-labelledby="menuItem">
@@ -116,5 +117,6 @@ html {
 	<script type="text/javascript" src="vendor/graf/view.js"></script>
 	<script type="text/javascript" src="vendor/graf/item.js"></script>
 	<script type="text/javascript" src="vendor/graf/document.js"></script>
+	<script type="text/javascript" src="vendor/graf/BPMN.js"></script>
 </body>
 </html>

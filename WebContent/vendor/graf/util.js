@@ -84,7 +84,7 @@ function svgElementClicked(what,id,button){
 }
 function showContextMenu(what,id){
 	if (what == "BPMN"){
-		var element = result.objects[0];
+		//var element = result.objects[0];
 		var html = "<p>"+i18next.t("form.item.title")+"</p>";
 		html += "<div class='bd-callout-info bd-callout'>";
 		//html += "<b>"+i18next.t("form.item.name")+"</b> : "+element.name+"<br/><br/>";

@@ -296,7 +296,7 @@
 						document = result.documents[d];
 						html += "<tr><td><a href='#' onclick='global.document.open("+document.id+")'>"+document.name+"</a></td>";
 						html += "<td>"+document.type+"</td>";
-						html += "<td><button class='btn btn-danger btn-sm' onclick='global.document.delete(\""+document.id+"\")'>Delete</button></td>";
+						html += "<td><button class='btn btn-danger btn-sm' onclick='global.document.unlinkFromItem(\""+document.id+"\",\""+item.id+"\")'>Unlink</button></td>";
 						html += "</tr>";
 						count++;
 		    			if (count > 8){

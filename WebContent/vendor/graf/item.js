@@ -4,12 +4,10 @@ global.item = {
 		return this._currentItem;
 	},
 	setCurrent : function(aItem){
-		global.document.close();
 		this._currentItem = aItem;
 		this.refresh();
 	},
 	open : function(aItemId){
-		global.document.close();
 		if (aItemId != null){
 			$.getJSON( "api/item.php?id="+aItemId, function(result) {
 				if (result.code != 0){

@@ -733,6 +733,11 @@ class ITopDao implements IDAO {
     	if (!isset($query)){
     		$query = (object)array();
     	}
+    	if (isset($query->documentId)){
+    		$documentId=$query->documentId;
+    	} else {
+    		$documentId='*';
+    	}
     	if (isset($query->category)){
     		$category=$query->category;
     	} else {
@@ -754,149 +759,159 @@ class ITopDao implements IDAO {
     		$id='*';
     	}
     	$result = array();
-    	$andFilter = '';
-    	$whereFilter = '';
-    	if ($id != '*'){
-    		$itemId = $this->_splitItemId($id);
-    		$andFilter = " AND id = '".$itemId->id."'";
-    		$whereFilter = " WHERE id = '".$itemId->id."'";
-    		$category = $itemId->prefix;
-    	} else if ($name != '*'){
-    		$andFilter = " AND name LIKE '%".$name."%'";
-    		$whereFilter = " WHERE name LIKE '%".$name."%'";
-    	}
-    	if ($class != "*") {
-    		$classCategory = $this->getItemCategoryByClass($class);
-	    	if ($category == "*"){ // et pas de catégorie, on la récupère
-	    		$category = $classCategory->name;
-    		} else {
-    			// pas la peine de chercher les résultats 
-    			if ($category != $classCategory) {
-    				return $result;
-    			}
+    	if ($documentId != '*'){
+    		$response = $this->getObjects('lnkDocumentToFunctionalCI','functionalci_id, functionalci_name, functionalci_id_finalclass_recall',"WHERE document_id = $documentId");
+    		foreach ($response->objects as $object){
+    			$result[]   = $this->_newItem($object->fields->functionalci_id, $object->fields->functionalci_name, $object->fields->functionalci_id_finalclass_recall);
     		}
-    	}
-    	if (($category == 'actor') || ($category == '*')){
-        	$response = $this->getObjects('Team','id, name',"WHERE org_name = '$this->organisation'".$andFilter); // NB : org_name n'est pas standard, d'habitude c'est organization_name)
-            foreach ($response->objects as $object){
-                $result[]   = $this->_newItem($object->fields->id, $object->fields->name, 'Team');
-            }
-        }
-        if (($category == 'domain') || ($category == '*')){
-        	$response = $this->getObjects("Group", 'id, name, friendlyname, description','WHERE type="BusinessDomain"'.$andFilter);
-            foreach ($response->objects as $object){
-            	$item = $this->_newItem($object->fields->id, $object->fields->name, 'Group', ['area_id'=>$object->fields->description]);
-                $item->area_id   = $object->fields->description;
-                $result[] = $item;
-            }
-        }
-        if (($category == 'data') || ($category == '*')){
-        	$response = $this->getObjects("Group", 'id, name, friendlyname, description','WHERE type="DataModel"'.$andFilter);
-            foreach ($response->objects as $object){
-                $item = $this->_newItem($object->fields->id, $object->fields->name, "Data");
-                $item->area_id   = $object->fields->description;
-                $result[] = $item;
-            }
-            if ($id != '*'){
-	           	$response = $this->getObjects('DatabaseSchema','id, name, description',"WHERE organization_name = '$this->organisation'".$andFilter);
+    		$response = $this->getObjects('lnkDocumentToService','service_id, service_name',"WHERE document_id = $documentId");
+    		foreach ($response->objects as $object){
+    			$result[]   = $this->_newItem($object->fields->service_id, $object->fields->service_name, 'Service');
+    		}
+    	} else {
+	    	$andFilter = '';
+	    	$whereFilter = '';
+	    	if ($id != '*'){
+	    		$itemId = $this->_splitItemId($id);
+	    		$andFilter = " AND id = '".$itemId->id."'";
+	    		$whereFilter = " WHERE id = '".$itemId->id."'";
+	    		$category = $itemId->prefix;
+	    	} else if ($name != '*'){
+	    		$andFilter = " AND name LIKE '%".$name."%'";
+	    		$whereFilter = " WHERE name LIKE '%".$name."%'";
+	    	}
+	    	if ($class != "*") {
+	    		$classCategory = $this->getItemCategoryByClass($class);
+		    	if ($category == "*"){ // et pas de catégorie, on la récupère
+		    		$category = $classCategory->name;
+	    		} else {
+	    			// pas la peine de chercher les résultats 
+	    			if ($category != $classCategory) {
+	    				return $result;
+	    			}
+	    		}
+	    	}
+	    	if (($category == 'actor') || ($category == '*')){
+	        	$response = $this->getObjects('Team','id, name',"WHERE org_name = '$this->organisation'".$andFilter); // NB : org_name n'est pas standard, d'habitude c'est organization_name)
 	            foreach ($response->objects as $object){
-	            	$item = $this->_newItem($object->fields->id, $object->fields->name, $object->class, ['description' => $object->fields->description]);
-	            	if ($category != "*"){
-	            		if ($item->category->name != $category){
-	            			continue;
-	            		}
-	            	}
-	            	$result[]   = $item;
+	                $result[]   = $this->_newItem($object->fields->id, $object->fields->name, 'Team');
 	            }
-            }
-        }
-        if (($category == 'service') || ($category == '*')){
-        	$response = $this->getObjects('Service','id, name, description',"WHERE organization_name = '$this->organisation'".$andFilter);
-            foreach ($response->objects as $object){
-                $item = $this->_newItem($object->fields->id, $object->fields->name, $object->class);
-                $item->area_id   = $object->fields->description;
-                $result[]   = $item;
-            }
-        }
-        if (($category == 'software') || ($category == '*')){
-        	if ($class != '*'){
-        		$response = $this->getObjects($class,'id, name',$whereFilter);
-        	} else {
-        		$response = $this->getObjects('Software','id, name, version, vendor, type',$whereFilter);
-        	}
-        	foreach ($response->objects as $object){
-        		$result[]   = $this->_newItem($object->key, $object->fields->name, $object->class,['version' => $object->fields->version,'vendor' => $object->fields->vendor,'type' => $object->fields->type]);
-        	}
-        }
-        if (($category == 'location') || ($category == '*')){
-        	if ($id != '*'){
-        		if (strpos($itemId->id,'country_') !== false){ // si c'est un pays
-        			//error_log("getItems $id search country");
-        			$pos = strpos($itemId->id,'_');
-        			$realId = substr($itemId->id,$pos+1);
-        			$response = $this->getObjects('Location','id, country','WHERE id = '.$realId);
-        			foreach ($response->objects as $object){
-        				$result[] = $this->_newItem('country_'.$object->fields->id, $object->fields->country, "Location",['city' => '','country' => $object->fields->country]);
-        			}
-        		} else if (strpos($itemId->id,'city_') !== false){ // Si c'est une ville
-        			//error_log("getItems $id search city");
-        			$pos = strpos($itemId->id,'_');
-        			$realId = substr($itemId->id,$pos+1);
-        			$response = $this->getObjects('Location','id, city, country','WHERE id = '.$realId);
-        			foreach ($response->objects as $object){
-        				$result[] = $this->_newItem('city_'.$object->fields->id, $object->fields->city, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
-        			}
-        		} else { // sinon, on retourne la ville
-        			//error_log("getItems $id search location");
-        			$response = $this->getObjects('Location','id, name, city, country','WHERE id = '.$itemId->id);
-        			foreach ($response->objects as $object){
-        				$result[] = $this->_newItem($object->fields->id, $object->fields->name, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
-        			}
-        		}
-        	} else if ($name != '*'){
-        		$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation' AND name LIKE '%".$name."%'");
-        		foreach ($response->objects as $object){
-        			$result[]   = $this->_newItem($object->fields->id, $object->fields->name, $object->class,['city' => $object->fields->city,'country' => $object->fields->country]);
-        		}
-        		$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation' AND city LIKE '%".$name."%'");
-        		foreach ($response->objects as $object){
-        			$result[]   = $this->_newItem('city_'.$object->fields->id, $object->fields->city, $object->class,['city' => $object->fields->city,'country' => $object->fields->country]);
-        		}
-        		$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation' AND country LIKE '%".$name."%'");
-        		foreach ($response->objects as $object){
-        			$result[]   = $this->_newItem('country_'.$object->fields->id, $object->fields->country, $object->class,['city' => '','country' => $object->fields->country]);
-        		}
-        	} else {
-	        	$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation'".$andFilter);
-	        	foreach ($response->objects as $object){
-	        		$result[]   = $this->_newItem($object->fields->id, $object->fields->name, $object->class,['city' => $object->fields->city,'country' => $object->fields->country]);
+	        }
+	        if (($category == 'domain') || ($category == '*')){
+	        	$response = $this->getObjects("Group", 'id, name, friendlyname, description','WHERE type="BusinessDomain"'.$andFilter);
+	            foreach ($response->objects as $object){
+	            	$item = $this->_newItem($object->fields->id, $object->fields->name, 'Group', ['area_id'=>$object->fields->description]);
+	                $item->area_id   = $object->fields->description;
+	                $result[] = $item;
+	            }
+	        }
+	        if (($category == 'data') || ($category == '*')){
+	        	$response = $this->getObjects("Group", 'id, name, friendlyname, description','WHERE type="DataModel"'.$andFilter);
+	            foreach ($response->objects as $object){
+	                $item = $this->_newItem($object->fields->id, $object->fields->name, "Data");
+	                $item->area_id   = $object->fields->description;
+	                $result[] = $item;
+	            }
+	            if ($id != '*'){
+		           	$response = $this->getObjects('DatabaseSchema','id, name, description',"WHERE organization_name = '$this->organisation'".$andFilter);
+		            foreach ($response->objects as $object){
+		            	$item = $this->_newItem($object->fields->id, $object->fields->name, $object->class, ['description' => $object->fields->description]);
+		            	if ($category != "*"){
+		            		if ($item->category->name != $category){
+		            			continue;
+		            		}
+		            	}
+		            	$result[]   = $item;
+		            }
+	            }
+	        }
+	        if (($category == 'service') || ($category == '*')){
+	        	$response = $this->getObjects('Service','id, name, description',"WHERE organization_name = '$this->organisation'".$andFilter);
+	            foreach ($response->objects as $object){
+	                $item = $this->_newItem($object->fields->id, $object->fields->name, $object->class);
+	                $item->area_id   = $object->fields->description;
+	                $result[]   = $item;
+	            }
+	        }
+	        if (($category == 'software') || ($category == '*')){
+	        	if ($class != '*'){
+	        		$response = $this->getObjects($class,'id, name',$whereFilter);
+	        	} else {
+	        		$response = $this->getObjects('Software','id, name, version, vendor, type',$whereFilter);
 	        	}
-        	}
-        }
-        if (($category != 'actor') && ($category != 'data') && ($category != 'domain') && ($category != 'service') && ($category != 'software') && ($category != 'location')){
-        	if ($class != '*'){
-        		$response = $this->getObjects($class,'id, name, description',"WHERE organization_name = '$this->organisation'".$andFilter);
-        	} else {
-        		$response = $this->getObjects('FunctionalCI','id, name, description',"WHERE organization_name = '$this->organisation' AND finalclass NOT IN ('DBServer','Middleware','OtherSoftware','PCSoftware','WebServer','WebApplication')".$andFilter);
-        	}
-            
-            foreach ($response->objects as $object){
-                $item = $this->_newItem($object->fields->id, $object->fields->name, $object->class, ['description' => $object->fields->description]);
-                if ($item->class->name == "DatabaseSchema"){
-                    continue;
-                }
-                if ($category != "*"){
-                    if ($item->category->name != $category){
-                        continue;
-                    }
-                }
-                $result[]   = $item;
-            }
-        }
+	        	foreach ($response->objects as $object){
+	        		$result[]   = $this->_newItem($object->key, $object->fields->name, $object->class,['version' => $object->fields->version,'vendor' => $object->fields->vendor,'type' => $object->fields->type]);
+	        	}
+	        }
+	        if (($category == 'location') || ($category == '*')){
+	        	if ($id != '*'){
+	        		if (strpos($itemId->id,'country_') !== false){ // si c'est un pays
+	        			//error_log("getItems $id search country");
+	        			$pos = strpos($itemId->id,'_');
+	        			$realId = substr($itemId->id,$pos+1);
+	        			$response = $this->getObjects('Location','id, country','WHERE id = '.$realId);
+	        			foreach ($response->objects as $object){
+	        				$result[] = $this->_newItem('country_'.$object->fields->id, $object->fields->country, "Location",['city' => '','country' => $object->fields->country]);
+	        			}
+	        		} else if (strpos($itemId->id,'city_') !== false){ // Si c'est une ville
+	        			//error_log("getItems $id search city");
+	        			$pos = strpos($itemId->id,'_');
+	        			$realId = substr($itemId->id,$pos+1);
+	        			$response = $this->getObjects('Location','id, city, country','WHERE id = '.$realId);
+	        			foreach ($response->objects as $object){
+	        				$result[] = $this->_newItem('city_'.$object->fields->id, $object->fields->city, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
+	        			}
+	        		} else { // sinon, on retourne la ville
+	        			//error_log("getItems $id search location");
+	        			$response = $this->getObjects('Location','id, name, city, country','WHERE id = '.$itemId->id);
+	        			foreach ($response->objects as $object){
+	        				$result[] = $this->_newItem($object->fields->id, $object->fields->name, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
+	        			}
+	        		}
+	        	} else if ($name != '*'){
+	        		$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation' AND name LIKE '%".$name."%'");
+	        		foreach ($response->objects as $object){
+	        			$result[]   = $this->_newItem($object->fields->id, $object->fields->name, $object->class,['city' => $object->fields->city,'country' => $object->fields->country]);
+	        		}
+	        		$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation' AND city LIKE '%".$name."%'");
+	        		foreach ($response->objects as $object){
+	        			$result[]   = $this->_newItem('city_'.$object->fields->id, $object->fields->city, $object->class,['city' => $object->fields->city,'country' => $object->fields->country]);
+	        		}
+	        		$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation' AND country LIKE '%".$name."%'");
+	        		foreach ($response->objects as $object){
+	        			$result[]   = $this->_newItem('country_'.$object->fields->id, $object->fields->country, $object->class,['city' => '','country' => $object->fields->country]);
+	        		}
+	        	} else {
+		        	$response = $this->getObjects('Location','id, name, city, country',"WHERE org_name = '$this->organisation'".$andFilter);
+		        	foreach ($response->objects as $object){
+		        		$result[]   = $this->_newItem($object->fields->id, $object->fields->name, $object->class,['city' => $object->fields->city,'country' => $object->fields->country]);
+		        	}
+	        	}
+	        }
+	        if (($category != 'actor') && ($category != 'data') && ($category != 'domain') && ($category != 'service') && ($category != 'software') && ($category != 'location')){
+	        	if ($class != '*'){
+	        		$response = $this->getObjects($class,'id, name, description',"WHERE organization_name = '$this->organisation'".$andFilter);
+	        	} else {
+	        		$response = $this->getObjects('FunctionalCI','id, name, description',"WHERE organization_name = '$this->organisation' AND finalclass NOT IN ('DBServer','Middleware','OtherSoftware','PCSoftware','WebServer','WebApplication')".$andFilter);
+	        	}
+	            
+	            foreach ($response->objects as $object){
+	                $item = $this->_newItem($object->fields->id, $object->fields->name, $object->class, ['description' => $object->fields->description]);
+	                if ($item->class->name == "DatabaseSchema"){
+	                    continue;
+	                }
+	                if ($category != "*"){
+	                    if ($item->category->name != $category){
+	                        continue;
+	                    }
+	                }
+	                $result[]   = $item;
+	            }
+	        }
+    	}
         return $result;
     }
     public function addItemDocument($itemId,$documentId){
-    	$item = $this->getItems((object)['id'=>$itemId])[0];
         $itemId = $this->_splitItemId($itemId);
         if ($this->isFunctionalCI($itemId->prefix)){
 	        $this->createObject('lnkDocumentToFunctionalCI', array(
@@ -911,6 +926,22 @@ class ITopDao implements IDAO {
         } else {
         	throw new Exception("Unable to add document to a ".$itemId->prefix);
         }
+    }
+    public function deleteItemDocument($itemId,$documentId){
+    	$itemId = $this->_splitItemId($itemId);
+    	if ($this->isFunctionalCI($itemId->prefix)){
+    		$this->deleteObject('lnkDocumentToFunctionalCI', (object)array(
+    				'functionalci_id' 	=> $itemId->id,
+    				'document_id'		=> $documentId
+    		));
+    	} else if ($itemId->prefix == 'service'){
+    		$this->deleteObject('lnkDocumentToService', (object)array(
+    				'service_id' 	=> $itemId->id,
+    				'document_id'	=> $documentId
+    		));
+    	} else {
+    		throw new Exception("Unable to delete document from a ".$itemId->prefix);
+    	}
     }
     private function isFunctionalCI($prefix){
         if (($prefix == 'solution') || ($prefix == 'device') || ($prefix == 'process') || ($prefix == 'server')){

@@ -45,6 +45,24 @@ global.document = {
 		breadCrumb.refresh();
 		global.view.applyDocument(document);
 	},
+	unlinkFromItem : function(aDocumentId, aItemId){
+		$.ajax({
+			"url" : "api/document.php?id="+aDocumentId+"&itemId="+aItemId,
+			"method" : "DELETE",
+			"dataType" : "json",
+			"success" : function(result) {
+				if (result.code != 0){
+					sendMessage("error", i18next.t("message.document_failure_update") + " : " + result.message);
+				} else {
+					sendMessage("success", i18next.t("message.document_success_update"));
+					global.document.refresh();
+					global.item.refresh();
+				}
+			}
+		}).fail(function(jxqr, textStatus, error) {
+			sendMessage("error", i18next.t("message.document_failure_update") + " : " + error);
+		});
+	},
 	"delete" : function(aDocumentId){
 		var documentId;
 		if (typeof aDocumentId === "undefined") {
