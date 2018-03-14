@@ -2,46 +2,88 @@
 <body>
 	<span style="display: none" data-provider="currentDocument" onchange="_viewDocument.refresh()"></span>
 	<span style="display: none" data-provider="currentItem" onchange="_viewDocument.refreshLinkToItem()"></span>
-	<form id="viewDocumentForm">
-		<fieldset class="form-group border-bottom">
-			<div class="bd-callout-info bd-callout">
-				<div class="form-group row">
-					<label class="col-sm-2 col-form-label col-form-label-sm" for="view_document_form_name" data-i18n="form.document.name"></label>
-					<div class="col-10">
-						<input class="form-control form-control-sm" id="view_document_form_name" onkeypress="_viewDocument.onNameChange()"/>
+	<form id="viewDocumentForm" style="height:100%">
+		<ul class="nav nav-pills mb-3" role="tablist">
+			<li class="nav-item">
+				<a class="nav-link active" 	id="view_document_detail-tab" data-toggle="tab" href="#view_document_detail" role="tab" aria-controls="design" aria-selected="true"  data-i18n="form.document.detail">Detail</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link"  		id="view_document_design-tab" data-toggle="tab" href="#view_document_design" role="tab" aria-controls="design" aria-selected="true"  data-i18n="form.document.design">Design</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" 		id="view_document_items-tab"  data-toggle="tab" href="#view_document_items"  role="tab" aria-controls="items"  aria-selected="false" data-i18n="form.item.items">Items</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" 		id="view_document_source-tab" data-toggle="tab" href="#view_document_source" role="tab" aria-controls="source" aria-selected="false" data-i18n="form.item.source">Source</a>
+			</li>
+		</ul>
+		<div class="tab-content" style="height:100%">
+			<div class="tab-pane fade show active" id="view_document_detail" role="tabpanel" aria-labelledby="view_document_detail-tab">
+				<fieldset class="form-group border-bottom">
+					<div class="bd-callout-info bd-callout">
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="view_document_form_name" data-i18n="form.document.name"></label>
+							<div class="col-10">
+								<input class="form-control form-control-sm" id="view_document_form_name" onkeypress="_viewDocument.onNameChange()"/>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="view_document_form_type" data-i18n="form.document.type"></label>
+							<div class="col-10">
+								<input class="form-control form-control-sm" id="view_document_form_type" onChange=""  readonly="true"/>
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="view_document_form_item" data-i18n="form.item.name" readonly="true"></label>
+							<div class="col-8">
+								<a href="#" id="view_document_form_item" onClick="global.item.open(_viewDocument._itemId)"></a>
+								<button id="viewDocumentLink" onClick="_viewDocument.linkToCurrentItem()" type="button" class="btn btn-primary btn-sm" style="display:none">
+									<!--span data-i18n="form.button.link" /-->Link to current item
+								</button>
+							</div>
+							<div class="col-2">
+								<button id="viewDocumentUnlink" onClick="_viewDocument.unlinkFromItem()" type="button" class="btn btn-danger btn-sm" style="width:100%;display:none">
+									<!--span data-i18n="form.button.link" /-->Unlink
+								</button>
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-10">
+								<button id="viewDocumentUpdate" onClick="_viewDocument.update()" type="button" class="btn btn-primary btn-sm">
+									<img src='images/93.png' /> <span data-i18n="form.button.validate" />
+								</button>
+							</div>
+						</div>
 					</div>
-				</div>
-				<div class="form-group row">
-					<label class="col-sm-2 col-form-label col-form-label-sm" for="view_document_form_type" data-i18n="form.document.type"></label>
-					<div class="col-10">
-						<input class="form-control form-control-sm" id="view_document_form_type" onChange=""  readonly="true"/>
-					</div>
-				</div>
-				<div class="form-group row">
-					<label class="col-sm-2 col-form-label col-form-label-sm" for="view_document_form_item" data-i18n="form.item.name" readonly="true"></label>
-					<div class="col-8">
-						<a href="#" id="view_document_form_item" onClick="global.item.open(_viewDocument._itemId)"/>
-						<button id="viewDocumentLink" onClick="_viewDocument.linkToCurrentItem()" type="button" class="btn btn-primary btn-sm" style="display:none">
-							<!--span data-i18n="form.button.link" /-->Link to current item
-						</button>
-					</div>
-					<div class="col-2">
-						<button id="viewDocumentUnlink" onClick="_viewDocument.unlinkFromItem()" type="button" class="btn btn-danger btn-sm" style="width:100%;display:none">
-							<!--span data-i18n="form.button.link" /-->Unlink
-						</button>
-					</div>
-				</div>
-				<div class="form-group row">
-					<div class="col-sm-10">
-						<button id="viewDocumentUpdate" onClick="_viewDocument.update()" type="button" class="btn btn-primary btn-sm">
+				</fieldset>
+			</div>
+			<div class="tab-pane fade" id="view_document_design" role="tabpanel" aria-labelledby="view_document_design-tab">
+			</div>
+			<div class="tab-pane fade" id="view_document_items" role="tabpanel" aria-labelledby="view_document_items-tab">
+				<table class="table table-bordered table-hover table-sm">
+					<thead>
+						<tr>
+							<th data-i18n="form.item.category"></th>
+							<th data-i18n="form.item.name"></th>
+							<th data-i18n="form.all.action"></th>
+						</tr>
+					</thead>
+					<tbody id="viewDocumentRelatedItems"></tbody>
+				</table>
+			</div>
+			<div class="tab-pane fade" id="view_document_source" role="tabpanel" aria-labelledby="view_document_source-tab" style="height:100%">
+				<div style="display:flex;height:100%;padding:5px;flex-direction: column;">
+					<div>
+						<button id="viewDocumentUpdate2" onClick="_viewDocument.update()" type="button" class="btn btn-primary btn-sm" style="float:right">
 							<img src='images/93.png' /> <span data-i18n="form.button.validate" />
 						</button>
 					</div>
+					<textarea style="flex:3;width:100%" id="view_document_content" onkeypress="_viewDocument.onContentChange()"></textarea>
 				</div>
 			</div>
-		</fieldset>
+		</div>
 	</form>
-	<textarea style="width:100%" id="view_document_content" onkeypress="_viewDocument.onContentChange()"></textarea>
+	
 	<script type="text/javascript">
 		var _viewDocument = {
 			_contentChanged : false,
@@ -125,6 +167,7 @@
 								sendMessage("error", i18next.t("message.document_failure_get") + " : " + error);
 							} else if (result.objects.length > 0){
 								_viewDocument._itemId = result.objects[0].id;
+								_viewDocument.refreshLinkedItems();
 								$("#view_document_form_item").show();
 								$("#view_document_form_item").text(result.objects[0].category.name + " " + result.objects[0].name);
 								$("#viewDocumentLink").hide();
@@ -145,10 +188,49 @@
 						sendMessage("error", i18next.t("message.document_failure_get") + " : " + error);
 					});
 				} else {
+					_viewDocument.refreshLinkedItems();
 					$("#viewDocumentUnlink").hide();
 					$("#viewDocumentLink").hide();
 					$("#view_document_form_item").text("");
 					$("#view_document_form_item").show();
+				}
+			},
+			refreshLinkedItems : function(){
+				$("#viewDocumentRelatedItems").html("");
+				var document = global.document.getCurrent();
+				if (document != null) {
+					if (this._itemId != null){
+						$.getJSON( "api/item.php?id="+this._itemId+"&direction=both&related_items", function(result) {
+							if (result.code != 0){
+								sendMessage("error",i18next.t("message.item_failure_related_items")+" : "+result.message);
+							} else {
+								var html = "";
+								var element;
+								var count = 0;
+								var elements = result.objects;
+								for (var e = 0; e < elements.length; e++){
+					    			element = elements[e];
+					    			if (_viewItem._categoryFilter[element.category.id] == true){
+					    				html += "<tr>";
+					    				html += "<td>"+i18next.t("category."+element.category.name)+"</td>";
+					    				html += "<td><a href='#' onclick='global.item.open(\""+element.id+"\")'>"+element.name+"</a></td>";
+					    				html += '<td>';
+					    				html += '<button class="btn btn-danger btn-sm" onClick="global.item.unlink({id : \''+_viewDocument._itemId+'\'},{id : \''+element.id+'\'});" title="Unlink \''+element.name+'\' from \''+_viewDocument._itemId+'\'">'+i18next.t("form.button.unlink")+'</button>';
+					    				html += '</td>';
+					    				html += "</tr>";
+						    			count++;
+						    			if (count > 8){
+						    				html += "<tr><td style='text-align:center' colspan='3'>...</td></tr>";
+						    				break;
+						    			}
+					    			}
+								}
+								$("#viewDocumentRelatedItems").html(html);
+							}
+						}).fail(function(jxqr,textStatus,error){
+							sendMessage("error",i18next.t("message.item_failure_related_items") + " : "+error);
+						});
+					}
 				}
 			},
 			linkToCurrentItem : function(){
