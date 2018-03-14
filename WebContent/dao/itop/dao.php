@@ -251,14 +251,36 @@ class ITopDao implements IDAO {
                         'functionalci_id'         => $id
                     ));
                 } else if ($this->isFunctionalCI($childItem->category->name)){
-                    $response = $this->getObjects('lnkApplicationSolutionToFunctionalCI', 'id', 'WHERE applicationsolution_id = '.$parentItemId->id.' AND functionalci_id = '.$childItemId->id);
-                    if (count($response->objects) == 0){
-                        $this->createObject("lnkApplicationSolutionToFunctionalCI", array(
-                            'applicationsolution_id' => $parentItemId->id,
-                            'functionalci_id'        => $childItemId->id
-                        ));
-                    }
+                	if ($parentItem->category->name == "solution"){
+                		if ($childItem->category->name == "process"){
+                			$response = $this->getObjects('lnkApplicationSolutionToBusinessProcess', 'id', 'WHERE applicationsolution_id = '.$parentItemId->id.' AND businessprocess_id = '.$childItemId->id);
+                			if (count($response->objects) == 0){
+                				$this->createObject("lnkApplicationSolutionToBusinessProcess", array(
+                						'applicationsolution_id' => $parentItemId->id,
+                						'businessprocess_id'     => $childItemId->id
+                				));
+                			}
+                		} else {
+	                		$response = $this->getObjects('lnkApplicationSolutionToFunctionalCI', 'id', 'WHERE applicationsolution_id = '.$parentItemId->id.' AND functionalci_id = '.$childItemId->id);
+	                		if (count($response->objects) == 0){
+	                			$this->createObject("lnkApplicationSolutionToFunctionalCI", array(
+	                					'applicationsolution_id' => $parentItemId->id,
+	                					'functionalci_id'        => $childItemId->id
+	                			));
+	                		}
+                		}
+                	} else if ($parentItem->category->name == "process"){
+                		if ($childItem->category->name == "solution"){
+                			$this->addSubItem($aChildItemId,$aParentItemId); // on inverse
+                		} else {
+                			throw new Exception("Unable to add ".$childItem->category->name." in ".$parentItem->category->name);
+                		}
+                	} else {
+                		throw new Exception("Unable to add ".$childItem->category->name." in ".$parentItem->category->name);
+                	}
                 } else if ($childItem->category->name == "actor"){
+                	$this->addSubItem($aChildItemId,$aParentItemId); // on inverse
+                } else if ($childItem->category->name == "domain"){
                 	$this->addSubItem($aChildItemId,$aParentItemId); // on inverse
                 } else {
                     throw new Exception("Unable to add ".$childItem->category->name." in ".$parentItem->category->name);
@@ -416,12 +438,25 @@ class ITopDao implements IDAO {
                 }
                 break;
             case "solution" : // retirer un élément d'une solution
-                if ($this->isFunctionalCI($childItemId->prefix) || ($childItemId->prefix == 'software')){
-                    $this->deleteObject("lnkApplicationSolutionToFunctionalCI", array('applicationsolution_id' => $parentItemId->id, 'functionalci_id' => $childItemId->id));
+                if ($childItemId->prefix == 'process'){
+                	$this->deleteObject("lnkApplicationSolutionToBusinessProcess", array('applicationsolution_id' => $parentItemId->id, 'businessprocess_id' => $childItemId->id));
+                } else if ($this->isFunctionalCI($childItemId->prefix) || ($childItemId->prefix == 'software')){
+                	$this->deleteObject("lnkApplicationSolutionToFunctionalCI", array('applicationsolution_id' => $parentItemId->id, 'functionalci_id' => $childItemId->id));
+                } else if ($childItemId->prefix == 'domain'){
+                	$this->removeSubItem($aChildItemId,$aParentItemId);// on inverse
                 } else {
                     throw new Exception("Unable to remove ".$childItem->category->name." from ".$parentItem->category->name);
                 }
                 break;
+            case "process" : // retirer un élément d'un processus
+            	if ($childItemId->prefix == 'solution'){
+            		$this->removeSubItem($aChildItemId,$aParentItemId);// on inverse
+            	} else if ($childItemId->prefix == 'domain'){
+            		$this->removeSubItem($aChildItemId,$aParentItemId);// on inverse
+            	} else {
+            		throw new Exception("Unable to remove ".$childItem->category->name." from ".$parentItem->category->name);
+            	}
+            	break;
             default:
                 throw new Exception("Unable to remove ".$childItem->category->name." from ".$parentItem->category->name);
                 break;
@@ -432,6 +467,13 @@ class ITopDao implements IDAO {
             return $this->getSubItems($aItemId,$category);
         } else if ($direction == 'up'){
             return $this->getOverItems($aItemId,$category);
+        } else if ($direction == 'both'){
+        	$result = $this->getSubItems($aItemId,$category);
+        	$resultBis = $this->getOverItems($aItemId,$category);
+        	foreach ($resultBis as $item){
+        		$result[] = $item;
+        	}
+        	return $result;
         } else {
             throw new Exception('Unsupported '.$direction);
         }
@@ -698,7 +740,7 @@ class ITopDao implements IDAO {
             		continue;
             	}
             	if (($category == "*") || ($item->category->name == $category)){
-                	$result[] = $îtem;
+                	$result[] = $item;
             	}
             }
             if (($item->category->name == 'device') || ($item->class->name == 'Server')){

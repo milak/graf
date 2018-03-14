@@ -53,7 +53,8 @@ if ($_SERVER ['REQUEST_METHOD'] === 'GET') {
 			}
 			$items = $dao->getItems ( ( object ) $query );
 		}
-	}catch(Exception $exception){?>
+	}catch(Exception $exception){
+		?>
 		{
 			"code"		: 12,
 			"message"	: "<?php echo $exception->getMessage()?>",
@@ -126,7 +127,7 @@ if ($_SERVER ['REQUEST_METHOD'] === 'GET') {
             	}
             	<?php
 			} catch ( Exception $exception ) {
-				?>
+				error_log($exception);?>
 				{
             		"code"		: 12,
             		"message"	: "<?php echo $exception->getMessage()?>",
@@ -183,11 +184,27 @@ if ($_SERVER ['REQUEST_METHOD'] === 'GET') {
 		die ( "Missing id argument" );
 	}
 	$id = $_GET ["id"];
-	if (isset ( $_GET ["child_id"] )) {
-		// Ajout d'un fils à id
-		$dao->removeSubItem ( $id, $_GET ["child_id"] );
-	} else {
-		$dao->deleteItem ( $id );
+	try{
+		if (isset ( $_GET ["child_id"] )) {
+			// Ajout d'un fils à id
+			$dao->removeSubItem ( $id, $_GET ["child_id"] );
+		} else {
+			$dao->deleteItem ( $id );
+		}
+	?>
+{
+   "code"		: 0,
+   "message"	: "Item deleted",
+   "objects"	: []
+}<?php
+	}catch(Exception $exception){
+		?>
+		{
+			"code"		: 12,
+			"message"	: "<?php echo $exception->getMessage()?>",
+			"objects"	: []
+		}
+		<?php  			return;
 	}
 }
 $dao->disconnect ();

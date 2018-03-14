@@ -94,7 +94,7 @@ global.item = {
 			dataType: "json",
 			success	: function( result ) {
 				if (result.code == 0){
-					this.refresh();
+					global.item.refresh();
 					sendMessage("success",i18next.t("message.item_success_link"));
 				} else {
 					sendMessage("error",i18next.t("message.item_failure_link")+" : "+result.message);
