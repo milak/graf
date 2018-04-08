@@ -63,9 +63,9 @@
 				<table class="table table-bordered table-hover table-sm">
 					<thead>
 						<tr>
-							<th data-i18n="form.item.category"></th>
-							<th data-i18n="form.item.name"></th>
-							<th data-i18n="form.all.action"></th>
+							<th style="width:10%;text-align:center" data-i18n="form.item.category"></th>
+							<th style="text-align:center" 			data-i18n="form.item.name"></th>
+							<th style="width:10%;text-align:center" data-i18n="form.all.action"></th>
 						</tr>
 					</thead>
 					<tbody id="viewDocumentRelatedItems"></tbody>
@@ -87,15 +87,17 @@
 	<script type="text/javascript">
 		var _viewDocument = {
 			_contentChanged : false,
-			_itemId	: null,
-			onNameChange : function(){
+			_itemId			: null,
+			_itemsInDesign  : null,
+			_bpmn			: null,
+			onNameChange 	: function(){
 				$("#viewDocumentUpdate").prop("disabled",false);
 			},
 			onContentChange : function(){
 				this._contentChanged = true;
 				$("#viewDocumentUpdate").prop("disabled",false);
 			},
-			update : function(){
+			update 			: function(){
 				var document = global.document.getCurrent();
 				if (document == null) {
 					sendMessage("error","No current document");
@@ -109,11 +111,11 @@
 					data.content = $("#view_document_content").val();
 				}
 				$.ajax({
-					"url" : "api/document.php",
-					"method" : "POST",
-					"data" : data,
-					"dataType" : "json",
-					"success" : function(data) {
+					"url" 		: "api/document.php",
+					"method" 	: "POST",
+					"data" 		: data,
+					"dataType" 	: "json",
+					"success" 	: function(data) {
 						sendMessage("success", i18next.t("message.document_success_update"));
 						global.document.refresh();
 					}
@@ -121,7 +123,7 @@
 					sendMessage("error", i18next.t("message.document_failure_update") + " : " + error);
 				});
 			},
-			refresh : function() {
+			refresh 		: function() {
 				$("#view_document_form_name").val("");
 				$("#view_document_form_type").val("");
 				$("#view_document_content").val("");
@@ -129,25 +131,34 @@
 				var document = global.document.getCurrent();
 				if (document != null) {
 					$.ajax({
-						url : "api/document.php?id=" + document.id + "&content=true",
-						dataType : "text",
-						success : function(data) {
-							$("#view_document_content").val(data);
-						}
-					}).fail(function(jxqr, textStatus, error) {
-						sendMessage("error", i18next.t("message.document_failure_get") + " : " + error);
-					});
-					$.ajax({
-						url : "api/document.php?id=" + document.id,
-						dataType : "json",
-						success : function(result) {
+						url 		: "api/document.php?id=" + document.id,
+						dataType 	: "json",
+						success 	: function(result) {
 							if (result.documents.length == 0){
 								sendMessage("error", i18next.t("message.document_failure_get") + " : " + error);
 							} else {
 								var document = result.documents[0];
+								global.document.type = document.type;
 								$("#view_document_form_name").val(document.name);
 								$("#view_document_form_type").val(document.type);
 							}
+							_viewDocument._getContent();
+						}
+					}).fail(function(jxqr, textStatus, error) {
+						sendMessage("error", i18next.t("message.document_failure_get") + " : " + error);
+					});
+				} else {
+					this.refreshLinkToItem();
+				}
+			},
+			_getContent 	: function(){
+				var document = global.document.getCurrent();
+				if (document != null) {
+					$.ajax({
+						url 		: "api/document.php?id=" + document.id + "&content=true",
+						dataType 	: "text",
+						success 	: function(data) {
+							_viewDocument._setContent(data);
 						}
 					}).fail(function(jxqr, textStatus, error) {
 						sendMessage("error", i18next.t("message.document_failure_get") + " : " + error);
@@ -155,14 +166,71 @@
 					this.refreshLinkToItem();
 				}
 			},
+			_setContent : function(data){
+				$("#view_document_content").val(data);
+				if (global.document.type == "BPMN"){
+					try{
+						_viewDocument._bpmn = parseBPMN(data);
+						_viewDocument._itemsInDesign = new Array();
+						var process = _viewDocument._bpmn.getProcess();
+						if (process != null){
+							process.eachEvents(function (event){
+								if (event.getImplementation() != null){
+									_viewDocument._itemsInDesign[event.getImplementation()] = { used : false, event : event};
+								}
+							});
+						}
+					}catch(exception){
+						console.log(exception);
+					}
+					_viewDocument._designBPMN();
+					this.refreshLinkToItem();
+				}
+			},
+			_designBPMN			: function(){
+				var html = "<svg height='1000' width='1000'>";
+				var x = 10;
+				var y = 10;
+				if (this._bpmn != null){
+					var process = this._bpmn.getProcess();
+					if (process != null){
+						html+="<text>Process : " + process.getName()+"</text>";
+						var events = new Array();
+						var eventsById = new Array();
+						process.eachEvents(function(event){
+							event.push(event);
+						});
+						for (var i = 0; i < events.length; i++){
+							
+						}
+						/**
+						html += "<rect x='"+x+"' y='"+y+"' width='150' height='40' style='fill:rgb(0,120,255);stroke-width:2;stroke:rgb(150,150,150)";
+						if (event.getImplementation() != null){
+							html += ";cursor:pointer' onclick='global.item.open(\""+event.getImplementation()+"\")'";
+						} else {
+							html += "'";
+						}
+						html += "/>";
+						html += "<text x='"+(x + 20)+"' y='"+(y+20)+"'>"+event.getType()+"</text>";
+						y+= 70;
+						*/
+					} else {
+						html += "<text x='"+x+"' y='"+y+"' fill='red'>No process found</text>";
+					}
+				} else {
+					html += "<text x='"+x+"' y='"+y+"' fill='red'>Not parseable</text>";
+				}
+				html += "</svg>"
+				$("#view_document_design").html(html);
+			},
 			refreshLinkToItem : function(){
 				this._itemId = null;
 				var document = global.document.getCurrent();
 				if (document != null) {
 					$.ajax({
-						url : "api/item.php?documentId=" + document.id,
-						dataType : "json",
-						success : function(result) {
+						url 		: "api/item.php?documentId=" + document.id,
+						dataType 	: "json",
+						success 	: function(result) {
 							if (result.code != 0){
 								sendMessage("error", i18next.t("message.document_failure_get") + " : " + error);
 							} else if (result.objects.length > 0){
@@ -200,36 +268,81 @@
 				var document = global.document.getCurrent();
 				if (document != null) {
 					if (this._itemId != null){
-						$.getJSON( "api/item.php?id="+this._itemId+"&direction=both&related_items", function(result) {
-							if (result.code != 0){
-								sendMessage("error",i18next.t("message.item_failure_related_items")+" : "+result.message);
-							} else {
-								var html = "";
-								var element;
-								var count = 0;
-								var elements = result.objects;
-								for (var e = 0; e < elements.length; e++){
-					    			element = elements[e];
-					    			if (_viewItem._categoryFilter[element.category.id] == true){
-					    				html += "<tr>";
+						if ((document.type == "BPMN") || (document.type == "TOSCA")){
+							$.getJSON( "api/item.php?id="+this._itemId+"&direction=both&related_items", function(result) {
+								if (result.code != 0){
+									sendMessage("error",i18next.t("message.item_failure_related_items")+" : "+result.message);
+								} else {
+									var html = "";
+									var element;
+									var count = 0;
+									var elements = result.objects;
+									for (var e = 0; e < elements.length; e++){
+						    			element = elements[e];
+						    			html += "<tr>";
 					    				html += "<td>"+i18next.t("category."+element.category.name)+"</td>";
 					    				html += "<td><a href='#' onclick='global.item.open(\""+element.id+"\")'>"+element.name+"</a></td>";
-					    				html += '<td>';
-					    				html += '<button class="btn btn-danger btn-sm" onClick="global.item.unlink({id : \''+_viewDocument._itemId+'\'},{id : \''+element.id+'\'});" title="Unlink \''+element.name+'\' from \''+_viewDocument._itemId+'\'">'+i18next.t("form.button.unlink")+'</button>';
-					    				html += '</td>';
+					    				html += "<td>";
+										if (_viewDocument._itemsInDesign[element.id] !== undefined){
+											var itemInDesign = _viewDocument._itemsInDesign[element.id];
+											html += '<button class="btn btn-danger btn-sm"  onClick="_viewDocument.removeFromDiagram(\''+itemInDesign.event.getId()+'\')" title="Remove from diagram">';
+											html += '   <img src="images/14.png"/> remove from diagram';
+											html += "</button>";
+											_viewDocument._itemsInDesign[element.id].used = true;
+						    			} else {
+						    				html += '<button class="btn btn-success btn-sm" onClick="_viewDocument.addToDiagram(\''+element.id+'\',\''+element.category.name+'\',\''+element.name+'\')" title="Add to diagram">';
+						    				html += '   <img src="images/13.png"/> add to diagram';
+						    				html += "</button>";
+						    			}
+					    				html += "</td>";
 					    				html += "</tr>";
 						    			count++;
 						    			if (count > 8){
 						    				html += "<tr><td style='text-align:center' colspan='3'>...</td></tr>";
 						    				break;
 						    			}
-					    			}
+									}
+									for (var k in _viewDocument._itemsInDesign) {
+										var item = _viewDocument._itemsInDesign[k];
+										if (item.used == false){
+											$.ajax({
+												"item"		: item,
+												"url" 		: "api/item.php?id="+item.event.getImplementation(),
+												"success" 	: function(result){
+													var html;
+													if (result.code == 0){
+														if (result.objects.length == 0){
+															html  = "<tr style='background-color:red'>";
+															html += "    <td>"+item.event.getType()+"</td>";
+															html += "    <td>"+item.event.getImplementation()+" - item not found</td>";
+															html += "    <td>";
+															html += "       <button class='btn btn-danger btn-sm' onClick='_viewDocument.removeFromDiagram(\""+this.item.event.getId()+"\")' title='Remove from diagram'>";
+															html += "          <img src='images/14.png'/> Remove from diagram";
+															html += "       </button>";
+															html += "    </td>";
+															html += "</tr>";
+														} else {
+															var object = result.objects[0];
+															html  = "<tr style='background-color:red'>";
+															html += "  <td>"+i18next.t("category."+object.category.name)+"</td>";
+															html += "  <td><a href='#' onclick='global.item.open(\""+object.id+"\")'>"+object.name+"</a> - item not linked</td>";
+															html += "  <td><button class='btn btn-danger btn-sm' onClick='_viewDocument.removeFromDiagram(\""+this.item.event.getId()+"\")' title='Remove from diagram'><img src='images/14.png'/> Remove from diagram</button></td>";
+															html += "</tr>";
+														}
+														$("#viewDocumentRelatedItems").append(html);
+													} else {
+														sendMessage("error","Error while getting item info " + result.message);
+													}
+												}
+											});
+										}
+									}
+									$("#viewDocumentRelatedItems").html(html);
 								}
-								$("#viewDocumentRelatedItems").html(html);
-							}
-						}).fail(function(jxqr,textStatus,error){
-							sendMessage("error",i18next.t("message.item_failure_related_items") + " : "+error);
-						});
+							}).fail(function(jxqr,textStatus,error){
+								sendMessage("error",i18next.t("message.item_failure_related_items") + " : "+error);
+							});
+						}
 					}
 				}
 			},
@@ -276,6 +389,22 @@
 					return;
 				}
 				global.document.unlinkFromItem(document.id,this._itemId);
+			},
+			removeFromDiagram : function(eventId){
+				this._contentChanged = true;
+				this._bpmn.removeEvent(eventId);
+				this._setContent(this._bpmn.serialize());
+				//sendMessage("success","Item "+eventId+" successfully removed");
+			},
+			addToDiagram : function(itemId, itemCategory, itemName){
+				var type = "task";
+				if (itemCategory == "actor"){
+					type = "userTask";
+				}
+				//this._bpmn.getProcess().addEvent('<bpmn:'+type+' name="'+itemName+'" id="_'+Math.random()+'" implementation="'+itemId+'"/>');
+				this._bpmn.getProcess().addEvent(type,itemName,itemId);
+				this._contentChanged = true;
+				this._setContent(this._bpmn.serialize());
 			}
 		};
 		$(function() {
