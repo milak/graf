@@ -253,6 +253,7 @@ class ITopDao implements IDAO {
                 } else if ($this->isFunctionalCI($childItem->category->name)){
                 	if ($parentItem->category->name == "solution"){
                 		if ($childItem->category->name == "process"){
+                			error_log("Add process in solution");
                 			$response = $this->getObjects('lnkApplicationSolutionToBusinessProcess', 'id', 'WHERE applicationsolution_id = '.$parentItemId->id.' AND businessprocess_id = '.$childItemId->id);
                 			if (count($response->objects) == 0){
                 				$this->createObject("lnkApplicationSolutionToBusinessProcess", array(
@@ -559,10 +560,11 @@ class ITopDao implements IDAO {
         			$result[] = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
         		}
         	}
-        	$response = $this->getObjects('lnkContactToFunctionalCI', 'contact_id,contact_name', 'WHERE functionalci_id = '.$itemId->id);
+        	/*$response = $this->getObjects('lnkContactToFunctionalCI', 'contact_id,contact_name', 'WHERE functionalci_id = '.$itemId->id);
         	foreach($response->objects as $object){
         		$result[] = $this->_newItem($object->fields->contact_id, $object->fields->contact_name, 'Team');
-        	}
+        		error_log("over 2:".$object->fields->contact_id);
+        	}*/
         } else if ($itemId->prefix == 'data'){
         	$item = $this->getItems((object)['id'=>$aItemId])[0];
         	$schemaIdList = '(';
