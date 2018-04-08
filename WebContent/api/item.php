@@ -54,6 +54,7 @@ if ($_SERVER ['REQUEST_METHOD'] === 'GET') {
 			$items = $dao->getItems ( ( object ) $query );
 		}
 	}catch(Exception $exception){
+		error_log($exception);
 		?>
 		{
 			"code"		: 12,
