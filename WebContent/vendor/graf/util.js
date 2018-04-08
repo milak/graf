@@ -9,58 +9,7 @@ function hidePopup(){
 function sortByName(a, b){
 	return a.name.localeCompare(b.name);
 }
-function initAutoComplete(){
-	//Auto completion lors de la recherche
-	$('input.typeahead').typeahead({
-			minLength: 3,
-		  	highlight: true
-	},{
-		source : function (query, syncResults, asyncResults){
-			$.getJSON('api/item.php', { name: query }, function (result) {
-				if (result.code != 0){
-					sendMessage("error",i18next.t("message.item_failure_search")+" : "+result.message);
-				} else {
-		        	var elements = result.objects;
-		        	var searchResult = new Array();
-		        	for (var i = 0; i < elements.length; i++){
-		        		elements[i].categoryName = i18next.t("category."+elements[i].category.name);
-		        		elements[i].is = "item";
-		        		searchResult.push(elements[i]);
-		        	}
-		        	$.getJSON('api/document.php', { name: query }, function (result) {
-		        		var documents = result.documents;
-			        	for (var i = 0; i < documents.length; i++){
-			        		documents[i].categoryName = documents[i].type;
-			        		documents[i].is = "document";
-			        		searchResult.push(documents[i]);
-			        	}
-		        		asyncResults(searchResult);
-		        	}).fail(function(jxqr,textStatus,error){
-						sendMessage("error",i18next.t("message.document_failure_search")+" : "+error);
-					});
-				}
-	        }).fail(function(jxqr,textStatus,error){
-				sendMessage("error",i18next.t("message.item_failure_search")+" : "+error);
-			});
-		},
-		display : Handlebars.compile(''),
-		templates: {
-			//header : "Items found",
-		    /*empty: [
-		      '<div class="empty-message">',
-		        'unable to find any item that match the current query',
-		      '</div>'
-		    ].join('\n'),*/
-		    suggestion: Handlebars.compile('<div><strong>{{categoryName}}</strong> – {{name}}</div>')
-		}
-	}).bind('typeahead:select', function(ev, suggestion) {
-		if (suggestion.is == "item"){
-			global.item.open(suggestion.id);
-		} else {
-			global.document.open(suggestion.id);
-		}
-	});
-}
+
 function svgElementClicked(what,id,button){
 	if (button == 0){ // Left button
 		if (what == "BPMN"){
@@ -159,43 +108,99 @@ function sendMessage(level,message){
 var global = {
 	itemCategories 	: null,
 	views 			: null,
-	currentItem 	: null
-};
-function initI18N(){
-	var lang = navigator.language || navigator.userLanguage; 
-	_loadLang(lang);
-}
-function _loadLang(lang){
-	$.getJSON("i18n/"+lang+".json", function(result) {
-		var resources = {
-			"lng" : lang,
-			"resources" : result
-		};
-		i18next.init(resources, function(err, t) {
-			jqueryI18next.init(i18next, $);
-			$('*[data-i18n]').localize();
-			global.view.init();
+	currentItem 	: null,
+	_initI18N		: function(){
+		var lang = navigator.language || navigator.userLanguage; 
+		this._loadLang(lang);
+	},
+	_initAutoComplete : function(){
+		//Auto completion lors de la recherche
+		$('input.typeahead').typeahead({
+				minLength: 3,
+			  	highlight: true
+		},{
+			source : function (aQuery, syncResults, asyncResults){
+				var query = aQuery.replace(/'/g, "");
+				$.getJSON('api/item.php', { name: query }, function (result) {
+					if (result.code != 0){
+						sendMessage("error",i18next.t("message.item_failure_search")+" : "+result.message);
+					} else {
+			        	var elements = result.objects;
+			        	var searchResult = new Array();
+			        	for (var i = 0; i < elements.length; i++){
+			        		elements[i].categoryName = i18next.t("category."+elements[i].category.name);
+			        		elements[i].is = "item";
+			        		searchResult.push(elements[i]);
+			        	}
+			        	$.getJSON('api/document.php', { name: query }, function (result) {
+			        		var documents = result.documents;
+				        	for (var i = 0; i < documents.length; i++){
+				        		documents[i].categoryName = documents[i].type;
+				        		documents[i].is = "document";
+				        		searchResult.push(documents[i]);
+				        	}
+			        		asyncResults(searchResult);
+			        	}).fail(function(jxqr,textStatus,error){
+							sendMessage("error",i18next.t("message.document_failure_search")+" : "+error);
+						});
+					}
+		        }).fail(function(jxqr,textStatus,error){
+					sendMessage("error",i18next.t("message.item_failure_search")+" : "+error);
+				});
+			},
+			display : Handlebars.compile(''),
+			templates: {
+				//header : "Items found",
+			    /*empty: [
+			      '<div class="empty-message">',
+			        'unable to find any item that match the current query',
+			      '</div>'
+			    ].join('\n'),*/
+			    suggestion: Handlebars.compile('<div><strong>{{categoryName}}</strong> – {{name}}</div>')
+			}
+		}).bind('typeahead:select', function(ev, suggestion) {
+			if (suggestion.is == "item"){
+				global.item.open(suggestion.id);
+			} else {
+				global.document.open(suggestion.id);
+			}
 		});
-	}).fail(function (jxqr,textStatus,error){
-		if (lang != "en") {
-			_loadLang("en");
-		} else {
-			sendMessage("error","Can't find any lang resources"); // Nb : ne pas essayer d'internationaliser
-		}
-	});
-}
+	},
+	_loadLang : function(lang){
+		$.getJSON("i18n/"+lang+".json", function(result) {
+			var resources = {
+				"lng" : lang,
+				"resources" : result
+			};
+			i18next.init(resources, function(err, t) {
+				jqueryI18next.init(i18next, $);
+				$('*[data-i18n]').localize();
+				global.view.init();
+			});
+		}).fail(function (jxqr,textStatus,error){
+			if (lang != "en") {
+				this._loadLang("en");
+			} else {
+				sendMessage("error","Can't find any lang resources"); // Nb : ne pas essayer d'internationaliser
+			}
+		});
+	},
+	init			: function(){
+		this._initI18N();
+		this._initAutoComplete();
+		$("#main").panelFrame();
+		$.getJSON( "api/element_class.php", function(result) {
+			global.itemCategories = result.categories;
+		}).fail(function(jxqr,textStatus,error) {
+			sendMessage("error",i18next.t("unable_to_load_item_classes")+" : "+error);
+		});
+		$.getJSON( "api/view.php?areas=list", function(result) {
+			global.views = result.views;
+		}).fail(function(jxqr,textStatus,error) {
+			sendMessage("error",i18next.t("unable_to_load_views")+" : "+error);
+		});
+	}
+};
 $(function() {
-	initI18N();
-	initAutoComplete();
-	$("#main").panelFrame();
-	$.getJSON( "api/element_class.php", function(result) {
-		global.itemCategories = result.categories;
-	}).fail(function(jxqr,textStatus,error) {
-		sendMessage("error",i18next.t("unable_to_load_item_classes")+" : "+error);
-	});
-	$.getJSON( "api/view.php?areas=list", function(result) {
-		global.views = result.views;
-	}).fail(function(jxqr,textStatus,error) {
-		sendMessage("error",i18next.t("unable_to_load_views")+" : "+error);
-	});
+	global.init();
 });
