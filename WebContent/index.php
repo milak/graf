@@ -54,21 +54,21 @@ html {
 <body oncontextmenu="event.preventDefault()" onresize="item.refresh()">
 	<header>
 		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-			<a class="navbar-brand" href="#" onClick="breadCrumb.home()" title="Graphic Rendering Architecture Framework">GRAF</a>
+			<a class="navbar-brand" href="#" onClick="breadCrumb.home();global.document.close();" title="Graphic Rendering Architecture Framework">GRAF</a>
 			<div class="collapse navbar-collapse" id="navbarCollapse">
 				<ul class="navbar-nav mr-auto">
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="menuItem" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span
 							data-i18n="menu.item">Items</span></a>
 						<div class="dropdown-menu" aria-labelledby="menuItem">
-							<a class="dropdown-item" href="#" onClick="searchItem()"><img src="images/65.png" /> <span data-i18n="menu.search" /></a> <a class="dropdown-item" href="#"
-								onClick="createItem()"><img src="images/78.png" /> <span data-i18n="menu.create" /></a> <a class="dropdown-item disabled" href="#" id="menuDeleteItem"
+							<a class="dropdown-item" href="#" onClick="global.view.open('searchItem')"><img src="images/65.png" /> <span data-i18n="menu.search" /></a> <a class="dropdown-item" href="#"
+								onClick="global.view.open('createItem')"><img src="images/78.png" /> <span data-i18n="menu.create" /></a> <a class="dropdown-item disabled" href="#" id="menuDeleteItem"
 								onClick="global.item.delete()" disabled="true"><img src="images/33.png" /> <span data-i18n="menu.delete" /></a>
 						</div></li>
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="menuDocument" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span
 							data-i18n="menu.document">Documents</span></a>
 						<div class="dropdown-menu" aria-labelledby="menuDocument">
-							<a class="dropdown-item" href="#" onClick="searchDocument()"><img src="images/65.png" /> <span data-i18n="menu.search" /></a> <a class="dropdown-item" href="#"
-								onClick="createDocument()"><img src="images/78.png" /> <span data-i18n="menu.create" /></a> <a class="dropdown-item disabled" href="#" id="menuDeleteDocument"
+							<a class="dropdown-item" href="#" onClick="global.view.open('searchDocument')"><img src="images/65.png" /> <span data-i18n="menu.search" /></a> <a class="dropdown-item" href="#"
+								onClick="global.view.open('createDocument')"><img src="images/78.png" /> <span data-i18n="menu.create" /></a> <a class="dropdown-item disabled" href="#" id="menuDeleteDocument"
 								onClick="global.document.delete()" disabled="true"><img src="images/33.png" /> <span data-i18n="menu.delete" /></a>
 						</div></li>
 					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="menuView" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span
@@ -94,10 +94,6 @@ html {
 		<span id="alertBadge" class="badge" style="padding: 8px; margin-right: 15px"> <img id="alertIcon" /> <strong id="alertLevel" />
 		</span> <span id="alertMessage"></span>
 	</div>
-	<div id="searchItem" 		style="display: none"></div>
-	<div id="searchDocument" 	style="display: none"></div>
-	<div id="createItem" 		style="display: none"></div>
-	<div id="createDocument"	style="display: none"></div>
 	<div id="popup" 			style="display: none"></div>
 
 	<!-- ========================================================== -->

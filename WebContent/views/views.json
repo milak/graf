@@ -90,5 +90,45 @@
 			"class"				: "panel-purple",
 			"svg"				: true
 		}
-	]
+	],
+	"document" : [
+		{
+			"name"				: "searchDocument",
+			"title" 			: "document_search",
+    		"url" 				: "forms/searchDocument.html",
+    		"params"			: [],
+    		"icon"				: "65.png",
+    		"class" 			: "panel-green",
+    		"svg"				: false
+		},
+		{
+			"name" 				: "createDocument",
+			"title" 			: "document_create",
+			"url" 				: "forms/createDocument.html",
+			"params"			: [],
+			"icon"				: "78.png",
+    		"class"		 		: "panel-green",
+    		"svg"				: false
+    	}
+    ],
+    "item" : [
+    	{
+    		"name"				: "searchItem",
+    		"title"		 		: "item_search",
+    		"url" 				: "forms/searchItem.html",
+    		"params"			: [],
+			"icon"				: "65.png",
+			"class" 			: "panel-green",
+    		"svg"				: false
+	   	},
+    	{
+    		"name"				: "createItem",
+    		"title"		 		: "item_create",
+    		"url" 				: "forms/createItem.html",
+    		"params"			: [],
+			"icon"				: "78.png",
+			"class" 			: "panel-green",
+    		"svg"				: false
+	   	}
+    ]
 }

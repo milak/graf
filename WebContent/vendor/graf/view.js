@@ -1,9 +1,9 @@
-var viewDescription = new Array();
-var views = new Array();
 global.view = {
+	_viewDescription 	: new Array(),
+	_openedViews		: new Array(),
 	open : function(viewName){
 		var viewPanel;
-		var description = viewDescription[viewName];
+		var description = this._viewDescription[viewName];
 	   	if (description != null){
 			var panel = {
 				title 	: description.title,
@@ -56,29 +56,29 @@ global.view = {
 				close  : function(){
 					// retirer la vue
 	    			var index = -1;
-	    			for(var i = 0; i < views.length; i++){
-	                	var view = views[i];
+	    			for(var i = 0; i < global.view._openedViews.length; i++){
+	                	var view = global.view._openedViews[i];
 	                	if (view.panelId == this.panelId){
 	                    	index = i;
 	                    	break;
 	                	}
 	    			}
 	    			if (index != -1){
-	    				views.splice(index,1);
+	    				global.view._openedViews.splice(index,1);
 	    			}
 				}
 			}
 			panel.url = _buildURL(description);
 	   		viewPanel = $('#'+viewName).panel(panel);
 			viewPanel.viewDescription = description;
-	   		views.push(viewPanel);
+	   		global.view._openedViews.push(viewPanel);
 		} else {
 	    	sendMessage("error",i18next.t("message.unknown_view") + " : " + viewName);
 		}
 	},
 	applyItem(aItem){
-		for (var i = 0; i < views.length; i++){
-        	var view = views[i];
+		for (var i = 0; i < global.view._openedViews.length; i++){
+        	var view = global.view._openedViews[i];
         	var desc = view.viewDescription;
         	if (desc.svg){
         		for (var p = 0; p < desc.params.length; p++){
@@ -91,8 +91,8 @@ global.view = {
     	}
 	},
 	applyDocument(aDocument){
-		for (var i = 0; i < views.length; i++){
-        	var view = views[i];
+		for (var i = 0; i < global.view._openedViews.length; i++){
+        	var view = global.view._openedViews[i];
         	var desc = view.viewDescription;
         	if (desc.svg){
         		for (var p = 0; p < desc.params.length; p++){
@@ -111,7 +111,7 @@ global.view = {
 			for (var v = 0; v < views.length; v++){
 				var view = views[v];
 				view.title = i18next.t("view."+view.title);
-				viewDescription[view.name] = view;
+				global.view._viewDescription[view.name] = view;
 				if (view.svg){
 					main.append("<svg id='"+view.name+"' style='width:100%;height:100%;display:none'></svg>");
 				} else {
@@ -119,10 +119,32 @@ global.view = {
 				}
 			}
 			var menuViewDropDown = $("#menuViewDropDown");
-			Object.keys(viewDescription).forEach(function (index) {
-				var viewHTML = "<a class='dropdown-item' href='#' onClick='global.view.open(\""+index+"\")'><img src='images/"+viewDescription[index].icon+"'/> "+viewDescription[index].title+"</a>";
+			Object.keys(global.view._viewDescription).forEach(function (index) {
+				var viewHTML = "<a class='dropdown-item' href='#' onClick='global.view.open(\""+index+"\")'><img src='images/"+global.view._viewDescription[index].icon+"'/> "+global.view._viewDescription[index].title+"</a>";
 				menuViewDropDown.append($(viewHTML));
 			});
+			views = result.document;
+			for (var v = 0; v < views.length; v++){
+				var view = views[v];
+				view.title = i18next.t("view."+view.title);
+				global.view._viewDescription[view.name] = view;
+				if (view.svg){
+					main.append("<svg id='"+view.name+"' style='width:100%;height:100%;display:none'></svg>");
+				} else {
+					main.append("<div id='"+view.name+"' style='width:100%;height:100%;display:none'></div>");
+				}
+			}
+			views = result.item;
+			for (var v = 0; v < views.length; v++){
+				var view = views[v];
+				view.title = i18next.t("view."+view.title);
+				global.view._viewDescription[view.name] = view;
+				if (view.svg){
+					main.append("<svg id='"+view.name+"' style='width:100%;height:100%;display:none'></svg>");
+				} else {
+					main.append("<div id='"+view.name+"' style='width:100%;height:100%;display:none'></div>");
+				}
+			}
 		}).fail(function(jxqr,textStatus,error){
 			sendMessage("error",i18next.t("message.unable_to_load_view")+" : " + error);
 		});
@@ -166,32 +188,4 @@ function _buildURL(description){
 		}
 	}
 	return url + car + result;
-}
-function searchDocument(){
-	$("#searchDocument").panel({
-    	url : 'forms/searchDocument.html',
-    	class : 'panel-green',
-    	title : i18next.t("view.document_search")
-    });
-}
-function createDocument(){
-	$("#createDocument").panel({
-    	url 	: 'forms/createDocument.html',
-    	class 	: 'panel-green',
-    	title 	: i18next.t("view.document_create")
-    });
-}
-function createItem(){
-	$("#createItem").panel({
-    	url 	: 'forms/createItem.html?id='+Math.random(),
-    	class 	: 'panel-green',
-    	title 	: i18next.t("view.item_create")
-    });
-}
-function searchItem(){
-	$("#searchItem").panel({
-    	url : 'forms/searchItem.html',
-    	class : 'panel-green',
-    	title : i18next.t("view.item_search")
-    });
 }
