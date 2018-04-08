@@ -25,6 +25,7 @@ global.item = {
 	    				}
 	    				breadCrumb.add(currentItem);
 	    			}
+	    			breadCrumb.remove(item);
 	    			global.item.setCurrent(item);
 				}
 			}).fail(function(jxqr,textStatus,error) {
@@ -151,7 +152,18 @@ global.item = {
 };
 var breadCrumb = {
 	_itemsList : new Array(),
+	remove : function(item){
+		var newList = new Array();
+		for (var i = 0; i < this._itemsList.length; i++){
+			var anItem = this._itemsList[i];
+			if (anItem.id != item.id){
+				newList.push(anItem);
+			}
+		}
+		this._itemsList = newList;
+	},
 	add : function(item){
+		this.remove(item);
 		this._itemsList.push(item);
 	},
 	home : function(){
@@ -180,39 +192,47 @@ var breadCrumb = {
 		var currentItem = global.item.getCurrent();
 		if (currentItem == null){
 			if (currentDocument != null){
-				html += '<li class="breadcrumb-item active">';
-				html += 'Document : '+currentDocument.name+'</li>';
+				html += '<li class   = "breadcrumb-item active">';
+				html += '  <img src  = "images/2.png"/>';
+				html += '  Document : '+currentDocument.name;
+				html += '</li>';
 			} else {
-				html += '<li class="breadcrumb-item active">'+i18next.t("breadcrumb.no_item")+'</li>';
+				html += '<li class   = "breadcrumb-item active">'+i18next.t("breadcrumb.no_item")+'</li>';
 			}
 		} else {
 			var start = 0;
-			html += '<li class="breadcrumb-item"><a href="#" onclick="breadCrumb.home()">'+i18next.t("breadcrumb.home")+'</a></li>';
+			html += '<li class       = "breadcrumb-item"><a href="#" onclick="breadCrumb.home()">'+i18next.t("breadcrumb.home")+'</a></li>';
 			if (this._itemsList.length > 5){
 				start = this._itemsList.length - 5;
-				html += '<li class="breadcrumb-item">...</li>';
+				html += '<li class   = "breadcrumb-item">...</li>';
 			}
 			for (var i = start; i < this._itemsList.length; i++){
-				html += '<li class="breadcrumb-item"><a href="#"';
-				html += ' title="'+this._itemsList[i].name+'" ';
-				html += 'onClick="breadCrumb.selectItem('+i+')">';
-				if (this._itemsList[i].name.length > 15){
-					html += this._itemsList[i].name.substring(0,5);
-					html += '...';
-					html += this._itemsList[i].name.substring(this._itemsList[i].name.length-5);
-				} else {
-					html += this._itemsList[i].name;
-				}
-				html += '</a></li>';
+				html += '<li class   = "breadcrumb-item">';
+				html += '  <a href   = "#"';
+				html += '    title   = "'+this._itemsList[i].name+'"';
+				html += '    onClick = "breadCrumb.selectItem('+i+')">';
+				html += this._formatName(this._itemsList[i].name);
+				html += '  </a>';
+				html += '</li>';
 			}
 			html += '<li class="breadcrumb-item active">';
+			html += ''+currentItem.category.name+' - ';
 			html += ''+currentItem.name+'</li>';
 			if (currentDocument != null){
-				html += '<li class="breadcrumb-item active">';
-				html += 'Document : '+currentDocument.name+'</li>';
+				html += '<li class   = "breadcrumb-item active">';
+				html += '  <img src  = "images/2.png"/>';
+				html += '  Document : ' + this._formatName(currentDocument.name);
+				html += '</li>';
 			}
 		}
 		$("#breadcrumb").html(html);
+	},
+	_formatName : function(aName){
+		if (aName.length > 15){
+			return aName.substring(0,5)+'..'+aName.substring(aName.length-5);
+		} else {
+			return aName;
+		}
 	}
 };
 
