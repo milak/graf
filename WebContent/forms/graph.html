@@ -86,12 +86,16 @@
     	    		  wheelSensitivity		: 0.5,
     	    		  pixelRatio			: 'auto'
     	    	});
-    			this.cy.on('tap', 'node', function(evt){
+    			this.cy.on('cxttapstart', 'node', function(evt){
     				var node = evt.target;
     				if (!node.data().root && !node.data().loaded) {
     					node.data().loaded = true;
     					_graph.loadRelatedItems(node.id(),false,node.position('x'),node.position('y'));
     				}
+    			});
+    			this.cy.on('tap', 'node', function(evt){
+    				var node = evt.target;
+    				global.item.open(node.id());
     			});
     		},
     		loadRelatedItems : function(itemId,layout,x,y){
@@ -131,8 +135,6 @@
 	    	  			        fit 	: false,
 	    	  			        minDist	: 10
 	    	  			  	}).run();
-						} else {
-							console.log("x"+x);
 						}
 					}
 				});
