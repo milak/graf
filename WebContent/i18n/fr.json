@@ -111,6 +111,7 @@
 				"logical"						: "Vue logique",
 				"process"						: "Vue processus",
 				"technical"						: "Vue technique",
+				"graph"							: "Vue en graph",
 				"item_create"					: "Créer un élément",
 				"item_detail"					: "Elément",
 				"item_search"					: "Chercher un élément",

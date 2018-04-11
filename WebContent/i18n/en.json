@@ -110,6 +110,7 @@
 				"logical"						: "Logical view",
 				"process"						: "Process view",
 				"technical"						: "Technical view",
+				"graph"							: "Graph view",
 				"item_create"					: "Create an item",
 				"item_detail"					: "Item",
 				"item_search"					: "Search an item",
