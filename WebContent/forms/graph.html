@@ -107,7 +107,7 @@
 			    			var node = {
 			    				data : { 
 			    					id : element.id, 
-			    					label : element.category.name + " - " + element.name,
+			    					label : i18next.t("category."+element.category.name) + " - " + element.name,
 			    					root : false, 
 			    					category : element.category.name,
 			    					loaded : false
