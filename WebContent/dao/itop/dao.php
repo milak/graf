@@ -729,34 +729,39 @@ class ITopDao implements IDAO {
         		}
         	}
         } else {
-        	$item = $this->getItems((object)['id'=>$aItemId])[0];
-            if ($item->class->name == 'Data'){
-                $item->class->name = 'Group';
-            }
-            $response = $this->getRelated($item->class->name,$itemId->id,'up');
-            foreach ($response->objects as $object){
-            	$item = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
-            	if ($item->id == $this->getGenericDBServerId()){
-            		continue;
-            	} else if ($item->id == $this->getGenericServerId()){
-            		continue;
-            	}
-            	if (($category == "*") || ($item->category->name == $category)){
-                	$result[] = $item;
-            	}
-            }
-            if (($item->category->name == 'device') || ($item->class->name == 'Server')){
-            	$response = $this->getObjects('PhysicalDevice', 'location_id', 'WHERE id = '.$itemId->id);
-            	foreach ($response->objects as $object){
-            		$location_id = $object->fields->location_id;
-            		if ($location_id != 0){
-            			$response = $this->getObjects('Location','id, name, city, country','WHERE id = '.$location_id);
-            			foreach ($response->objects as $object){
-            				$result[] = $this->_newItem($object->fields->id, $object->fields->name, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
-            			}
-            		}
-            	}
-            }
+        	$items = $this->getItems((object)['id'=>$aItemId]);
+        	if (count($items) > 0){
+        		$item = $items[0];
+        		if ($item->class->name == 'Data'){
+        			$item->class->name = 'Group';
+        		}
+        		$response = $this->getRelated($item->class->name,$itemId->id,'up');
+        		foreach ($response->objects as $object){
+        			$item = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
+        			if ($item->id == $this->getGenericDBServerId()){
+        				continue;
+        			} else if ($item->id == $this->getGenericServerId()){
+        				continue;
+        			}
+        			if (($category == "*") || ($item->category->name == $category)){
+        				$result[] = $item;
+        			}
+        		}
+        		if (($item->category->name == 'device') || ($item->class->name == 'Server')){
+        			$response = $this->getObjects('PhysicalDevice', 'location_id', 'WHERE id = '.$itemId->id);
+        			foreach ($response->objects as $object){
+        				$location_id = $object->fields->location_id;
+        				if ($location_id != 0){
+        					$response = $this->getObjects('Location','id, name, city, country','WHERE id = '.$location_id);
+        					foreach ($response->objects as $object){
+        						$result[] = $this->_newItem($object->fields->id, $object->fields->name, "Location",['city' => $object->fields->city,'country' => $object->fields->country]);
+        					}
+        				}
+        			}
+        		}
+        	} else {
+        		error_log('getSubItems('.$aItemId.') id not found');
+        	}
         }
         return $result;
     }
