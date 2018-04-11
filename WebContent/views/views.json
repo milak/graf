@@ -89,6 +89,15 @@
 			"icon"				: "77.png",
 			"class"				: "panel-purple",
 			"svg"				: true
+		},
+		{
+			"name"				: "graph",
+			"title"				: "graph",
+			"url"				: "forms/graph.html",
+			"params"			: [{"name" : "itemId", "usage" : "used"}],
+			"icon"				: "77.png",
+			"class"				: "panel-purple",
+			"svg"				: false
 		}
 	],
 	"document" : [
