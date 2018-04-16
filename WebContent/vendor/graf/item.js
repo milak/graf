@@ -13,7 +13,7 @@ global.item = {
 				if (result.code != 0){
 					sendMessage("error",i18next.t("message.item_no_information")+" : "+result.message);
 				} else if (result.objects.length == 0){
-	    			this.open(null);
+	    			global.item.open(null);
 	    			sendMessage("warning",i18next.t("message.item_not_exist"));
 				} else {
 	    			var item = result.objects[0];
