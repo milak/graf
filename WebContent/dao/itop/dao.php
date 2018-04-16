@@ -354,20 +354,49 @@ class ITopDao implements IDAO {
                 } else if ($childItem->category->name == "service"){
                     $this->addSubItem($aChildItemId,$aParentItemId); // on inverse
                 } else {
-                    // TODO supporter l'ajout de software
-                    throw new Exception("Unable to add ".$childItem->category->name." from ".$parentItem->category->name);
+                    throw new Exception("Unable to add ".$childItem->category->name." in ".$parentItem->category->name);
                 }
                 break;
             case "data" : // ajouter un élément à un data
             	if ($childItem->category->name == "domain"){
             		$this->addSubItem($aChildItemId,$aParentItemId); // on inverse
             	} else {
-            		// TODO supporter l'ajout de software
-            		throw new Exception("Unable to add ".$childItem->category->name." from ".$parentItem->category->name);
+            		throw new Exception("Unable to add ".$childItem->category->name." in ".$parentItem->category->name);
             	}
             	break;
+            case "location" :
+            	if ($childItem->class->name == "Server"){
+            		$this->updateObject('Server', $childItemId->id, array(
+            				'location_id' => $parentItemId->id
+            		));
+            	} else if ($childItem->category->name == "device"){
+            		$this->updateObject($childItem->class->name, $childItemId->id, array(
+            				'location_id' => $parentItemId->id
+            		));
+            	} else {
+            		throw new Exception('Unable to add '.$childItem->category->name.' in '.$parentItem->category->name);
+            	}
+            	break;
+            case "software" :
+            	if ($this->isFunctionalCI($childItemId->prefix) || ($childItem->class->name == 'Server')){
+            		if ($parentItem->class->name != 'Software'){
+            			$software = new stdClass();
+            			$software->org_id = "SELECT Organization WHERE name = '$this->organisation'";
+            			$software->name = $parentItem->name;
+            			$software->description = $parentItemId->id;
+            			$software->finalclass = $parentItem->class->name;
+            			$this->updateObject($childItem->class->name, $childItemId->id, array(
+            					'softwares_list' => array($software)
+            			));
+            		} else {
+            			error_log($parentItem->class->name);
+            			throw new Exception('Unable to add '.$childItem->category->name.' in '.$parentItem->category->name);
+            		}
+            	} else {
+            		throw new Exception('Unable to add '.$childItem->category->name.' in '.$parentItem->category->name);
+            	}
             default:
-                throw new Exception("Unable to add ".$childItem->category->name." in ".$parentItem->category->name);
+                throw new Exception('Unable to add '.$childItem->category->name.' in '.$parentItem->category->name);
                 break;
         }
     }
@@ -557,7 +586,13 @@ class ITopDao implements IDAO {
         		$item = $this->getItems((object)['id'=>$aItemId])[0];
         		$response = $this->getRelated($item->class->name,$itemId->id,'down');
         		foreach ($response->objects as $object){
-        			$result[] = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
+        			$item = $this->_newItem($object->fields->id, $object->fields->name, $object->class);
+        			if ($object->fields->id == $this->getGenericDBServerId()){
+        				continue;
+        			} else if ($object->fields->id == $this->getGenericServerId()){
+        				continue;
+        			}
+        			$result[] = $item;
         		}
         	}
         	/*$response = $this->getObjects('lnkContactToFunctionalCI', 'contact_id,contact_name', 'WHERE functionalci_id = '.$itemId->id);
@@ -631,7 +666,7 @@ class ITopDao implements IDAO {
         		$item = $this->getItems((object)['id'=>$aItemId])[0];
         		$response = $this->getRelated($item->class->name,$itemId->id,'down');
         		foreach ($response->objects as $object){
-        			$result[] = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
+        			$result[] = $this->_newItem($object->fields->id, $object->fields->name, $object->class);
         		}
         	}*/
         } else {
@@ -737,10 +772,10 @@ class ITopDao implements IDAO {
         		}
         		$response = $this->getRelated($item->class->name,$itemId->id,'up');
         		foreach ($response->objects as $object){
-        			$item = $this->_newItem($object->fields->id, $object->fields->friendlyname, $object->class);
-        			if ($item->id == $this->getGenericDBServerId()){
+        			$item = $this->_newItem($object->fields->id, $object->fields->name, $object->class);
+        			if ($object->fields->id == $this->getGenericDBServerId()){
         				continue;
-        			} else if ($item->id == $this->getGenericServerId()){
+        			} else if ($object->fields->id == $this->getGenericServerId()){
         				continue;
         			}
         			if (($category == "*") || ($item->category->name == $category)){
@@ -847,7 +882,7 @@ class ITopDao implements IDAO {
 	            }
 	        }
 	        if (($category == 'domain') || ($category == '*')){
-	        	$response = $this->getObjects("Group", 'id, name, friendlyname, description','WHERE type="BusinessDomain"'.$andFilter);
+	        	$response = $this->getObjects("Group", 'id, name, description','WHERE type="BusinessDomain"'.$andFilter);
 	            foreach ($response->objects as $object){
 	            	$item = $this->_newItem($object->fields->id, $object->fields->name, 'Group', ['area_id'=>$object->fields->description]);
 	                $item->area_id   = $object->fields->description;
@@ -855,7 +890,7 @@ class ITopDao implements IDAO {
 	            }
 	        }
 	        if (($category == 'data') || ($category == '*')){
-	        	$response = $this->getObjects("Group", 'id, name, friendlyname, description','WHERE type="DataModel"'.$andFilter);
+	        	$response = $this->getObjects("Group", 'id, name, description','WHERE type="DataModel"'.$andFilter);
 	            foreach ($response->objects as $object){
 	                $item = $this->_newItem($object->fields->id, $object->fields->name, "Data");
 	                $item->area_id   = $object->fields->description;
@@ -884,9 +919,22 @@ class ITopDao implements IDAO {
 	        }
 	        if (($category == 'software') || ($category == '*')){
 	        	if ($class != '*'){
-	        		$response = $this->getObjects($class,'id, name',$whereFilter);
+	        		$response = $this->getObjects($class,'id, name, version, vendor, type',$whereFilter);
 	        	} else {
 	        		$response = $this->getObjects('Software','id, name, version, vendor, type',$whereFilter);
+	        	}
+	        	if ((count($response->objects) == 0) && ($class == '*')){
+	        		$response = $this->getObjects('SoftwareInstance','id, name, software_id',$whereFilter);
+	        		foreach ($response->objects as $object){
+	        			$software_id = $object->fields->software_id;
+	        			$subresponse = $this->getObjects('Software','id, name, version, vendor, type','WHERE id='.$software_id);
+	        			foreach ($subresponse->objects as $subobject){
+	        				$object->fields->version = $subobject->fields->version;
+	        				$object->fields->vendor = $subobject->fields->vendor;
+	        				$object->fields->type = $subobject->fields->type;
+	        				break;
+	        			}
+	        		}
 	        	}
 	        	foreach ($response->objects as $object){
 	        		$result[]   = $this->_newItem($object->key, $object->fields->name, $object->class,['version' => $object->fields->version,'vendor' => $object->fields->vendor,'type' => $object->fields->type]);
@@ -1109,6 +1157,7 @@ class ITopDao implements IDAO {
         return $this->deleteObject($item->class->name,$itemId->id);
     }
     private function getGenericServerId(){
+    	//TODO garder l'id en cache
         $GenericServerName = 'GenericServer';
         $response = $this->getObjects('FunctionalCI', 'id', "WHERE finalclass IN ('Server','VirtualMachine','PC') AND name = '$GenericServerName'");
         if (count($response->objects) == 0){
@@ -1126,6 +1175,7 @@ class ITopDao implements IDAO {
         return null;
     }
     private function getGenericDBServerId(){
+    	//TODO garder l'id en cache
         $GenericDBServerName = 'GenericDBServer';
         $response = $this->getObjects('FunctionalCI', 'id', "WHERE finalclass = 'DBServer' AND name = '$GenericDBServerName'");
         if (count($response->objects) == 0){
@@ -1263,7 +1313,11 @@ class ITopDao implements IDAO {
         $first = true;
         foreach ($result->objects as $object){
             if (!$first){
-                $newObjects[] = $object;
+            	$response = $this->getObjects($object->class,'*','WHERE id = '.$object->fields->id);
+            	foreach ($response->objects as $subObject){
+            		$subObject->fields->id = $subObject->key;
+            		$newObjects[] = $subObject;
+            	}
             }
             $first = false;
         }
@@ -1302,7 +1356,7 @@ class ITopDao implements IDAO {
             $aParams['http']['header'] .= $sOptionnalHeaders;
         }
         $ctx = stream_context_create($aParams);
-        $fp = @fopen($sUrl, 'rb', false, $ctx);
+        $fp = fopen($sUrl, 'rb', false, $ctx);
         if (!$fp) {
             global $php_errormsg;
             if (isset($php_errormsg)) {
