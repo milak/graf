@@ -5,97 +5,61 @@
 <body>
 	<span style="display: none" data-provider="currentItem" onchange="_graph.refreshItem(global.item.getCurrent())"></span>
     <div id="cy" style="width : 100%;height	: 100%;"></div>
+    
     <!-- Load application code at the end to ensure DOM is loaded -->
     <script>
     	var _graph = {
     		cy   : null,
     		init : function(){
-    			this.cy = cytoscape({
-    	    		  // very commonly used options
-    	    		  container				: document.getElementById('cy'),
-    	    		  elements				: [],
-    	    		  style					: [{
-    	    				selector: 'node',
-    	    			    style	: {
-    	    			        'background-color'	: '#666',
-    	    			        'label'				: 'data(label)'
-    	    			    }
-    	    			},{
-    	    				selector: 'node[category="actor"]',
-    	    			    style	: {
-    	    			        'background-color'	: '#FFAAAA',
-    	    			        'label'				: 'data(label)'
-    	    			    }
-    	    			},{
-    	    				selector: 'node[category="solution"]',
-    	    			    style	: {
-    	    			        'background-color'	: '#AAAAFF',
-    	    			        'label'				: 'data(label)'
-    	    			    }
-    	    			},{
-    	    				selector: 'node[category="server"]',
-    	    			    style	: {
-    	    			        'background-color'	: '#88BBCC',
-    	    			        'label'				: 'data(label)'
-    	    			    }
-    	    			},{
-    	    				selector: 'node[category="device"]',
-    	    			    style	: {
-    	    			        'background-color'	: '#AAFFAA',
-    	    			        'label'				: 'data(label)'
-    	    			    }
-    	    			},{
-    	    				selector: 'edge',
-    	    			    style	: {
-    	    			        'width'				: 3,
-    	    			        'line-color'		: '#ccc',
-    	    			        'target-arrow-color': '#ccc',
-    	    			        'target-arrow-shape': 'triangle'
-    	    			    }
-    	    			}
-    	    		  ],
-    	    		  layout				: {
-    	    		        name	: 'spread',
-    	    		        minDist	: 10
-    	    		  },
-    	    		  // initial viewport state:
-    	    		  zoom					: 1,
-    	    		  pan					: { x: 0, y: 0 },
-    	    		  // interaction options:
-    	    		  minZoom				: 1e-50,
-    	    		  maxZoom				: 1e50,
-    	    		  zoomingEnabled		: true,
-    	    		  userZoomingEnabled	: true,
-    	    		  panningEnabled		: true,
-    	    		  userPanningEnabled	: true,
-    	    		  boxSelectionEnabled	: false,
-    	    		  selectionType			: 'single',
-    	    		  touchTapThreshold		: 8,
-    	    		  desktopTapThreshold	: 4,
-    	    		  autolock				: false,
-    	    		  autoungrabify			: false,
-    	    		  autounselectify		: false,
-    	    		  // rendering options:
-    	    		  headless				: false,
-    	    		  styleEnabled			: true,
-    	    		  hideEdgesOnViewport	: false,
-    	    		  hideLabelsOnViewport	: false,
-    	    		  textureOnViewport		: false,
-    	    		  motionBlur			: false,
-    	    		  motionBlurOpacity		: 0.2,
-    	    		  wheelSensitivity		: 0.5,
-    	    		  pixelRatio			: 'auto'
-    	    	});
-    			this.cy.on('cxttapstart', 'node', function(evt){
-    				var node = evt.target;
-    				if (!node.data().root && !node.data().loaded) {
-    					node.data().loaded = true;
-    					_graph.loadRelatedItems(node.id(),false,node.position('x'),node.position('y'));
-    				}
+    			this.cy = new Ogma({
+    				  container: 'cy',
+    				  settings: {
+      				    shapes: {
+      				      defaultNodeShape	: 'circle',
+      				      size : 3
+      				    }
+      				  }
     			});
-    			this.cy.on('tap', 'node', function(evt){
-    				var node = evt.target;
-    				global.item.open(node.id());
+    			// Doc : https://doc.linkurio.us/ogma/2.2.0/api.html
+    			this.cy.events.onClick(function (evt) {
+    				  var target = evt.target,
+    				      button = evt.button, // can be "left", "middle" or "right"
+    				      x = evt.x,
+    				      y = evt.y;
+    				  if (!target) {
+    					// Background clicked
+    				  } else if (target) {
+    				    	var targetClass = target.isNode ? 'node' : 'edge';
+    				    	if (targetClass == 'node'){
+    				    		var node = target;
+    				    		if (button == 'right'){
+    				    			try{
+	    				    			if (!node.root && !node.loaded) {
+	    		    						node.loaded = true;
+	    		    						node.pulse({
+	    		    						    number:     1,
+	    		    						    duration:   800,
+	    		    						    interval:   10,
+	    		    						    startColor: 'red',
+	    		    						    endColor:   'inherit',
+	    		    						    width:      1,
+	    		    						    startRatio: 1,
+	    		    						    endRatio:   3
+	    		    						  });
+	    		    						_graph.loadRelatedItems(node.getId(),false,node.getPosition().x,node.getPosition().y);
+	    		    					}
+    				    			}catch(exception){
+    		    						console.log("clickNode = " + exception);
+    		    					}	
+    				    		} else if (button == 'left'){
+    				    			try{
+    		    						global.item.open(node.getId());
+    		    					}catch(exception){
+    		    						console.log("clickNode = " + exception);
+    		    					}
+    				    		}
+    				    	}
+    				  }
     			});
     		},
     		loadRelatedItems : function(itemId,layout,x,y){
@@ -104,45 +68,57 @@
 						sendMessage("error",i18next.t("message.item_failure_related_items")+" : "+result.message);
 					} else {
 						var nodes = [];
+						var edges = [];
 						var elements = result.objects;
-						var nodex = -120;
+						var nodex = -40;
 						for (var e = 0; e < elements.length; e++){
 			    			element = elements[e];
-			    			var node = {
-			    				data : { 
-			    					id : element.id, 
-			    					label : i18next.t("category."+element.category.name) + " - " + element.name,
-			    					root : false, 
-			    					category : element.category.name,
-			    					loaded : false
-		    					}
-			    			};
-			    			if (!layout){
-			    				node.position = {
-			    			        x: x+nodex,
-			    			        y: y-100
-			    			    };
-			    				nodex += 30;
+			    			var nodeExists = _graph.cy.getNode(element.id);
+			    			if (typeof nodeExists === "undefined"){
+			    				var node = {
+				    				  id 		: element.id,
+				    				  attributes: {
+				    				  	text 		: i18next.t("category."+element.category.name) + " - " + element.name,
+				    			     	shape		: 'circle'
+				    				  },
+				    				  data : {
+				    			      	root		: false, 
+				    				  	loaded		: false
+				    				  }
+						    	};
+				    			if (!layout){
+				    				node.attributes.x = x+nodex;
+				    				node.attributes.y = y-15;
+				    				nodex += 10;
+				    			}
+				    			nodes.push(node);
+				    			edges.push({id: itemId+''+element.id, source : itemId, target : element.id});
 			    			}
-			    			nodes.push(node);
-			    			nodes.push({ data : { source : itemId, target : element.id}});
 						}
-						_graph.cy.add(nodes);
+						_graph.cy.addNodes(nodes);
+						_graph.cy.addEdges(edges);
 						if (layout){
-							_graph.cy.layout( {
-	    	  			        name	: 'spread',
-	    	  			        animate : true,
-	    	  			        fit 	: false,
-	    	  			        minDist	: 10
-	    	  			  	}).run();
+							_graph.cy.layouts.forceLink({
+							     strongGravityMode: true,
+								  duration : 0,
+								  locate : true
+							  });
 						}
 					}
 				});
     		},
     		refreshItem : function(item){
-    			_graph.cy.remove(_graph.cy.elements("node"));
+    			_graph.cy.clearGraph();
     			if (item != null){
-    				_graph.cy.add({ data : { id : item.id, label : item.name, root : true}});
+    				_graph.cy.addNode({
+    						id 		: item.id,
+    						attributes: {
+    							text 	: i18next.t("category."+item.category.name) + " - " + item.name
+    						},
+    						data : {
+    							root 	: true
+    						}
+    				});
     				_graph.loadRelatedItems(item.id,true);
     			}
     		}
