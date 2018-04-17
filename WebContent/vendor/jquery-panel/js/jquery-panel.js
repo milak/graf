@@ -16,10 +16,11 @@
  * 
  * Create a panel
  * $.panel({
- *	"title" : 'Panel's title',
- * 	"class" : 'panel-blue',
- *	"url"	: 'stat.html',
- *	"close" : function (){
+ *	"title"   : 'Panel's title',
+ * 	"class"   : 'panel-blue',
+ *	"url"	  : 'stat.html',
+ *	"buttons" : ['reload','maximize','normal','close'],
+ *	"close"   : function (){
  *		alert("Panel closed");
  *	}
  * });
