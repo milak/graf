@@ -79,21 +79,76 @@ $(function () {
 	 * Example : $("#mydiv").panelFrame(); 
 	 */
 	$.fn.panelFrame = function(){
-		this.rows = new Array();
-		for (var i = 0; i < 5; i++){
+		/*for (var i = 0; i < 5; i++){
 			var div = $('<div style="display:inline-flex;width:100%;height:0px"></div>');
 			div.hide();
 			this.rows.push(div);
 			this.append(div);
-		}
+		}*/
 		$._panelFrame 	= this;
+		this.sortable();
+		this.attr('class', "panelFrame");
 		this._panelId 	= 0;
 		this._maximized = null;
 		this._panels 	= new Array();
 		this.addPanel 	= function (panel){
-			// TODO ne plus faire un maxi update mais seulement ajouter des panels les uns après les autres
+			try{
+				this._panels.push(panel);
+				this.append(panel._wrapper);
+				var count = this._panels.length;
+				var nbRow = 1;
+		        var nbCol = count;
+		        while (nbCol > (nbRow + 1)) {
+		            nbRow++;
+		            nbCol = Math.ceil(count / nbRow);
+		        }
+				this.css("grid-template-columns","repeat("+nbRow+", 1fr)");
+				for (var p = 0; p < this._panels.length; p++){
+		        	try{
+		        		this._panels[p]._onUpdate();
+					}catch(exception){}
+		        }
+				/*
+				var count = this._panels.length;
+				var nbRow = 1;
+		        var nbCol = count;
+		        while (nbCol > (nbRow + 1)) {
+		            nbRow++;
+		            nbCol = Math.ceil(count / nbRow);
+		        }
+		        var row;
+		        var panelFrame = this[0];
+		        var children = this.children(".panelRow");
+		        console.log(children);
+		        if (children.length < nbRow){
+		        	row = $('<div class="panelRow"></div>');
+					this.append(row);
+					children = this.children(".panelRow");
+		        } else {
+		        	row = children[nbRow-1];
+		        }
+		        var found = false;
+		        for (var i = 0; i < children.length; i++){
+		        	var r = children[i];
+		        	if (r.childElementCount < nbCol){
+		        		$(r).append(panel._wrapper);
+		        		found = true;
+		        		break;
+		        	}
+		        }
+		        for (var p = 0; p < this._panels.length; p++){
+		        	this._panels[p].css("height","100%");
+		        }
+		        if (!found){
+		        	console.log("WARNING - no row found");
+		        }*/
+			}catch(exception){
+				console.log("WARNING - panelFrame.addPanel() : " + exception);
+			}
 		},
 		this.update 	= function (){
+		},
+		this.updateOLD 	= function (){
 			for (var i = 0; i < this.rows.length; i++){
 				var div = this.rows[i];
 				div.hide();
@@ -195,7 +250,13 @@ $(function () {
 					this.append(panelFound);
 					panelFound._restore.removeAttr("panelId");
 				}
+				//var parent = panelFound._wrapper[0].parentElement;
 				panelFound._wrapper.remove();
+				/*console.log("After remove : " + parent.childElementCount);
+				console.log(parent);
+				if (parent.childElementCount == 0){
+					parent.remove();
+				}*/
 				this._panels.splice(found,1);
 				if (this._maximized == panelFound){
 					this._maximized = null;
@@ -269,7 +330,6 @@ $(function () {
 				var footer = $('<div class="panel-footer"></div>');
 				body.append(footer);
 			}
-		    this._panels.push(target);
 		    // Ajout des gestion d'evènements
 			if (typeof option.done !== "undefined"){
 				target._onDone = option.done;
@@ -378,7 +438,7 @@ $(function () {
 		    	target.url = option.url;
 		    	target.reload();
 		    }
-		    this.update();
+		    this.addPanel(target);
 		    return target;
 		};
 		return this;

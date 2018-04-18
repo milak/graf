@@ -1,10 +1,23 @@
+.panelRow {
+  display: flex;
+  //display:table;
+  width:100%;
+}
+.panelFrame {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(150, 1fr);
+  //display:table;
+  width:100%;
+}
 /**
  * Panel
  */
 .panel {
+	flex:1;
 	display:flex;
 	flex-direction:column;
-	margin : auto auto;
+	//margin : auto auto;
 	background-color: #fff;
 	border: 1px solid transparent;
 	border-top-color: transparent;
