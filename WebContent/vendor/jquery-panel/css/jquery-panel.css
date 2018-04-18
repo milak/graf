@@ -1,15 +1,13 @@
-.panelRow {
-  display: flex;
-  //display:table;
-  width:100%;
-}
 .panelFrame {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(150, 1fr);
   //display:table;
   width:100%;
 }
+.portlet-placeholder {
+    border: 1px dotted black;
+    margin: 0 1em 1em 0;
+    height: 50px;
+  }
 /**
  * Panel
  */

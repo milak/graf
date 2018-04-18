@@ -86,7 +86,10 @@ $(function () {
 			this.append(div);
 		}*/
 		$._panelFrame 	= this;
-		this.sortable();
+		this.sortable({
+			handle: ".panel-heading",
+			placeholder: "portlet-placeholder ui-corner-all"
+		});
 		this.attr('class', "panelFrame");
 		this._panelId 	= 0;
 		this._maximized = null;
@@ -102,12 +105,9 @@ $(function () {
 		            nbRow++;
 		            nbCol = Math.ceil(count / nbRow);
 		        }
-				this.css("grid-template-columns","repeat("+nbRow+", 1fr)");
-				for (var p = 0; p < this._panels.length; p++){
-		        	try{
-		        		this._panels[p]._onUpdate();
-					}catch(exception){}
-		        }
+				this.css("grid-template-columns","repeat("+nbCol+", 1fr)");
+				this.css("grid-template-rows","repeat("+nbRow+", 1fr)");
+				this.update();
 				/*
 				var count = this._panels.length;
 				var nbRow = 1;
@@ -147,6 +147,11 @@ $(function () {
 			}
 		},
 		this.update 	= function (){
+			for (var p = 0; p < this._panels.length; p++){
+	        	try{
+	        		this._panels[p]._onUpdate();
+				}catch(exception){}
+	        }
 		},
 		this.updateOLD 	= function (){
 			for (var i = 0; i < this.rows.length; i++){
@@ -250,13 +255,7 @@ $(function () {
 					this.append(panelFound);
 					panelFound._restore.removeAttr("panelId");
 				}
-				//var parent = panelFound._wrapper[0].parentElement;
 				panelFound._wrapper.remove();
-				/*console.log("After remove : " + parent.childElementCount);
-				console.log(parent);
-				if (parent.childElementCount == 0){
-					parent.remove();
-				}*/
 				this._panels.splice(found,1);
 				if (this._maximized == panelFound){
 					this._maximized = null;
