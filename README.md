@@ -1,3 +1,7 @@
+---
+title: Blogging Like a Hacker
+---
+
 # graf
 
 Graphic Rendering Architecture Framework
@@ -12,7 +16,7 @@ Graf aims to provide an architecte's tool to render all TOGAF architecte's diagr
 
 ## What is the status of this program ?
 
-Graf is under active development. It cannot be used for production at now.
+Graf is under active development. Thus, it cannot be used for production at now.
 
 ## Features list
 
