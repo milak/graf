@@ -62,7 +62,7 @@ global.item = {
 	                	} else if (attribute == "currentItem.category.name"){
 	                		listener.text(item.category.name);
 	                	}
-	        			listener.trigger("change");
+        				listener.trigger("change");
 	            	});
 				}
 			}).fail(function(jxqr,textStatus,error) {

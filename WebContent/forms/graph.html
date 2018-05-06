@@ -127,24 +127,26 @@
 				}
     		},
     		refreshItem : function(item){
-    			_graph.cy.clearGraph();
-    			if (item != null){
-    				var node = {
-       					id 			: item.id,
-       					attributes	: {
-       						text 		: i18next.t("category."+item.category.name) + " - " + item.name,
-       						color		: 'blue',
-   		    				shape		: 'circle',
-   	    				  	radius		: 2
-       					},
-       					data 		: {
-       						root 		: true
-       					}
-       				};
-    				_graph.setStyle(item,node);
-    				_graph.cy.addNode(node);
-    				_graph.loadRelatedItems(item.id,true);
-    			}
+    			setTimeout(function(){
+    				_graph.cy.clearGraph();
+        			if (item != null){
+        				var node = {
+           					id 			: item.id,
+           					attributes	: {
+           						text 		: i18next.t("category."+item.category.name) + " - " + item.name,
+           						color		: 'blue',
+       		    				shape		: 'circle',
+       	    				  	radius		: 2
+           					},
+           					data 		: {
+           						root 		: true
+           					}
+           				};
+        				_graph.setStyle(item,node);
+        				_graph.cy.addNode(node);
+        				_graph.loadRelatedItems(item.id,true);
+        			}
+    			},10);
     		}
     	};
 		$(function(){

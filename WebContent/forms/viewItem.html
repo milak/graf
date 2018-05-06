@@ -188,31 +188,33 @@
 			$("#viewItemFilterCategories").html(html);
 		},
 		refreshItem : function(item){
-			if (item == null){
-				$("#viewItemId").			val("");
-				$("#viewItemName").			val("");
-				$("#viewItemCategory").		val("");
-				$("#viewItemClass").		val("");
-				$("#viewItemUpdateButton").	prop("disabled",true);
-				$("#viewItemDeleteButton").	prop("disabled",true);
-				$("#viewItemProperties").	html("");
-			} else {
-				$("#viewItemId").			val(item.id);
-				$("#viewItemName").			val(item.name);
-				$("#viewItemCategory").		val(i18next.t("category."+item.category.name));
-				$("#viewItemClass").		val(item.class.name);
-				$("#viewItemUpdateButton").	prop("disabled",true);
-				$("#viewItemDeleteButton").	prop("disabled",false);
-				var property;
-				var html = "";
-				for(var i = 0; i < item.properties.length; i++){
-					property = item.properties[i];
-					html += "<tr><td>"+property.key+"</td><td>"+property.value+"</td></tr>";
+			setTimeout(function(){
+				if (item == null){
+					$("#viewItemId").			val("");
+					$("#viewItemName").			val("");
+					$("#viewItemCategory").		val("");
+					$("#viewItemClass").		val("");
+					$("#viewItemUpdateButton").	prop("disabled",true);
+					$("#viewItemDeleteButton").	prop("disabled",true);
+					$("#viewItemProperties").	html("");
+				} else {
+					$("#viewItemId").			val(item.id);
+					$("#viewItemName").			val(item.name);
+					$("#viewItemCategory").		val(i18next.t("category."+item.category.name));
+					$("#viewItemClass").		val(item.class.name);
+					$("#viewItemUpdateButton").	prop("disabled",true);
+					$("#viewItemDeleteButton").	prop("disabled",false);
+					var property;
+					var html = "";
+					for(var i = 0; i < item.properties.length; i++){
+						property = item.properties[i];
+						html += "<tr><td>"+property.key+"</td><td>"+property.value+"</td></tr>";
+					}
+					$("#viewItemProperties").html(html);
 				}
-				$("#viewItemProperties").html(html);
-			}
-			this.refreshRelateds(item);
-			this.refreshDocumentList(item);
+				this.refreshRelateds(item);
+				this.refreshDocumentList(item);
+			},10);
 		},
 		refreshRelateds : function(item){
 			$("#viewItemRelatedItems").html("");
