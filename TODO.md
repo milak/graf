@@ -1,7 +1,6 @@
 # Here is my TODO list
 
 ## General display
-	- allow panels moving (like portlet)
 	- continue i18n
 	- best rendering for some forms
 	- use best wiziwig BPMN and other formats editor like https://bpmn.io/ ou https://app.genmymodel.com
