@@ -1,7 +1,3 @@
----
-title: Blogging Like a Hacker
----
-
 # graf
 
 Graphic Rendering Architecture Framework
