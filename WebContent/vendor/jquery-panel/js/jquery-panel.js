@@ -79,12 +79,6 @@ $(function () {
 	 * Example : $("#mydiv").panelFrame(); 
 	 */
 	$.fn.panelFrame = function(){
-		/*for (var i = 0; i < 5; i++){
-			var div = $('<div style="display:inline-flex;width:100%;height:0px"></div>');
-			div.hide();
-			this.rows.push(div);
-			this.append(div);
-		}*/
 		$._panelFrame 	= this;
 		this.sortable({
 			handle: ".panel-heading",
@@ -94,6 +88,7 @@ $(function () {
 		this._panelId 	= 0;
 		this._maximized = null;
 		this._panels 	= new Array();
+		this.css("grid-template-columns","repeat(2, 1fr)");
 		this.addPanel 	= function (panel){
 			try{
 				this._panels.push(panel);
@@ -105,8 +100,8 @@ $(function () {
 		            nbRow++;
 		            nbCol = Math.ceil(count / nbRow);
 		        }
-				this.css("grid-template-columns","repeat("+nbCol+", 1fr)");
-				this.css("grid-template-rows","repeat("+nbRow+", 1fr)");
+				//this.css("grid-template-columns","repeat("+nbCol+", 1fr)");
+				//this.css("grid-template-rows","repeat("+nbRow+", 1fr)");
 				this.update();
 				/*
 				var count = this._panels.length;
@@ -153,65 +148,6 @@ $(function () {
 				}catch(exception){}
 	        }
 		},
-		this.updateOLD 	= function (){
-			for (var i = 0; i < this.rows.length; i++){
-				var div = this.rows[i];
-				div.hide();
-			}
-			var count = this._panels.length;
-			if (this._maximized != null) {
-				this._maximized._wrapper.css("width","100%");
-				this._maximized._wrapper.css("height","100%");
-				this.append(this._maximized._wrapper);
-				try{
-					this._maximized._onUpdate();
-				}catch(exception){}
-			} else if (count == 0){
-				// rien
-			} else {
-				var nbRow = 1;
-		        var nbCol = count;
-		        while (nbCol > (nbRow + 1)) {
-		            nbRow++;
-		            nbCol = Math.ceil(count / nbRow);
-		        }
-				var row = 0;
-				var col = 1;
-				var rowHeight = Math.ceil(100/nbRow);
-				var colWidth = Math.ceil(100/nbCol);
-				var divRow = this.rows[row];
-				divRow.height(rowHeight+"%");
-				divRow.show();
-				for (var p = 0; p < this._panels.length; p++){
-					var panel = this._panels[p];
-					if (col > nbCol){
-						row++;
-						divRow = this.rows[row];
-						divRow.height(rowHeight+"%");
-						divRow.show();
-						col = 1;
-					}
-					// dernier
-					if (p == (count-1)){
-						// Remplissage nécessaire ?
-						if (col < nbCol){
-							var colCount = nbCol-col +1;
-							panel._wrapper.css("width",""+(colCount * colWidth)+"%");
-						} else {
-							panel._wrapper.css("width",""+colWidth+"%");
-						}
-					} else {
-						panel._wrapper.css("width",""+colWidth+"%");
-					}
-					panel._wrapper.css("height","100%");
-					divRow.append(panel._wrapper);
-					try{
-						panel._onUpdate();
-					}catch(exception){}
-					col++;
-				}
-			}
-		};
 		/**
 		 * Private function used for title's buttons
 		 * TODO see how to set them private
@@ -304,19 +240,19 @@ $(function () {
 						var buttonName = option.buttons[i];
 						if (buttonName == "reload") {
 							if (typeof option.url !== "undefined"){
-								buttons.append($('<a href="#" style="margin-right:5px;color:black" 	title="Reload content" onClick="$._panelFrame.getPanel('+target.panelId+').reload()"><img src="images/42a.png"></img></a>'));
+								buttons.append($('<a title="Reload content" onClick="$._panelFrame.getPanel('+target.panelId+').reload()"><img src="images/42a.png"></img></a>'));
 							}
 						} else if (buttonName == "maximize") {
-							target._maximize = $('<a href="#" style="margin-right:5px;color:black" 	title="Maximize panel" onClick="$._panelFrame.getPanel('+target.panelId+').state(\'maximized\')"><img src="images/64.png"></img></a>');
+							target._maximize = $('<a title="Maximize panel" onClick="$._panelFrame.getPanel('+target.panelId+').state(\'maximized\')"><img src="images/64.png"></img></a>');
 							buttons.append(target._maximize);
 						} else if (buttonName == "normal") {
-							target._normalize = $('<a href="#" style="margin-right:5px;color:black"	title="Set normal state" onClick="$._panelFrame.getPanel('+target.panelId+').state(\'normal\')"><img src="images/14.png"></img></a>');
+							target._normalize = $('<a title="Set normal state" onClick="$._panelFrame.getPanel('+target.panelId+').state(\'normal\')"><img src="images/14.png"></img></a>');
 							target._normalize.hide();
 							buttons.append(target._normalize);
 						} else if (buttonName == "close") {
-							buttons.append($('<a href="#" style="margin-right:5px;color:black"	title="Close panel" onClick="$._panelFrame.getPanel('+target.panelId+').close()"><img src="images/33.png"></img></a>'));
+							buttons.append($('<a title="Close panel" onClick="$._panelFrame.getPanel('+target.panelId+').close()"><img src="images/33.png"></img></a>'));
 						} else {
-							buttons.append($('<a href="#" style="margin-right:5px;color:black"	onClick="">Unsupported button name : '+buttonName+'</a>'));
+							buttons.append($('<a onClick="">Unsupported button name : '+buttonName+'</a>'));
 						}
 					}
 					heading.append(buttons);

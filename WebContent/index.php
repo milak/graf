@@ -16,8 +16,8 @@
 <link rel="stylesheet" type="text/css" href="vendor/font-awsome/css/font-awesome.min.css" />
 <style type="text/css">
 html {
-	height: 100%;
-	overflow: hidden;
+	//height: 100%;
+	//overflow: hidden;
 }
 /** Styles liés à typeAHead */
 .tt-menu { //
