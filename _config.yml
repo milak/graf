@@ -1,8 +1,2 @@
 encoding: UTF-8
 theme: jekyll-theme-modernist
-plugins:
-   - jekyll-mentions
-   - jemoji
-   - jekyll-redirect-from
-   - jekyll-sitemap
-   - jekyll-feed
