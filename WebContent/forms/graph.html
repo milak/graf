@@ -3,7 +3,7 @@
 	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
 </head>
 <body>
-	<span style="display: none" data-provider="currentItem" onchange="_graph.refreshItem(global.item.getCurrent())"></span>
+	<span style="display: none" data-provider="currentItem" onchange="_graph.asyncRefreshItem(global.item.getCurrent())"></span>
     <div id="cy" style="width : 100%;height	: 100%;"></div>
     
     <!-- Load application code at the end to ensure DOM is loaded -->
@@ -126,27 +126,30 @@
 					node.attributes.shape = 'circle';
 				}
     		},
-    		refreshItem : function(item){
+    		asyncRefreshItem : function(item){
     			setTimeout(function(){
-    				_graph.cy.clearGraph();
-        			if (item != null){
-        				var node = {
-           					id 			: item.id,
-           					attributes	: {
-           						text 		: i18next.t("category."+item.category.name) + " - " + item.name,
-           						color		: 'blue',
-       		    				shape		: 'circle',
-       	    				  	radius		: 2
-           					},
-           					data 		: {
-           						root 		: true
-           					}
-           				};
-        				_graph.setStyle(item,node);
-        				_graph.cy.addNode(node);
-        				_graph.loadRelatedItems(item.id,true);
-        			}
+    				_graph.refreshItem(item);
     			},10);
+    		},
+    		refreshItem : function(item){
+   				_graph.cy.clearGraph();
+       			if (item != null){
+       				var node = {
+          					id 			: item.id,
+          					attributes	: {
+          						text 		: i18next.t("category."+item.category.name) + " - " + item.name,
+          						color		: 'blue',
+      		    				shape		: 'circle',
+      	    				  	radius		: 2
+          					},
+          					data 		: {
+          						root 		: true
+          					}
+          				};
+       				_graph.setStyle(item,node);
+       				_graph.cy.addNode(node);
+       				_graph.loadRelatedItems(item.id,true);
+       			}
     		}
     	};
 		$(function(){

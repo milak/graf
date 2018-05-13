@@ -1,7 +1,7 @@
 <html>
 <body>
 	<form id="viewItemForm">
-		<span style="display: none" data-provider="currentItem" onchange="_viewItem.refreshItem(global.item.getCurrent())"></span>
+		<span style="display: none" data-provider="currentItem" onchange="_viewItem.asyncRefreshItem(global.item.getCurrent())"></span>
 		<ul class="nav nav-pills mb-3" id="myTab" role="tablist">
 			<li class="nav-item"><a class="nav-link active" id="detail-tab" data-toggle="tab"
 				href="#detail" role="tab" aria-controls="detail" aria-selected="true" data-i18n="form.item.detail"></a></li>
@@ -188,32 +188,35 @@
 			$("#viewItemFilterCategories").html(html);
 		},
 		refreshItem : function(item){
-			setTimeout(function(){
-				if (item == null){
-					$("#viewItemId").			val("");
-					$("#viewItemName").			val("");
-					$("#viewItemCategory").		val("");
-					$("#viewItemClass").		val("");
-					$("#viewItemUpdateButton").	prop("disabled",true);
-					$("#viewItemDeleteButton").	prop("disabled",true);
-					$("#viewItemProperties").	html("");
-				} else {
-					$("#viewItemId").			val(item.id);
-					$("#viewItemName").			val(item.name);
-					$("#viewItemCategory").		val(i18next.t("category."+item.category.name));
-					$("#viewItemClass").		val(item.class.name);
-					$("#viewItemUpdateButton").	prop("disabled",true);
-					$("#viewItemDeleteButton").	prop("disabled",false);
-					var property;
-					var html = "";
-					for(var i = 0; i < item.properties.length; i++){
-						property = item.properties[i];
-						html += "<tr><td>"+property.key+"</td><td>"+property.value+"</td></tr>";
-					}
-					$("#viewItemProperties").html(html);
+			if (item == null){
+				$("#viewItemId").			val("");
+				$("#viewItemName").			val("");
+				$("#viewItemCategory").		val("");
+				$("#viewItemClass").		val("");
+				$("#viewItemUpdateButton").	prop("disabled",true);
+				$("#viewItemDeleteButton").	prop("disabled",true);
+				$("#viewItemProperties").	html("");
+			} else {
+				$("#viewItemId").			val(item.id);
+				$("#viewItemName").			val(item.name);
+				$("#viewItemCategory").		val(i18next.t("category."+item.category.name));
+				$("#viewItemClass").		val(item.class.name);
+				$("#viewItemUpdateButton").	prop("disabled",true);
+				$("#viewItemDeleteButton").	prop("disabled",false);
+				var property;
+				var html = "";
+				for(var i = 0; i < item.properties.length; i++){
+					property = item.properties[i];
+					html += "<tr><td>"+property.key+"</td><td>"+property.value+"</td></tr>";
 				}
-				this.refreshRelateds(item);
-				this.refreshDocumentList(item);
+				$("#viewItemProperties").html(html);
+			}
+			this.refreshRelateds(item);
+			this.refreshDocumentList(item);
+		},
+		asyncRefreshItem : function(item){
+			setTimeout(function(){
+				_viewItem.refreshItem(item);
 			},10);
 		},
 		refreshRelateds : function(item){
