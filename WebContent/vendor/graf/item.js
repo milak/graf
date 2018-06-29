@@ -128,6 +128,7 @@ global.item = {
 	"delete" : function (){
 		var item = this.getCurrent();
 		if (item == null){
+			sendMessage("warning",i18next.t("message.no_item_selected"));
 			return;
 		}
 		// TODO voir comment on ajoute des champs dans un template :  + " + item.category.name + " called '" + item.name + "' ?"

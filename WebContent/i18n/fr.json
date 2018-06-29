@@ -36,6 +36,7 @@
 				"item_success_create"   		: "Elément créé avec succés",
 				"item_failure_create"   		: "Impossible de créer l'élément",
 				"item_failure_related_items"  	: "Unable to get the related items",
+				"no_item_selected"				: "Aucun élément sélectionné",
 				"document_failure_search"		: "Impossible d'effectuer la recherche",
 				"document_delete_confirm"		: "Voulez-vous réellement supprimer ce document ?",
 				"document_success_delete"		: "Document supprimé avec succès",
