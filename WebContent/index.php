@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="">
-<meta name="author" content="milak">
+<meta name="viewport" 		content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" 	content="">
+<meta name="author" 		content="milak">
 <link rel="icon" href="images/favicon.ico">
 <title>GRAF - Graphic Rendering Architecture Framework</title>
 <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.css">
@@ -21,33 +21,33 @@ html {
 }
 /** Styles liés à typeAHead */
 .tt-menu { //
-	width: 80px;
-	margin: 5px 0;
-	padding: 8px 0;
-	background-color: #fff;
-	border: 1px solid #ccc;
-	border: 1px solid rgba(0, 0, 0, 0.2);
-	-webkit-border-radius: 4px;
-	-moz-border-radius: 4px;
-	border-radius: 4px;
-	-webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
-	-moz-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
-	box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+	width					: 80px;
+	margin					: 5px 0;
+	padding					: 8px 0;
+	background-color		: #fff;
+	border					: 1px solid #ccc;
+	border					: 1px solid rgba(0, 0, 0, 0.2);
+	-webkit-border-radius	: 4px;
+	-moz-border-radius		: 4px;
+	border-radius			: 4px;
+	-webkit-box-shadow		: 0 5px 10px rgba(0, 0, 0, .2);
+	-moz-box-shadow			: 0 5px 10px rgba(0, 0, 0, .2);
+	box-shadow				: 0 5px 10px rgba(0, 0, 0, .2);
 }
 
 .tt-suggestion {
-	padding: 3px 20px;
+	padding					: 3px 20px;
 }
 
 .tt-suggestion:hover {
-	cursor: pointer;
-	color: #fff;
-	background-color: #0097cf;
+	cursor					: pointer;
+	color					: #fff;
+	background-color		: #0097cf;
 }
 
 .tt-suggestion.tt-cursor {
-	color: #fff;
-	background-color: #0097cf;
+	color					: #fff;
+	background-color		: #0097cf;
 }
 </style>
 </head>
@@ -57,23 +57,26 @@ html {
 			<a class="navbar-brand" href="#" onClick="breadCrumb.home();global.document.close();" title="Graphic Rendering Architecture Framework">GRAF</a>
 			<div class="collapse navbar-collapse" id="navbarCollapse">
 				<ul class="navbar-nav mr-auto">
-					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="menuItem" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span
-							data-i18n="menu.item">Items</span></a>
-						<div class="dropdown-menu" aria-labelledby="menuItem">
-							<a class="dropdown-item" href="#" onClick="global.view.open('searchItem')"><img src="images/65.png" /> <span data-i18n="menu.search" /></a> <a class="dropdown-item" href="#"
-								onClick="global.view.open('createItem')"><img src="images/78.png" /> <span data-i18n="menu.create" /></a> <a class="dropdown-item disabled" href="#" id="menuDeleteItem"
-								onClick="global.item.delete()" disabled="true"><img src="images/33.png" /> <span data-i18n="menu.delete" /></a>
-						</div></li>
-					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="menuDocument" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span
-							data-i18n="menu.document">Documents</span></a>
-						<div class="dropdown-menu" aria-labelledby="menuDocument">
-							<a class="dropdown-item" href="#" onClick="global.view.open('searchDocument')"><img src="images/65.png" /> <span data-i18n="menu.search" /></a> <a class="dropdown-item" href="#"
-								onClick="global.view.open('createDocument')"><img src="images/78.png" /> <span data-i18n="menu.create" /></a> <a class="dropdown-item disabled" href="#" id="menuDeleteDocument"
-								onClick="global.document.delete()" disabled="true"><img src="images/33.png" /> <span data-i18n="menu.delete" /></a>
-						</div></li>
-					<li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="menuView" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span
-							data-i18n="menu.views">Views</span></a>
-						<div class="dropdown-menu" id="menuViewDropDown" aria-labelledby="menuView"></div></li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="menuItem" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span data-i18n="menu.item">Items</span></a>
+						<div class="dropdown-menu" id="menuItemDropDown" aria-labelledby="menuItem">
+							<a class="dropdown-item disabled" href="#" id="menuDeleteItem" onClick="global.item.delete()" disabled="true"><img src="images/33.png" /> <span data-i18n="menu.delete" /></a>
+						</div>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="menuDocument" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span data-i18n="menu.document">Documents</span></a>
+						<div class="dropdown-menu" id="menuDocumentDropDown" aria-labelledby="menuDocument">
+							<a class="dropdown-item disabled" href="#" id="menuDeleteDocument" onClick="global.document.delete()" disabled="true"><img src="images/33.png" /> <span data-i18n="menu.delete" /></a>
+						</div>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="menuProject" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span data-i18n="menu.project">Project</span></a>
+						<div class="dropdown-menu" id="menuProjectDropDown" aria-labelledby="menuProject"></div>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="menuView" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span data-i18n="menu.views">Views</span></a>
+						<div class="dropdown-menu" id="menuViewDropDown" aria-labelledby="menuView"></div>
+					</li>
 					<li class="nav-item">
 						<ol class="breadcrumb black" id="breadcrumb" style="background-color: transparent; padding: 0px; margin: 0px; margin-top: 8px">
 							<li class="breadcrumb-item active"><span data-i18n="breadcrumb.no_item" /></li>
