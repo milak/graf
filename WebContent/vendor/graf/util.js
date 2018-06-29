@@ -109,9 +109,11 @@ var global = {
 	itemCategories 	: null,
 	views 			: null,
 	currentItem 	: null,
+	getLang			: function(){
+		return navigator.language || navigator.userLanguage;
+	},
 	_initI18N		: function(){
-		var lang = navigator.language || navigator.userLanguage; 
-		this._loadLang(lang);
+		this._loadLang(this.getLang());
 	},
 	_initAutoComplete : function(){
 		//Auto completion lors de la recherche
