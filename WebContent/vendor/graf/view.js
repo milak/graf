@@ -123,6 +123,7 @@ global.view = {
 				var viewHTML = "<a class='dropdown-item' href='#' onClick='global.view.open(\""+index+"\")'><img src='images/"+global.view._viewDescription[index].icon+"'/> "+global.view._viewDescription[index].title+"</a>";
 				menuViewDropDown.append($(viewHTML));
 			});
+			var menuDropDown = $("#menuDocumentDropDown");
 			views = result.document;
 			for (var v = 0; v < views.length; v++){
 				var view = views[v];
@@ -133,7 +134,10 @@ global.view = {
 				} else {
 					main.append("<div id='"+view.name+"' style='width:100%;height:100%;display:none'></div>");
 				}
+				var viewHTML = "<a class='dropdown-item' href='#' onClick='global.view.open(\""+view.name+"\")'><img src='images/"+view.icon+"'/> "+view.title+"</a>";
+				menuDropDown.append($(viewHTML));
 			}
+			menuDropDown = $("#menuItemDropDown");
 			views = result.item;
 			for (var v = 0; v < views.length; v++){
 				var view = views[v];
@@ -144,6 +148,22 @@ global.view = {
 				} else {
 					main.append("<div id='"+view.name+"' style='width:100%;height:100%;display:none'></div>");
 				}
+				var viewHTML = "<a class='dropdown-item' href='#' onClick='global.view.open(\""+view.name+"\")'><img src='images/"+view.icon+"'/> "+view.title+"</a>";
+				menuDropDown.append($(viewHTML));
+			}
+			menuDropDown = $("#menuProjectDropDown");
+			views = result.project;
+			for (var v = 0; v < views.length; v++){
+				var view = views[v];
+				view.title = i18next.t("view."+view.title);
+				global.view._viewDescription[view.name] = view;
+				if (view.svg){
+					main.append("<svg id='"+view.name+"' style='width:100%;height:100%;display:none'></svg>");
+				} else {
+					main.append("<div id='"+view.name+"' style='width:100%;height:100%;display:none'></div>");
+				}
+				var viewHTML = "<a class='dropdown-item' href='#' onClick='global.view.open(\""+view.name+"\")'><img src='images/"+view.icon+"'/> "+view.title+"</a>";
+				menuDropDown.append($(viewHTML));
 			}
 		}).fail(function(jxqr,textStatus,error){
 			sendMessage("error",i18next.t("message.unable_to_load_view")+" : " + error);

@@ -139,5 +139,16 @@
 			"class" 			: "panel-green",
     		"svg"				: false
 	   	}
+    ],
+    "project" : [
+    	{
+    		"name"				: "project",
+    		"title"		 		: "project_open",
+    		"url" 				: "forms/project.html",
+    		"params"			: [],
+			"icon"				: "65.png",
+			"class" 			: "panel-green",
+    		"svg"				: false
+	   	}
     ]
 }

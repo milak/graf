@@ -4,6 +4,7 @@
 			"menu" : {
 				"item" 							: "Item",
 				"document" 						: "Document",
+				"project"	  					: "Projet",
 				"search" 						: "Search",
 				"create" 						: "Create",
 				"delete" 						: "Delete",
@@ -120,7 +121,8 @@
 				},
 				"document_create"				: "Create a document",
 				"document_detail"				: "Document",
-				"document_search"				: "Search a document"
+				"document_search"				: "Search a document",
+				"project_open"					: "Projects"
 			}
 		}
 	}
