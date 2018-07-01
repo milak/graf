@@ -1,0 +1,84 @@
+<html>
+<h1>Projets</h1>
+<!--div class="card" style="width: 18rem;">
+	<ul class="list-group list-group-flush" id="projectList">
+
+	</ul>
+</div-->
+<div class="list-group" id="projectList">
+</div>
+<script type="text/javascript">
+var _project = {
+		_projectList : null,
+		_currentProject : null,
+		_refreshProjectList : function(){
+			if (this._projectList == null){
+				$.getJSON( "api/project.php", function(result) {
+					_project._projectList = new Array();
+					for (var p = 0; p < result.objects.length; p++){
+						var project = result.objects[p];
+						project.facets = new Array();
+						_project._projectList.push(project);
+					}
+					$.getJSON( "api/project_property.php?name=facet", function(result) {
+						for (var p = 0; p < result.objects.length; p++){
+							var property = result.objects[p];
+							for (var i = 0; i < _project._projectList.length;i++){
+								if (_project._projectList[i].id == property.project_id){
+									_project._projectList[i].facets.push(property.value);
+								}
+							}
+						}
+						_project._refreshProjectList();
+					});
+				});
+			} else {
+				var projectList = $("#projectList");
+				projectList.html("");
+				for (var p = 0; p < _project._projectList.length; p++){
+					var project = _project._projectList[p];
+					var html = '<a href="#" onClick="_project._currentProject = {id :'+project.id+'};_project._refreshProjectList()" class="list-group-item list-group-item-action flex-column align-items-start';
+					if ((_project._currentProject != null) && (_project._currentProject.id == project.id)){
+						html += ' active';
+					}
+					html += '"><div class="d-flex w-100 justify-content-between align-items-center">';
+					html += '<h8 class="mb-1">';
+					html += project.name;
+					var status_color = "badge-info";
+					if (project.status == "closed"){
+						status_color = "badge-danger";
+					}
+					html += '</h8><span class="badge badge-pill '+status_color+'">'+i18next.t("form.project.status."+project.status)+'</span></div>';
+					html += '<small><i>';
+					for (var f = 0; f < project.facets.length; f++){
+						html += project.facets[f];
+					}
+					html += '</i></small></a>';
+					projectList.append($(html));
+				}
+			}
+		},
+		init : function(){
+			this._refreshProjectList();
+			/*$.getJSON( "facets/togaf_9_1.json", function(result) {
+				//i18next.addResources(global.getLang(), "", result.i18n);
+				console.log(result.i18n.fr);
+				i18next.addResourceBundle('fr', 'project', result.i18n.fr, true, true);
+				//sendMessage("INFO","Hello " + i18next.t('menu.item'));
+				//sendMessage("INFO","Hello " + i18next.t('project:test'));
+				//sendMessage("INFO","Hello " + i18next.t('test'));
+			});*/
+			/**
+			https://github.com/i18next/i18next-localstorage-backend
+			https://www.i18next.com/principles/namespaces#sample
+			https://jsfiddle.net/jamuhl/ferfywyf/#tabs=js,result,html
+			*/
+			
+		}
+};
+$(function() {
+	_project.init();
+	//$('#createItemForm').find('*[data-i18n]').localize();
+});
+</script>
+</html>

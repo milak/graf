@@ -261,3 +261,50 @@ create table element_property (
 );
 
 ALTER TABLE `element_property` ADD CONSTRAINT `FK_element_property_to_element` 		FOREIGN KEY (`element_id`) 		REFERENCES `element`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+// Project part
+
+create table project (
+	id					INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	name 				VARCHAR(100)    NOT NULL,
+	status				VARCHAR(50)     NOT NULL
+);
+
+create table property (
+	id					INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	name				VARCHAR(100)    NOT NULL
+);
+
+create table project_property (
+	project_id			INT 			NOT NULL,
+	property_id			INT 			NOT NULL,
+	property_value		VARCHAR(1000)   NOT NULL
+);
+
+ALTER TABLE `project_property` ADD CONSTRAINT `FK_project_property_to_project` 		FOREIGN KEY (`project_id`) 			REFERENCES `project`(`id`) 	ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `project_property` ADD CONSTRAINT `FK_project_property_to_property` 		FOREIGN KEY (`property_id`) 		REFERENCES `property`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+create table project_phase (
+	project_id			INT 			NOT NULL,
+	phase_id			INT 			NOT NULL
+);
+
+create table project_log (
+	project_id			INT 			NOT NULL,
+	phase_id			INT 			NOT NULL,
+	`date`				DATE			NOT NULL
+);
+
+create table project_stakeholder (
+	project_id			INT 			NOT NULL,
+	group_id			INT 			NOT NULL
+);
+
+create table project_phase (
+	project_id			INT 			NOT NULL,
+	code				VARCHAR(100)    NOT NULL,
+	status				VARCHAR(50)     NOT NULL
+);
+
+ALTER TABLE `project_phase` ADD CONSTRAINT `FK_project_phase_to_project` 		FOREIGN KEY (`project_id`) 			REFERENCES `project`(`id`) 	ON DELETE RESTRICT ON UPDATE RESTRICT;
+

@@ -142,11 +142,29 @@
     ],
     "project" : [
     	{
-    		"name"				: "project",
-    		"title"		 		: "project_open",
-    		"url" 				: "forms/project.html",
+    		"name"				: "searchProject",
+    		"title"		 		: "project_search",
+    		"url" 				: "forms/searchProject.html",
     		"params"			: [],
 			"icon"				: "65.png",
+			"class" 			: "panel-green",
+    		"svg"				: false
+	   	},
+	   	{
+    		"name"				: "createProject",
+    		"title"		 		: "project_create",
+    		"url" 				: "forms/createProject.html",
+    		"params"			: [],
+			"icon"				: "78.png",
+			"class" 			: "panel-green",
+    		"svg"				: false
+	   	},
+	   	{
+    		"name"				: "viewProject",
+    		"title"		 		: "project_detail",
+    		"url" 				: "forms/viewProject.html",
+    		"params"			: [],
+			"icon"				: "2.png",
 			"class" 			: "panel-green",
     		"svg"				: false
 	   	}

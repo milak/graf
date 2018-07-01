@@ -83,6 +83,12 @@
 					"up"						: "Haut",
 					"down"						: "Bas"
 				},
+				"project" : {
+					"status" : {
+						"opened" : "ouvert",
+						"closed" : "fermé"
+					}
+				},
 				"document" : {
 					"title"						: "Document",
 					"name" 						: "Nom",
@@ -124,7 +130,9 @@
 				"document_create"				: "Créer un document",
 				"document_detail"				: "Document",
 				"document_search"				: "Chercher un document",
-				"project_open"					: "Projets"
+				"project_create"				: "Créer un projet",
+				"project_search"				: "Chercher un projet",
+				"project_detail"				: "Projet"
 			}
 		}
 	}
