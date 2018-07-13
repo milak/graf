@@ -300,8 +300,7 @@ create table project_stakeholder (
 create table project_phase (
 	id					INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	project_id			INT 			NOT NULL,
-	code				VARCHAR(100)    NOT NULL,
-	status				VARCHAR(50)     NOT NULL
+	code				VARCHAR(100)    NOT NULL
 );
 
 ALTER TABLE `project_phase` ADD CONSTRAINT `FK_project_phase_to_project` 		FOREIGN KEY (`project_id`) 			REFERENCES `project`(`id`) 	ON DELETE RESTRICT ON UPDATE RESTRICT;
