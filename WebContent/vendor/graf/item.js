@@ -83,7 +83,7 @@ global.item = {
 	    	});
 		}
 	},
-	link(parentItem,childItem){
+	"link" : function(parentItem,childItem){
 		// Ajouter l'item
 		$.ajax({
 			type 	: "POST",
@@ -105,7 +105,7 @@ global.item = {
 			sendMessage("error",i18next.t("message.item_failure_link")+" : "+error);
 		});
 	},
-	unlink : function(parentItem,childItem){
+	"unlink" : function(parentItem,childItem){
 	   	$.ajax({
 	   		type 	: "DELETE",
 	   		url 	: "api/item.php?id="+parentItem.id+"&child_id="+childItem.id,
