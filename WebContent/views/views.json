@@ -55,24 +55,6 @@
 			"svg"				: true
 		},
 		{
-			"name"				: "viewItem",
-			"title"				: "item_detail",
-			"url"				: "forms/viewItem.html",
-			"params"			: [{"name" : "itemId", "usage" : "required"}],
-			"icon"  			: "2.png" ,
-			"class"				: "panel-purple",
-			"svg"				: false
-		},
-		{
-			"name"				: "viewDocument",
-			"title"				: "document_detail",
-			"url"				: "forms/viewDocument.html",
-			"params"			: [{"name" : "documentId", "usage" : "required"}],
-			"icon"				: "2.png",
-			"class"				: "panel-purple",
-			"svg"				: false
-		},
-		{
 			"name"				: "mapEurope",
 			"title"				: "map.europe",
 			"url" 				: "views/view_map.php?map=europe",
@@ -118,7 +100,16 @@
 			"icon"				: "78.png",
     		"class"		 		: "panel-green",
     		"svg"				: false
-    	}
+    	},
+		{
+			"name"				: "viewDocument",
+			"title"				: "document_detail",
+			"url"				: "forms/viewDocument.html",
+			"params"			: [{"name" : "documentId", "usage" : "required"}],
+			"icon"				: "2.png",
+			"class"				: "panel-purple",
+			"svg"				: false
+		}
     ],
     "item" : [
     	{
@@ -138,7 +129,16 @@
 			"icon"				: "78.png",
 			"class" 			: "panel-green",
     		"svg"				: false
-	   	}
+	   	},
+	   	{
+			"name"				: "viewItem",
+			"title"				: "item_detail",
+			"url"				: "forms/viewItem.html",
+			"params"			: [{"name" : "itemId", "usage" : "required"}],
+			"icon"  			: "2.png" ,
+			"class"				: "panel-purple",
+			"svg"				: false
+		}
     ],
     "project" : [
     	{
