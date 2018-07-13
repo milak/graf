@@ -30,9 +30,10 @@ if(!$result = $db->query($sql)){?>
 			echo ",\n";
 		}?>
 	{
-		"id"    	: <?php echo $row["id"]; ?>,
-		"name" 		: "<?php echo $row["name"]; ?>",
-		"status" 	: "<?php echo $row["status"]; ?>"
+		"id"    		: <?php echo $row["id"];?>,
+		"name" 			: "<?php echo $row["name"];?>",
+		"description"	: "<?php echo $row["description"];?>",
+		"status" 		: "<?php echo $row["status"];?>"
 	}<?php
 		$first = false;
 	}?>	
