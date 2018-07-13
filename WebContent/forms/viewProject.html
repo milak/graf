@@ -1,65 +1,474 @@
 <html>
-<h1>Projets</h1>
-<!--div class="card" style="width: 18rem;">
-	<ul class="list-group list-group-flush" id="projectList">
-
-	</ul>
-</div-->
-<div class="list-group" id="projectList">
-</div>
+<body>
+	<form id="viewProjectForm">
+		<span style="display: none" data-provider="currentProject" onchange="_viewProject.refresh()"></span>
+		<ul class="nav nav-pills mb-3" role="tablist">
+			<li class="nav-item">
+				<a class="nav-link active" 	id="viewProjectDetail-tab" 			data-toggle="tab" href="#detail" 		role="tab" aria-controls="detail" 		aria-selected="true"  data-i18n="form.project.detail"></a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" 		id="viewProjectDescription-tab" 	data-toggle="tab" href="#description" 	role="tab" aria-controls="description" 	aria-selected="false" data-i18n="form.project.description"></a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" 		id="viewProjectPhases-tab" 			data-toggle="tab" href="#phases" 		role="tab" aria-controls="phases" 		aria-selected="false" data-i18n="form.project.phases"></a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" 		id="viewProjectStakeholders-tab" 	data-toggle="tab" href="#stakeholders" 	role="tab" aria-controls="stakeholders" aria-selected="false" data-i18n="form.project.stakeholders"></a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" 		id="viewProjectRisks-tab" 			data-toggle="tab" href="#risks" 		role="tab" aria-controls="risks" 		aria-selected="false" data-i18n="form.project.risks"></a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" 		id="viewProjectViews-tab" 			data-toggle="tab" href="#views" 		role="tab" aria-controls="views" 		aria-selected="false" data-i18n="form.project.views"></a>
+			</li>
+		</ul>
+		<div class="tab-content">
+			<div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="viewProjectDetail-tab">
+				<div class="bd-callout-info bd-callout">
+					<fieldset class="form-group">
+						<legend data-i18n="form.project.fields"></legend>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewProjectName" data-i18n="form.project.name"></label>
+							<div class="col-10">
+								<input class="form-control form-control-sm" type="text" id="viewProjectName" />
+							</div>
+						</div>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewProjectStatus" data-i18n="form.project.status"></label>
+							<div class="col-10">
+								<input class="form-control form-control-sm" type="text" id="viewProjectStatus" />
+							</div>
+						</div>
+						<div class="table-responsive">
+							<table class="table table-bordered table-hover table-sm">
+								<thead>
+									<tr>
+										<th data-i18n="form.all.property_name"></th>
+										<th data-i18n="form.all.property_value"></th>
+									</tr>
+								</thead>
+								<tbody id="viewProjectProperties"></tbody>
+							</table>
+						</div>
+					</fieldset>
+					<hr/>
+					<button class="btn btn-primary btn-sm" type="button" onclick='_viewItem.updateItem();'
+						id="viewItemUpdateButton">
+						<img src='images/92.png' /> <span data-i18n="form.button.update"></span>
+					</button>
+					<button class="btn btn-danger btn-sm" type="button"
+						onclick='global.item.delete(global.item.getCurrent().id);' id="viewItemDeleteButton">
+						<img src='images/14.png' /> <span data-i18n="form.button.delete"></span>
+					</button>
+				</div>
+			</div>
+			<div class="tab-pane fade" id="description" role="tabpanel" aria-labelledby="viewProjectDescription-tab">
+				<textarea class="bd-callout-info bd-callout" style="width:100%" id="viewProjectDescription"></textarea>
+			</div>
+			<div class="tab-pane fade" id="phases" role="tabpanel" aria-labelledby="viewProjectPhases-tab">
+				<div id="viewProjectPhasesList">
+				</div>
+				<div id="viewProjectStepDetail" class="bd-callout-info bd-callout" style="display:none">
+					<button type="button" class="close" aria-label="Close" onClick="_viewProject.displayPhases()">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<fieldset class="form-group">
+						<legend data-i18n="form.project.step.title"></legend>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewProjectStepDetailName" data-i18n="form.project.step.name"></label>
+							<div class="col-10">
+								<span id="viewProjectStepDetailName">Step name</span>
+							</div>
+						</div>
+						<!--div class="form-group row">
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewProjectName" data-i18n="form.project.name"></label>
+							<div class="col-10">
+								<input class="form-control form-control-sm" type="text" id="viewProjectName" />
+							</div>
+						</div-->
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewProjectStepStatus" data-i18n="form.project.status"></label>
+							<div class="dropdown dropdown">
+								<a class="btn btn-sm dropdown-toggle" href="#" role="button" id="viewProjectStepStatus" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								</a>
+								<div class="dropdown-menu" aria-labelledby="viewProjectStepStatus">
+									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('not_applicable')">Not applicable</a>
+									<a class="dropdown-item" 	href="#" onClick="_viewProject.changeStepStatus('not_started')">Not started</a>
+									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('started')">Started</a>
+									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('validated')">Validated</a>
+								</div>
+							</div>
+						</div>
+					</fieldset>
+				</div>
+			</div>
+			<div class="tab-pane fade" id="stakeholders" role="tabpanel" aria-labelledby="viewProjectStakeholders-tab">
+				<fieldset class="form-group">
+					<legend data-i18n="form.project.stakeholders"></legend>
+					<table class="table table-bordered table-hover table-sm">
+						<thead>
+							<tr>
+								<th style="width:50px;text-align:center" data-i18n="form.project.stakeholder"></th>
+								<th style="width:10%;text-align:center" data-i18n="form.project.concerns"></th>
+								<th style="text-align:center" data-i18n="form.project.name"></th>
+								<th style="width:10%;text-align:center" data-i18n="form.all.action"></th>
+							</tr>
+						</thead>
+						<tbody id="viewProjectStakeholders"></tbody>
+					</table>
+				</fieldset>
+			</div>
+			<div class="tab-pane fade" id="risks" role="tabpanel" aria-labelledby="viewProjectRisks-tab">
+				<fieldset class="form-group">
+					<legend data-i18n="form.project.risks"></legend>
+					<table class="table table-bordered table-hover table-sm">
+						<thead>
+							<tr>
+								<th style="width:50px;text-align:center" data-i18n="form.project.risk"></th>
+								<th style="width:10%;text-align:center" data-i18n="form.project.riskcriticity"></th>
+								<th style="text-align:center" data-i18n="form.project.riskprobability"></th>
+								<th style="text-align:center" data-i18n="form.project.riskvalue"></th>
+								<th style="width:10%;text-align:center" data-i18n="form.all.action"></th>
+							</tr>
+						</thead>
+						<tbody id="viewProjectRisks"></tbody>
+					</table>
+				</fieldset>
+			</div>
+			<div class="tab-pane fade" id="views" role="tabpanel" aria-labelledby="viewProjectViews-tab">
+				<fieldset class="form-group">
+					<legend data-i18n="form.project.views"></legend>
+					<table class="table table-bordered table-hover table-sm">
+						<thead>
+							<tr>
+								<th style="width:50px;text-align:center" data-i18n="form.project.view"></th>
+								<th style="width:10%;text-align:center" data-i18n="form.project.viewpoint"></th>
+								<th style="text-align:center" data-i18n="form.project.name"></th>
+								<th style="width:10%;text-align:center" data-i18n="form.all.action"></th>
+							</tr>
+						</thead>
+						<tbody id="viewProjectViews"></tbody>
+					</table>
+				</fieldset>
+			</div>
+		</div>
+	</form>
 <script type="text/javascript">
-var _project = {
-		_projectList : null,
-		_currentProject : null,
-		_refreshProjectList : function(){
-			if (this._projectList == null){
-				$.getJSON( "api/project.php", function(result) {
-					_project._projectList = new Array();
-					for (var p = 0; p < result.objects.length; p++){
-						var project = result.objects[p];
-						project.facets = new Array();
-						_project._projectList.push(project);
-					}
-					$.getJSON( "api/project_property.php?name=facet", function(result) {
-						for (var p = 0; p < result.objects.length; p++){
-							var property = result.objects[p];
-							for (var i = 0; i < _project._projectList.length;i++){
-								if (_project._projectList[i].id == property.project_id){
-									_project._projectList[i].facets.push(property.value);
-								}
-							}
+	var _viewProject = {
+		_stepsById 	: new Array(),
+		_facets 	: new Array(),
+		_currentStep: null,
+		loadFacets	: function (aFacets,callback){
+			if (aFacets.length == 0){
+				callback(this._facets);
+				return;
+			}
+			var facet = aFacets.pop();
+			var facetsInCache = this._facets[facet];
+			if (facetsInCache == null){
+				$.getJSON( "plugins/facets/"+facet+".json", function(result) {
+					var theFacet = result;
+					_viewProject._facets[facet] = theFacet;
+					// Let's internationalize the facet
+					i18next.addResourceBundle('fr', theFacet.name, theFacet.i18n.fr, true, true);
+					for (var p = 0; p < theFacet.phases.length; p++){
+						var phase = theFacet.phases[p];
+						phase.localName = i18next.t(theFacet.name+':'+phase.name);
+						for (var s = 0; s < phase.steps.length; s++){
+							var step = phase.steps[s];
+							step.localName = i18next.t(theFacet.name+':'+step.name);
 						}
-						_project._refreshProjectList();
-					});
+					}
+					_viewProject.loadFacets(aFacets,callback);
+				}).fail(function(jqxhr, textStatus, error ) {
+				    sendMessage("warning","TODO I18N unable to load facet '"+facet+"' : "+error);
 				});
 			} else {
-				var projectList = $("#projectList");
-				projectList.html("");
-				for (var p = 0; p < _project._projectList.length; p++){
-					var project = _project._projectList[p];
-					var html = '<a href="#" onClick="_project._currentProject = {id :'+project.id+'};_project._refreshProjectList()" class="list-group-item list-group-item-action flex-column align-items-start';
-					if ((_project._currentProject != null) && (_project._currentProject.id == project.id)){
-						html += ' active';
-					}
-					html += '"><div class="d-flex w-100 justify-content-between align-items-center">';
-					html += '<h8 class="mb-1">';
-					html += project.name;
-					var status_color = "badge-info";
-					if (project.status == "closed"){
-						status_color = "badge-danger";
-					}
-					html += '</h8><span class="badge badge-pill '+status_color+'">'+i18next.t("form.project.status."+project.status)+'</span></div>';
-					html += '<small><i>';
-					for (var f = 0; f < project.facets.length; f++){
-						html += project.facets[f];
-					}
-					html += '</i></small></a>';
-					projectList.append($(html));
-				}
+				_viewProject.loadFacets(aFacets,callback);
 			}
 		},
+		refresh 	: function(){
+			var project = global.project.getCurrent();
+			if (project == null){
+				$("#viewProjectName").val("");
+				$("#viewProjectDescription").val("");
+				$("#viewProjectStatus").val("");
+				$("#viewProjectRisks").html("");
+				$("#viewProjectPhasesList").html("");
+			} else {
+				var projectId = project.id;
+				$("#viewProjectName").val(project.name);
+				$("#viewProjectDescription").val(project.description);
+				$("#viewProjectStatus").val(project.status);
+				$.getJSON( "api/project_property.php?project_id="+projectId, function(result) {
+					var facets = new Array();
+					var html = "";
+					for (var p = 0; p < result.objects.length; p++){
+						var property = result.objects[p];
+						html += "<tr><td>"+property.name+"</td><td>"+property.value+"</td></tr>";
+						if (property.name == "facet"){
+							facets.push(property.value);
+						}
+					}
+					$("#viewProjectProperties").html(html);
+					$("#viewProjectPhasesList").html("");
+					if (facets.length > 0){
+						_viewProject._facets = new Array()
+						_viewProject.loadFacets(facets,_viewProject._refreshPhases);
+					}
+				});
+				$.getJSON( "api/project_risk.php?project_id="+projectId, function(result) {
+					var html = "";
+					for (var p = 0; p < result.objects.length; p++){
+						var risk = result.objects[p];
+						html += "<tr><td>"+risk.description+"</td><td>"+risk.criticity+"</td><td>"+risk.probability+"</td><td>"+(risk.criticity*risk.probability)+"</td></tr>";
+					}
+					$("#viewProjectRisks").html(html);
+				});
+			}
+		},
+		displayPhases 	: function() {
+			$("#viewProjectPhasesList").show();
+			$("#viewProjectStepDetail").hide();
+			this._currentStep = null;
+		},
+		displayStep 	: function(phaseCode, stepCode, stepId) {
+			var project = global.project.getCurrent();
+			if (project == null){
+				return;
+			}
+			$("#viewProjectPhasesList").hide();
+			$("#viewProjectStepDetail").show();
+			var phase = project.phasesByCode[phaseCode];
+			if (phase == null){
+				sendMessage("error","TODO i18n unable to find phase " + phaseCode + " in project " + project.name);
+				return;
+			}
+			var step = phase.stepsByCode[stepCode];
+			if (step == null){
+				sendMessage("error","TODO i18n unable to find step " + stepCode + " in phase " + phase.localName);
+				return;
+			}
+			$("#viewProjectStepDetailName").html(step.localName);
+			this._currentStep = step;
+			$("#viewProjectStepStatus").html("<span class='badge-pill badge-"+_viewProject.getColorForStatus(step.status)+"'>"+step.status+"</span>");
+			/*if (stepId == -1) {
+				
+			} else {
+				$.getJSON("api/project_step.php?id="+stepId, function(result) {
+					var step = result.objects[0];
+					
+					//var 
+					
+				});
+			}*/
+		},
+		_refreshPhases 	: function(){
+			$("#viewProjectPhasesList").html("");
+			_viewProject.displayPhases();
+			var project = global.project.getCurrent();
+			if (project == null){
+				return;
+			}
+			var projectId = project.id;
+			$.getJSON( "api/project_phase.php?project_id="+projectId, function(result) {
+				project.phasesByCode = new Array();
+				for (var i = 0; i < result.objects.length;i++){
+					var projectPhase = result.objects[i];
+					project.phasesByCode[projectPhase.code] = projectPhase;
+					projectPhase.stepsByCode = new Array();
+					for (var j = 0; j < projectPhase.steps.length;j++){
+						var step = projectPhase.steps[j];
+						projectPhase.stepsByCode[step.code] = step;
+					}
+				}
+				var html = "";
+				project.phases = new Array();
+				// Let's merge phases from facets
+				for (var theFacetName in _viewProject._facets) {
+					var theFacet = _viewProject._facets[theFacetName];
+					for (var p = 0; p < theFacet.phases.length; p++){
+						var phase = theFacet.phases[p];
+						var projectPhase = project.phasesByCode[phase.code];
+						if (projectPhase == null){
+							projectPhase = {"code" : phase.code, "id" : -1};
+							projectPhase.stepsByCode = new Array();
+							project.phasesByCode[phase.code] = projectPhase;
+						}
+						projectPhase.localName = phase.localName;
+						project.phases.push(projectPhase);
+						projectPhase.steps = new Array();
+						var nbSteps = 0;
+						var nbStepsStarted = 0;
+						var nbStepsNotApplicable = 0;
+						var nbStepsFinished = 0;
+						for (var s = 0; s < phase.steps.length; s++){
+							var step = phase.steps[s];
+							var projectStep = projectPhase.stepsByCode[step.code];
+							if (projectStep == null){
+								projectStep = {"code" : step.code, "id" : -1, "status" : "not_started"};
+								projectPhase.stepsByCode[step.code] = projectStep;
+							}
+							nbSteps++;
+							if (projectStep.status == "not_started"){
+							} else if (projectStep.status == "not_applicable"){
+								nbStepsNotApplicable++;
+							} else if ((projectStep.status == "started") || (projectStep.status == "finished") || (projectStep.status == "validated")){
+								if ((projectStep.status == "finished") || (projectStep.status == "validated")){
+									nbStepsFinished++;
+								}
+								nbStepsStarted++;
+							}
+							projectStep.phase = projectPhase;
+							projectStep.localName = step.localName;
+							projectPhase.steps.push(projectStep);
+						}
+						if (nbStepsNotApplicable == nbSteps){
+							projectPhase.status = "not_applicable";
+						} else if (nbStepsFinished == nbSteps){
+							projectPhase.status = "finished";
+						} else if (nbStepsStarted != 0){
+							projectPhase.status = "started";
+						} else if (nbStepsStarted == 0){
+							projectPhase.status = "not_started";
+						} else {
+							projectPhase.status = "not_started";
+						}
+						// TODO reuse phase when allready exists
+						
+					}
+				}
+				for (var p = 0; p < project.phases.length; p++){
+					var phase = project.phases[p];
+					var projectPhase = project.phasesByCode[phase.code];
+					html += '<div class="card">';
+					html += '	<div class="card-header d-flex w-100 justify-content-between align-items-center" id="heading'+p+'" >'; //<div class="d-flex w-100 justify-content-between align-items-center">
+					html += '		<h5 class="mb-0">';
+					html += '			<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse'+p+'" aria-expanded="true" aria-controls="collapse'+p+'">';
+					html += phase.localName;
+					html += '			</button>';
+					html += '		</h5>';
+					if ((projectPhase == null) || (projectPhase.status == "not_started")){
+						html += "		<span class='badge badge-secondary badge-pill'>Not started</span>";
+					} else if (projectPhase.status == "not_applicable"){
+						html += "		<span class='badge badge-secondary badge-pill'>Not applicable</span>";
+					} else if (projectPhase.status == "started"){
+						html += "		<span class='badge badge-primary badge-pill'>Started</span>";
+					} else if (projectPhase.status == "validated"){
+						html += "		<span class='badge badge-success badge-pill'>Validated</span>";
+					} else {
+						html += "		<span class='badge badge-warning badge-pill'>Status unknown : "+projectPhase.status+"</span>";
+					}
+					/*if (projectPhase == null){
+						html += _viewProject.generateStatusButton(-1,"not_started");
+					} else {
+						html += _viewProject.generateStatusButton(projectPhase.phase_id,projectPhase.status);
+					}*/
+					html += '	</div>';
+					html += '	<div id="collapse'+p+'" class="collapse" aria-labelledby="heading'+p+'" data-parent="#viewProjectPhasesList">';
+					html += '		<div class="card-body">';
+					html += '<ul class="list-group list-group-flush">';
+					for (var s = 0; s < phase.steps.length; s++){
+						var step = phase.steps[s];
+						var projectStep = null;
+						if (projectPhase != null){
+							projectStep = projectPhase.stepsByCode[step.code];
+						}
+						var stepId = "-1";
+						if (projectStep != null){
+							stepId = projectStep.id;
+						}
+						html += '<li class="list-group-item d-flex justify-content-between align-items-center"><a href="#" onClick="_viewProject.displayStep(\''+phase.code+'\',\''+step.code+'\','+stepId+')">'+step.localName+'</a>';
+						if ((projectStep == null) || (projectStep.status == "not_started")){
+							html += '<span class="badge badge-secondary badge-pill">Not started</span>';
+						} else if (projectStep.status == "not_applicable"){
+							html += '<span class="badge badge-secondary badge-pill">Not applicable</span>';
+						} else if (projectStep.status == "started"){
+							html += '<span class="badge badge-primary badge-pill">Started</span>';
+						} else if (projectStep.status == "validated"){
+							html += '<span class="badge badge-success badge-pill">Validated</span>';
+						} else {
+							html += '<span class="badge badge-warning badge-pill">Status unknown : '+projectStep.status+'</span>';
+						}
+						html += '</li>';
+					}
+					html += '</ul>';
+					html += '		</div>';
+					html += '	</div>';
+					html += '</div>';
+				}
+				$("#viewProjectPhasesList").html(html);
+			});
+		},
+		getColorForStatus : function(status){
+			if (status == 'not_applicable'){
+				return 'secondary';
+			} else if (status == 'not_started'){
+				return 'secondary';
+			} else if (status == 'started'){
+				return 'primary';
+			} else if (status == 'validated'){
+				return 'success';
+			} else {
+				return 'warning';
+			}
+		},
+		changeStepStatus : function(newStatus){
+			if (this._currentStep == null){
+				return;
+			}
+			console.log("Change step " + this._currentStep.localName + " status to "+newStatus);
+			var data = {
+				"status" : newStatus
+			}
+			var phase = this._currentStep.phase;
+			if (phase.id != -1){ // si la phase existe déjà, on positionne l'id
+				data.phaseId = phaseId;
+			} else { // sinon créer la phase avant tout
+				var data = {
+						"code" : phase.code,
+						"project_id" : global.project.getCurrent().id
+				}
+				$.ajax({
+					type 	: "POST",
+					url 	: "api/project_phase.php",
+					data	: data,
+					dataType: "json",
+					success	: function( result ) {
+						if (result.code != 0){
+							sendMessage("error",i18next.t("message.project_phase_failure_create")+" : "+result.message);
+						} else {
+							_viewProject.changeStepStatus(newStatus); // let's change now the steps status
+						}
+					}
+				}).fail(function(jxqr,textStatus,error){
+					sendMessage("error",i18next.t("message.project_phase_failure_create")+" : "+error);
+				});
+				return;
+			}
+			if (this._currentStep.id != -1){ // mettre à jour l'étape, sinon la créer
+				data.stepId = this._currentStep.id;
+			}
+			$.ajax({
+				type 	: "POST",
+				url 	: "api/project_step.php",
+				data	: data,
+				dataType: "json",
+				success	: function( result ) {
+					if (result.code != 0){
+						sendMessage("error",i18next.t("message.project_step_failure_update")+" : "+result.message);
+					} else {
+						_viewProject._refreshPhases();
+					}
+				}
+			}).fail(function(jxqr,textStatus,error){
+				sendMessage("error",i18next.t("message.project_step_failure_update")+" : "+error);
+			});
+		},
 		init : function(){
-			this._refreshProjectList();
+			$('#viewProjectForm').find('*[data-i18n]').localize();
+			this.refresh();
+			//this._refreshProjectList();
 			/*$.getJSON( "facets/togaf_9_1.json", function(result) {
 				//i18next.addResources(global.getLang(), "", result.i18n);
 				console.log(result.i18n.fr);
@@ -75,10 +484,10 @@ var _project = {
 			*/
 			
 		}
-};
-$(function() {
-	_project.init();
-	//$('#createItemForm').find('*[data-i18n]').localize();
-});
+	};
+	$(function() {
+		_viewProject.init();
+	});
 </script>
+</body>
 </html>

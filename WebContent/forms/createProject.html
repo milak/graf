@@ -1,44 +1,69 @@
 <html>
-<h1>Projets</h1>
-<!--div class="card" style="width: 18rem;">
-	<ul class="list-group list-group-flush" id="projectList">
-
-	</ul>
-</div-->
-<div class="list-group" id="projectList">
-</div>
-<script type="text/javascript">
-var _project = {
-		_projectList : null,
+<body>
+	<form id="createProjectForm">
+		<div class="bd-callout-info bd-callout">
+			<fieldset class="form-group">
+				<legend data-i18n="form.project.fields"></legend>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="createProjectName"><span data-i18n="form.project.name"></span>*</label>
+					<div class="col-10">
+						<input class="form-control form-control-sm" type="text" id="createProjectName" onchange="_createProject.onNameChange()" />
+					</div>
+				</div>
+				<div class="form-group row">
+					<label class="col-sm-2 col-form-label col-form-label-sm" for="createProjectProperties"><span data-i18n="form.project.properties"></span></label>
+					<div id="createProjectAdditionalProperties"></div>
+				</div>
+			</fieldset>
+		</div>
+		<button class="btn btn-danger btn-sm" type="button" onclick='_createProject.cancel();' id="createProjectCancelButton">
+			<img src='images/14.png' /> <span data-i18n="form.button.cancel"></span>
+		</button>
+		<button class="btn btn-primary btn-sm" type="button" onclick='_createProject.validate();' id="createProjectValidateButton" disabled="true">
+			<img src='images/92.png' /> <span data-i18n="form.button.create"></span>
+		</button>
+	</form>
+	<script type="text/javascript">
+	var _createProject = {
+		_createProjectList : null,
 		_currentProject : null,
+		onNameChange : function(){
+			
+		},
+		cancel : function(){
+			
+		},
+		validate : function(){
+			
+		},
 		_refreshProjectList : function(){
-			if (this._projectList == null){
+			if (this._createProjectList == null){
 				$.getJSON( "api/project.php", function(result) {
-					_project._projectList = new Array();
+					_createProject._createProjectList = new Array();
 					for (var p = 0; p < result.objects.length; p++){
 						var project = result.objects[p];
 						project.facets = new Array();
-						_project._projectList.push(project);
+						_createProject._createProjectList.push(project);
 					}
 					$.getJSON( "api/project_property.php?name=facet", function(result) {
 						for (var p = 0; p < result.objects.length; p++){
 							var property = result.objects[p];
-							for (var i = 0; i < _project._projectList.length;i++){
-								if (_project._projectList[i].id == property.project_id){
-									_project._projectList[i].facets.push(property.value);
+							for (var i = 0; i < _createProject._createProjectList.length;i++){
+								if (_createProject._createProjectList[i].id == property.project_id){
+									_createProject._createProjectList[i].facets.push(property.value);
 								}
 							}
 						}
-						_project._refreshProjectList();
+						_createProject._refreshProjectList();
 					});
 				});
 			} else {
 				var projectList = $("#projectList");
 				projectList.html("");
-				for (var p = 0; p < _project._projectList.length; p++){
-					var project = _project._projectList[p];
-					var html = '<a href="#" onClick="_project._currentProject = {id :'+project.id+'};_project._refreshProjectList()" class="list-group-item list-group-item-action flex-column align-items-start';
-					if ((_project._currentProject != null) && (_project._currentProject.id == project.id)){
+				for (var p = 0; p < _createProject._createProjectList.length; p++){
+					var project = _createProject._createProjectList[p];
+					var html = '<a href="#" onClick="_createProject._currentProject = {id :'+project.id+'};_createProject._refreshProjectList()" class="list-group-item list-group-item-action flex-column align-items-start';
+					if ((_createProject._currentProject != null) && (_createProject._currentProject.id == project.id)){
 						html += ' active';
 					}
 					html += '"><div class="d-flex w-100 justify-content-between align-items-center">';
@@ -75,10 +100,10 @@ var _project = {
 			*/
 			
 		}
-};
-$(function() {
-	_project.init();
-	//$('#createItemForm').find('*[data-i18n]').localize();
-});
+	};
+	$(function() {
+		_createProject.init();
+		$('#createProjectForm').find('*[data-i18n]').localize();
+	});
 </script>
 </html>

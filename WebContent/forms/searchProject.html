@@ -1,44 +1,40 @@
 <html>
-<h1>Projets</h1>
-<!--div class="card" style="width: 18rem;">
-	<ul class="list-group list-group-flush" id="projectList">
-
-	</ul>
-</div-->
-<div class="list-group" id="projectList">
+<body>
+	<span style="display: none" data-provider="currentProject" onchange="_searchProject.refresh()"></span>
+	<div class="list-group" id="projectList">
 </div>
 <script type="text/javascript">
-var _project = {
-		_projectList : null,
+var _searchProject = {
+		_searchProjectList : null,
 		_currentProject : null,
-		_refreshProjectList : function(){
-			if (this._projectList == null){
+		refresh : function(){
+			if (this._searchProjectList == null){
 				$.getJSON( "api/project.php", function(result) {
-					_project._projectList = new Array();
+					_searchProject._searchProjectList = new Array();
 					for (var p = 0; p < result.objects.length; p++){
 						var project = result.objects[p];
 						project.facets = new Array();
-						_project._projectList.push(project);
+						_searchProject._searchProjectList.push(project);
 					}
 					$.getJSON( "api/project_property.php?name=facet", function(result) {
 						for (var p = 0; p < result.objects.length; p++){
 							var property = result.objects[p];
-							for (var i = 0; i < _project._projectList.length;i++){
-								if (_project._projectList[i].id == property.project_id){
-									_project._projectList[i].facets.push(property.value);
+							for (var i = 0; i < _searchProject._searchProjectList.length;i++){
+								if (_searchProject._searchProjectList[i].id == property.project_id){
+									_searchProject._searchProjectList[i].facets.push(property.value);
 								}
 							}
 						}
-						_project._refreshProjectList();
+						_searchProject.refresh();
 					});
 				});
 			} else {
 				var projectList = $("#projectList");
 				projectList.html("");
-				for (var p = 0; p < _project._projectList.length; p++){
-					var project = _project._projectList[p];
-					var html = '<a href="#" onClick="_project._currentProject = {id :'+project.id+'};_project._refreshProjectList()" class="list-group-item list-group-item-action flex-column align-items-start';
-					if ((_project._currentProject != null) && (_project._currentProject.id == project.id)){
+				for (var p = 0; p < _searchProject._searchProjectList.length; p++){
+					var project = _searchProject._searchProjectList[p];
+					var html = '<a href="#" onClick="global.project.open('+project.id+');" class="list-group-item list-group-item-action flex-column align-items-start';
+					if ((_searchProject._currentProject != null) && (_searchProject._currentProject.id == project.id)){
 						html += ' active';
 					}
 					html += '"><div class="d-flex w-100 justify-content-between align-items-center">';
@@ -77,8 +73,9 @@ var _project = {
 		}
 };
 $(function() {
-	_project.init();
+	_searchProject.refresh();
 	//$('#createItemForm').find('*[data-i18n]').localize();
 });
 </script>
+</body>
 </html>
