@@ -104,6 +104,7 @@ html {
 	<script type="text/javascript" src="vendor/jquery/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="vendor/jquery/ui/1.12.1/jquery-ui.js"></script>
 	<script type="text/javascript" src="vendor/svgtool/svg-pan-zoom.js"></script>
+	<script type="text/javascript" src="vendor/popper/popper.min.js"></script>
 	<script type="text/javascript" src="vendor/bootstrap/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="vendor/jquery/typeahead/typeahead.jquery.min.js"></script>
 	<script type="text/javascript" src="vendor/jquery/typeahead/handlebars.js"></script>
@@ -117,8 +118,8 @@ html {
 	<script type="text/javascript" src="vendor/graf/util.js"></script>
 	<script type="text/javascript" src="vendor/graf/view.js"></script>
 	<script type="text/javascript" src="vendor/graf/item.js"></script>
-	<script type="text/javascript" src="vendor/graf/project.js"></script>
 	<script type="text/javascript" src="vendor/graf/document.js"></script>
+	<script type="text/javascript" src="vendor/graf/project.js"></script>
 	<script type="text/javascript" src="vendor/graf/BPMN.js"></script>
 </body>
 </html>
