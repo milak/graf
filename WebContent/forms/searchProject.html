@@ -44,7 +44,7 @@ var _searchProject = {
 					if (project.status == "closed"){
 						status_color = "badge-danger";
 					}
-					html += '</h8><span class="badge badge-pill '+status_color+'">'+i18next.t("form.project.status."+project.status)+'</span></div>';
+					html += '</h8><span class="badge badge-pill '+status_color+'">'+i18next.t("form.status."+project.status)+'</span></div>';
 					html += '<small><i>';
 					for (var f = 0; f < project.facets.length; f++){
 						html += project.facets[f];
