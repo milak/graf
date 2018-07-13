@@ -47,6 +47,8 @@
 				"document_failure_update"		: "Impossible de modifier le document",
 				"document_failure_list"			: "Impossible d'obtenir la liste des documents",
 				"document_failure_get"			: "Impossible d'obtenir les informations du document",
+				"project_phase_failure_create"  : "Impossible de créer la phase du projet",
+				"project_step_failure_update"	: "Impossible de mettre à jour l'étape du projet",
 				"no_document_selected"			: "Aucun document sélectionné",
 				"not_yet_implemented"			: "Function non encore implémentée",
 				"missing_value_for_property" 	: "Il manque une valeur pour une propriété obligatoire"
@@ -84,10 +86,27 @@
 					"down"						: "Bas"
 				},
 				"project" : {
-					"status" : {
-						"opened" : "ouvert",
-						"closed" : "fermé"
+					"fields"					: "Attributs du projet",
+					"name"						: "Nom",
+					"detail"					: "Détail",
+					"description"				: "Description",
+					"risks"						: "Risques",
+					"views"						: "Vues",
+					"phases"					: "Phases",
+					"stakeholders"				: "Parties prenantes",
+					"status"					: "Status",
+					"step"						: {
+						"title"  				: "Etape",
+						"name"	 				: "Nom"
 					}
+				},
+				"status" : {
+					"opened" 					: "ouvert",
+					"validated" 				: "validé",
+					"finished" 					: "fini",
+					"not_applicable" 			: "non applicable",
+					"not_started" 				: "non démarré",
+					"closed" 					: "fermé"
 				},
 				"document" : {
 					"title"						: "Document",
@@ -98,7 +117,9 @@
 				"all" : {
 					"action"					: "Action",
 					"add_to_current_item" 		: "Ajouter à l'élément courrant",
-					"select_a_value"			: "Choisir une valeur"
+					"select_a_value"			: "Choisir une valeur",
+					"property_name"				: "Propriété",
+					"property_value"			: "Valeur"
 				},
 				"button" : {
 					"cancel" 					: "Annuler",

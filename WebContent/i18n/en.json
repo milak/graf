@@ -47,6 +47,8 @@
 				"document_failure_update"		: "Unable to update the document",
 				"document_failure_list"			: "Unable to get documents list",
 				"document_failure_get"			: "Unable to get document information",
+				"project_phase_failure_create"  : "Unable to create the project phase",
+				"project_step_failure_update"	: "Unable to update the project step",
 				"no_document_selected"			: "No document selected",
 				"not_yet_implemented"			: "Function not yet implemented",
 				"missing_value_for_property" 	: "Missing value for required property"
@@ -84,10 +86,27 @@
 					"down"						: "Down"
 				},
 				"project" : {
-					"status" : {
-						"opened" : "opened",
-						"closed" : "closed"
+					"fields"					: "Project fields",
+					"name"						: "Name",
+					"detail"					: "Detail",
+					"description"				: "Description",
+					"risks"						: "Risks",
+					"views"						: "Views",
+					"phases"					: "Phases",
+					"stakeholders"				: "Stake holders",
+					"status"					: "Status",
+					"step"						: {
+						"title" 				: "Step",
+						"name"	 				: "Name"
 					}
+				},
+				"status" : {
+					"opened" 					: "opened",
+					"validated" 				: "validated",
+					"finished" 					: "finished",
+					"not_applicable" 			: "not applicable",
+					"not_started" 				: "not started",
+					"closed" 					: "closed"
 				},
 				"document" : {
 					"title"						: "Document",
@@ -97,7 +116,9 @@
 				"all" : {
 					"action"					: "Action",
 					"add_to_current_item" 		: "Add to current item",
-					"select_a_value"			: "Select a value"
+					"select_a_value"			: "Select a value",
+					"property_name"				: "Property",
+					"property_value"			: "Value"
 				},
 				"button" : {
 					"cancel" 					: "Cancel",
