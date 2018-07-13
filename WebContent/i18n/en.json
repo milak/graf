@@ -102,6 +102,7 @@
 				},
 				"status" : {
 					"opened" 					: "opened",
+					"started" 					: "started",
 					"validated" 				: "validated",
 					"finished" 					: "finished",
 					"not_applicable" 			: "not applicable",

@@ -45,20 +45,47 @@ if(!$result = $db->query($sql)){?>
 }<?php
 	$result->free();
 }
-
-/** METHOD POST ** /
+/** METHOD POST **/
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-	if (!isset($_POST["name"])){
-		die("Missing name argument");
+	if (!isset($_POST["status"])){
+		die("Missing status argument");
 	}
-	$name = $db->real_escape_string($_POST["name"]);
-$sql = <<<SQL
-    insert into data (name) values ('$name')
+	$status = $db->real_escape_string($_POST["status"]);
+	if (!isset($_POST["step_id"])){
+		$code = $db->real_escape_string($_POST["code"]);
+		$phase_id = intval($_POST["phase_id"]);
+		$project_id = intval($_POST["project_id"]);
+		$sql = <<<SQL
+    insert into project_step (code,status,phase_id,project_id) values ('$code','$status',$phase_id,$project_id)
 SQL;
-	if(!$result = $db->query($sql)){
-    	die('There was an error running the query [' . $db->error . ']');
+		$step_id = $db->insert_id;
+	} else {
+		$step_id = intval($_POST["step_id"]);
+		$sql = <<<SQL
+    update project_step 
+	set status = '$status'
+	where id = $step_id
+SQL;
 	}
-/ ** METHOD DELETE ** /
+	if(!$result = $db->query($sql)){
+		error_log($db->error);?>
+		{
+			"code"		: 12,
+			"message"	: "<?php echo $db->error?>",
+			"objects"	: []
+		}
+		<?php  			return;
+	} else {?>
+		{
+			"code"		: 0,
+			"message"	: "ok",
+			"objects"	: [{
+				"id" : <?php echo $step_id ?>,
+				"status" : "<?php echo $status ?>"
+			}]
+		}<?php
+	}
+/** METHOD DELETE ** /
 } else if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 	if (!isset($_GET["id"])){
 		die("Missing id argument");

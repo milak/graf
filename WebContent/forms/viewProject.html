@@ -92,10 +92,10 @@
 								<a class="btn btn-sm dropdown-toggle" href="#" role="button" id="viewProjectStepStatus" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								</a>
 								<div class="dropdown-menu" aria-labelledby="viewProjectStepStatus">
-									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('not_applicable')">Not applicable</a>
-									<a class="dropdown-item" 	href="#" onClick="_viewProject.changeStepStatus('not_started')">Not started</a>
-									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('started')">Started</a>
-									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('validated')">Validated</a>
+									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('not_applicable')" data-i18n="form.status.not_applicable"></a>
+									<a class="dropdown-item" 	href="#" onClick="_viewProject.changeStepStatus('not_started')" data-i18n="form.status.not_started"></a>
+									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('started')" data-i18n="form.status.started"></a>
+									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('validated')" data-i18n="form.status.validated"></a>
 								</div>
 							</div>
 						</div>
@@ -188,6 +188,7 @@
 			}
 		},
 		refresh 	: function(){
+			_viewProject.displayPhases();
 			var project = global.project.getCurrent();
 			if (project == null){
 				$("#viewProjectName").val("");
@@ -232,7 +233,7 @@
 			$("#viewProjectStepDetail").hide();
 			this._currentStep = null;
 		},
-		displayStep 	: function(phaseCode, stepCode, stepId) {
+		displayStepByCodes 	: function(phaseCode, stepCode, stepId) {
 			var project = global.project.getCurrent();
 			if (project == null){
 				return;
@@ -249,23 +250,16 @@
 				sendMessage("error","TODO i18n unable to find step " + stepCode + " in phase " + phase.localName);
 				return;
 			}
+			this.displayStep(step);
+		},
+		displayStep 	: function(step) {
 			$("#viewProjectStepDetailName").html(step.localName);
 			this._currentStep = step;
-			$("#viewProjectStepStatus").html("<span class='badge-pill badge-"+_viewProject.getColorForStatus(step.status)+"'>"+step.status+"</span>");
-			/*if (stepId == -1) {
-				
-			} else {
-				$.getJSON("api/project_step.php?id="+stepId, function(result) {
-					var step = result.objects[0];
-					
-					//var 
-					
-				});
-			}*/
+			$("#viewProjectStepStatus").html("<span class='badge-pill badge-"+_viewProject.getColorForStatus(step.status)+"'>"+i18next.t("form.status."+step.status)+"</span>");
 		},
 		_refreshPhases 	: function(){
 			$("#viewProjectPhasesList").html("");
-			_viewProject.displayPhases();
+			//_viewProject.displayPhases();
 			var project = global.project.getCurrent();
 			if (project == null){
 				return;
@@ -302,6 +296,7 @@
 						var nbStepsStarted = 0;
 						var nbStepsNotApplicable = 0;
 						var nbStepsFinished = 0;
+						var nbStepsValidated = 0;
 						for (var s = 0; s < phase.steps.length; s++){
 							var step = phase.steps[s];
 							var projectStep = projectPhase.stepsByCode[step.code];
@@ -313,11 +308,12 @@
 							if (projectStep.status == "not_started"){
 							} else if (projectStep.status == "not_applicable"){
 								nbStepsNotApplicable++;
-							} else if ((projectStep.status == "started") || (projectStep.status == "finished") || (projectStep.status == "validated")){
-								if ((projectStep.status == "finished") || (projectStep.status == "validated")){
-									nbStepsFinished++;
-								}
+							} else if (projectStep.status == "started") {
 								nbStepsStarted++;
+							} else if (projectStep.status == "validated"){
+								nbStepsValidated++;
+							} else if (projectStep.status == "finished"){
+								nbStepsFinished++;
 							}
 							projectStep.phase = projectPhase;
 							projectStep.localName = step.localName;
@@ -325,12 +321,12 @@
 						}
 						if (nbStepsNotApplicable == nbSteps){
 							projectPhase.status = "not_applicable";
-						} else if (nbStepsFinished == nbSteps){
+						} else if ((nbStepsValidated + nbStepsNotApplicable) == nbSteps){
+							projectPhase.status = "validated";
+						} else if ((nbStepsValidated + nbStepsFinished + nbStepsNotApplicable) == nbSteps){
 							projectPhase.status = "finished";
-						} else if (nbStepsStarted != 0){
+						} else if ((nbStepsFinished + nbStepsValidated + nbStepsStarted) != 0){
 							projectPhase.status = "started";
-						} else if (nbStepsStarted == 0){
-							projectPhase.status = "not_started";
 						} else {
 							projectPhase.status = "not_started";
 						}
@@ -348,22 +344,11 @@
 					html += phase.localName;
 					html += '			</button>';
 					html += '		</h5>';
-					if ((projectPhase == null) || (projectPhase.status == "not_started")){
-						html += "		<span class='badge badge-secondary badge-pill'>Not started</span>";
-					} else if (projectPhase.status == "not_applicable"){
-						html += "		<span class='badge badge-secondary badge-pill'>Not applicable</span>";
-					} else if (projectPhase.status == "started"){
-						html += "		<span class='badge badge-primary badge-pill'>Started</span>";
-					} else if (projectPhase.status == "validated"){
-						html += "		<span class='badge badge-success badge-pill'>Validated</span>";
-					} else {
-						html += "		<span class='badge badge-warning badge-pill'>Status unknown : "+projectPhase.status+"</span>";
+					var status = "not_started";
+					if (projectPhase != null){
+						status = projectPhase.status;
 					}
-					/*if (projectPhase == null){
-						html += _viewProject.generateStatusButton(-1,"not_started");
-					} else {
-						html += _viewProject.generateStatusButton(projectPhase.phase_id,projectPhase.status);
-					}*/
+					html += "		<span class='badge badge-"+_viewProject.getColorForStatus(status)+" badge-pill'>"+i18next.t("form.status."+status)+"</span>";
 					html += '	</div>';
 					html += '	<div id="collapse'+p+'" class="collapse" aria-labelledby="heading'+p+'" data-parent="#viewProjectPhasesList">';
 					html += '		<div class="card-body">';
@@ -378,18 +363,12 @@
 						if (projectStep != null){
 							stepId = projectStep.id;
 						}
-						html += '<li class="list-group-item d-flex justify-content-between align-items-center"><a href="#" onClick="_viewProject.displayStep(\''+phase.code+'\',\''+step.code+'\','+stepId+')">'+step.localName+'</a>';
-						if ((projectStep == null) || (projectStep.status == "not_started")){
-							html += '<span class="badge badge-secondary badge-pill">Not started</span>';
-						} else if (projectStep.status == "not_applicable"){
-							html += '<span class="badge badge-secondary badge-pill">Not applicable</span>';
-						} else if (projectStep.status == "started"){
-							html += '<span class="badge badge-primary badge-pill">Started</span>';
-						} else if (projectStep.status == "validated"){
-							html += '<span class="badge badge-success badge-pill">Validated</span>';
-						} else {
-							html += '<span class="badge badge-warning badge-pill">Status unknown : '+projectStep.status+'</span>';
+						html += '<li class="list-group-item d-flex justify-content-between align-items-center"><a href="#" onClick="_viewProject.displayStepByCodes(\''+phase.code+'\',\''+step.code+'\','+stepId+')">'+step.localName+'</a>';
+						var status = "not_started";
+						if (projectStep != null){
+							status = projectStep.status;
 						}
+						html += '<span class="badge badge-'+_viewProject.getColorForStatus(status)+' badge-pill">'+i18next.t("form.status."+status)+'</span>';
 						html += '</li>';
 					}
 					html += '</ul>';
@@ -398,7 +377,9 @@
 					html += '</div>';
 				}
 				$("#viewProjectPhasesList").html(html);
-			});
+			}).fail(function(jqxhr, textStatus, error ) {
+			    sendMessage("warning","TODO I18N unable get project phases : "+error);
+			});;
 		},
 		getColorForStatus : function(status){
 			if (status == 'not_applicable'){
@@ -409,6 +390,8 @@
 				return 'primary';
 			} else if (status == 'validated'){
 				return 'success';
+			} else if (status == 'finished') {
+				return 'success';
 			} else {
 				return 'warning';
 			}
@@ -417,13 +400,12 @@
 			if (this._currentStep == null){
 				return;
 			}
-			console.log("Change step " + this._currentStep.localName + " status to "+newStatus);
 			var data = {
 				"status" : newStatus
 			}
 			var phase = this._currentStep.phase;
 			if (phase.id != -1){ // si la phase existe déjà, on positionne l'id
-				data.phaseId = phaseId;
+				data.phase_id = phase.id;
 			} else { // sinon créer la phase avant tout
 				var data = {
 						"code" : phase.code,
@@ -438,6 +420,7 @@
 						if (result.code != 0){
 							sendMessage("error",i18next.t("message.project_phase_failure_create")+" : "+result.message);
 						} else {
+							_viewProject._currentStep.phase.id = result.objects[0].id;
 							_viewProject.changeStepStatus(newStatus); // let's change now the steps status
 						}
 					}
@@ -447,7 +430,10 @@
 				return;
 			}
 			if (this._currentStep.id != -1){ // mettre à jour l'étape, sinon la créer
-				data.stepId = this._currentStep.id;
+				data.step_id = this._currentStep.id;
+			} else {
+				data.code = this._currentStep.code;
+				data.project_id = global.project.getCurrent().id;
 			}
 			$.ajax({
 				type 	: "POST",
@@ -458,7 +444,10 @@
 					if (result.code != 0){
 						sendMessage("error",i18next.t("message.project_step_failure_update")+" : "+result.message);
 					} else {
+						_viewProject._currentStep.id = result.objects[0].id;
+						_viewProject._currentStep.status = result.objects[0].status;
 						_viewProject._refreshPhases();
+						_viewProject.displayStep(_viewProject._currentStep);
 					}
 				}
 			}).fail(function(jxqr,textStatus,error){
@@ -468,21 +457,6 @@
 		init : function(){
 			$('#viewProjectForm').find('*[data-i18n]').localize();
 			this.refresh();
-			//this._refreshProjectList();
-			/*$.getJSON( "facets/togaf_9_1.json", function(result) {
-				//i18next.addResources(global.getLang(), "", result.i18n);
-				console.log(result.i18n.fr);
-				i18next.addResourceBundle('fr', 'project', result.i18n.fr, true, true);
-				//sendMessage("INFO","Hello " + i18next.t('menu.item'));
-				//sendMessage("INFO","Hello " + i18next.t('project:test'));
-				//sendMessage("INFO","Hello " + i18next.t('test'));
-			});*/
-			/**
-			https://github.com/i18next/i18next-localstorage-backend
-			https://www.i18next.com/principles/namespaces#sample
-			https://jsfiddle.net/jamuhl/ferfywyf/#tabs=js,result,html
-			*/
-			
 		}
 	};
 	$(function() {
