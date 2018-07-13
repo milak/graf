@@ -1,0 +1,336 @@
+{
+	"name"		: "togaf91.name",
+	"phases" 	:	[
+		{
+			"code" : "preliminary",
+			"name" : "phases.preliminary",
+			"steps" : [{
+					"code" : 100,					"name" : "steps.preliminary_100" },{
+					"code" : 200,					"name" : "steps.preliminary_200" },{
+					"code" : 300,					"name" : "steps.preliminary_300" },{
+					"code" : 400,					"name" : "steps.preliminary_400" },{
+					"code" : 500,					"name" : "steps.preliminary_500" },{
+					"code" : 600,					"name" : "steps.preliminary_600" }]
+		},
+		{
+			"code" : "architecture_vision",
+			"name" : "phases.architecture_vision",
+			"steps" : [{
+					"code" : 100,					"name" : "steps.architecture_vision_100" },{
+					"code" : 200,					"name" : "steps.architecture_vision_200" },{
+					"code" : 300,					"name" : "steps.architecture_vision_300" },{
+					"code" : 400,					"name" : "steps.architecture_vision_400" },{
+					"code" : 500,					"name" : "steps.architecture_vision_500" },{
+					"code" : 600,					"name" : "steps.architecture_vision_600" },{
+					"code" : 700,					"name" : "steps.architecture_vision_700" },{
+					"code" : 800,					"name" : "steps.architecture_vision_800" },{
+					"code" : 900,					"name" : "steps.architecture_vision_900" },{
+					"code" : 1000,					"name" : "steps.architecture_vision_1000" },{
+					"code" : 1100,					"name" : "steps.architecture_vision_1100" }]
+		},
+		{
+			"code" : "business_architecture",
+			"name" : "phases.business_architecture",
+			"steps" : [{
+					"code" : 100,					"name" : "steps.business_architecture_100" },{
+					"code" : 200,					"name" : "steps.business_architecture_200" },{
+					"code" : 300,					"name" : "steps.business_architecture_300" },{
+					"code" : 400,					"name" : "steps.business_architecture_400" },{
+					"code" : 500,					"name" : "steps.business_architecture_500" },{
+					"code" : 600,					"name" : "steps.business_architecture_600" },{
+					"code" : 700,					"name" : "steps.business_architecture_700" },{
+					"code" : 800,					"name" : "steps.business_architecture_800" },{
+					"code" : 900,					"name" : "steps.business_architecture_900" }]
+		},
+		{
+			"code" : "is_architecture",
+			"name" : "phases.is_architecture",
+			"steps" : [{
+					"code" : 100,					"name" : "steps.is_architecture_100" },{
+					"code" : 200,					"name" : "steps.is_architecture_200" },{
+					"code" : 300,					"name" : "steps.is_architecture_300" },{
+					"code" : 400,					"name" : "steps.is_architecture_400" },{
+					"code" : 500,					"name" : "steps.is_architecture_500" },{
+					"code" : 600,					"name" : "steps.is_architecture_600" },{
+					"code" : 700,					"name" : "steps.is_architecture_700" },{
+					"code" : 800,					"name" : "steps.is_architecture_800" },{
+					"code" : 900,					"name" : "steps.is_architecture_900" },{
+					"code" : 1000,					"name" : "steps.is_architecture_1000" },{
+					"code" : 1100,					"name" : "steps.is_architecture_1100" },{
+					"code" : 1200,					"name" : "steps.is_architecture_1200" },{
+					"code" : 1300,					"name" : "steps.is_architecture_1300" },{
+					"code" : 1400,					"name" : "steps.is_architecture_1400" },{
+					"code" : 1500,					"name" : "steps.is_architecture_1500" },{
+					"code" : 1600,					"name" : "steps.is_architecture_1600" },{
+					"code" : 1700,					"name" : "steps.is_architecture_1700" },{
+					"code" : 1800,					"name" : "steps.is_architecture_1800" }]
+		},
+		{
+			"code" : "technical_architecture",
+			"name" : "phases.technical_architecture",
+			"steps" : [{
+					"code" : 100,					"name" : "steps.technical_architecture_100" },{
+					"code" : 200,					"name" : "steps.technical_architecture_200" },{
+					"code" : 300,					"name" : "steps.technical_architecture_300" },{
+					"code" : 400,					"name" : "steps.technical_architecture_400" },{
+					"code" : 500,					"name" : "steps.technical_architecture_500" },{
+					"code" : 600,					"name" : "steps.technical_architecture_600" },{
+					"code" : 700,					"name" : "steps.technical_architecture_700" },{
+					"code" : 800,					"name" : "steps.technical_architecture_800" },{
+					"code" : 900,					"name" : "steps.technical_architecture_900" }]
+		},
+		{
+			"code" : "opportunities_solutions",
+			"name" : "phases.opportunities_solutions",
+			"steps" : [{
+					"code" : 100,					"name" : "steps.opportunities_solutions_100" },{
+					"code" : 200,					"name" : "steps.opportunities_solutions_200" },{
+					"code" : 300,					"name" : "steps.opportunities_solutions_300" },{
+					"code" : 400,					"name" : "steps.opportunities_solutions_400" },{
+					"code" : 500,					"name" : "steps.opportunities_solutions_500" },{
+					"code" : 600,					"name" : "steps.opportunities_solutions_600" },{
+					"code" : 700,					"name" : "steps.opportunities_solutions_700" },{
+					"code" : 800,					"name" : "steps.opportunities_solutions_800" },{
+					"code" : 900,					"name" : "steps.opportunities_solutions_900" },{
+					"code" : 1100,					"name" : "steps.opportunities_solutions_100" },{
+					"code" : 1200,					"name" : "steps.opportunities_solutions_1100" }]
+		},
+		{
+			"code" : "migration_planning",
+			"name" : "phases.migration_planning",
+			"steps" : [{
+					"code" : 100,					"name" : "steps.migration_planning_100" },{
+					"code" : 200,					"name" : "steps.migration_planning_200" },{
+					"code" : 300,					"name" : "steps.migration_planning_300" },{
+					"code" : 400,					"name" : "steps.migration_planning_400" },{
+					"code" : 500,					"name" : "steps.migration_planning_500" },{
+					"code" : 600,					"name" : "steps.migration_planning_600" },{
+					"code" : 700,					"name" : "steps.migration_planning_700" }]
+		},
+		{
+			"code" : "implementation_governance",
+			"name" : "phases.implementation_governance",
+			"steps" : [{
+					"code" : 100,					"name" : "steps.implementation_governance_100" },{
+					"code" : 200,					"name" : "steps.implementation_governance_200" },{
+					"code" : 300,					"name" : "steps.implementation_governance_300" },{
+					"code" : 400,					"name" : "steps.implementation_governance_400" },{
+					"code" : 500,					"name" : "steps.implementation_governance_500" },{
+					"code" : 600,					"name" : "steps.implementation_governance_600" }]
+		},
+		{
+			"code" : "architecture_change_mgt",
+			"name" : "phases.architecture_change_mgt",
+			"steps" : [{
+					"code" : 100,					"name" : "steps.architecture_change_mgt_100" },{
+					"code" : 200,					"name" : "steps.architecture_change_mgt_200" },{
+					"code" : 300,					"name" : "steps.architecture_change_mgt_300" },{
+					"code" : 400,					"name" : "steps.architecture_change_mgt_400" },{
+					"code" : 500,					"name" : "steps.architecture_change_mgt_500" },{
+					"code" : 600,					"name" : "steps.architecture_change_mgt_600" },{
+					"code" : 700,					"name" : "steps.architecture_change_mgt_700" }]
+		}
+	],
+	"i18n" : {
+		"fr" : {
+			"name" : "TOGAF 9.1",
+			"phases" : {
+				"preliminary" 				: "Préliminaire",
+				"architecture_vision" 		: "A - Vision d'architecture",
+				"business_architecture" 	: "B - Architecture métier",
+				"is_architecture"			: "C - Architecture du système d'information",
+				"technical_architecture"	: "D - Architecture technique",
+				"opportunities_solutions"	: "E - Opportunités et solutions",
+				"migration_planning"		: "F - Plannification de la migration",
+				"implementation_governance"	: "G - Gouvernance de la mise en oeuvre",
+				"architecture_change_mgt"	: "H - Gestion du changement"
+			},
+			"steps" : {
+				"preliminary_100" 						: "Étendre les organisations d'entreprise impactées",
+				"preliminary_200" 						: "Confirmer les cadres de gouvernance et de soutien",
+				"preliminary_300" 						: "Définir et établir une équipe et une organisation d'architecture d'entreprise",
+				"preliminary_400" 						: "Identifier et établir des principes d'architecture",
+				"preliminary_500" 						: "Adapter le cadre TOGAF et, le cas échéant, d'autres cadres d'architecture sélectionnés",
+				"preliminary_600" 						: "Élaborer des stratégies et des plans de mise en œuvre pour les outils et les techniques",
+				"architecture_vision_100" 				: "Établir le projet d'architecture",
+				"architecture_vision_200" 				: "Identifier les parties prenantes, les préoccupations et les besoins de l'entreprise",
+				"architecture_vision_300" 				: "Confirmez et élaborez des objectifs commerciaux, des facteurs opérationnels et des contraintes",
+				"architecture_vision_400"				: "Évaluer les capacités",
+				"architecture_vision_500"				: "Évaluer la préparation à la transformation de l'entreprise",
+				"architecture_vision_600"				: "Définir la portée",
+				"architecture_vision_700"				: "Confirmer et élaborer les principes d'architecture, y compris les principes métiers",
+				"architecture_vision_800" 				: "Développer une vision d'architecture",
+				"architecture_vision_900" 				: "Définir les propositions de valeur de l'architecture cible et les KPI",
+				"architecture_vision_1000" 				: "Identifier les risques de transformation métier et les activités d'atténuation",
+				"architecture_vision_1100" 				: "Élaborer une déclaration d'architecture; sécuriser l'approbation",
+				"business_architecture_100" 			: "Sélectionner des modèles de référence, des points de vue et des outils",
+				"business_architecture_200" 			: "Développer la description de l'architecture d'entreprise existante",
+				"business_architecture_300" 			: "Développer la description de l'architecture métier cible",
+				"business_architecture_400" 			: "Effectuer une analyse d'écart",
+				"business_architecture_500" 			: "Définir les composants de la feuille de route candidate",
+				"business_architecture_600" 			: "Résoudre les impacts à travers le paysage d'architecture",
+				"business_architecture_700" 			: "Effectuer un examen formel des parties prenantes",
+				"business_architecture_800" 			: "Finaliser l'architecture d'entreprise métier",
+				"business_architecture_900" 			: "Créer le document de définition d'architecture",
+				"is_architecture_100"					: "Sélectionner des modèles de référence, des points de vue et des outils",
+				"is_architecture_200"					: "Développer la description de l'architecture de données de base existante",
+				"is_architecture_300"					: "Développer la description de l'architecture de données cible",
+				"is_architecture_400"					: "Effectuer une analyse d'écart",
+				"is_architecture_500"					: "Définir les composants de la feuille de route candidate",
+				"is_architecture_600"					: "Résoudre les impacts à travers le paysage d'architecture",
+				"is_architecture_700"					: "Effectuer un examen formel des parties prenantes",
+				"is_architecture_800"					: "Finaliser l'architecture des données",
+				"is_architecture_900"					: "Créer le document de définition d'architecture",
+				"is_architecture_1000"					: "Sélectionner des modèles de référence, des points de vue et des outils",
+				"is_architecture_1100"					: "Développer la description de l'architecture applicative de base existante",
+				"is_architecture_1200"					: "Développer la description de l'architecture applicative cible",
+				"is_architecture_1300"					: "Effectuer une analyse d'écart",
+				"is_architecture_1400"					: "Définir les composants de la feuille de route candidate",
+				"is_architecture_1500"					: "Résoudre les impacts à travers le paysage d'architecture",
+				"is_architecture_1600"					: "Effectuer un examen formel des parties prenantes",
+				"is_architecture_1700"					: "Finaliser l'architecture applicative",
+				"is_architecture_1800"					: "Créer le document de définition d'architecture",
+				"technical_architecture_100"			: "Sélectionner des modèles de référence, des points de vue et des outils",
+				"technical_architecture_200"			: "Développer la description de l'architecture technique existante",
+				"technical_architecture_300"			: "Développer la description de l'architecture technique cible",
+				"technical_architecture_400"			: "Effectuer une analyse d'écart",
+				"technical_architecture_500"			: "Définir les composants de la feuille de route candidate",
+				"technical_architecture_600"			: "Résoudre les impacts à travers le paysage d'architecture",
+				"technical_architecture_700"			: "Effectuer un examen formel des parties prenantes",
+				"technical_architecture_800"			: "Finaliser l'architecture technique",
+				"technical_architecture_900"			: "Créer le document de définition d'architecture",
+				"opportunities_solutions_100"			: "Déterminer / confirmer les principaux attributs de changement d'entreprise",
+				"opportunities_solutions_200"			: "Déterminer les contraintes métier pour la mise en œuvre",
+				"opportunities_solutions_300"			: "Revoir et consolider les résultats de l'analyse des écarts des phases B à D",
+				"opportunities_solutions_400"			: "Examiner les exigences consolidées pour toutes les fonctions métier associées",
+				"opportunities_solutions_500"			: "Consolider et concilier les exigences d'interopérabilité",
+				"opportunities_solutions_600"			: "Affiner et valider les dépendances",
+				"opportunities_solutions_700"			: "Confirmer la préparation et le risque pour la transformation de l'entreprise",
+				"opportunities_solutions_800"			: "Formuler la stratégie de mise en œuvre et de migration",
+				"opportunities_solutions_900"			: "Identifier et regrouper les principaux lots de travail",
+				"opportunities_solutions_1000"			: "Identifier les architectures de transition",
+				"opportunities_solutions_1100"			: "Créer une feuille de route d'architecture et un plan de mise en œuvre et de migration",
+				"migration_planning_100"				: "Confirmer les interactions du cadre de gestion pour le plan de mise en œuvre et de migration",
+				"migration_planning_200"				: "Affecter une valeur métier à chaque lot de travail",
+				"migration_planning_300"				: "Estimer les besoins en ressources, les délais du projet et la disponibilité / trains de livraison",
+				"migration_planning_400"				: "Prioriser les projets de migration par la réalisation d'une évaluation coûts / bénéfices et d'une validation des risques",
+				"migration_planning_500"				: "Confirmer la feuille de route d'architecture et mettre à jour le document de définition d'architecture",
+				"migration_planning_600"				: "Compléter le plan de mise en œuvre et de migration",
+				"migration_planning_700"				: "Terminer le cycle de développement de l'architecture et documenter les leçons apprises",
+				"implementation_governance_100"			: "Confirmer la portée et les priorités du déploiement avec la gestion du développement",
+				"implementation_governance_200"			: "Identifier les ressources et les compétences de déploiement",
+				"implementation_governance_300"			: "Guider le développement du déploiement de solutions",
+				"implementation_governance_400"			: "Effectuer des examens de conformité de l'architecture d'entreprise",
+				"implementation_governance_500"			: "Mettre en œuvre des opérations métiers et techniques",
+				"implementation_governance_600"			: "Effectuer une révision post-implémentation et terminer l'implémentation",
+				"architecture_change_mgt_100"			: "Établir un processus de réalisation de la valeur",
+				"architecture_change_mgt_200"			: "Déployer des outils de surveillance",
+				"architecture_change_mgt_300"			: "Gérer les risques",
+				"architecture_change_mgt_400"			: "Fournir une analyse pour la gestion du changement d'architecture",
+				"architecture_change_mgt_500"			: "Développer des exigences de changement pour atteindre les objectifs de performance",
+				"architecture_change_mgt_600"			: "Gérer le processus de gouvernance",
+				"architecture_change_mgt_700"			: "Activer le processus pour mettre en œuvre le changement"
+			}
+		},
+		"en" : {
+			"name" : "TOGAF 9.1",
+			"phases" : {
+				"preliminary" 				: "Preliminary",
+				"architecture_vision" 		: "A - Architecture vision",
+				"business_architecture" 	: "B - Business architecture",
+				"is_architecture"			: "C - Information system architecture",
+				"technical_architecture"	: "D - Technical architecture",
+				"opportunities_solutions"	: "E - Opportunities and solutions",
+				"migration_planning"		: "F - Migration planning",
+				"implementation_governance"	: "G - Implementation governance",
+				"architecture_change_mgt"	: "H - Architecture change management"
+			},
+			"steps" : {
+				"preliminary_100" 						: "Scope the enterprise organizations impacted",
+				"preliminary_200" 						: "Confirm governance and support frameworks",
+				"preliminary_300" 						: "Define and establish Enterprise Architecture team and organization",
+				"preliminary_400" 						: "Identify and establish Architecture Principles",
+				"preliminary_500" 						: "Tailor the TOGAF framework and, if any, other selected architecture frameworks",
+				"preliminary_600" 						: "Develop strategy and implementation plans for tools and techniques",
+				"architecture_vision_100" 				: "Establish the architecture project",
+				"architecture_vision_200" 				: "Identify stakeholders, concerns, and business requirements",
+				"architecture_vision_300" 				: "Confirm and elaborate business goals, business drivers, and constraints",
+				"architecture_vision_400" 				: "Evaluate capabilities",
+				"architecture_vision_500" 				: "Assess readiness for business transformation",
+				"architecture_vision_600" 				: "Define scope",
+				"architecture_vision_700" 				: "Confirm and elaborate architecture principles, including business principles",
+				"architecture_vision_800" 				: "Develop Architecture Vision",
+				"architecture_vision_900" 				: "Define the Target Architecture value propositions and KPIs",
+				"architecture_vision_1000" 				: "Identify business transformation risks and mitigation activities",
+				"architecture_vision_1100" 				: "Develop Statement of Architecture Work; secure approval",
+				"business_architecture_100" 			: "Select reference models, viewpoints, and tools",
+				"business_architecture_200" 			: "Develop Baseline Business Architecture Description",
+				"business_architecture_300" 			: "Develop Target Business Architecture Description",
+				"business_architecture_400" 			: "Perform gap analysis",
+				"business_architecture_500" 			: "Define candidate roadmap components",
+				"business_architecture_600" 			: "Resolve impacts across the Architecture Landscape",
+				"business_architecture_700" 			: "Conduct formal stakeholder review",
+				"business_architecture_800" 			: "Finalize the Business Architecture",
+				"business_architecture_900"	 			: "Create Architecture Definition Document",
+				"is_architecture_100"					: "Select reference models, viewpoints, and tools",
+				"is_architecture_200"					: "Develop Baseline Data Architecture Description",
+				"is_architecture_300"					: "Develop Target Data Architecture Description",
+				"is_architecture_400"					: "Perform gap analysis",
+				"is_architecture_500"					: "Define candidate roadmap components",
+				"is_architecture_600"					: "Resolve impacts across the Architecture Landscape",
+				"is_architecture_700"					: "Conduct formal stakeholder review",
+				"is_architecture_800"					: "Finalize the Data Architecture",
+				"is_architecture_900"					: "Create Architecture Definition Document",
+				"is_architecture_1000"					: "Select reference models,viewpoints, and tools",
+				"is_architecture_1100"					: "Develop Baseline Application Architecture Description",
+				"is_architecture_1200"					: "Develop Target Application Architecture Description",
+				"is_architecture_1300"					: "Perform gap analysis",
+				"is_architecture_1400"					: "Define candidate roadmap components",
+				"is_architecture_1500"					: "Resolve impacts across the Architecture Landscape",
+				"is_architecture_1600"					: "Conduct formal stakeholder review",
+				"is_architecture_1700"					: "Finalize the Application Architecture",
+				"is_architecture_1800"					: "Create Architecture Definition Document",
+				"technical_architecture_100"			: "Select reference models, viewpoints, and tools",
+				"technical_architecture_200"			: "Develop Baseline Technology Architecture Description",
+				"technical_architecture_300"			: "Develop Target Technology Architecture Description",
+				"technical_architecture_400"			: "Perform gap analysis",
+				"technical_architecture_500"			: "Define candidate roadmap components",
+				"technical_architecture_600"			: "Resolve impacts across the Architecture Landscape",
+				"technical_architecture_700"			: "Conduct formal stakeholder review",
+				"technical_architecture_800"			: "Finalize the Technology Architecture",
+				"technical_architecture_900"			: "Create Architecture Definition Document",
+				"opportunities_solutions_100"			: "Determine/confirm key corporate change attributes",
+				"opportunities_solutions_200"			: "Determine business constraints for implementation",
+				"opportunities_solutions_300"			: "Review and consolidate gap analysis results from Phases B to D",
+				"opportunities_solutions_400"			: "Review consolidated requirements across related business functions",
+				"opportunities_solutions_500"			: "Consolidate and reconcile interoperability requirements",
+				"opportunities_solutions_600"			: "Refine and validate dependencies",
+				"opportunities_solutions_700"			: "Confirm readiness and risk for business transformation",
+				"opportunities_solutions_800"			: "Formulate Implementation and Migration Strategy",
+				"opportunities_solutions_900"			: "Identify and group major work packages",
+				"opportunities_solutions_1000"			: "Identify Transition Architectures",
+				"opportunities_solutions_1100"			: "Create Architecture Roadmap & Implementation and Migration Plan",
+				"migration_planning_100"				: "Confirm management framework interactions for Implementation and Migration Plan",
+				"migration_planning_200"				: "Assign a business value to each work package",
+				"migration_planning_300"				: "Estimate resource requirements, project timings, and availability/delivery vehicle",
+				"migration_planning_400"				: "Prioritize the migration projects through the conduct of a cost/benefit assessment and risk validation",
+				"migration_planning_500"				: "Confirm Architecture Roadmap and update Architecture Definition Document",
+				"migration_planning_600"				: "Complete the Implementation and Migration Plan",
+				"migration_planning_700"				: "Complete the architecture development cycle and document lessons learned",
+				"implementation_governance_100"			: "Confirm scope and priorities for deployment with development management",
+				"implementation_governance_200"			: "Identify deployment resources and skills",
+				"implementation_governance_300"			: "Guide development of solutions deployment",
+				"implementation_governance_400"			: "Perform enterprise architecture compliance reviews",
+				"implementation_governance_500"			: "Implement business and IT operations",
+				"implementation_governance_600"			: "Perform post-implementation review and close the implementation",
+				"architecture_change_mgt_100"			: "Establish value realization process",
+				"architecture_change_mgt_200"			: "Deploy monitoring tools",
+				"architecture_change_mgt_300"			: "Manage risks",
+				"architecture_change_mgt_400"			: "Provide analysis for architecture change management",
+				"architecture_change_mgt_500"			: "Develop change requirements to meet performance targets",
+				"architecture_change_mgt_600"			: "Manage governance process",
+				"architecture_change_mgt_700"			: "Activate the process to implement change"
+			}
+		}
+	}
+}

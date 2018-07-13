@@ -1,0 +1,38 @@
+{
+	"name"		: "name",
+	"phases" 	:	[
+		{
+			"code" : "",
+			"name" : "phases.start",
+			"steps" : []
+		},
+		{
+			"code" : "",
+			"name" : "phases.conception",
+			"steps" : []
+		},
+		{
+			"code" : "",
+			"name" : "phases.end",
+			"steps" : []
+		}
+	],
+	"i18n" : {
+		"fr" : {
+			"name" : "Projet IT",
+			"phases" : {
+				"start" 				: "Début",
+				"conception" 				: "Conception",
+				"end" 					: "Fin"
+			}
+		},
+		"en" : {
+			"name" : "IT project",
+			"phases" : {
+				"start" 				: "Start",
+				"conception" 				: "Conception",
+				"end" 					: "End"
+			}
+		}
+	}
+}
