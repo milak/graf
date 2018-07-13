@@ -459,7 +459,7 @@ SQL;
         $dbresult->free();
         return $result;
     }
-    public function getItems(){
+    public function getItems($query){
         $sql = <<<SQL
     SELECT element.*, element_class.id as class_id, element_class.name as class_name, element_category.id as category_id, element_category.name as category_name  from element
 	INNER JOIN element_class ON element.element_class_id 					= element_class.id
@@ -491,6 +491,9 @@ SQL;
     }
     public function getRelatedItems($itemId){
 	return array();
+    }
+    public function getDocuments($query){
+    	return null;
     }
     public function deleteItem($itemId){
         $sql = <<<SQL
