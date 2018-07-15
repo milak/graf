@@ -105,7 +105,7 @@ global.view = {
     	}
 	},
 	init : function(){
-		$.getJSON("views/views.json",function (result){
+		$.getJSON("plugins/panels/panels.json",function (result){
 			var views = result.views;
 			var main = $("#main");
 			for (var v = 0; v < views.length; v++){

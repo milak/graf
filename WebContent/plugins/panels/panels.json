@@ -3,7 +3,7 @@
 		{
 			"name"				: "strategical", 
 			"title"				: "strategical",
-			"url" 				: "views/view_strategique.php",
+			"url" 				: "plugins/panels/view_strategique.php",
 			"params"			: [{"name" : "itemId", "usage" : "used"}],
 			"icon"  			: "63.png",
 			"class" 			: "panel-purple",
@@ -12,7 +12,7 @@
 		{
 			"name"				: "business",
 			"title"				: "business",
-			"url" 				: "views/view_business.php",
+			"url" 				: "plugins/panels/view_business.php",
 			"params"			: [{"name" : "itemId", "usage" : "required"}],
 			"icon"  			: "63.png",
 			"class"				: "panel-purple",
@@ -21,7 +21,7 @@
 		{
 			"name"				: "logical",
 			"title"				: "logical",
-			"url" 				: "views/view_logique.php",
+			"url" 				: "plugins/panels/view_logique.php",
 			"params"			: [{"name" : "itemId", "usage" : "used"},{"name" : "documentId", "usage" : "required"}],
 			"icon"  			: "63.png",
 			"class" 			: "panel-purple",
@@ -30,7 +30,7 @@
 		{
 			"name"				: "service",
 			"title"				: "service",
-			"url" 				: "views/view_service.php",
+			"url" 				: "plugins/panels/view_service.php",
 			"params"			: [{"name" : "itemId", "usage" : "required"}],
 			"icon"				: "63.png",
 			"class"				: "panel-purple",
@@ -39,7 +39,7 @@
 		{
 			"name"				: "process",
 			"title"				: "process",
-			"url" 				: "views/view_process.php",
+			"url" 				: "plugins/panels/view_process.php",
 			"params"			: [{"name" : "itemId", "usage" : "used"},{"name" : "documentId", "usage" : "required"}],
 			"icon"				: "63.png",
 			"class"				: "panel-purple",
@@ -48,7 +48,7 @@
 		{
 			"name"				: "technical",
 			"title"				: "technical",
-			"url" 				: "views/view_technical.php",
+			"url" 				: "plugins/panels/view_technical.php",
 			"params"			: [{"name" : "itemId", "usage" : "required"}],
 			"icon"				: "63.png",
 			"class"				: "panel-purple",
@@ -57,7 +57,7 @@
 		{
 			"name"				: "mapEurope",
 			"title"				: "map.europe",
-			"url" 				: "views/view_map.php?map=europe",
+			"url" 				: "plugins/panels/view_map.php?map=europe",
 			"params"			: [{"name" : "itemId", "usage" : "used"}],
 			"icon"				: "77.png",
 			"class" 			: "panel-purple",
@@ -66,7 +66,7 @@
 		{
 			"name"				: "mapWorld",
 			"title"				: "map.world",
-			"url"				: "views/view_map.php?map=world",
+			"url"				: "plugins/panels/view_map.php?map=world",
 			"params"			: [{"name" : "itemId", "usage" : "used"}],
 			"icon"				: "77.png",
 			"class"				: "panel-purple",
@@ -75,7 +75,7 @@
 		{
 			"name"				: "graph",
 			"title"				: "graph",
-			"url"				: "forms/graph.html",
+			"url"				: "plugins/panels/graph.html",
 			"params"			: [{"name" : "itemId", "usage" : "used"}],
 			"icon"				: "77.png",
 			"class"				: "panel-purple",
@@ -86,7 +86,7 @@
 		{
 			"name"				: "searchDocument",
 			"title" 			: "document_search",
-    		"url" 				: "forms/searchDocument.html",
+    		"url" 				: "plugins/panels/searchDocument.html",
     		"params"			: [],
     		"icon"				: "65.png",
     		"class" 			: "panel-green",
@@ -95,7 +95,7 @@
 		{
 			"name" 				: "createDocument",
 			"title" 			: "document_create",
-			"url" 				: "forms/createDocument.html",
+			"url" 				: "plugins/panels/createDocument.html",
 			"params"			: [],
 			"icon"				: "78.png",
     		"class"		 		: "panel-green",
@@ -104,7 +104,7 @@
 		{
 			"name"				: "viewDocument",
 			"title"				: "document_detail",
-			"url"				: "forms/viewDocument.html",
+			"url"				: "plugins/panels/viewDocument.html",
 			"params"			: [{"name" : "documentId", "usage" : "required"}],
 			"icon"				: "2.png",
 			"class"				: "panel-purple",
@@ -115,7 +115,7 @@
     	{
     		"name"				: "searchItem",
     		"title"		 		: "item_search",
-    		"url" 				: "forms/searchItem.html",
+    		"url" 				: "plugins/panels/searchItem.html",
     		"params"			: [],
 			"icon"				: "65.png",
 			"class" 			: "panel-green",
@@ -124,7 +124,7 @@
     	{
     		"name"				: "createItem",
     		"title"		 		: "item_create",
-    		"url" 				: "forms/createItem.html",
+    		"url" 				: "plugins/panels/createItem.html",
     		"params"			: [],
 			"icon"				: "78.png",
 			"class" 			: "panel-green",
@@ -133,7 +133,7 @@
 	   	{
 			"name"				: "viewItem",
 			"title"				: "item_detail",
-			"url"				: "forms/viewItem.html",
+			"url"				: "plugins/panels/viewItem.html",
 			"params"			: [{"name" : "itemId", "usage" : "required"}],
 			"icon"  			: "2.png" ,
 			"class"				: "panel-purple",
@@ -144,7 +144,7 @@
     	{
     		"name"				: "searchProject",
     		"title"		 		: "project_search",
-    		"url" 				: "forms/searchProject.html",
+    		"url" 				: "plugins/panels/searchProject.html",
     		"params"			: [],
 			"icon"				: "65.png",
 			"class" 			: "panel-green",
@@ -153,7 +153,7 @@
 	   	{
     		"name"				: "createProject",
     		"title"		 		: "project_create",
-    		"url" 				: "forms/createProject.html",
+    		"url" 				: "plugins/panels/createProject.html",
     		"params"			: [],
 			"icon"				: "78.png",
 			"class" 			: "panel-green",
@@ -162,7 +162,7 @@
 	   	{
     		"name"				: "viewProject",
     		"title"		 		: "project_detail",
-    		"url" 				: "forms/viewProject.html",
+    		"url" 				: "plugins/panels/viewProject.html",
     		"params"			: [],
 			"icon"				: "2.png",
 			"class" 			: "panel-green",
