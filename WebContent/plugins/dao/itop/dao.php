@@ -20,11 +20,23 @@ class ITopDao implements IDAO {
      */
     public function connect(){
         global $configuration;
-        $this->organisation = $configuration->itop->organisation;
-        $this->url          = $configuration->itop->url;
-        $this->login        = $configuration->itop->login;
-        $this->password     = $configuration->itop->password;
-        $this->version      = $configuration->itop->version;
+        $connector = null;
+        foreach ($configuration->connectors as $index => $con){
+        	if ($con->name == "itop"){
+        		$connector = $con;
+        		break;
+        	}
+        }
+        if ($connector == null){
+        	error_log("No connector found width 'db' as name");
+        	$result = false;
+        	return;
+        }
+        $this->organisation = $connector->organisation;
+        $this->url          = $connector->url;
+        $this->login        = $connector->login;
+        $this->password     = $connector->password;
+        $this->version      = $connector->version;
         try {
             $this->getObjects("Team", "id");
             $result = true;

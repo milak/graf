@@ -1,5 +1,6 @@
 <?php
-require ("../dao/dao.php");
+require("../api/dao.php");
+$dao = getDAO("items");
 $dao->connect ();
 /**
  * METHOD GET *

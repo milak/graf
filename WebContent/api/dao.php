@@ -13,5 +13,8 @@ if ($configuration == null) {
 /**
  * Dao chapeau qui va charger le dao adapté à la configuration
  */
-loadPlugin($configuration->dao);
+function getDAO($daoType){
+	global $configuration;
+	return loadPlugin($configuration->dao->{$daoType});
+}
 ?>

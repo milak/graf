@@ -21,8 +21,13 @@ function loadConfiguration(){
         error_log("Loading configuration file '$configurationFileName'");
         $configurationFile = file_get_contents($configurationFileName);
         $configuration = json_decode($configurationFile);
+        if (JSON_ERROR_NONE == json_last_error()){
+        	error_log("Configuration file '$configurationFileName' loaded");
+    	} else { 
+         	error_log("Warning, unable to read configuration file : ".json_last_error()." - ".json_last_error_msg());
+    	}
     } else {
-        error_log("Warning configuration file '$configurationFileName' doesn't exist");
+        error_log("Warning, configuration file '$configurationFileName' doesn't exist");
         $configuration = null;
     }
     return $configuration;
@@ -40,13 +45,11 @@ function writeConfiguration($configuration){
  * @param string $daoName
  */
 function loadPlugin($daoName){
-    global $dao;
-    // TODO trouver comment ne plus avoir à ajouter en dur /graf. Problème de conf apache ?
     $root = realpath($_SERVER["DOCUMENT_ROOT"]);
-    $pluginFile = $root."/dao/".$daoName."/dao.php";
+    $pluginFile = $root."/plugins/dao/".$daoName."/dao.php";
     if (!file_exists($pluginFile)) {
-        $root = realpath($_SERVER["DOCUMENT_ROOT"])."/graf";
-        $pluginFile = $root."/dao/".$daoName."/dao.php";
+    	$root = realpath($_SERVER["DOCUMENT_ROOT"])."/graf";  // TODO trouver comment ne plus avoir à ajouter en dur /graf. Problème de conf apache ?
+        $pluginFile = $root."/plugins/dao/".$daoName."/dao.php";
     }
     if (!file_exists($pluginFile)) {
         die("Plugin ".$daoName." not installed. File ".$pluginFile." doesn't exist");
@@ -58,6 +61,7 @@ function loadPlugin($daoName){
         die("Plugin ".$daoName." not well installed. Object \$dao not initialized.");
         exit();
     }
+    return $dao;
 }
 // ****************
 // Gestion des vues

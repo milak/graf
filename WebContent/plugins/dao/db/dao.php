@@ -12,13 +12,25 @@ class DBDao implements IDAO {
      */
     public function connect(){
         global $configuration;
-        // Connection à la BDD
-        $this->db = new mysqli($configuration->db->host, $configuration->db->login, $configuration->db->password, $configuration->db->instance);
-        if ($this->db->connect_errno) {
-            $result = false;
-            $this->error = $this->db->connect_error;
+        $connector = null;
+        foreach ($configuration->connectors as $index => $con){
+        	if ($con->name == "db"){
+        		$connector = $con;
+        		break;
+        	}
+        }
+        if ($connector == null){
+        	error_log("No connector found width 'db' as name");
+        	$result = false;
         } else {
-            $result = true;
+	        // Connection à la BDD
+        	$this->db = new mysqli($connector->host, $connector->login, $connector->password, $connector->instance);
+	        if ($this->db->connect_errno) {
+	            $result = false;
+	            $this->error = $this->db->connect_error;
+	        } else {
+	            $result = true;
+	        }
         }
         return $result;
     }
