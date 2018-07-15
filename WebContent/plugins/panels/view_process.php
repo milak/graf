@@ -1,5 +1,6 @@
 <?php
-require("../dao/dao.php");
+require("../../api/dao.php");
+$dao = getDAO("items");
 require("util.php");
 $dao->connect();
 if (isset($_GET["itemId"])){
@@ -27,8 +28,8 @@ if (count($documents) != 0){
     return;
 }
 $steps = parseBPMN($content);
-require("../svg/header.php");
-require("../svg/body.php");
+require("../../svg/header.php");
+require("../../svg/body.php");
 
 //header('Content-Type: image/svg+xml'); //ne fonctionne pas car le type mime n'est pas reconnu
 
@@ -69,5 +70,5 @@ foreach ($areas as $area){
 // Afficher le résultat
 display($roots);
 $dao->disconnect();
-require("../svg/footer.php");
+require("../../svg/footer.php");
 ?>

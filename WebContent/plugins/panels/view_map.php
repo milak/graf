@@ -1,11 +1,12 @@
 <?php
-require("../dao/dao.php");
+require("../../api/dao.php");
+$dao = getDAO("items");
 $dao->connect();
 $map = 'world';
 if (isset($_GET['map'])){
 	$map = $_GET['map'];
 }
-require('../images/maps/'.$map.'.svg');
+require('../../images/maps/'.$map.'.svg');
 $allReadyBrowsed = array();
 function recursiveSearchLocation($id){
 	global $allReadyBrowsed;

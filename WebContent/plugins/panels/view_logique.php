@@ -1,7 +1,8 @@
 <?php
-require("../svg/header.php");
-require("../dao/dao.php");
-require("../svg/body.php");
+require("../../svg/header.php");
+require("../../api/dao.php");
+$dao = getDAO("items");
+require("../../svg/body.php");
 require("util.php");
 if (isset($_GET["itemId"])){
     $itemId = $_GET["itemId"];
@@ -94,5 +95,5 @@ $roots = array($rootarea);
 // Afficher le résultat
 display($roots);
 $dao->disconnect();
-require("../svg/footer.php");
+require("../../svg/footer.php");
 ?>

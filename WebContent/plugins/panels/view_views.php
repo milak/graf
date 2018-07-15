@@ -1,6 +1,7 @@
 <?php
-require("../svg/header.php");
-require("../dao/dao.php");
+require("../../svg/header.php");
+require("../../api/dao.php");
+$dao = getDAO("items");
 $dao->connect();
 $db = $dao->getDB();
 require("../dao/db/util.php");
@@ -16,7 +17,7 @@ if (isset($_GET["fill"])){
 	}
 }
 $areas = $dao->getViewByName($view);
-require("../svg/body.php");
+require("../../svg/body.php");
 //header('Content-Type: image/svg+xml'); ne fonctionne pas car le type mime n'est pas reconnu
 function addElementsToAreas($areas,$nbelements){
 	$roots = array();
@@ -42,5 +43,5 @@ function addElementsToAreas($areas,$nbelements){
 $roots = addElementsToAreas($areas,$nbelements);
 display($roots);
 $dao->disconnect();
-require("../svg/footer.php");
+require("../../svg/footer.php");
 ?>

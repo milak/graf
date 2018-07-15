@@ -3,12 +3,13 @@ if (!isset($_GET["itemId"])){
 	displayErrorAndDie('Missing itemId argument');
 	return;
 }
-require("../svg/header.php");
-require("../dao/dao.php");
+require("../../svg/header.php");
+require("../../api/dao.php");
+$dao = getDAO("items");
 require("util.php");
 $dao->connect();
 $areas = $dao->getViewByName("technical");
-require("../svg/body.php");
+require("../../svg/body.php");
 //header('Content-Type: image/svg+xml'); ne fonctionne pas car le type mime n'est pas reconnu
 $devicesUsed = array();
 $allReadyBrowsed = array();
@@ -78,5 +79,5 @@ foreach ($areas as $area){
 // Afficher le résultat
 display($roots);
 $dao->disconnect();
-require("../svg/footer.php");
+require("../../svg/footer.php");
 ?>

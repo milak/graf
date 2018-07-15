@@ -1,7 +1,8 @@
 <?php
-require("../svg/header.php");
-require("../dao/dao.php");
-require("../svg/body.php");
+require("../../svg/header.php");
+require("../../api/dao.php");
+$dao = getDAO("items");
+require("../../svg/body.php");
 $dao->connect();
 $areas 			= $dao->getViewByName("service");
 $rootarea       = $areas["root"];
@@ -74,5 +75,5 @@ foreach ($items as $item){
 // Afficher le résultat
 display(array($rootarea));
 $dao->disconnect();
-require("../svg/footer.php");
+require("../../svg/footer.php");
 ?>
