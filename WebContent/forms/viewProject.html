@@ -16,7 +16,7 @@
 				<a class="nav-link" 		id="viewProjectStakeholders-tab" 	data-toggle="tab" href="#stakeholders" 	role="tab" aria-controls="stakeholders" aria-selected="false" data-i18n="form.project.stakeholders"></a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" 		id="viewProjectRisks-tab" 			data-toggle="tab" href="#risks" 		role="tab" aria-controls="risks" 		aria-selected="false" data-i18n="form.project.risks"></a>
+				<a class="nav-link" 		id="viewProjectRisks-tab" 			data-toggle="tab" href="#risks" 		role="tab" aria-controls="risks" 		aria-selected="false" data-i18n="form.project.risk.title"></a>
 			</li>
 			<li class="nav-item">
 				<a class="nav-link" 		id="viewProjectViews-tab" 			data-toggle="tab" href="#views" 		role="tab" aria-controls="views" 		aria-selected="false" data-i18n="form.project.views"></a>
@@ -92,10 +92,10 @@
 								<a class="btn btn-sm dropdown-toggle" href="#" role="button" id="viewProjectStepStatus" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								</a>
 								<div class="dropdown-menu" aria-labelledby="viewProjectStepStatus">
-									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('not_applicable')" data-i18n="form.status.not_applicable"></a>
-									<a class="dropdown-item" 	href="#" onClick="_viewProject.changeStepStatus('not_started')" data-i18n="form.status.not_started"></a>
-									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('started')" data-i18n="form.status.started"></a>
-									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('validated')" data-i18n="form.status.validated"></a>
+									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('not_applicable')" 	data-i18n="form.status.not_applicable"></a>
+									<a class="dropdown-item" 	href="#" onClick="_viewProject.changeStepStatus('not_started')" 	data-i18n="form.status.not_started"></a>
+									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('started')" 		data-i18n="form.status.started"></a>
+									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('validated')" 		data-i18n="form.status.validated"></a>
 								</div>
 							</div>
 						</div>
@@ -120,19 +120,22 @@
 			</div>
 			<div class="tab-pane fade" id="risks" role="tabpanel" aria-labelledby="viewProjectRisks-tab">
 				<fieldset class="form-group">
-					<legend data-i18n="form.project.risks"></legend>
+					<legend data-i18n="form.project.risk.title"></legend>
 					<table class="table table-bordered table-hover table-sm">
 						<thead>
 							<tr>
-								<th style="width:50px;text-align:center" data-i18n="form.project.risk"></th>
-								<th style="width:10%;text-align:center" data-i18n="form.project.riskcriticity"></th>
-								<th style="text-align:center" data-i18n="form.project.riskprobability"></th>
-								<th style="text-align:center" data-i18n="form.project.riskvalue"></th>
+								<th style="width:50px;text-align:center" data-i18n="form.project.risk.description"></th>
+								<th style="width:10%;text-align:center" data-i18n="form.project.risk.criticity"></th>
+								<th style="text-align:center" data-i18n="form.project.risk.probability"></th>
+								<th style="text-align:center" data-i18n="form.project.risk.value"></th>
 								<th style="width:10%;text-align:center" data-i18n="form.all.action"></th>
 							</tr>
 						</thead>
 						<tbody id="viewProjectRisks"></tbody>
 					</table>
+					<button class="btn btn-primary btn-sm" type="button" onclick='_viewProject.createRisk();'>
+						<img src='images/92.png' /> <span data-i18n="form.button.create"></span>
+					</button>
 				</fieldset>
 			</div>
 			<div class="tab-pane fade" id="views" role="tabpanel" aria-labelledby="viewProjectViews-tab">
@@ -187,6 +190,23 @@
 				_viewProject.loadFacets(aFacets,callback);
 			}
 		},
+		refreshRisks : function(){
+			var project = global.project.getCurrent();
+			if (project == null){
+				$("#viewProjectRisks").html("");
+			} else {
+				var projectId = project.id;
+				$.getJSON( "api/project_risk.php?project_id="+projectId, function(result) {
+					var html = "";
+					for (var p = 0; p < result.objects.length; p++){
+						var risk = result.objects[p];
+						html += "<tr><td>"+risk.description+"</td><td>"+risk.criticity+"</td><td>"+risk.probability+"</td><td>"+(risk.criticity*risk.probability)+"</td><td>";
+						html += "<button class='btn btn-primary btn-sm' type='button' onclick='_viewProject.deleteRisk("+risk.id+");'>-</button></td></tr>";
+					}
+					$("#viewProjectRisks").html(html);
+				});
+			}
+		},
 		refresh 	: function(){
 			_viewProject.displayPhases();
 			var project = global.project.getCurrent();
@@ -194,7 +214,6 @@
 				$("#viewProjectName").val("");
 				$("#viewProjectDescription").val("");
 				$("#viewProjectStatus").val("");
-				$("#viewProjectRisks").html("");
 				$("#viewProjectPhasesList").html("");
 			} else {
 				var projectId = project.id;
@@ -218,13 +237,24 @@
 						_viewProject.loadFacets(facets,_viewProject._refreshPhases);
 					}
 				});
-				$.getJSON( "api/project_risk.php?project_id="+projectId, function(result) {
-					var html = "";
-					for (var p = 0; p < result.objects.length; p++){
-						var risk = result.objects[p];
-						html += "<tr><td>"+risk.description+"</td><td>"+risk.criticity+"</td><td>"+risk.probability+"</td><td>"+(risk.criticity*risk.probability)+"</td></tr>";
+			}
+			_viewProject.refreshRisks();
+		},
+		deleteRisk : function(riskId){
+			if (confirm(i18next.t("message.project_risk_delete_confirm"))){
+				$.ajax({
+					type 	: "DELETE",
+					url 	: "api/project_risk.php?id="+riskId,
+					dataType: "json",
+					success	: function( result ) {
+						if (result.code != 0){
+							sendMessage("error",i18next.t("message.project_risk_failure_delete")+" : "+result.message);
+						} else {
+							_viewProject.refreshRisks();
+						}
 					}
-					$("#viewProjectRisks").html(html);
+				}).fail(function(jxqr,textStatus,error){
+					sendMessage("error",i18next.t("message.project_risk_failure_delete")+" : "+error);
 				});
 			}
 		},

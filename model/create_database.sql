@@ -317,7 +317,7 @@ ALTER TABLE `project_step` ADD CONSTRAINT `FK_project_step_to_project_phase` 	FO
 ALTER TABLE `project_step` ADD CONSTRAINT `FK_project_step_to_project` 		FOREIGN KEY (`project_id`) 			REFERENCES `project`(`id`) 	ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 create table project_risk (
-	risk_id				INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	id					INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	project_id			INT 			NOT NULL,
 	description			VARCHAR(200)    NOT NULL,
 	criticity			INT     		NOT NULL,
@@ -332,4 +332,16 @@ create table project_risk_reduction (
 	new_criticity		INT     		NOT NULL,
 	new_probability		INT     		NOT NULL
 );
+
+/*create table project_stakeholder (
+	project_id			INT     		NOT NULL,
+	stakeholder_id		VARCHAR(200)    NOT NULL
+);
+
+create table stakeholder_concern (
+	concern_id			INT 			NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	project_id			INT     		NOT NULL,
+	stakeholder_id		INT			    NOT NULL,
+	description			VARCHAR(200)    NOT NULL
+);*/
 

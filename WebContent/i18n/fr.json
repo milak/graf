@@ -49,6 +49,8 @@
 				"document_failure_get"			: "Impossible d'obtenir les informations du document",
 				"project_phase_failure_create"  : "Impossible de créer la phase du projet",
 				"project_step_failure_update"	: "Impossible de mettre à jour l'étape du projet",
+				"project_risk_failure_delete"	: "Impossible de supprimer le risque du projet",
+				"project_risk_delete_confirm"	: "Voulez-vous réellement supprimer ce risque ?",
 				"no_document_selected"			: "Aucun document sélectionné",
 				"not_yet_implemented"			: "Function non encore implémentée",
 				"missing_value_for_property" 	: "Il manque une valeur pour une propriété obligatoire"
@@ -90,7 +92,13 @@
 					"name"						: "Nom",
 					"detail"					: "Détail",
 					"description"				: "Description",
-					"risks"						: "Risques",
+					"risk"						: {
+						"title"					: "Risques",
+						"criticity"				: "Criticité",
+						"probability"			: "Probabilité",
+						"value"					: "Valeur",
+						"description"			: "Description"
+					},
 					"views"						: "Vues",
 					"phases"					: "Phases",
 					"stakeholders"				: "Parties prenantes",
