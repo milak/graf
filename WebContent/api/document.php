@@ -1,5 +1,6 @@
 <?php
-require("../dao/dao.php");
+require("../api/dao.php");
+$dao = getDAO("documents");
 $dao->connect();
 /** METHOD GET **/
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {

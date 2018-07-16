@@ -1,5 +1,6 @@
 <?php
 require("../dao/dao.php");
+$dao = getDAO("items");
 $dao->connect();
 $db = $dao->getDB();
 /** METHOD GET **/
