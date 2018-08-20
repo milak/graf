@@ -2,6 +2,7 @@
 <body>
 	<form id="viewProjectForm">
 		<span style="display: none" data-provider="currentProject" onchange="_viewProject.refresh()"></span>
+		<span style="display: none" data-provider="currentDocument" onchange="_viewProject.currentDocumentChange()"></span>
 		<ul class="nav nav-pills mb-3" role="tablist">
 			<li class="nav-item">
 				<a class="nav-link active" 	id="viewProjectDetail-tab" 			data-toggle="tab" href="#detail" 		role="tab" aria-controls="detail" 		aria-selected="true"  data-i18n="form.project.detail"></a>
@@ -36,7 +37,12 @@
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewProjectStatus" data-i18n="form.project.status"></label>
 							<div class="col-10">
-								<input class="form-control form-control-sm" type="text" id="viewProjectStatus" />
+								<!--input class="form-control form-control-sm" type="text" id="viewProjectStatus" /-->
+								<select class="form-control form-control-sm" id="viewProjectStatus">
+									<option value="null">~select a value~</option>
+									<option value="opened" data-i18n="form.status.opened">~no translation for opened~</option>
+									<option value="closed" data-i18n="form.status.closed">~no translation for closed~</option>
+								</select>
 							</div>
 						</div>
 						<div class="table-responsive">
@@ -88,7 +94,7 @@
 						</div-->
 						<div class="form-group row">
 							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewProjectStepStatus" data-i18n="form.project.status"></label>
-							<div class="dropdown dropdown">
+							<div class="dropdown dropdown col-10">
 								<a class="btn btn-sm dropdown-toggle" href="#" role="button" id="viewProjectStepStatus" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								</a>
 								<div class="dropdown-menu" aria-labelledby="viewProjectStepStatus">
@@ -97,6 +103,25 @@
 									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('started')" 		data-i18n="form.status.started"></a>
 									<a class="dropdown-item"	href="#" onClick="_viewProject.changeStepStatus('validated')" 		data-i18n="form.status.validated"></a>
 								</div>
+							</div>
+						</div>
+						<hr/>
+						<table class="table table-bordered table-hover table-sm">
+							<thead>
+								<tr>
+									<th style="width:50px;text-align:center" aaadata-i18n="form.project.stakeholder">Document</th>
+									<th style="width:50px;text-align:center" aaadata-i18n="form.project.stakeholder">View</th>
+									<th style="width:50px;text-align:center" aaadata-i18n="form.project.stakeholder">View point</th>
+									<th style="width:50px;text-align:center" aaadata-i18n="form.project.stakeholder">Type</th>
+								</tr>
+							</thead>
+							<tbody id="viewProjectStepDocumentList"/>
+						</table>
+						<div class="form-group row">
+							<label class="col-sm-2 col-form-label col-form-label-sm" for="viewProjectCurrentDocumentDiv" data-i18n="form.project.linktodocument"></label>
+							<div id="viewProjectCurrentDocumentDiv" class="col-10">
+								<span id="viewProjectCurrentDocumentName" data-provider="currentDocument.name"></span>
+								<a href="#" style="display:none" id="viewProjectLinkToCurrentDocument" onclick="sendMessage('info','Not yet implemented')"><img style="width:30px" src='images/1633.png'/></a>
 							</div>
 						</div>
 					</fieldset>
@@ -188,6 +213,13 @@
 				});
 			} else {
 				_viewProject.loadFacets(aFacets,callback);
+			}
+		},
+		currentDocumentChange : function(){
+			if (global.document.getCurrent() == null){
+				$("#viewProjectLinkToCurrentDocument").hide();
+			} else {
+				$("#viewProjectLinkToCurrentDocument").show();
 			}
 		},
 		refreshRisks : function(){

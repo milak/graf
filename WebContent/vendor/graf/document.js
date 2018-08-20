@@ -36,9 +36,17 @@ global.document = {
         	listener = $(listener);
         	var attribute = listener.attr("data-provider");
         	if (attribute == "currentDocument.name"){
-        		listener.text(current.name);
+        		if (current != null){
+        			listener.text(current.name);
+        		} else {
+        			listener.text("");
+        		}
         	} else if (attribute == "currentDocument.type"){
-        		listener.text(current.type);
+        		if (current != null){
+        			listener.text(current.type);
+        		} else {
+        			listener.text("");
+        		}
         	}
 			listener.trigger("change");
     	});

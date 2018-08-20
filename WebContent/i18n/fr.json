@@ -106,7 +106,8 @@
 					"step"						: {
 						"title"  				: "Etape",
 						"name"	 				: "Nom"
-					}
+					},
+					"linktodocument"			: "Lier au document"
 				},
 				"status" : {
 					"opened" 					: "ouvert",
